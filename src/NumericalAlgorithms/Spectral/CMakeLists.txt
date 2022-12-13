@@ -15,6 +15,7 @@ spectre_target_sources(
   Legendre.cpp
   LogicalCoordinates.cpp
   Mesh.cpp
+  PowerMonitors.cpp
   Projection.cpp
   Spectral.cpp
   SwshCoefficients.cpp
@@ -34,6 +35,7 @@ spectre_target_headers(
   Filtering.hpp
   LogicalCoordinates.hpp
   Mesh.hpp
+  PowerMonitors.cpp
   Projection.hpp
   Spectral.hpp
   SwshCoefficients.hpp
