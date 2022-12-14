@@ -9,8 +9,9 @@
 #include "DataStructures/DataBox/Prefixes.hpp"
 #include "DataStructures/DataBox/Tag.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
-// #include "Domain/Tags.hpp"
-// #include "NumericalAlgorithms/Spectral/Mesh.hpp"
+#include "Domain/Tags.hpp"
+#include "Evolution/Systems/ScalarWave/Tags.hpp"
+#include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -28,35 +29,35 @@
 // Output the power monitors to H5 files as 1D volume data
 // Add Python script to read the H5 files and plot the monitors
 
-/// \cond
-namespace gsl {
-template <typename T>
-class not_null;
-}  // namespace gsl
-/// \endcond
+// /// \cond
+// namespace gsl {
+// template <typename T>
+// class not_null;
+// }  // namespace gsl
+// /// \endcond
 
 namespace PowerMonitors {
 
 // template <size_t Dim>
 // size_t compute_power_monitor (Mesh<Dim>&);
 
-void compute_power_monitor(gsl::not_null<double*> result);
+void compute_power_monitor(gsl::not_null<Scalar<DataVector>*> result,
+                            const Scalar<DataVector>&);
 
 namespace Tags {
 
 struct PowerMonitor : db::SimpleTag {
-//   using type = size_t;
-    using type = double;
+    using type = Scalar<DataVector>;
 };
 
-// template <size_t Dim>
 struct PowerMonitorCompute : PowerMonitor, db::ComputeTag {
-    using argument_tags = tmpl::list<>;
+    using argument_tags = tmpl::list<ScalarWave::Tags::Pi>;
     using base = PowerMonitor;
     using return_type = base::type;
 
-    static constexpr void (*function) (
-        const gsl::not_null<return_type*> result) = &compute_power_monitor ;
+    static constexpr void (*function)(const gsl::not_null<return_type*> result,
+                                      const Scalar<DataVector>&) =
+        &compute_power_monitor;
 };
 
 } // namespace Tags
