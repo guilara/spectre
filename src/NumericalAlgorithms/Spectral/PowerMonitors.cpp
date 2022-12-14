@@ -20,7 +20,8 @@ template <size_t Dim>
 void compute_power_monitor(
     const gsl::not_null<Scalar<DataVector>*> result,
     const Scalar<DataVector>& pi,
-    const tnsr::i<DataVector, Dim, Frame::Inertial>& phi) {
+    const tnsr::i<DataVector, Dim, Frame::Inertial>& phi,
+    const Mesh<Dim>& mesh) {
   Parallel::printf("Inside compute monitor function \n");
   Parallel::printf("get_size(pi) = %u \n", get_size(get(pi)));
   destructive_resize_components(result, get_size(get(pi)));
@@ -34,7 +35,8 @@ void compute_power_monitor(
 #define INSTANTIATE(_, data)                                                   \
   template void PowerMonitors::compute_power_monitor(                          \
       gsl::not_null<Scalar<DataVector>*> result, const Scalar<DataVector>& pi, \
-      const tnsr::i<DataVector, DIM(data), Frame::Inertial>& phi);
+      const tnsr::i<DataVector, DIM(data), Frame::Inertial>& phi,              \
+      const Mesh< DIM(data) >& mesh);                                          \
 
 GENERATE_INSTANTIATIONS(INSTANTIATE, (1, 2, 3))
 
