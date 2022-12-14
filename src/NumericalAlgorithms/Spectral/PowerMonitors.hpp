@@ -36,28 +36,42 @@
 // }  // namespace gsl
 // /// \endcond
 
+/// \cond
+class DataVector;
+namespace gsl {
+template <typename T>
+class not_null;
+}  // namespace gsl
+/// \endcond
+
 namespace PowerMonitors {
 
 // template <size_t Dim>
 // size_t compute_power_monitor (Mesh<Dim>&);
 
-void compute_power_monitor(gsl::not_null<Scalar<DataVector>*> result,
-                            const Scalar<DataVector>&);
+template <size_t Dim>
+void compute_power_monitor(
+    gsl::not_null<Scalar<DataVector>*> result, const Scalar<DataVector>&,
+    const tnsr::i<DataVector, Dim, Frame::Inertial>&);
 
 namespace Tags {
 
+template <size_t Dim>
 struct PowerMonitor : db::SimpleTag {
     using type = Scalar<DataVector>;
 };
 
-struct PowerMonitorCompute : PowerMonitor, db::ComputeTag {
-    using argument_tags = tmpl::list<ScalarWave::Tags::Pi>;
-    using base = PowerMonitor;
-    using return_type = base::type;
+template <size_t Dim>
+struct PowerMonitorCompute : PowerMonitor<Dim>, db::ComputeTag {
+    using argument_tags = tmpl::list<
+        ScalarWave::Tags::Pi, ScalarWave::Tags::Phi<Dim>>;
+    using base = PowerMonitor<Dim>;
+    using return_type = Scalar<DataVector>;
 
-    static constexpr void (*function)(const gsl::not_null<return_type*> result,
-                                      const Scalar<DataVector>&) =
-        &compute_power_monitor;
+    static constexpr void (*function)(
+        const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+        const tnsr::i<DataVector, Dim, Frame::Inertial>&) =
+        &compute_power_monitor<Dim>;
 };
 
 } // namespace Tags
