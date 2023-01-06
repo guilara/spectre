@@ -49,6 +49,7 @@ namespace PowerMonitors {
 // template <size_t Dim>
 // size_t compute_power_monitor (Mesh<Dim>&);
 
+// For now we use this function just to call and check the routine
 template <size_t Dim>
 void compute_power_monitor(
     gsl::not_null<Scalar<DataVector>*> result, const Scalar<DataVector>&,
@@ -58,8 +59,7 @@ void compute_power_monitor(
 // New function
 template <size_t Dim>
 std::array<DataVector, Dim> power_monitor_array(
-    const Scalar<DataVector>&,
-    const tnsr::i<DataVector, Dim, Frame::Inertial>&,
+    const DataVector&,
     const Mesh<Dim>&);
 
 namespace Tags {
