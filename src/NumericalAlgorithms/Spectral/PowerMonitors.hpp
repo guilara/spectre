@@ -55,11 +55,17 @@ void compute_power_monitor(
     const tnsr::i<DataVector, Dim, Frame::Inertial>&,
     const Mesh<Dim>& );
 
-namespace Tags {
+// New function
+template <size_t Dim>
+std::array<DataVector, Dim> power_monitor_array(
+    const Scalar<DataVector>&,
+    const tnsr::i<DataVector, Dim, Frame::Inertial>&,
+    const Mesh<Dim>&);
 
+namespace Tags {
 template <size_t Dim>
 struct PowerMonitor : db::SimpleTag {
-    using type = Scalar<DataVector>;
+  using type = Scalar<DataVector>;
 };
 
 template <size_t Dim>
@@ -77,5 +83,5 @@ struct PowerMonitorCompute : PowerMonitor<Dim>, db::ComputeTag {
         &compute_power_monitor<Dim>;
 };
 
-} // namespace Tags
+}  // namespace Tags
 }  // namespace PowerMonitors

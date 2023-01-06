@@ -31,11 +31,36 @@ void compute_power_monitor(
     const tnsr::i<DataVector, Dim, Frame::Inertial>& phi,
     const Mesh<Dim>& mesh) {
 
-  Parallel::printf("Inside compute monitor function \n");
+  // Set result size
+  destructive_resize_components(result, get_size(get(pi)));
+
+  std::array<DataVector, Dim> check_power_monitor_array_function
+      = power_monitor_array(pi, phi, mesh);
+
+  for (size_t check_dim = 0; check_dim < Dim; ++check_dim) {
+    Parallel::printf("Check entry of power_monitor_array_function: %lf \n",
+                     check_power_monitor_array_function[check_dim].data()[0]);
+  }
+
+  } // compute_power_monitor
+
+// New function
+template <size_t Dim>
+std::array<DataVector, Dim> power_monitor_array(
+    const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, Dim, Frame::Inertial>& phi,
+    const Mesh<Dim>& mesh) {
+
+  // Result Data vectors
+  std::array<DataVector, Dim> array_of_power_monitors;
+  Parallel::printf("array first entry size = %u \n",
+                   array_of_power_monitors[0].size());
+
+  Parallel::printf("Inside power_monitor_array function \n");
 
   size_t my_number_of_grid_points = mesh.number_of_grid_points();
   Parallel::printf("number of (total) gridpoints: %u \n",
-                    my_number_of_grid_points);
+                   my_number_of_grid_points);
 
   // Get modal coefficients
   const ModalVector mod_coeffs = to_modal_coefficients(pi.get(), mesh);
@@ -45,14 +70,6 @@ void compute_power_monitor(
   // Here we compute the marginalized coefficients for each dimension
   // and repeat for all dims
   // <<<<<<<<<<<<<<<<<<<
-
-  // Set result size
-  destructive_resize_components(result, get_size(get(pi)));
-
-  // Result Data vectors
-  std::array<DataVector, Dim> array_of_power_monitors;
-  Parallel::printf("array first entry size = %u \n",
-                    array_of_power_monitors[0].size());
 
   double my_slice_sum{0.0};
   size_t num_elems_slice;
@@ -97,7 +114,9 @@ void compute_power_monitor(
     Parallel::printf("data in this dimension = %u \n", data_per_dim_counter);
   }
 
-  } // compute_power_monitor
+  return array_of_power_monitors;
+
+} // power_monitor_array
 
 } // namespace PowerMonitors
 
@@ -107,7 +126,12 @@ void compute_power_monitor(
   template void PowerMonitors::compute_power_monitor(                          \
       gsl::not_null<Scalar<DataVector>*> result, const Scalar<DataVector>& pi, \
       const tnsr::i<DataVector, DIM(data), Frame::Inertial>& phi,              \
-      const Mesh< DIM(data) >& mesh);                                          \
+      const Mesh<DIM(data)>& mesh);                                            \
+  template std::array<DataVector, DIM(data)>                                   \
+    PowerMonitors::power_monitor_array(                                        \
+      const Scalar<DataVector>& pi,                                            \
+      const tnsr::i<DataVector, DIM(data), Frame::Inertial>& phi,              \
+      const Mesh<DIM(data)>& mesh);
 
 GENERATE_INSTANTIATIONS(INSTANTIATE, (1, 2, 3))
 
