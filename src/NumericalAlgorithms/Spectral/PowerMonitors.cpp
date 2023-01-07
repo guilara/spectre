@@ -34,12 +34,30 @@ void compute_power_monitor(
   // Set result size
   destructive_resize_components(result, get_size(get(pi)));
 
-  std::array<DataVector, Dim> check_power_monitor_array_function
-      = power_monitor_array(pi.get(), mesh);
+  // Data of which to compute the power monitors
+  DataVector test_data_vector = pi.get();
+
+  std::array<DataVector, Dim> check_power_monitor_array_function =
+      power_monitor_array(test_data_vector, mesh);
 
   for (size_t check_dim = 0; check_dim < Dim; ++check_dim) {
     Parallel::printf("Check entry of power_monitor_array_function: %lf \n",
                      check_power_monitor_array_function[check_dim].data()[0]);
+  }
+
+  // For now write the arrays in the Scalar<DataVector> result to make plots
+  // (or write a python binding)
+  size_t counter = 0;
+  size_t sliced_dim = 0;
+  size_t num_elems_stripe = mesh.extents(sliced_dim);
+
+  for (size_t index = 0; index < num_elems_stripe; ++index) {
+    for (SliceIterator si(mesh.extents(), sliced_dim, index); si;
+         ++si, ++counter) {
+      // Fill the slice with the value of the power_monitor_array
+      get(*result)[si.volume_offset()] =
+          check_power_monitor_array_function[sliced_dim].data()[index];
+    }
   }
 
   } // compute_power_monitor
