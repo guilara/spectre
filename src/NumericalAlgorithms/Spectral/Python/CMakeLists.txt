@@ -10,6 +10,7 @@ spectre_python_add_module(
   Bindings.cpp
   Mesh.cpp
   Spectral.cpp
+  PowerMonitors.cpp
 )
 
 spectre_python_headers(
@@ -18,6 +19,7 @@ spectre_python_headers(
   HEADERS
   Mesh.hpp
   Spectral.hpp
+  PowerMonitors.hpp
   )
 
 spectre_python_link_libraries(

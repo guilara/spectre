@@ -1,12 +1,13 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "NumericalAlgorithms/Spectral/PowerMonitors.hpp"
+#include "NumericalAlgorithms/Spectral/Python/PowerMonitors.hpp"
 
 #include <pybind11/pybind11.h>
 
 #include "DataStructures/DataVector.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
+#include "NumericalAlgorithms/Spectral/PowerMonitors.hpp"
 
 namespace py = pybind11;
 
