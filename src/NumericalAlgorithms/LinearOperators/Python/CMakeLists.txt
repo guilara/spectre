@@ -1,28 +1,27 @@
 # Distributed under the MIT License.
 # See LICENSE.txt for details.
 
-set(LIBRARY "PySpectral")
+set(LIBRARY "PyLinearOperators")
 
 spectre_python_add_module(
-  Spectral
+  LinearOperators
   LIBRARY_NAME ${LIBRARY}
   SOURCES
   Bindings.cpp
-  Mesh.cpp
-  Spectral.cpp
+  PowerMonitors.cpp
 )
 
 spectre_python_headers(
   ${LIBRARY}
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
-  Mesh.hpp
-  Spectral.hpp
+  PowerMonitors.hpp
   )
 
 spectre_python_link_libraries(
   ${LIBRARY}
   PRIVATE
+  LinearOperators
   Spectral
   pybind11::module
 )

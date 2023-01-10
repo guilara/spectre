@@ -4,7 +4,6 @@
 #include <pybind11/pybind11.h>
 
 #include "NumericalAlgorithms/Spectral/Python/Mesh.hpp"
-#include "NumericalAlgorithms/Spectral/Python/PowerMonitors.hpp"
 #include "NumericalAlgorithms/Spectral/Python/Spectral.hpp"
 
 PYBIND11_MODULE(_PySpectral, m) {  // NOLINT
@@ -14,5 +13,4 @@ PYBIND11_MODULE(_PySpectral, m) {  // NOLINT
   Spectral::py_bindings::bind_modal_to_nodal_matrix(m);
   Spectral::py_bindings::bind_collocation_points(m);
   py_bindings::bind_mesh(m);
-  PowerMonitors::py_bindings::bind_power_monitor_array(m);
 }

@@ -1,19 +1,26 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "NumericalAlgorithms/Spectral/Python/PowerMonitors.hpp"
+#include "NumericalAlgorithms/LinearOperators/Python/PowerMonitors.hpp"
 
 #include <pybind11/pybind11.h>
 
 #include "DataStructures/DataVector.hpp"
+#include "NumericalAlgorithms/LinearOperators/PowerMonitors.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
-#include "NumericalAlgorithms/Spectral/PowerMonitors.hpp"
 
 namespace py = pybind11;
 
 namespace PowerMonitors::py_bindings {
 
 void bind_power_monitor_array(py::module& m) {
+  // m.def(
+  //     "power_monitor_array",
+  //     [](const DataVector& input_data_vector, const Mesh<1>& mesh) {
+  //       return input_data_vector;
+  //     },
+  //     py::arg("DataVector"), py::arg("mesh"),
+  //     py::return_value_policy::reference, "PowerMonitors array ");
   m.def(
       "power_monitor_array",
       [](const DataVector& input_data_vector, const Mesh<1>& mesh) {

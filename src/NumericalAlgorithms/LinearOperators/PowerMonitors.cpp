@@ -1,7 +1,7 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "NumericalAlgorithms/Spectral/PowerMonitors.hpp"
+#include "NumericalAlgorithms/LinearOperators/PowerMonitors.hpp"
 
 #include <cmath>
 
@@ -25,12 +25,10 @@
 namespace PowerMonitors {
 
 template <size_t Dim>
-void compute_power_monitor(
-    const gsl::not_null<Scalar<DataVector>*> result,
-    const Scalar<DataVector>& pi,
-    const tnsr::i<DataVector, Dim, Frame::Inertial>& phi,
-    const Mesh<Dim>& mesh) {
-
+void compute_power_monitor(const gsl::not_null<Scalar<DataVector>*> result,
+                           const Scalar<DataVector>& pi,
+                           const tnsr::i<DataVector, Dim, Frame::Inertial>& phi,
+                           const Mesh<Dim>& mesh) {
   // Set result size
   destructive_resize_components(result, get_size(get(pi)));
 
@@ -60,14 +58,12 @@ void compute_power_monitor(
     }
   }
 
-  } // compute_power_monitor
+}  // compute_power_monitor
 
 // New function
 template <size_t Dim>
 std::array<DataVector, Dim> power_monitor_array(
-    const DataVector& input_data_vector,
-    const Mesh<Dim>& mesh) {
-
+    const DataVector& input_data_vector, const Mesh<Dim>& mesh) {
   // Result Data vectors
   std::array<DataVector, Dim> array_of_power_monitors;
   Parallel::printf("array first entry size = %u \n",
@@ -80,8 +76,7 @@ std::array<DataVector, Dim> power_monitor_array(
                    my_number_of_grid_points);
 
   // Get modal coefficients
-  const ModalVector mod_coeffs =
-      to_modal_coefficients(input_data_vector, mesh);
+  const ModalVector mod_coeffs = to_modal_coefficients(input_data_vector, mesh);
   Parallel::printf("Size of mod_coeffs Modal Vector: %u \n", mod_coeffs.size());
 
   // <<<<<<<<<<<<<<<<<<<
@@ -134,9 +129,9 @@ std::array<DataVector, Dim> power_monitor_array(
 
   return array_of_power_monitors;
 
-} // power_monitor_array
+}  // power_monitor_array
 
-} // namespace PowerMonitors
+}  // namespace PowerMonitors
 
 #define DIM(data) BOOST_PP_TUPLE_ELEM(0, data)
 
@@ -146,9 +141,8 @@ std::array<DataVector, Dim> power_monitor_array(
       const tnsr::i<DataVector, DIM(data), Frame::Inertial>& phi,              \
       const Mesh<DIM(data)>& mesh);                                            \
   template std::array<DataVector, DIM(data)>                                   \
-    PowerMonitors::power_monitor_array(                                        \
-      const DataVector& input_data_vector,                                     \
-      const Mesh<DIM(data)>& mesh);
+  PowerMonitors::power_monitor_array(const DataVector& input_data_vector,      \
+                                     const Mesh<DIM(data)>& mesh);
 
 GENERATE_INSTANTIATIONS(INSTANTIATE, (1, 2, 3))
 

@@ -16,6 +16,7 @@ spectre_target_sources(
   Linearize.cpp
   PartialDerivatives.cpp
   MeanValue.cpp
+  PowerMonitors.cpp
   )
 
 spectre_target_headers(
@@ -33,8 +34,10 @@ spectre_target_headers(
   MeanValue.hpp
   PartialDerivatives.hpp
   PartialDerivatives.tpp
+  PowerMonitors.hpp
   Tags.hpp
   WeakDivergence.hpp
+
   )
 
 target_link_libraries(
@@ -50,3 +53,5 @@ target_link_libraries(
   Domain
   DomainStructure
   )
+
+add_subdirectory(Python)
