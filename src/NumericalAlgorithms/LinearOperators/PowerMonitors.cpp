@@ -114,6 +114,7 @@ std::array<DataVector, Dim> power_monitor_array(
       }
       my_slice_sum /= num_elems_slice;
       my_slice_sum = sqrt(my_slice_sum);
+      my_slice_sum = log10(my_slice_sum);
       ++data_per_dim_counter;
       Parallel::printf("Final my_slice_sum (avg) = %lf \n", my_slice_sum);
 

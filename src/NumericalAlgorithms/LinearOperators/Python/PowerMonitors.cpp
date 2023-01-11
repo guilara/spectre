@@ -15,13 +15,6 @@ namespace py = pybind11;
 namespace PowerMonitors::py_bindings {
 
 void bind_power_monitor_array(py::module& m) {
-  // m.def(
-  //     "power_monitor_array",
-  //     [](const DataVector& input_data_vector, const Mesh<1>& mesh) {
-  //       return input_data_vector;
-  //     },
-  //     py::arg("DataVector"), py::arg("mesh"),
-  //     py::return_value_policy::reference, "PowerMonitors array ");
   m.def(
       "power_monitor_array",
       [](const DataVector& input_data_vector, const Mesh<1>& mesh) {
