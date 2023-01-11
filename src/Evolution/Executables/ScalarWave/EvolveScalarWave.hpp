@@ -43,6 +43,7 @@
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Tags.hpp"
 #include "NumericalAlgorithms/LinearOperators/ExponentialFilter.hpp"
 #include "NumericalAlgorithms/LinearOperators/FilterAction.hpp"  // IWYU pragma: keep
+#include "NumericalAlgorithms/LinearOperators/PowerMonitors.hpp"  // Power monitor lib
 #include "Options/Options.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
 #include "Parallel/InitializationFunctions.hpp"
@@ -148,7 +149,8 @@ struct EvolutionMetavars {
       ::Tags::PointwiseL2NormCompute<
           ScalarWave::Tags::TwoIndexConstraint<volume_dim>>,
       domain::Tags::Coordinates<volume_dim, Frame::Grid>,
-      domain::Tags::Coordinates<volume_dim, Frame::Inertial>>;
+      domain::Tags::Coordinates<volume_dim, Frame::Inertial>,
+      PowerMonitors::Tags::PowerMonitorCompute<volume_dim>>;
   using non_tensor_compute_tags =
       tmpl::list<::Events::Tags::ObserverMeshCompute<volume_dim>, deriv_compute,
                  analytic_compute, error_compute>;
