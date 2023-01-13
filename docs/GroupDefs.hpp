@@ -614,6 +614,12 @@
  */
 
 /*!
+ * \defgroup ScalarTensorGroup Scalar Tensor Systems
+ * \brief Things related to the implementation of a scalar field with
+ * back reaction in the metric.
+ */
+
+/*!
  * \defgroup SpecialRelativityGroup Special Relativity
  * \brief Contains functions used in special relativity calculations
  */
