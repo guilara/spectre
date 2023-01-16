@@ -32,26 +32,17 @@ void compute_power_monitor(const gsl::not_null<Scalar<DataVector>*> result,
   // Set result size
   destructive_resize_components(result, get_size(get(pi)));
 
-  // Data of which to compute the power monitors
+  // Extract nodal coefficients
   DataVector test_data_vector = pi.get();
 
   std::array<DataVector, Dim> check_power_monitor_array_function =
       power_monitor_array(test_data_vector, mesh);
 
-  for (size_t check_dim = 0; check_dim < Dim; ++check_dim) {
-    Parallel::printf("Check entry of power_monitor_array_function: %lf \n",
-                     check_power_monitor_array_function[check_dim].data()[0]);
-  }
-
-  // For now write the arrays in the Scalar<DataVector> result to make plots
-  // (or write a python binding)
-  size_t counter = 0;
   size_t sliced_dim = 0;
-  size_t num_elems_stripe = mesh.extents(sliced_dim);
-
-  for (size_t index = 0; index < num_elems_stripe; ++index) {
+  size_t n_stripe = mesh.extents(sliced_dim);
+  for (size_t index = 0; index < n_stripe; ++index) {
     for (SliceIterator si(mesh.extents(), sliced_dim, index); si;
-         ++si, ++counter) {
+         ++si) {
       // Fill the slice with the value of the power_monitor_array
       get(*result)[si.volume_offset()] =
           check_power_monitor_array_function[sliced_dim].data()[index];
@@ -60,77 +51,49 @@ void compute_power_monitor(const gsl::not_null<Scalar<DataVector>*> result,
 
 }  // compute_power_monitor
 
-// New function
 template <size_t Dim>
 std::array<DataVector, Dim> power_monitor_array(
     const DataVector& input_data_vector, const Mesh<Dim>& mesh) {
   // Result Data vectors
-  std::array<DataVector, Dim> array_of_power_monitors;
-  Parallel::printf("array first entry size = %u \n",
-                   array_of_power_monitors[0].size());
-
-  Parallel::printf("Inside power_monitor_array function \n");
-
-  size_t my_number_of_grid_points = mesh.number_of_grid_points();
-  Parallel::printf("number of (total) gridpoints: %u \n",
-                   my_number_of_grid_points);
+  std::array<DataVector, Dim> result;
 
   // Get modal coefficients
-  const ModalVector mod_coeffs = to_modal_coefficients(input_data_vector, mesh);
-  Parallel::printf("Size of mod_coeffs Modal Vector: %u \n", mod_coeffs.size());
+  const ModalVector modal_coefficients = to_modal_coefficients(
+    input_data_vector, mesh);
 
-  // <<<<<<<<<<<<<<<<<<<
-  // Here we compute the marginalized coefficients for each dimension
-  // and repeat for all dims
-  // <<<<<<<<<<<<<<<<<<<
-
-  double my_slice_sum{0.0};
-  size_t num_elems_slice;
-  size_t num_elems_stripe;
-  size_t counter = 0;
-  size_t data_per_dim_counter = 0;
+  double slice_sum = 0.0;
+  size_t n_slice = 0;
+  size_t n_stripe = 0;
   for (size_t sliced_dim = 0; sliced_dim < Dim; ++sliced_dim) {
-    data_per_dim_counter = 0;
-    Parallel::printf("Computing in dim =  %u\n", sliced_dim);
-    num_elems_slice = mesh.extents().slice_away(sliced_dim).product();
-    num_elems_stripe = mesh.extents(sliced_dim);
-    Parallel::printf("num_elems_slice =  %u\n", num_elems_slice);
-    Parallel::printf("num_elems_stripe =  %u\n", num_elems_stripe);
 
-    array_of_power_monitors[sliced_dim].destructive_resize(num_elems_stripe);
-    Parallel::printf("array first entry size = %u \n",
-                     array_of_power_monitors[sliced_dim].size());
+    n_slice = mesh.extents().slice_away(sliced_dim).product();
+    n_stripe = mesh.extents(sliced_dim);
 
-    for (size_t index = 0; index < num_elems_stripe; ++index) {
-      Parallel::printf("Summing in slice with index %u\n", index);
-      my_slice_sum = 0.0;
-      counter = 0;
+    result[sliced_dim].destructive_resize(n_stripe);
+
+    for (size_t index = 0; index < n_stripe; ++index) {
+      slice_sum = 0.0;
       // We might want to move SliceIterator to the middle loop
-      // Check Nils D. code
       for (SliceIterator si(mesh.extents(), sliced_dim, index); si;
-           ++si, ++counter) {
-        // Check index structure of mod_coeffs
-        my_slice_sum += square(mod_coeffs[si.volume_offset()]);
+           ++si) {
+        slice_sum += square(modal_coefficients[si.volume_offset()]);
       }
-      my_slice_sum /= num_elems_slice;
-      my_slice_sum = sqrt(my_slice_sum);
-      my_slice_sum = log10(my_slice_sum);
-      ++data_per_dim_counter;
-      Parallel::printf("Final my_slice_sum (avg) = %lf \n", my_slice_sum);
+      slice_sum /= n_slice;
+      slice_sum = sqrt(slice_sum);
+      // Will give floating point exception if slice_sum is zero
+      slice_sum = log10(slice_sum);
 
-      array_of_power_monitors[sliced_dim].data()[index] = my_slice_sum;
-      Parallel::printf("Check Data Vector array entry filled: %lf \n",
-                       array_of_power_monitors[sliced_dim].data()[index]);
-      if (index >= array_of_power_monitors[sliced_dim].size()) {
+      result[sliced_dim].data()[index] = slice_sum;
+
+      if (index >= result[sliced_dim].size()) {
         Parallel::printf("Error in index of DataVector in array \n");
       }
     }
-    Parallel::printf("data in this dimension = %u \n", data_per_dim_counter);
   }
 
-  return array_of_power_monitors;
+  return result;
 
-}  // power_monitor_array
+}
 
 }  // namespace PowerMonitors
 

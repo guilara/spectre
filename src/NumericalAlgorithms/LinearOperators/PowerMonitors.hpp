@@ -15,27 +15,6 @@
 #include "Utilities/Gsl.hpp"
 #include "Utilities/TMPL.hpp"
 
-// Implement a function that computes the power monitors
-// Take as input a DataVector and a Mesh
-// Return std::array<DataVector, Dim> withe the power monitors
-// in each dimension
-
-// Overload with input Variables
-
-// Expose the function to Python for use in post-processing scripts
-
-// Add a compute item.
-// Add it to the DataBox to compute the power monitors during a simulation
-// Output the power monitors to H5 files as 1D volume data
-// Add Python script to read the H5 files and plot the monitors
-
-// /// \cond
-// namespace gsl {
-// template <typename T>
-// class not_null;
-// }  // namespace gsl
-// /// \endcond
-
 /// \cond
 class DataVector;
 namespace gsl {
@@ -46,20 +25,40 @@ class not_null;
 
 namespace PowerMonitors {
 
-// template <size_t Dim>
-// size_t compute_power_monitor (Mesh<Dim>&);
-
-// For now we use this function just to call and check the routine
+/// @{
+/*!
+ * \ingroup NumericalAlgorithmsGroup
+ * \brief Computes the array of power monitors from DataBox variables.
+ *
+ */
 template <size_t Dim>
 void compute_power_monitor(gsl::not_null<Scalar<DataVector>*> result,
                            const Scalar<DataVector>&,
                            const tnsr::i<DataVector, Dim, Frame::Inertial>&,
                            const Mesh<Dim>&);
+/// @}
 
-// New function
+/// @{
+/*!
+ * \ingroup NumericalAlgorithmsGroup
+ * \brief Returns array of power monitors in each dimension.
+ *
+ * The are computed following Ref. \cite{Szilagyi2014fna}, e.g. in the
+ * x dimension, we compute
+ *
+ * \f{align*}{
+ *  \log10 P_{k_0}[\psi] = \log10 \sqrt{ \frac{1}{N_1 N_2}
+ *   \sum_{k_1,k_2} \left| C_{k_0,k_1,k_2} \right|^2} ,
+ * \f}
+ *
+ * where \f$ C_{k_0,k_1,k_2}\f$ are the modal coefficients
+ * of variable \f$ \psi \f$.
+ *
+ */
 template <size_t Dim>
 std::array<DataVector, Dim> power_monitor_array(const DataVector&,
                                                 const Mesh<Dim>&);
+/// @}
 
 namespace Tags {
 template <size_t Dim>
@@ -67,6 +66,12 @@ struct PowerMonitor : db::SimpleTag {
   using type = Scalar<DataVector>;
 };
 
+/// @{
+/*!
+ * \ingroup NumericalAlgorithmsGroup
+ * \brief Compute tag for power monitors.
+ *
+ */
 template <size_t Dim>
 struct PowerMonitorCompute : PowerMonitor<Dim>, db::ComputeTag {
   using argument_tags =
@@ -80,6 +85,7 @@ struct PowerMonitorCompute : PowerMonitor<Dim>, db::ComputeTag {
       const tnsr::i<DataVector, Dim, Frame::Inertial>&,
       const Mesh<Dim>&) = &compute_power_monitor<Dim>;
 };
+/// @}
 
 }  // namespace Tags
 }  // namespace PowerMonitors
