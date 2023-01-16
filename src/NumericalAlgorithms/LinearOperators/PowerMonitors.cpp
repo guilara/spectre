@@ -81,7 +81,7 @@ std::array<DataVector, Dim> power_monitor_array(
       slice_sum /= n_slice;
       slice_sum = sqrt(slice_sum);
       // Will give floating point exception if slice_sum is zero
-      slice_sum = log10(slice_sum);
+      // slice_sum = log10(slice_sum);
 
       result[sliced_dim].data()[index] = slice_sum;
 
