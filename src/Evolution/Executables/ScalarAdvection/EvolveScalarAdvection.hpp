@@ -74,6 +74,7 @@
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
 #include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
 #include "ParallelAlgorithms/Actions/AddSimpleTags.hpp"
+#include "ParallelAlgorithms/Actions/InitializeItems.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
@@ -149,11 +150,12 @@ struct EvolutionMetavars {
   using error_compute = Tags::ErrorsCompute<analytic_variables_tags>;
   using error_tags = db::wrap_tags_in<Tags::Error, analytic_variables_tags>;
   using observe_fields = tmpl::push_back<
-      tmpl::append<typename system::variables_tag::tags_list, error_tags,
-                   tmpl::conditional_t<
-                       use_dg_subcell,
-                       tmpl::list<evolution::dg::subcell::Tags::TciStatus>,
-                       tmpl::list<>>>,
+      tmpl::append<
+          typename system::variables_tag::tags_list, error_tags,
+          tmpl::conditional_t<use_dg_subcell,
+                              tmpl::list<evolution::dg::subcell::Tags::
+                                             TciStatusCompute<volume_dim>>,
+                              tmpl::list<>>>,
       tmpl::conditional_t<
           use_dg_subcell,
           evolution::dg::subcell::Tags::ObserverCoordinatesCompute<volume_dim,
@@ -230,10 +232,10 @@ struct EvolutionMetavars {
           tmpl::at<typename factory_creation::factory_classes, Event>>>>;
 
   using dg_step_actions = tmpl::flatten<tmpl::list<
-      evolution::dg::Actions::ComputeTimeDerivative<volume_dim, system,
-                                                    AllStepChoosers>,
+      evolution::dg::Actions::ComputeTimeDerivative<
+          volume_dim, system, AllStepChoosers, local_time_stepping>,
       evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
-          EvolutionMetavars>,
+          system, volume_dim>,
       tmpl::conditional_t<
           local_time_stepping, tmpl::list<>,
           tmpl::list<
@@ -247,10 +249,10 @@ struct EvolutionMetavars {
       evolution::dg::subcell::Actions::SelectNumericalMethod,
       Actions::Label<evolution::dg::subcell::Actions::Labels::BeginDg>,
 
-      evolution::dg::Actions::ComputeTimeDerivative<volume_dim, system,
-                                                    AllStepChoosers>,
+      evolution::dg::Actions::ComputeTimeDerivative<
+          volume_dim, system, AllStepChoosers, local_time_stepping>,
       evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
-          EvolutionMetavars>,
+          system, volume_dim>,
       tmpl::conditional_t<
           local_time_stepping, tmpl::list<>,
           tmpl::list<
@@ -262,7 +264,8 @@ struct EvolutionMetavars {
       Actions::Goto<evolution::dg::subcell::Actions::Labels::EndOfSolvers>,
       Actions::Label<evolution::dg::subcell::Actions::Labels::BeginSubcell>,
       evolution::dg::subcell::Actions::SendDataForReconstruction<
-          volume_dim, ScalarAdvection::subcell::GhostVariables>,
+          volume_dim, ScalarAdvection::subcell::GhostVariables,
+          local_time_stepping>,
       evolution::dg::subcell::Actions::ReceiveDataForReconstruction<volume_dim>,
       Actions::Label<
           evolution::dg::subcell::Actions::Labels::BeginSubcellAfterDgRollback>,
@@ -289,8 +292,9 @@ struct EvolutionMetavars {
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
 
   using initialization_actions = tmpl::list<
-      Initialization::Actions::TimeAndTimeStep<EvolutionMetavars>,
-      evolution::dg::Initialization::Domain<volume_dim>,
+      Initialization::Actions::InitializeItems<
+          Initialization::TimeStepping<EvolutionMetavars, local_time_stepping>,
+          evolution::dg::Initialization::Domain<volume_dim>>,
       Initialization::Actions::ConservativeSystem<system>,
       evolution::Initialization::Actions::SetVariables<
           domain::Tags::Coordinates<Dim, Frame::ElementLogical>>,
@@ -311,7 +315,8 @@ struct EvolutionMetavars {
       Initialization::Actions::AddComputeTags<
           tmpl::list<ScalarAdvection::Tags::VelocityFieldCompute<Dim>>>,
       Initialization::Actions::AddComputeTags<
-          StepChoosers::step_chooser_compute_tags<EvolutionMetavars>>,
+          StepChoosers::step_chooser_compute_tags<EvolutionMetavars,
+                                                  local_time_stepping>>,
       ::evolution::dg::Initialization::Mortars<volume_dim, system>,
       Initialization::Actions::Minmod<Dim>,
       evolution::Actions::InitializeRunEventsAndDenseTriggers,

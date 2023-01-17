@@ -54,6 +54,7 @@
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/BoundaryCorrections/RegisterDerived.hpp"
+#include "Evolution/Systems/GrMhd/ValenciaDivClean/ComovingMagneticFieldMagnitude.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/FiniteDifference/Factory.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/FiniteDifference/RegisterDerivedWithCharm.hpp"
 #include "Evolution/Systems/GrMhd/ValenciaDivClean/FiniteDifference/Tag.hpp"
@@ -98,6 +99,7 @@
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
 #include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
 #include "ParallelAlgorithms/Actions/AddSimpleTags.hpp"
+#include "ParallelAlgorithms/Actions/InitializeItems.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
@@ -236,13 +238,16 @@ struct EvolutionMetavars {
   using error_compute = Tags::ErrorsCompute<analytic_variables_tags>;
   using error_tags = db::wrap_tags_in<Tags::Error, analytic_variables_tags>;
   using observe_fields = tmpl::push_back<
-      tmpl::append<typename system::variables_tag::tags_list,
-                   typename system::primitive_variables_tag::tags_list,
-                   error_tags,
-                   tmpl::conditional_t<
-                       use_dg_subcell,
-                       tmpl::list<evolution::dg::subcell::Tags::TciStatus>,
-                       tmpl::list<>>>,
+      tmpl::append<
+          typename system::variables_tag::tags_list,
+          typename system::primitive_variables_tag::tags_list,
+          tmpl::list<grmhd::ValenciaDivClean::Tags::
+                         ComovingMagneticFieldMagnitudeCompute>,
+          error_tags,
+          tmpl::conditional_t<use_dg_subcell,
+                              tmpl::list<evolution::dg::subcell::Tags::
+                                             TciStatusCompute<volume_dim>>,
+                              tmpl::list<>>>,
       tmpl::conditional_t<
           use_dg_subcell,
           evolution::dg::subcell::Tags::ObserverCoordinatesCompute<volume_dim,
@@ -340,20 +345,20 @@ struct EvolutionMetavars {
               ordered_list_of_primitive_recovery_schemes>>>;
 
   using dg_step_actions = tmpl::flatten<tmpl::list<
-      evolution::dg::Actions::ComputeTimeDerivative<volume_dim, system,
-                                                    AllStepChoosers>,
+      evolution::dg::Actions::ComputeTimeDerivative<
+          volume_dim, system, AllStepChoosers, local_time_stepping>,
       tmpl::conditional_t<
           local_time_stepping,
           tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
                          evolution::dg::ApplyBoundaryCorrections<
-                             EvolutionMetavars, true>,
+                             local_time_stepping, system, volume_dim, true>,
                          system::primitive_from_conservative<
                              ordered_list_of_primitive_recovery_schemes>>>,
                      evolution::dg::Actions::ApplyLtsBoundaryCorrections<
-                         EvolutionMetavars>>,
+                         system, volume_dim>>,
           tmpl::list<
               evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
-                  EvolutionMetavars>,
+                  system, volume_dim>,
               Actions::RecordTimeStepperData<>,
               evolution::Actions::RunEventsAndDenseTriggers<
                   tmpl::list<system::primitive_from_conservative<
@@ -371,10 +376,10 @@ struct EvolutionMetavars {
       evolution::dg::subcell::Actions::SelectNumericalMethod,
 
       Actions::Label<evolution::dg::subcell::Actions::Labels::BeginDg>,
-      evolution::dg::Actions::ComputeTimeDerivative<volume_dim, system,
-                                                    AllStepChoosers>,
+      evolution::dg::Actions::ComputeTimeDerivative<
+          volume_dim, system, AllStepChoosers, local_time_stepping>,
       evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
-          EvolutionMetavars>,
+          system, volume_dim>,
       tmpl::conditional_t<
           local_time_stepping, tmpl::list<>,
           tmpl::list<Actions::RecordTimeStepperData<>,
@@ -392,8 +397,8 @@ struct EvolutionMetavars {
 
       Actions::Label<evolution::dg::subcell::Actions::Labels::BeginSubcell>,
       evolution::dg::subcell::Actions::SendDataForReconstruction<
-          volume_dim,
-          grmhd::ValenciaDivClean::subcell::PrimitiveGhostVariables>,
+          volume_dim, grmhd::ValenciaDivClean::subcell::PrimitiveGhostVariables,
+          local_time_stepping>,
       evolution::dg::subcell::Actions::ReceiveDataForReconstruction<volume_dim>,
       Actions::Label<
           evolution::dg::subcell::Actions::Labels::BeginSubcellAfterDgRollback>,
@@ -430,8 +435,9 @@ struct EvolutionMetavars {
                  observers::Actions::RegisterEventsWithObservers>;
 
   using initialization_actions = tmpl::flatten<tmpl::list<
-      Initialization::Actions::TimeAndTimeStep<EvolutionMetavars>,
-      evolution::dg::Initialization::Domain<3>,
+      Initialization::Actions::InitializeItems<
+          Initialization::TimeStepping<EvolutionMetavars, local_time_stepping>,
+          evolution::dg::Initialization::Domain<3>>,
       Initialization::Actions::GrTagsForHydro<system>,
       Initialization::Actions::ConservativeSystem<system>,
       evolution::Initialization::Actions::SetVariables<
@@ -460,7 +466,8 @@ struct EvolutionMetavars {
           tmpl::list<>>,
 
       Initialization::Actions::AddComputeTags<
-          StepChoosers::step_chooser_compute_tags<EvolutionMetavars>>,
+          StepChoosers::step_chooser_compute_tags<EvolutionMetavars,
+                                                  local_time_stepping>>,
       ::evolution::dg::Initialization::Mortars<volume_dim, system>,
       Initialization::Actions::Minmod<3>,
       evolution::Actions::InitializeRunEventsAndDenseTriggers,

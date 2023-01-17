@@ -12,8 +12,11 @@ spectre_python_add_module(
   File.cpp
   TensorData.cpp
   VolumeData.cpp
-  PYTHON_EXECUTABLES
+  PYTHON_FILES
+  __init__.py
+  DeleteSubfiles.py
   ExtractDatFromH5.py
+  ExtractInputSourceYamlFromH5.py
   MODULE_PATH "IO"
   )
 
@@ -39,4 +42,5 @@ spectre_python_link_libraries(
 spectre_python_add_dependencies(
   ${LIBRARY}
   PyDataStructures
+  PySpectral
   )

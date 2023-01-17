@@ -27,3 +27,5 @@ add_dependencies(
   ${LIBRARY}
   module_GlobalCache
   )
+
+add_subdirectory(Python)

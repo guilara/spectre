@@ -95,7 +95,7 @@ struct SystemA : tt::ConformsTo<control_system::protocols::ControlSystem> {
   }
   using simple_tags = tmpl::list<>;
   using measurement = Measurement<tmpl::list<SystemA, SystemB>>;
-  using control_error = control_system::TestHelpers::ControlError;
+  using control_error = control_system::TestHelpers::ControlError<1>;
   struct process_measurement {
     template <typename Submeasurement>
     using argument_tags = tmpl::list<>;
@@ -110,7 +110,7 @@ struct SystemB : tt::ConformsTo<control_system::protocols::ControlSystem> {
   }
   using simple_tags = tmpl::list<>;
   using measurement = Measurement<tmpl::list<SystemA, SystemB>>;
-  using control_error = control_system::TestHelpers::ControlError;
+  using control_error = control_system::TestHelpers::ControlError<1>;
   struct process_measurement {
     template <typename Submeasurement>
     using argument_tags = tmpl::list<>;
@@ -125,7 +125,7 @@ struct SystemC : tt::ConformsTo<control_system::protocols::ControlSystem> {
   }
   using simple_tags = tmpl::list<>;
   using measurement = Measurement<tmpl::list<SystemC>>;
-  using control_error = control_system::TestHelpers::ControlError;
+  using control_error = control_system::TestHelpers::ControlError<1>;
   struct process_measurement {
     template <typename Submeasurement>
     using argument_tags = tmpl::list<>;
@@ -147,7 +147,7 @@ struct Component {
   using chare_type = ActionTesting::MockArrayChare;
   using array_index = int;
 
-  using initialization_tags =
+  using simple_tags_from_options =
       tmpl::list<evolution::Tags::EventsAndDenseTriggers>;
 
   using simple_tags = tmpl::list<Tags::TimeStepId, Tags::Time>;

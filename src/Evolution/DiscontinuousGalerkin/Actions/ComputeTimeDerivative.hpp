@@ -168,6 +168,20 @@ namespace evolution::dg::Actions {
  *
  * \snippet ComputeTimeDerivativeImpl.tpp dt_mp
  *
+ * In addition to each variable being passed individually, if the time
+ * derivative struct inherits from `evolution::PassVariables`, then the time
+ * derivatives, fluxes, and temporaries are passed as
+ * `gsl::not_null<Variables<...>>`. This is useful for systems where
+ * additional quantities are sometimes evolved, and just generally nice for
+ * keeping the number of arguments reasonable. Below are the above examples
+ * but with `Variables` being passed.
+ *
+ * \snippet ComputeTimeDerivativeImpl.tpp dt_con_variables
+ *
+ * \snippet ComputeTimeDerivativeImpl.tpp dt_nc_variables
+ *
+ * \snippet ComputeTimeDerivativeImpl.tpp dt_mp_variables
+ *
  * Uses:
  * - System:
  *   - `variables_tag`
@@ -297,7 +311,8 @@ namespace evolution::dg::Actions {
  * - Modifies:
  *   - `evolution::dg::Tags::MortarData<Dim>`
  */
-template <size_t Dim, typename EvolutionSystem, typename DgStepChoosers>
+template <size_t Dim, typename EvolutionSystem, typename DgStepChoosers,
+          bool LocalTimeStepping>
 struct ComputeTimeDerivative {
   using inbox_tags = tmpl::list<
       evolution::dg::Tags::BoundaryCorrectionAndGhostCellsInbox<Dim>>;
@@ -324,17 +339,18 @@ struct ComputeTimeDerivative {
       gsl::not_null<db::DataBox<DbTagsList>*> box);
 };
 
-template <size_t Dim, typename EvolutionSystem, typename DgStepChoosers>
+template <size_t Dim, typename EvolutionSystem, typename DgStepChoosers,
+          bool LocalTimeStepping>
 template <typename DbTagsList, typename... InboxTags, typename ArrayIndex,
           typename ActionList, typename ParallelComponent,
           typename Metavariables>
 Parallel::iterable_action_return_t
-ComputeTimeDerivative<Dim, EvolutionSystem, DgStepChoosers>::apply(
-    db::DataBox<DbTagsList>& box,
-    tuples::TaggedTuple<InboxTags...>& /*inboxes*/,
-    Parallel::GlobalCache<Metavariables>& cache,
-    const ArrayIndex& /*array_index*/, ActionList /*meta*/,
-    const ParallelComponent* const /*meta*/) {  // NOLINT const
+ComputeTimeDerivative<Dim, EvolutionSystem, DgStepChoosers, LocalTimeStepping>::
+    apply(db::DataBox<DbTagsList>& box,
+          tuples::TaggedTuple<InboxTags...>& /*inboxes*/,
+          Parallel::GlobalCache<Metavariables>& cache,
+          const ArrayIndex& /*array_index*/, ActionList /*meta*/,
+          const ParallelComponent* const /*meta*/) {  // NOLINT const
   using variables_tag = typename EvolutionSystem::variables_tag;
   using dt_variables_tag = db::add_tag_prefix<::Tags::dt, variables_tag>;
   using partial_derivative_tags = typename EvolutionSystem::gradient_variables;
@@ -488,8 +504,9 @@ ComputeTimeDerivative<Dim, EvolutionSystem, DgStepChoosers>::apply(
         }
       });
 
-  if constexpr (Metavariables::local_time_stepping) {
-    take_step<DgStepChoosers>(make_not_null(&box));
+  if constexpr (LocalTimeStepping) {
+    take_step<EvolutionSystem, LocalTimeStepping, DgStepChoosers>(
+        make_not_null(&box));
   }
 
   send_data_for_fluxes<ParallelComponent>(make_not_null(&cache),
@@ -497,10 +514,12 @@ ComputeTimeDerivative<Dim, EvolutionSystem, DgStepChoosers>::apply(
   return {Parallel::AlgorithmExecution::Continue, std::nullopt};
 }
 
-template <size_t Dim, typename EvolutionSystem, typename DgStepChoosers>
+template <size_t Dim, typename EvolutionSystem, typename DgStepChoosers,
+          bool LocalTimeStepping>
 template <typename ParallelComponent, typename DbTagsList,
           typename Metavariables>
-void ComputeTimeDerivative<Dim, EvolutionSystem, DgStepChoosers>::
+void ComputeTimeDerivative<Dim, EvolutionSystem, DgStepChoosers,
+                           LocalTimeStepping>::
     send_data_for_fluxes(
         const gsl::not_null<Parallel::GlobalCache<Metavariables>*> cache,
         const gsl::not_null<db::DataBox<DbTagsList>*> box) {
@@ -565,7 +584,7 @@ void ComputeTimeDerivative<Dim, EvolutionSystem, DgStepChoosers>::
       }
 
       const TimeStepId& next_time_step_id = [&box]() {
-        if (Metavariables::local_time_stepping) {
+        if (LocalTimeStepping) {
           return db::get<::Tags::Next<::Tags::TimeStepId>>(*box);
         } else {
           return db::get<::Tags::TimeStepId>(*box);
@@ -602,7 +621,7 @@ void ComputeTimeDerivative<Dim, EvolutionSystem, DgStepChoosers>::
     }
   }
 
-  if constexpr (Metavariables::local_time_stepping) {
+  if constexpr (LocalTimeStepping) {
     using variables_tag = typename EvolutionSystem::variables_tag;
     using dt_variables_tag = db::add_tag_prefix<::Tags::dt, variables_tag>;
     // We assume isotropic quadrature, i.e. the quadrature is the same in

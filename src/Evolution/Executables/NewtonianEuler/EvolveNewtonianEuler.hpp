@@ -78,6 +78,7 @@
 #include "Parallel/PhaseDependentActionList.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
 #include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
+#include "ParallelAlgorithms/Actions/InitializeItems.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
@@ -178,13 +179,13 @@ struct EvolutionMetavars {
   using error_compute = Tags::ErrorsCompute<analytic_variables_tags>;
   using error_tags = db::wrap_tags_in<Tags::Error, analytic_variables_tags>;
   using observe_fields = tmpl::push_back<
-      tmpl::append<typename system::variables_tag::tags_list,
-                   typename system::primitive_variables_tag::tags_list,
-                   error_tags,
-                   tmpl::conditional_t<
-                       use_dg_subcell,
-                       tmpl::list<evolution::dg::subcell::Tags::TciStatus>,
-                       tmpl::list<>>>,
+      tmpl::append<
+          typename system::variables_tag::tags_list,
+          typename system::primitive_variables_tag::tags_list, error_tags,
+          tmpl::conditional_t<use_dg_subcell,
+                              tmpl::list<evolution::dg::subcell::Tags::
+                                             TciStatusCompute<volume_dim>>,
+                              tmpl::list<>>>,
       tmpl::conditional_t<
           use_dg_subcell,
           evolution::dg::subcell::Tags::ObserverCoordinatesCompute<volume_dim,
@@ -247,8 +248,9 @@ struct EvolutionMetavars {
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
 
   using initialization_actions = tmpl::flatten<tmpl::list<
-      Initialization::Actions::TimeAndTimeStep<EvolutionMetavars>,
-      evolution::dg::Initialization::Domain<Dim>,
+      Initialization::Actions::InitializeItems<
+          Initialization::TimeStepping<EvolutionMetavars, local_time_stepping>,
+          evolution::dg::Initialization::Domain<Dim>>,
       Initialization::Actions::ConservativeSystem<system>,
       evolution::Initialization::Actions::SetVariables<
           domain::Tags::Coordinates<Dim, Frame::ElementLogical>>,
@@ -267,26 +269,27 @@ struct EvolutionMetavars {
           tmpl::list<NewtonianEuler::Tags::SoundSpeedSquaredCompute<DataVector>,
                      NewtonianEuler::Tags::SoundSpeedCompute<DataVector>>>,
       Initialization::Actions::AddComputeTags<
-          StepChoosers::step_chooser_compute_tags<EvolutionMetavars>>,
+          StepChoosers::step_chooser_compute_tags<EvolutionMetavars,
+                                                  local_time_stepping>>,
       ::evolution::dg::Initialization::Mortars<volume_dim, system>,
       Initialization::Actions::Minmod<Dim>,
       evolution::Actions::InitializeRunEventsAndDenseTriggers,
       Parallel::Actions::TerminatePhase>>;
 
   using dg_step_actions = tmpl::flatten<tmpl::list<
-      evolution::dg::Actions::ComputeTimeDerivative<volume_dim, system,
-                                                    AllStepChoosers>,
+      evolution::dg::Actions::ComputeTimeDerivative<
+          volume_dim, system, AllStepChoosers, local_time_stepping>,
       tmpl::conditional_t<
           local_time_stepping,
           tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
                          evolution::dg::ApplyBoundaryCorrections<
-                             EvolutionMetavars, true>,
+                             local_time_stepping, system, volume_dim, true>,
                          typename system::primitive_from_conservative>>,
                      evolution::dg::Actions::ApplyLtsBoundaryCorrections<
-                         EvolutionMetavars>>,
+                         system, volume_dim>>,
           tmpl::list<
               evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
-                  EvolutionMetavars>,
+                  system, volume_dim>,
               Actions::RecordTimeStepperData<>,
               evolution::Actions::RunEventsAndDenseTriggers<
                   tmpl::list<typename system::primitive_from_conservative>>,
@@ -323,10 +326,10 @@ struct EvolutionMetavars {
       evolution::dg::subcell::Actions::SelectNumericalMethod,
 
       Actions::Label<evolution::dg::subcell::Actions::Labels::BeginDg>,
-      evolution::dg::Actions::ComputeTimeDerivative<volume_dim, system,
-                                                    AllStepChoosers>,
+      evolution::dg::Actions::ComputeTimeDerivative<
+          volume_dim, system, AllStepChoosers, local_time_stepping>,
       evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
-          EvolutionMetavars>,
+          system, volume_dim>,
       tmpl::conditional_t<
           local_time_stepping, tmpl::list<>,
           tmpl::list<Actions::RecordTimeStepperData<>, Actions::UpdateU<>>>,
@@ -339,7 +342,8 @@ struct EvolutionMetavars {
       Actions::Label<evolution::dg::subcell::Actions::Labels::BeginSubcell>,
       evolution::dg::subcell::Actions::SendDataForReconstruction<
           volume_dim,
-          NewtonianEuler::subcell::PrimitiveGhostVariables<volume_dim>>,
+          NewtonianEuler::subcell::PrimitiveGhostVariables<volume_dim>,
+          local_time_stepping>,
       evolution::dg::subcell::Actions::ReceiveDataForReconstruction<volume_dim>,
       Actions::Label<
           evolution::dg::subcell::Actions::Labels::BeginSubcellAfterDgRollback>,

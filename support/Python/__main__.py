@@ -13,12 +13,59 @@ SPECTRE_VERSION = "@SPECTRE_VERSION@"
 # invoked. This is important so the CLI responds quickly.
 class Cli(click.MultiCommand):
     def list_commands(self, ctx):
-        return ["clean-output"]
+        return [
+            "apply-pointwise",
+            "clean-output",
+            "extract-dat",
+            "extract-input",
+            "generate-xdmf",
+            "interpolate-to-coords",
+            "interpolate-to-mesh",
+            "plot-dat",
+            "render-1d",
+            "simplify-traces",
+        ]
 
     def get_command(self, ctx, name):
-        if name == "clean-output":
+        if name == "apply-pointwise":
+            from spectre.Visualization.ApplyPointwise import (
+                apply_pointwise_command)
+            return apply_pointwise_command
+        elif name == "clean-output":
             from spectre.tools.CleanOutput import clean_output_command
             return clean_output_command
+        elif name == "delete-subfiles":
+            from spectre.IO.H5.DeleteSubfiles import delete_subfiles_command
+            return delete_subfiles_command
+        elif name == "extract-dat":
+            from spectre.IO.H5.ExtractDatFromH5 import extract_dat_command
+            return extract_dat_command
+        elif name == "extract-input":
+            from spectre.IO.H5.ExtractInputSourceYamlFromH5 import (
+                extract_input_source_from_h5_command)
+            return extract_input_source_from_h5_command
+        elif name == "generate-xdmf":
+            from spectre.Visualization.GenerateXdmf import (
+                generate_xdmf_command)
+            return generate_xdmf_command
+        elif name == "interpolate-to-coords":
+            from spectre.Visualization.InterpolateToCoords import (
+                interpolate_to_coords_command)
+            return interpolate_to_coords_command
+        elif name == "interpolate-to-mesh":
+            from spectre.Visualization.InterpolateToMesh import (
+                interpolate_to_mesh_command)
+            return interpolate_to_mesh_command
+        elif name == "plot-dat":
+            from spectre.Visualization.PlotDatFile import plot_dat_command
+            return plot_dat_command
+        elif name == "render-1d":
+            from spectre.Visualization.Render1D import render_1d_command
+            return render_1d_command
+        elif name == "simplify-traces":
+            from spectre.tools.CharmSimplifyTraces import (
+                simplify_traces_command)
+            return simplify_traces_command
         raise NotImplementedError(f"The command '{name}' is not implemented.")
 
 

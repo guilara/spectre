@@ -33,7 +33,7 @@
 #include "Time/StepControllers/StepController.hpp"
 #include "Time/Tags.hpp"
 #include "Time/TimeStepId.hpp"
-#include "Time/TimeSteppers/AdamsBashforthN.hpp"
+#include "Time/TimeSteppers/AdamsBashforth.hpp"
 #include "Time/TimeSteppers/LtsTimeStepper.hpp"
 #include "Time/TimeSteppers/TimeStepper.hpp"
 #include "Utilities/FileSystem.hpp"
@@ -79,8 +79,8 @@ struct mock_characteristic_evolution {
       // advance the time so that the current `TimeStepId` is valid without
       // having to perform self-start.
       ::Actions::AdvanceTime, Parallel::Actions::TerminatePhase>;
-  using initialization_tags =
-      Parallel::get_initialization_tags<initialize_action_list>;
+  using simple_tags_from_options =
+      Parallel::get_simple_tags_from_options<initialize_action_list>;
 
   using metavariables = Metavariables;
   using chare_type = ActionTesting::MockArrayChare;
@@ -104,7 +104,6 @@ struct mock_characteristic_evolution {
 };
 
 struct test_metavariables {
-  static constexpr bool local_time_stepping = false;
   using evolved_swsh_tag = Tags::BondiJ;
   using evolved_swsh_dt_tag = Tags::BondiH;
   using cce_step_choosers = tmpl::list<>;
@@ -211,7 +210,7 @@ SPECTRE_TEST_CASE("Unit.Evolution.Systems.Cce.Actions.RequestBoundaryData",
   ActionTesting::emplace_component<evolution_component>(
       &runner, 0, target_step_size * 0.75,
       static_cast<std::unique_ptr<LtsTimeStepper>>(
-          std::make_unique<::TimeSteppers::AdamsBashforthN>(3)),
+          std::make_unique<::TimeSteppers::AdamsBashforth>(3)),
       make_vector<std::unique_ptr<StepChooser<StepChooserUse::LtsStep>>>(),
       static_cast<std::unique_ptr<StepController>>(
           std::make_unique<StepControllers::BinaryFraction>()),

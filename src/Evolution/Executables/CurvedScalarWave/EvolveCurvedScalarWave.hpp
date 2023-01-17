@@ -60,6 +60,7 @@
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
 #include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
 #include "ParallelAlgorithms/Actions/AddSimpleTags.hpp"
+#include "ParallelAlgorithms/Actions/InitializeItems.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
@@ -248,18 +249,18 @@ struct EvolutionMetavars {
       tmpl::conditional_t<domain::enable_time_dependent_maps,
                           CurvedScalarWave::Actions::CalculateGrVars<system>,
                           tmpl::list<>>,
-      evolution::dg::Actions::ComputeTimeDerivative<volume_dim, system,
-                                                    AllStepChoosers>,
+      evolution::dg::Actions::ComputeTimeDerivative<
+          volume_dim, system, AllStepChoosers, local_time_stepping>,
       tmpl::conditional_t<
           local_time_stepping,
           tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<
                          tmpl::list<evolution::dg::ApplyBoundaryCorrections<
-                             EvolutionMetavars, true>>>,
+                             local_time_stepping, system, volume_dim, true>>>,
                      evolution::dg::Actions::ApplyLtsBoundaryCorrections<
-                         EvolutionMetavars>>,
+                         system, volume_dim>>,
           tmpl::list<
               evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
-                  EvolutionMetavars>,
+                  system, volume_dim>,
               Actions::RecordTimeStepperData<>,
               evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<>>,
               Actions::UpdateU<>>>,
@@ -279,8 +280,9 @@ struct EvolutionMetavars {
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
 
   using initialization_actions = tmpl::list<
-      Initialization::Actions::TimeAndTimeStep<EvolutionMetavars>,
-      evolution::dg::Initialization::Domain<volume_dim>,
+      Initialization::Actions::InitializeItems<
+          Initialization::TimeStepping<EvolutionMetavars, local_time_stepping>,
+          evolution::dg::Initialization::Domain<volume_dim>>,
       Initialization::Actions::NonconservativeSystem<system>,
       Initialization::Actions::TimeStepperHistory<EvolutionMetavars>,
       CurvedScalarWave::Actions::CalculateGrVars<system>,
@@ -289,8 +291,9 @@ struct EvolutionMetavars {
               volume_dim>,
           CurvedScalarWave::Initialization::InitializeEvolvedVariables<
               volume_dim>>,
-      Initialization::Actions::AddComputeTags<tmpl::flatten<tmpl::list<
-          StepChoosers::step_chooser_compute_tags<EvolutionMetavars>>>>,
+      Initialization::Actions::AddComputeTags<
+          tmpl::flatten<tmpl::list<StepChoosers::step_chooser_compute_tags<
+              EvolutionMetavars, local_time_stepping>>>>,
       ::evolution::dg::Initialization::Mortars<volume_dim, system>,
       intrp::Actions::ElementInitInterpPoints<
           intrp::Tags::InterpPointInfo<EvolutionMetavars>>,

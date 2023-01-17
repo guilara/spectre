@@ -2,6 +2,12 @@
 # See LICENSE.txt for details.
 
 spectre_add_python_bindings_test(
+  "Unit.Visualization.Python.ApplyPointwise"
+  Test_ApplyPointwise.py
+  "unit;visualization;python"
+  None)
+
+spectre_add_python_bindings_test(
   "Unit.Visualization.Python.GenerateXdmf"
   Test_GenerateXdmf.py
   "unit;visualization;python"
@@ -23,6 +29,12 @@ if(${BUILD_PYTHON_BINDINGS})
     )
 endif()
 
+spectre_add_python_bindings_test(
+  "Unit.Visualization.Python.ReadH5"
+  Test_ReadH5.py
+  "unit;visualization;python"
+  None)
+
 spectre_add_python_test(
   "Unit.Visualization.Python.Render1D"
   Test_Render1D.py
@@ -30,7 +42,13 @@ spectre_add_python_test(
   None)
 
 spectre_add_python_bindings_test(
-  "Unit.Visualization.Python.InterpolateVolumeData"
-  Test_InterpolateVolumeData.py
+  "Unit.Visualization.Python.InterpolateToCoords"
+  Test_InterpolateToCoords.py
+  "unit;visualization;python"
+  None)
+
+spectre_add_python_bindings_test(
+  "Unit.Visualization.Python.InterpolateToMesh"
+  Test_InterpolateToMesh.py
   "unit;visualization;python"
   None)

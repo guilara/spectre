@@ -146,9 +146,12 @@ compute_prim_solution(
   return vars;
 }
 
-inline Element<3> set_element() {
+inline Element<3> set_element(const bool skip_last = false) {
   DirectionMap<3, Neighbors<3>> neighbors{};
   for (size_t i = 0; i < 6; ++i) {
+    if (skip_last and i == 5) {
+      break;
+    }
     neighbors[gsl::at(Direction<3>::all_directions(), i)] =
         Neighbors<3>{{ElementId<3>{i + 1, {}}}, {}};
   }
@@ -210,36 +213,49 @@ void test_prim_reconstructor_impl(
                              Spectral::Basis::FiniteDifference,
                              Spectral::Quadrature::CellCentered};
   const auto logical_coords = set_logical_coordinates(subcell_mesh);
-  const Element<3> element = set_element();
+  const Element<3> element = set_element(true);
 
+  auto neighbors_for_data = element.neighbors();
+  neighbors_for_data[gsl::at(Direction<3>::all_directions(), 5)] =
+      Neighbors<3>{{ElementId<3>::external_boundary_id()}, {}};
   const FixedHashMap<maximum_number_of_neighbors(3),
                      std::pair<Direction<3>, ElementId<3>>, std::vector<double>,
                      boost::hash<std::pair<Direction<3>, ElementId<3>>>>
       neighbor_data = compute_neighbor_data(
-          subcell_mesh, logical_coords, element.neighbors(),
+          subcell_mesh, logical_coords, neighbors_for_data,
           reconstructor.ghost_zone_size(), compute_prim_solution);
 
   const size_t reconstructed_num_pts =
       (subcell_mesh.extents(0) + 1) *
       subcell_mesh.extents().slice_away(0).product();
 
+  using fd_package_data_argument_tags = tmpl::remove_duplicates<tmpl::append<
+      cons_tags,
+      tmpl::push_back<
+          prims_tags,
+          hydro::Tags::LorentzFactorTimesSpatialVelocity<DataVector, 3>>,
+      flux_tags,
+      tmpl::list<Lapse, Shift, SpatialMetric, SqrtDetSpatialMetric,
+                 InverseSpatialMetric,
+                 evolution::dg::Actions::detail::NormalVector<3>>>>;
   using dg_package_data_argument_tags = tmpl::remove_duplicates<tmpl::append<
       cons_tags,
       tmpl::push_back<
           prims_tags,
           hydro::Tags::LorentzFactorTimesSpatialVelocity<DataVector, 3>>,
       flux_tags,
-      tmpl::push_back<
-          tmpl::list<Lapse, Shift, SpatialMetric, SqrtDetSpatialMetric,
-                     InverseSpatialMetric,
-                     evolution::dg::Actions::detail::NormalVector<3>>>>>;
+      tmpl::list<GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma1,
+                 GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma2,
+                 Lapse, Shift, SpatialMetric, SqrtDetSpatialMetric,
+                 InverseSpatialMetric,
+                 evolution::dg::Actions::detail::NormalVector<3>>>>;
 
-  std::array<Variables<dg_package_data_argument_tags>, 3> vars_on_lower_face =
+  std::array<Variables<fd_package_data_argument_tags>, 3> vars_on_lower_face =
       make_array<3>(
-          Variables<dg_package_data_argument_tags>(reconstructed_num_pts));
-  std::array<Variables<dg_package_data_argument_tags>, 3> vars_on_upper_face =
+          Variables<fd_package_data_argument_tags>(reconstructed_num_pts));
+  std::array<Variables<fd_package_data_argument_tags>, 3> vars_on_upper_face =
       make_array<3>(
-          Variables<dg_package_data_argument_tags>(reconstructed_num_pts));
+          Variables<fd_package_data_argument_tags>(reconstructed_num_pts));
 
   Variables<prims_tags> volume_prims{subcell_mesh.number_of_grid_points()};
   Variables<cons_tags> volume_cons_vars{subcell_mesh.number_of_grid_points()};
@@ -295,7 +311,7 @@ void test_prim_reconstructor_impl(
       logical_coords_face_centered.get(i) =
           logical_coords_face_centered.get(i) + 4.0 * i;
     }
-    Variables<dg_package_data_argument_tags> expected_lower_face_values{
+    Variables<fd_package_data_argument_tags> expected_lower_face_values{
         face_centered_mesh.number_of_grid_points()};
     expected_lower_face_values.assign_subset(
         compute_prim_solution(logical_coords_face_centered));
@@ -331,7 +347,7 @@ void test_prim_reconstructor_impl(
               get<Shift>(expected_lower_face_values),
               get<SpacetimeMetric>(expected_lower_face_values));
 
-    Variables<dg_package_data_argument_tags> expected_upper_face_values =
+    Variables<fd_package_data_argument_tags> expected_upper_face_values =
         expected_lower_face_values;
     gr::spatial_metric(
         make_not_null(&get<SpatialMetric>(expected_upper_face_values)),
@@ -428,11 +444,13 @@ void test_prim_reconstructor_impl(
         face_centered_mesh.slice_away(dim).number_of_grid_points();
     Variables<dg_package_data_argument_tags> upper_side_vars_on_mortar{
         num_pts_on_mortar};
-    dynamic_cast<const Reconstructor&>(reconstructor)
-        .reconstruct_fd_neighbor(make_not_null(&upper_side_vars_on_mortar),
-                                 volume_prims, volume_spacetime_vars, eos,
-                                 element, neighbor_data, subcell_mesh,
-                                 Direction<3>{dim, Side::Upper});
+    if (dim != 2) {
+      dynamic_cast<const Reconstructor&>(reconstructor)
+          .reconstruct_fd_neighbor(make_not_null(&upper_side_vars_on_mortar),
+                                   volume_prims, volume_spacetime_vars, eos,
+                                   element, neighbor_data, subcell_mesh,
+                                   Direction<3>{dim, Side::Upper});
+    }
 
     Variables<dg_package_data_argument_tags> lower_side_vars_on_mortar{
         num_pts_on_mortar};
@@ -452,11 +470,13 @@ void test_prim_reconstructor_impl(
               get<tag_to_check>(lower_side_vars_on_mortar),
               data_on_slice(get<tag_to_check>(expected_lower_face_values),
                             face_centered_mesh.extents(), dim, 0));
-          CHECK_ITERABLE_APPROX(
-              get<tag_to_check>(upper_side_vars_on_mortar),
-              data_on_slice(get<tag_to_check>(expected_upper_face_values),
-                            face_centered_mesh.extents(), dim,
-                            face_centered_mesh.extents(dim) - 1));
+          if (dim != 2) {
+            CHECK_ITERABLE_APPROX(
+                get<tag_to_check>(upper_side_vars_on_mortar),
+                data_on_slice(get<tag_to_check>(expected_upper_face_values),
+                              face_centered_mesh.extents(), dim,
+                              face_centered_mesh.extents(dim) - 1));
+          }
         });
   }
 }

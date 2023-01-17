@@ -27,7 +27,7 @@
 #include "Time/TakeStep.hpp"
 #include "Time/Time.hpp"
 #include "Time/TimeStepId.hpp"
-#include "Time/TimeSteppers/AdamsBashforthN.hpp"
+#include "Time/TimeSteppers/AdamsBashforth.hpp"
 #include "Time/TimeSteppers/LtsTimeStepper.hpp"
 #include "Utilities/Literals.hpp"
 #include "Utilities/ProtocolHelpers.hpp"
@@ -37,9 +37,7 @@ struct EvolvedVariable : db::SimpleTag {
   using type = DataVector;
 };
 
-template <bool LocalTimeStepping>
 struct Metavariables {
-  static constexpr bool local_time_stepping = LocalTimeStepping;
   struct system {
     static constexpr size_t volume_dim = 1;
     using variables_tag = EvolvedVariable;
@@ -96,22 +94,22 @@ void test_gts() {
       [](const auto y, const auto /*t*/) { return 1.0e-2 * y; }, time_step, 4);
 
   auto box = db::create<db::AddSimpleTags<
-      Parallel::Tags::MetavariablesImpl<Metavariables<false>>, Tags::TimeStepId,
+      Parallel::Tags::MetavariablesImpl<Metavariables>, Tags::TimeStepId,
       Tags::Next<Tags::TimeStepId>, Tags::TimeStep, Tags::Next<Tags::TimeStep>,
       EvolvedVariable, Tags::dt<EvolvedVariable>,
       Tags::HistoryEvolvedVariables<EvolvedVariable>,
       Tags::TimeStepper<LtsTimeStepper>,
       ::Tags::IsUsingTimeSteppingErrorControl>>(
-      Metavariables<false>{}, TimeStepId{true, 0_st, slab.start()},
+      Metavariables{}, TimeStepId{true, 0_st, slab.start()},
       TimeStepId{true, 0_st, Time{slab, {1, 4}}}, time_step, time_step,
       initial_values, DataVector{5, 0.0}, std::move(history),
       static_cast<std::unique_ptr<LtsTimeStepper>>(
-          std::make_unique<TimeSteppers::AdamsBashforthN>(5)),
+          std::make_unique<TimeSteppers::AdamsBashforth>(5)),
       false);
   // update the rhs
   db::mutate<Tags::dt<EvolvedVariable>>(make_not_null(&box), update_rhs,
                                         db::get<EvolvedVariable>(box));
-  take_step(make_not_null(&box));
+  take_step<typename Metavariables::system, false>(make_not_null(&box));
   // check that the state is as expected
   CHECK(db::get<Tags::TimeStepId>(box).substep_time().value() == 0.0);
   CHECK(db::get<Tags::Next<Tags::TimeStepId>>(box).substep_time().value() ==
@@ -134,7 +132,7 @@ void test_lts() {
   step_choosers.emplace_back(
       std::make_unique<
           StepChoosers::Cfl<StepChooserUse::LtsStep, Frame::Inertial,
-                            typename Metavariables<true>::system>>(1.0));
+                            typename Metavariables::system>>(1.0));
 
   MAKE_GENERATOR(generator);
   std::uniform_real_distribution<> dist{-1.0, 1.0};
@@ -157,8 +155,8 @@ void test_lts() {
 
   auto box = db::create<
       db::AddSimpleTags<
-          Parallel::Tags::MetavariablesImpl<Metavariables<true>>,
-          Tags::TimeStepId, Tags::Next<Tags::TimeStepId>, Tags::TimeStep,
+          Parallel::Tags::MetavariablesImpl<Metavariables>, Tags::TimeStepId,
+          Tags::Next<Tags::TimeStepId>, Tags::TimeStep,
           Tags::Next<Tags::TimeStep>, EvolvedVariable,
           Tags::RollbackValue<EvolvedVariable>, Tags::dt<EvolvedVariable>,
           Tags::StepperError<EvolvedVariable>,
@@ -168,16 +166,16 @@ void test_lts() {
           domain::Tags::MinimumGridSpacing<1, Frame::Inertial>,
           Tags::StepController, ::Tags::IsUsingTimeSteppingErrorControl,
           Tags::StepperErrorUpdated>,
-      db::AddComputeTags<typename Metavariables<
-          true>::system::compute_largest_characteristic_speed>>(
-      Metavariables<true>{}, TimeStepId{true, 0_st, slab.start()},
+      db::AddComputeTags<typename Metavariables::system::
+                             compute_largest_characteristic_speed>>(
+      Metavariables{}, TimeStepId{true, 0_st, slab.start()},
       TimeStepId{true, 0_st, Time{slab, {1, 4}}}, time_step, time_step,
       initial_values, initial_values, DataVector{5, 0.0}, DataVector{},
       DataVector{}, std::move(history),
       static_cast<std::unique_ptr<LtsTimeStepper>>(
-          std::make_unique<TimeSteppers::AdamsBashforthN>(5)),
+          std::make_unique<TimeSteppers::AdamsBashforth>(5)),
       std::move(step_choosers),
-      1.0 / TimeSteppers::AdamsBashforthN{5}.stable_step(),
+      1.0 / TimeSteppers::AdamsBashforth{5}.stable_step(),
       static_cast<std::unique_ptr<StepController>>(
           std::make_unique<StepControllers::BinaryFraction>()),
       true, false);
@@ -185,7 +183,7 @@ void test_lts() {
   // update the rhs
   db::mutate<Tags::dt<EvolvedVariable>>(make_not_null(&box), update_rhs,
                                          db::get<EvolvedVariable>(box));
-  take_step(make_not_null(&box));
+  take_step<typename Metavariables::system, true>(make_not_null(&box));
   // check that the state is as expected
   CHECK(db::get<Tags::TimeStepId>(box).substep_time().value() == 0.0);
   CHECK(db::get<Tags::Next<Tags::TimeStepId>>(box).substep_time().value() ==
@@ -221,9 +219,9 @@ void test_lts() {
   // alter the grid spacing so that the CFL condition will cause rejection.
   db::mutate<domain::Tags::MinimumGridSpacing<1, Frame::Inertial>>(
       make_not_null(&box), [](const gsl::not_null<double*> grid_spacing) {
-        *grid_spacing = 0.15 / TimeSteppers::AdamsBashforthN{5}.stable_step();
+        *grid_spacing = 0.15 / TimeSteppers::AdamsBashforth{5}.stable_step();
       });
-  take_step(make_not_null(&box));
+  take_step<typename Metavariables::system, true>(make_not_null(&box));
   // check that the state is as expected
   CHECK(db::get<Tags::TimeStepId>(box).substep_time().value() == approx(0.25));
   CHECK(db::get<Tags::TimeStep>(box) == TimeDelta{slab, {1, 8}});

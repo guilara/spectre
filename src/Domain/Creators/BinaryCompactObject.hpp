@@ -19,6 +19,7 @@
 #include "Domain/BoundaryConditions/GetBoundaryConditionsBase.hpp"
 #include "Domain/CoordinateMaps/CoordinateMap.hpp"
 #include "Domain/CoordinateMaps/Distribution.hpp"
+#include "Domain/Creators/BinaryCompactObjectHelpers.hpp"
 #include "Domain/Creators/DomainCreator.hpp"
 #include "Domain/Domain.hpp"
 #include "Domain/Structure/DirectionMap.hpp"
@@ -65,23 +66,6 @@ namespace Frame {
 struct Inertial;
 struct BlockLogical;
 }  // namespace Frame
-
-namespace BinaryCompactObject_detail {
-// If `Metavariables` has a `domain_parameters` member struct and
-// `domain_parameters::enable_time_dependent_maps` is `true`, then
-// inherit from `std::true_type`; otherwise, inherit from `std::false_type`.
-template <typename Metavariables, typename = std::void_t<>>
-struct enable_time_dependent_maps : std::false_type {};
-
-template <typename Metavariables>
-struct enable_time_dependent_maps<Metavariables,
-                                  std::void_t<typename Metavariables::domain>>
-    : std::bool_constant<Metavariables::domain::enable_time_dependent_maps> {};
-
-template <typename Metavariables>
-constexpr bool enable_time_dependent_maps_v =
-    enable_time_dependent_maps<Metavariables>::value;
-}  // namespace BinaryCompactObject_detail
 /// \endcond
 
 namespace domain {
@@ -122,8 +106,8 @@ namespace creators {
  *
  * In the code and options below, `ObjectA` and `ObjectB` refer to the two
  * compact objects, and by extension, also refer to the layers that immediately
- * surround each compact object. Note that `ObjectA` is located to the left of
- * the origin (along the negative x-axis) and `ObjectB` is located to the right
+ * surround each compact object. Note that `ObjectA` is located to the right of
+ * the origin (along the positive x-axis) and `ObjectB` is located to the left
  * of the origin. `enveloping cube` refers to the outer surface of Layer 3.
  * `outer sphere` is the radius of the spherical outer boundary, which is
  * the outer boundary of Layer 5. The `enveloping cube` and `outer sphere`
@@ -298,14 +282,14 @@ class BinaryCompactObject : public DomainCreator<3> {
   struct ObjectA {
     using type = Object;
     static constexpr Options::String help = {
-        "Options for the object to the left of the origin (along the negative "
+        "Options for the object to the right of the origin (along the positive "
         "x-axis)."};
   };
 
   struct ObjectB {
     using type = Object;
     static constexpr Options::String help = {
-        "Options for the object to the right of the origin (along the positive "
+        "Options for the object to the left of the origin (along the negative "
         "x-axis)."};
   };
 
@@ -550,7 +534,7 @@ class BinaryCompactObject : public DomainCreator<3> {
 
   template <typename Metavariables>
   using options = tmpl::conditional_t<
-      BinaryCompactObject_detail::enable_time_dependent_maps_v<Metavariables>,
+      domain::creators::detail::enable_time_dependent_maps_v<Metavariables>,
       tmpl::append<time_dependent_options,
                    time_independent_options<Metavariables>>,
       time_independent_options<Metavariables>>;
@@ -572,8 +556,8 @@ class BinaryCompactObject : public DomainCreator<3> {
       "boundary condition or 'false', the region will be excised. The user "
       "specifies Object{A,B}.XCoord, the x-coordinates of the locations of the "
       "centers of each compact object. In these coordinates, the location for "
-      "the axis of rotation is x=0. ObjectA is located on the left and ObjectB "
-      "is located on the right. Please make sure that your choices of "
+      "the axis of rotation is x=0. ObjectA is located on the right and ObjectB"
+      "is located on the left. Please make sure that your choices of "
       "x-coordinate locations are such that the resulting center of mass "
       "is located at zero.\n"
       "\n"

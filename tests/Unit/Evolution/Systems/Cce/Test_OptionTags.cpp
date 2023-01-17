@@ -32,7 +32,7 @@
 #include "NumericalAlgorithms/Interpolation/CubicSpanInterpolator.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrSchild.hpp"
 #include "Time/Tags.hpp"
-#include "Time/TimeSteppers/RungeKutta3.hpp"
+#include "Time/TimeSteppers/Rk3HesthavenSsp.hpp"
 #include "Time/TimeSteppers/TimeStepper.hpp"
 #include "Utilities/FileSystem.hpp"
 #include "Utilities/Literals.hpp"
@@ -48,6 +48,7 @@ SPECTRE_TEST_CASE("Unit.Evolution.Systems.Cce.OptionTags", "[Unit][Cce]") {
       "ScriOutputDensity");
   TestHelpers::db::test_simple_tag<Cce::Tags::H5WorldtubeBoundaryDataManager>(
       "H5WorldtubeBoundaryDataManager");
+  TestHelpers::db::test_simple_tag<Cce::Tags::FilePrefix>("FilePrefix");
   TestHelpers::db::test_simple_tag<Cce::Tags::LMax>("LMax");
   TestHelpers::db::test_simple_tag<Cce::Tags::NumberOfRadialPoints>(
       "NumberOfRadialPoints");
@@ -82,6 +83,9 @@ SPECTRE_TEST_CASE("Unit.Evolution.Systems.Cce.OptionTags", "[Unit][Cce]") {
       Cce::Tags::CceEvolutionPrefix<::Tags::TimeStepper<TimeStepper>>>(
       "TimeStepper");
 
+  CHECK(
+      TestHelpers::test_option_tag<Cce::OptionTags::BondiSachsOutputFilePrefix>(
+          "Shrek") == "Shrek");
   CHECK(TestHelpers::test_option_tag<Cce::OptionTags::LMax>("8") == 8_st);
   CHECK(TestHelpers::test_option_tag<Cce::OptionTags::FilterLMax>("7") == 7_st);
   CHECK(TestHelpers::test_option_tag<Cce::OptionTags::RadialFilterAlpha>(
@@ -161,7 +165,7 @@ SPECTRE_TEST_CASE("Unit.Evolution.Systems.Cce.OptionTags", "[Unit][Cce]") {
   TestHelpers::test_option_tag_factory_creation<
       Cce::OptionTags::CceEvolutionPrefix<
           ::OptionTags::TimeStepper<TimeStepper>>,
-      TimeSteppers::RungeKutta3>("RungeKutta3:");
+      TimeSteppers::Rk3HesthavenSsp>("Rk3HesthavenSsp:");
 
   const std::string filename = "OptionTagsTestCceR0100.h5";
   if (file_system::check_if_file_exists(filename)) {
@@ -176,6 +180,7 @@ SPECTRE_TEST_CASE("Unit.Evolution.Systems.Cce.OptionTags", "[Unit][Cce]") {
             false, true, std::nullopt)
             ->get_l_max() == 8);
 
+  CHECK(Cce::Tags::FilePrefix::create_from_options("Shrek 2") == "Shrek 2");
   CHECK(Cce::Tags::LMax::create_from_options(8u) == 8u);
   CHECK(Cce::Tags::NumberOfRadialPoints::create_from_options(6u) == 6u);
 

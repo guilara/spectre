@@ -130,7 +130,7 @@ when you `cp` or `mv` the source files.
 ## Using Docker to obtain a SpECTRE environment {#docker_install}
 
 A [Docker](https://www.docker.com/) image is available from
-[DockerHub](https://hub.docker.com/r/sxscollaboration/spectrebuildenv/) and can
+[DockerHub](https://hub.docker.com/r/sxscollaboration/spectre/) and can
 be used to build SpECTRE on a personal machine.
 
 **Note**: The Docker image or the Singularity image (see below) are
@@ -243,12 +243,14 @@ To build SpECTRE with Singularity you must:
    (version 3.7. For other versions, see the [docs](https://sylabs.io/docs/)).
    Once inside the WORKDIR, clone SpECTRE into `WORKDIR/SPECTRE_ROOT`.
 3. Run `sudo singularity build spectre.img
-   docker://sxscollaboration/spectrebuildenv:latest`.
+   docker://sxscollaboration/spectre:dev`.
+   You can also use spectre:ci instead of spectre:dev if you want more
+   compilers installed.
 
    If you get the error message that `makesquashfs` did not have enough space to
    create the image you need to set a different `SINGULARITY_TMPDIR`. This can
    be done by running: `sudo SINGULARITY_TMPDIR=/path/to/new/tmp singularity
-   build spectre.img docker://sxscollaboration/spectrebuildenv:latest`. Normally
+   build spectre.img docker://sxscollaboration/spectre:dev`. Normally
    `SINGULARITY_TMPDIR` is `/tmp`, but building the image will temporarily need
    almost 8GB of space.
 
@@ -396,9 +398,8 @@ Follow these steps:
      Compile `test-executables` and run `ctest` to run all tests, including
      executables. To compile `test-executables` you may have to reduce the
      number of cores you build on in parallel to avoid running out of memory.
-   - To compile the Python bindings, add the option
-     `-D BUILD_PYTHON_BINDINGS=ON` to the `cmake` command and compile the
-     `all-pybindings` target (see \ref spectre_using_python).
+   - To use the Python bindings, compile the `all-pybindings` target (see
+     \ref spectre_using_python).
 
 ## Code Coverage Analysis
 

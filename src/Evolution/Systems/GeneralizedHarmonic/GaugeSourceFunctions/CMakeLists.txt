@@ -12,8 +12,8 @@ spectre_target_sources(
   Gauges.cpp
   HalfPiPhiTwoNormals.cpp
   Harmonic.cpp
-  InitializeDampedHarmonic.cpp
   RegisterDerived.cpp
+  SetPiFromGauge.cpp
   )
 
 spectre_target_headers(
@@ -29,8 +29,8 @@ spectre_target_headers(
   Gauges.hpp
   HalfPiPhiTwoNormals.hpp
   Harmonic.hpp
-  InitializeDampedHarmonic.hpp
   RegisterDerived.hpp
+  SetPiFromGauge.hpp
   )
 
 add_subdirectory(Tags)

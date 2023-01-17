@@ -34,18 +34,20 @@ void test() {
       db::AddSimpleTags<
           gr::Tags::Lapse<>, gr::Tags::Shift<Dim>,
           gr::Tags::SpacetimeNormalOneForm<Dim>,
+          gr::Tags::SpacetimeNormalVector<Dim>,
           gr::Tags::SqrtDetSpatialMetric<>, gr::Tags::InverseSpatialMetric<Dim>,
           gr::Tags::SpacetimeMetric<Dim>, GeneralizedHarmonic::Tags::Pi<Dim>,
           GeneralizedHarmonic::Tags::Phi<Dim>,
           ::Events::Tags::ObserverMesh<Dim>, ::Tags::Time,
           ::Events::Tags::ObserverCoordinates<Dim, Frame::Inertial>,
-          domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
-                                        Frame::Inertial>,
+          ::Events::Tags::ObserverInverseJacobian<Dim, Frame::ElementLogical,
+                                                  Frame::Inertial>,
           GeneralizedHarmonic::gauges::Tags::GaugeCondition>,
       db::AddComputeTags<
           GeneralizedHarmonic::gauges::Tags::GaugeAndDerivativeCompute<Dim>>>(
       Scalar<DataVector>{}, tnsr::I<DataVector, Dim, Frame::Inertial>{},
-      tnsr::a<DataVector, Dim, Frame::Inertial>{}, Scalar<DataVector>{},
+      tnsr::a<DataVector, Dim, Frame::Inertial>{},
+      tnsr::A<DataVector, Dim, Frame::Inertial>{}, Scalar<DataVector>{},
       tnsr::II<DataVector, Dim, Frame::Inertial>{},
       tnsr::aa<DataVector, Dim, Frame::Inertial>{},
       tnsr::aa<DataVector, Dim, Frame::Inertial>{},

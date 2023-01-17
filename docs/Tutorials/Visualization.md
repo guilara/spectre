@@ -47,8 +47,9 @@ will be described in the next section.
 
 A SpECTRE executable with observers produces volume and/or reduced data h5
 files. An XDMF file must be created from the volume data in order to do
-visualization using ParaView. To this end we provide the python executable
-`GenerateXdmf.py` in the `Visualization/Python` directory. `GenerateXdmf.py`
+visualization using ParaView. To this end we provide the tool
+`generate-xdmf` in the Python command-line interface. Run it in your build
+directory as `spectre generate-xdmf`. It
 takes three required arguments which are passed to `--file-prefix`,
 `--subfile-name`, and `--output`. The argument passed to `--file-prefix` is the
 name of the H5 volume data, leaving out the node number and extension. The
@@ -101,9 +102,9 @@ Make sure that `Scale Mode` is set to `vector`.
 ### Visualizing and Extracting Dat Files
 
 Global quantities such as error norms are stored in `h5::Dat` subfiles in the
-reduction/global HDF5 file. A python script named `PlotDatFile` in the `bin`
-directory (copied from `Visualization/Python`) can be used to plot quantities
-from Dat files and to extract them into space-separated text files. These text
+reduction/global HDF5 file. The command-line endpoint `spectre plot-dat`
+can be used to plot quantities, and `spectre extract-dat` can be used
+to extract them into space-separated text files. These text
 files can then be read with other plotting programs or viewed in an editor.
 
 ### Reproducibility of Results

@@ -18,6 +18,7 @@ Evolution:
   InitialSlabSize: 0.6
 
 ResourceInfo:
+  AvoidGlobalProc0: false
   Singletons:
     CharacteristicEvolution:
       Proc: Auto
@@ -33,7 +34,7 @@ Observers:
 Cce:
   Evolution:
     TimeStepper:
-      AdamsBashforthN:
+      AdamsBashforth:
         Order: 3
     StepChoosers:
       - Constant: 0.1

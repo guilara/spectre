@@ -10,7 +10,10 @@ spectre_python_add_module(
   SOURCES
   Bindings.cpp
   EquationOfState.cpp
+  PiecewisePolytropicFluid.cpp
   PolytropicFluid.cpp
+  PYTHON_FILES
+  __init__.py
   )
 
 spectre_python_headers(
@@ -18,6 +21,7 @@ spectre_python_headers(
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
   EquationOfState.hpp
+  PiecewisePolytropicFluid.hpp
   PolytropicFluid.hpp
   )
 

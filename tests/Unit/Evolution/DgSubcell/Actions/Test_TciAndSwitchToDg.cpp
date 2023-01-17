@@ -37,6 +37,7 @@
 #include "Evolution/DgSubcell/Tags/NeighborData.hpp"
 #include "Evolution/DgSubcell/Tags/SubcellOptions.hpp"
 #include "Evolution/DgSubcell/Tags/TciGridHistory.hpp"
+#include "Evolution/DgSubcell/Tags/TciStatus.hpp"
 #include "Framework/ActionTesting.hpp"
 #include "NumericalAlgorithms/Spectral/LogicalCoordinates.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
@@ -47,8 +48,8 @@
 #include "Time/Tags.hpp"
 #include "Time/Time.hpp"
 #include "Time/TimeStepId.hpp"
-#include "Time/TimeSteppers/AdamsBashforthN.hpp"
-#include "Time/TimeSteppers/RungeKutta3.hpp"
+#include "Time/TimeSteppers/AdamsBashforth.hpp"
+#include "Time/TimeSteppers/Rk3HesthavenSsp.hpp"
 #include "Time/TimeSteppers/TimeStepper.hpp"
 #include "Utilities/ErrorHandling/Error.hpp"
 #include "Utilities/Gsl.hpp"
@@ -78,7 +79,7 @@ struct component {
       evolution::dg::subcell::Tags::ActiveGrid,
       evolution::dg::subcell::Tags::DidRollback,
       evolution::dg::subcell::Tags::NeighborDataForReconstruction<Dim>,
-      evolution::dg::subcell::Tags::TciStatus,
+      evolution::dg::subcell::Tags::TciDecision,
       evolution::dg::subcell::Tags::DataForRdmpTci,
       evolution::dg::subcell::Tags::TciGridHistory,
       Tags::Variables<tmpl::list<Var1>>,
@@ -155,9 +156,9 @@ bool Metavariables<Dim>::tci_invoked = false;
 std::unique_ptr<TimeStepper> make_time_stepper(
     const bool multistep_time_stepper) {
   if (multistep_time_stepper) {
-    return std::make_unique<TimeSteppers::AdamsBashforthN>(2);
+    return std::make_unique<TimeSteppers::AdamsBashforth>(2);
   } else {
-    return std::make_unique<TimeSteppers::RungeKutta3>();
+    return std::make_unique<TimeSteppers::Rk3HesthavenSsp>();
   }
 }
 
@@ -213,8 +214,7 @@ void test_impl(
                boost::hash<std::pair<Direction<Dim>, ElementId<Dim>>>>
       neighbor_data{};
 
-  Scalar<DataVector> tci_status{dg_mesh.number_of_grid_points(),
-                                static_cast<double>(tci_fails)};
+  const int tci_decision{static_cast<int>(tci_fails)};
 
   evolution::dg::subcell::RdmpTciData rdmp_tci_data{};
   // max and min of +-2 at last time level means reconstructed vars will be in
@@ -252,8 +252,9 @@ void test_impl(
   ActionTesting::emplace_array_component_and_initialize<comp>(
       &runner, ActionTesting::NodeId{0}, ActionTesting::LocalCoreId{0}, 0,
       {time_step_id, dg_mesh, subcell_mesh, active_grid, did_rollback,
-       neighbor_data, tci_status, rdmp_tci_data, tci_grid_history, evolved_vars,
-       time_stepper_history, make_time_stepper(multistep_time_stepper)});
+       neighbor_data, tci_decision, rdmp_tci_data, tci_grid_history,
+       evolved_vars, time_stepper_history,
+       make_time_stepper(multistep_time_stepper)});
 
   // Invoke the TciAndSwitchToDg action on the runner
   ActionTesting::next_action<comp>(make_not_null(&runner), 0);
@@ -382,8 +383,8 @@ SPECTRE_TEST_CASE("Unit.Evolution.Subcell.Actions.TciAndSwitchToDg",
   // 5. Check if RDMP is not triggered, but tci_mutator is, we stay on subcell
   // 6. check if RDMP & TCI not triggered, switch to DG.
   // 7. check if DidRollBack=True, stay in subcell.
-  Parallel::register_classes_with_charm<TimeSteppers::AdamsBashforthN,
-                                        TimeSteppers::RungeKutta3>();
+  Parallel::register_classes_with_charm<TimeSteppers::AdamsBashforth,
+                                        TimeSteppers::Rk3HesthavenSsp>();
   test<1>();
   test<2>();
   test<3>();

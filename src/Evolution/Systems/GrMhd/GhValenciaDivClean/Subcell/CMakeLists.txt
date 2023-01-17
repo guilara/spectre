@@ -17,10 +17,12 @@ spectre_target_headers(
   HEADERS
   FixConservativesAndComputePrims.hpp
   InitialDataTci.hpp
+  NeighborPackagedData.hpp
   PrimitiveGhostData.hpp
   PrimsAfterRollback.hpp
   ResizeAndComputePrimitives.hpp
   Subcell.hpp
   TciOnDgGrid.hpp
   TciOnFdGrid.hpp
+  TimeDerivative.hpp
   )
