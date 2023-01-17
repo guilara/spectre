@@ -55,7 +55,6 @@ void test_power_monitor_array_impl() {
 
 void test_power_monitor_array_second_impl() {
   size_t number_of_points_per_dimension = 4;
-  size_t number_of_points = pow<2>(number_of_points_per_dimension);
 
   const Mesh<2_st> mesh{number_of_points_per_dimension,
                         Spectral::Basis::Legendre,
