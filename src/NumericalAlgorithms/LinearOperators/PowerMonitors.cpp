@@ -25,33 +25,6 @@
 namespace PowerMonitors {
 
 template <size_t Dim>
-void compute_power_monitor(const gsl::not_null<Scalar<DataVector>*> result,
-                           const Scalar<DataVector>& pi,
-                           const tnsr::i<DataVector, Dim, Frame::Inertial>& phi,
-                           const Mesh<Dim>& mesh) {
-  // Set result size
-  destructive_resize_components(result, get_size(get(pi)));
-
-  // Extract nodal coefficients
-  DataVector test_data_vector = pi.get();
-
-  std::array<DataVector, Dim> check_power_monitor_array_function =
-      power_monitor_array(test_data_vector, mesh);
-
-  size_t sliced_dim = 0;
-  size_t n_stripe = mesh.extents(sliced_dim);
-  for (size_t index = 0; index < n_stripe; ++index) {
-    for (SliceIterator si(mesh.extents(), sliced_dim, index); si;
-         ++si) {
-      // Fill the slice with the value of the power_monitor_array
-      get(*result)[si.volume_offset()] =
-          check_power_monitor_array_function[sliced_dim].data()[index];
-    }
-  }
-
-}  // compute_power_monitor
-
-template <size_t Dim>
 std::array<DataVector, Dim> power_monitor_array(
     const DataVector& input_data_vector, const Mesh<Dim>& mesh) {
   // Result Data vectors
@@ -98,10 +71,6 @@ std::array<DataVector, Dim> power_monitor_array(
 #define DIM(data) BOOST_PP_TUPLE_ELEM(0, data)
 
 #define INSTANTIATE(_, data)                                                   \
-  template void PowerMonitors::compute_power_monitor(                          \
-      gsl::not_null<Scalar<DataVector>*> result, const Scalar<DataVector>& pi, \
-      const tnsr::i<DataVector, DIM(data), Frame::Inertial>& phi,              \
-      const Mesh<DIM(data)>& mesh);                                            \
   template std::array<DataVector, DIM(data)>                                   \
   PowerMonitors::power_monitor_array(const DataVector& input_data_vector,      \
                                      const Mesh<DIM(data)>& mesh);
