@@ -43,11 +43,11 @@ void compute_power_monitor(gsl::not_null<Scalar<DataVector>*> result,
  * \ingroup NumericalAlgorithmsGroup
  * \brief Returns array of power monitors in each dimension.
  *
- * The are computed following Ref. \cite{Szilagyi2014fna}, e.g. in the
+ * The are computed following Ref. \cite Szilagyi2014fna, e.g. in the
  * x dimension, we compute
  *
  * \f{align*}{
- *  \log10 P_{k_0}[\psi] = \log10 \sqrt{ \frac{1}{N_1 N_2}
+ *  P_{k_0}[\psi] = \sqrt{ \frac{1}{N_1 N_2}
  *   \sum_{k_1,k_2} \left| C_{k_0,k_1,k_2} \right|^2} ,
  * \f}
  *
