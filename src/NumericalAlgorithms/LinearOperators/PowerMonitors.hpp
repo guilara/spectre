@@ -23,15 +23,18 @@ class not_null;
 }  // namespace gsl
 /// \endcond
 
+/*!
+ * \brief Items for assessing truncation error in spectral methods.
+ */
 namespace PowerMonitors {
 
 /// @{
 /*!
- * \ingroup NumericalAlgorithmsGroup
- * \brief Returns array of power monitors in each dimension.
+ * \ingroup PowerMonitorsGroup
+ * \brief Returns array of power monitors in each spatial dimension.
  *
- * The are computed following Ref. \cite Szilagyi2014fna, e.g. in the
- * x dimension, we compute
+ * The are computed following Sec. 5.1 of Ref. \cite Szilagyi2014fna.
+ * For example, in the x dimension (indexed by \f$ k_0 \f$), we compute
  *
  * \f{align*}{
  *  P_{k_0}[\psi] = \sqrt{ \frac{1}{N_1 N_2}

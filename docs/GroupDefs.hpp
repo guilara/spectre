@@ -589,6 +589,11 @@
  */
 
 /*!
+ * \defgroup PowerMonitorsGroup Power Monitors
+ * \brief Functions to assess truncation error in spectral methods.
+ */
+
+/*!
  * \defgroup PrettyTypeGroup Pretty Type
  * \brief Pretty printing of types
  */
