@@ -24,13 +24,23 @@ void add_stress_energy_term_to_dt_pi(
   }
 }
 
+// void trace_reversed_stress_energy(
+//     const gsl::not_null<tnsr::aa<DataVector, 3>*> stress_energy,
+//     /* Add scalar variables and scalar gradients */
+//     const tnsr::aa<DataVector, 3, Frame::Inertial>& spacetime_metric,
+//     const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
+//     const Scalar<DataVector>& lapse) {
+// // We set it to zero for now
+//   for (size_t a = 0; a < 4; ++a) {
+//     for (size_t b = a; b < 4; ++b) {
+//       stress_energy->get(a, b) = 0.0;
+//     }
+//   }
+// }
+
 void trace_reversed_stress_energy(
-    const gsl::not_null<tnsr::aa<DataVector, 3>*> stress_energy,
-    /* Add scalar variables and scalar gradients */
-    const tnsr::aa<DataVector, 3, Frame::Inertial>& spacetime_metric,
-    const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
-    const Scalar<DataVector>& lapse) {
-// We set it to zero for now
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> stress_energy) {
+  // We set it to zero for now
   for (size_t a = 0; a < 4; ++a) {
     for (size_t b = a; b < 4; ++b) {
       stress_energy->get(a, b) = 0.0;

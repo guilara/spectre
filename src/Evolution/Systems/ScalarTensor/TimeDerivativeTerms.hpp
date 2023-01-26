@@ -27,6 +27,9 @@
 #include "Utilities/TMPL.hpp"
 #include "Utilities/TaggedTuple.hpp"
 
+// Debug
+#include "Parallel/Printf.hpp"
+
 namespace ScalarTensor {
 namespace detail {
 // Wrap Scalar temporaries in this prefix to avoid data structure
@@ -42,7 +45,7 @@ template <typename GhDtTagList, typename ScalarDtTagList,
           typename ScalarTempTagList, typename GhGradientTagList,
           typename GhArgTagList, typename ScalarArgTagList,
           // Should we keep this?
-          typename ScalarTimeDerivativeArgTagList,
+        //   typename ScalarTimeDerivativeArgTagList,
           //
           typename TraceReversedStressResultTagsList,
           typename TraceReversedStressArgumentTagsList>
@@ -53,7 +56,7 @@ template <typename... GhDtTags, typename... ScalarDtTags,
           typename... ScalarTempTags, typename... GhGradientTags,
           typename... GhArgTags, typename... ScalarArgTags,
           // Should we keep this?
-          typename... ScalarTimeDerivativeArgTags,
+        //   typename... ScalarTimeDerivativeArgTags,
           //
           typename... TraceReversedStressResultTags,
           typename... TraceReversedStressArgumentTags>
@@ -63,7 +66,7 @@ struct TimeDerivativeTermsImpl<
     tmpl::list<ScalarTempTags...>, tmpl::list<GhGradientTags...>,
     tmpl::list<GhArgTags...>, tmpl::list<ScalarArgTags...>,
     // Should we keep this?
-    tmpl::list<ScalarTimeDerivativeArgTags...>,
+    // tmpl::list<ScalarTimeDerivativeArgTags...>,
     //
     tmpl::list<TraceReversedStressResultTags...>,
     tmpl::list<TraceReversedStressArgumentTags...>> {
@@ -101,30 +104,32 @@ struct TimeDerivativeTermsImpl<
         // This argument list needs to be corrected
         get<ScalarDtTags>(dt_vars_ptr)...,
         //
-        get<ScalarFluxTags>(fluxes_ptr)...,
+        // get<ScalarFluxTags>(fluxes_ptr)...,
         //
         get<ScalarTempTags>(temps_ptr)...,
 
-        get<tmpl::conditional_t<
-            tmpl::list_contains_v<extra_tags_list,
-                                  Tags::detail::TemporaryReference<
-                                      ScalarTimeDerivativeArgTags>>,
-            Tags::detail::TemporaryReference<ScalarTimeDerivativeArgTags>,
-            ScalarTimeDerivativeArgTags>>(arguments, *temps_ptr)...
-            );
+        // get<tmpl::conditional_t<
+        //     tmpl::list_contains_v<extra_tags_list,
+        //                           Tags::detail::TemporaryReference<
+        //                               ScalarTimeDerivativeArgTags>>,
+        //     Tags::detail::TemporaryReference<ScalarTimeDerivativeArgTags>,
+        //     ScalarTimeDerivativeArgTags>>(arguments, *temps_ptr)...
+        get<Tags::detail::TemporaryReference<ScalarArgTags>>(arguments)...);
     // Coupling terms between the two systems are added here, e.g.,
     // backreaction of the stress-energy tensor on the metric
     // As a first stage we will set the stress-energy tensor to zero
 
     // Defined in another StressEnergy files
+    // trace_reversed_stress_energy(
+    //     get<TraceReversedStressResultTags>(temps_ptr)...,
+    //     get<tmpl::conditional_t<
+    //         tmpl::list_contains_v<extra_tags_list,
+    //                               Tags::detail::TemporaryReference<
+    //                                   TraceReversedStressArgumentTags>>,
+ //         Tags::detail::TemporaryReference<TraceReversedStressArgumentTags>,
+    //         TraceReversedStressArgumentTags>>(*temps_ptr, arguments)...);
     trace_reversed_stress_energy(
-        get<TraceReversedStressResultTags>(temps_ptr)...,
-        get<tmpl::conditional_t<
-            tmpl::list_contains_v<extra_tags_list,
-                                  Tags::detail::TemporaryReference<
-                                      TraceReversedStressArgumentTags>>,
-            Tags::detail::TemporaryReference<TraceReversedStressArgumentTags>,
-            TraceReversedStressArgumentTags>>(*temps_ptr, arguments)...);
+        get<TraceReversedStressResultTags>(temps_ptr)...);
 
     // The addition to dt Pi is independent of the specific form of the stress
     // tensor.
@@ -181,33 +186,38 @@ struct TimeDerivativeTerms : evolution::PassVariables {
   // We do not need the following line. But keep it.
   // Additional temp tags are the derivatives of the metric since GH doesn't
   // explicitly calculate those.
-  using scalar_extra_temp_tags = tmpl::list<
-      // Remove this
-      ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>,
-                    Frame::Inertial>,
-      ::Tags::deriv<gr::Tags::Shift<3, Frame::Inertial, DataVector>,
-                    tmpl::size_t<3>, Frame::Inertial>,
-      ::Tags::deriv<gr::Tags::SpatialMetric<3, Frame::Inertial, DataVector>,
-                    tmpl::size_t<3>, Frame::Inertial>,
-      gr::Tags::ExtrinsicCurvature<3>
-      //
-      >;
-  using scalar_arg_tags = tmpl::list_difference<
-      typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags,
-      tmpl::append<gh_temp_tags, scalar_extra_temp_tags>>;
+//   using scalar_extra_temp_tags = tmpl::list<
+//       // Remove this
+//       ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>,
+//                     Frame::Inertial>,
+//       ::Tags::deriv<gr::Tags::Shift<3, Frame::Inertial, DataVector>,
+//                     tmpl::size_t<3>, Frame::Inertial>,
+//       ::Tags::deriv<gr::Tags::SpatialMetric<3, Frame::Inertial, DataVector>,
+//                     tmpl::size_t<3>, Frame::Inertial>,
+//       gr::Tags::ExtrinsicCurvature<3>
+//       //
+//       >;
+//   using scalar_arg_tags = tmpl::list_difference<
+//       typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags,
+//       tmpl::append<gh_temp_tags, scalar_extra_temp_tags>>;
+  using scalar_arg_tags =
+      typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags;
   using trace_reversed_stress_result_tags =
       tmpl::list<Tags::TraceReversedStressEnergy
                  /* Removed FourVelocity, MagneticField */>;
   using trace_reversed_stress_argument_tags = tmpl::list<
       /* Add scalar and scalar gradient tags when needed */
       // Remove this
-      gr::Tags::SpacetimeMetric<3>,
-      gr::Tags::Shift<3_st, Frame::Inertial, DataVector>,
-      gr::Tags::Lapse<DataVector>
+    //   gr::Tags::SpacetimeMetric<3>,
+    //   gr::Tags::Shift<3_st, Frame::Inertial, DataVector>,
+    //   gr::Tags::Lapse<DataVector>
       //
       >;
+//   using temporary_tags = tmpl::remove_duplicates<
+//       tmpl::append<gh_temp_tags, scalar_temp_tags, scalar_extra_temp_tags,
+//                    trace_reversed_stress_result_tags>>;
   using temporary_tags = tmpl::remove_duplicates<
-      tmpl::append<gh_temp_tags, scalar_temp_tags, scalar_extra_temp_tags,
+      tmpl::append<gh_temp_tags, scalar_temp_tags,
                    trace_reversed_stress_result_tags>>;
   using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags>;
 
@@ -232,7 +242,9 @@ struct TimeDerivativeTerms : evolution::PassVariables {
         //
         gh_temp_tags,
         scalar_temp_tags, gh_gradient_tags, gh_arg_tags, scalar_arg_tags,
-        typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags,
+        // Should we keep this?
+        // typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags,
+        //
         trace_reversed_stress_result_tags,
         trace_reversed_stress_argument_tags>::apply(dt_vars_ptr, fluxes_ptr,
                                                     temps_ptr,
