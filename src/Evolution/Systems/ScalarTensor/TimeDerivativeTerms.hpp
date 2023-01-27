@@ -58,7 +58,7 @@ template <typename... GhDtTags, typename... ScalarDtTags,
           typename... ScalarFluxTags, typename... GhTempTags,
           typename... ScalarTempTags, typename... GhGradientTags,
           // Add this?
-          typename ScalarGradientTags
+          typename... ScalarGradientTags,
           //
           typename... GhArgTags,
           typename... ScalarArgTags,
@@ -94,7 +94,7 @@ struct TimeDerivativeTermsImpl<
       const gsl::not_null<Variables<TemporaryTagsList>*> temps_ptr,
       // Add gradient tags
       const Variables<tmpl::list<GhGradientTags..., ScalarGradientTags...>>&
-          d_vars
+          d_vars,
       //
       //   const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
       //   const tnsr::iaa<DataVector, 3>& d_pi,
@@ -105,7 +105,7 @@ struct TimeDerivativeTermsImpl<
     GeneralizedHarmonic::TimeDerivative<3_st>::apply(
         get<GhDtTags>(dt_vars_ptr)..., get<GhTempTags>(temps_ptr)...,
         // Add gradients from tags?
-        get<GhGradientTags>(d_vars)
+        get<GhGradientTags>(d_vars)...,
         //
         // d_spacetime_metric, d_pi, d_phi,
         get<Tags::detail::TemporaryReference<GhArgTags>>(arguments)...);
@@ -286,7 +286,7 @@ struct TimeDerivativeTerms : evolution::PassVariables {
         trace_reversed_stress_result_tags,
         trace_reversed_stress_argument_tags>::apply(dt_vars_ptr, fluxes_ptr,
                                                     temps_ptr,
-                                                    d_vars
+                                                    d_vars,
                                                     // d_spacetime_metric, d_pi,
                                                     // d_phi,
                                                     arguments);
