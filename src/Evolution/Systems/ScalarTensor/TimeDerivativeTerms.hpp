@@ -43,6 +43,9 @@ struct ScalarTempTag : db::SimpleTag, db::PrefixTag {
 template <typename GhDtTagList, typename ScalarDtTagList,
           typename ScalarFluxTagList, typename GhTempTagList,
           typename ScalarTempTagList, typename GhGradientTagList,
+          // Add this?
+          typename ScalarGradientTagList,
+          //
           typename GhArgTagList, typename ScalarArgTagList,
           // Should we keep this?
         //   typename ScalarTimeDerivativeArgTagList,
@@ -54,9 +57,13 @@ struct TimeDerivativeTermsImpl;
 template <typename... GhDtTags, typename... ScalarDtTags,
           typename... ScalarFluxTags, typename... GhTempTags,
           typename... ScalarTempTags, typename... GhGradientTags,
-          typename... GhArgTags, typename... ScalarArgTags,
+          // Add this?
+          typename ScalarGradientTags
+          //
+          typename... GhArgTags,
+          typename... ScalarArgTags,
           // Should we keep this?
-        //   typename... ScalarTimeDerivativeArgTags,
+          //   typename... ScalarTimeDerivativeArgTags,
           //
           typename... TraceReversedStressResultTags,
           typename... TraceReversedStressArgumentTags>
@@ -64,6 +71,9 @@ struct TimeDerivativeTermsImpl<
     tmpl::list<GhDtTags...>, tmpl::list<ScalarDtTags...>,
     tmpl::list<ScalarFluxTags...>, tmpl::list<GhTempTags...>,
     tmpl::list<ScalarTempTags...>, tmpl::list<GhGradientTags...>,
+    // Add this?
+    tmpl::list<ScalarGradientTags...>,
+    //
     tmpl::list<GhArgTags...>, tmpl::list<ScalarArgTags...>,
     // Should we keep this?
     // tmpl::list<ScalarTimeDerivativeArgTags...>,
@@ -72,24 +82,32 @@ struct TimeDerivativeTermsImpl<
     tmpl::list<TraceReversedStressArgumentTags...>> {
   template <typename TemporaryTagsList, typename... ExtraTags>
   static void apply(
-      const gsl::not_null<
-          Variables<tmpl::list<GhDtTags..., ScalarDtTags...>>*>
+      const gsl::not_null<Variables<tmpl::list<GhDtTags..., ScalarDtTags...>>*>
           dt_vars_ptr,
       const gsl::not_null<Variables<db::wrap_tags_in<
-          ::Tags::Flux, typename CurvedScalarWave::System<3_st>::flux_variables,
+          ::Tags::Flux,
+          // Should this change? Better remove?
+          typename CurvedScalarWave::System<3_st>::flux_variables,
           tmpl::size_t<3>, Frame::Inertial>>*>
           fluxes_ptr,
+          //
       const gsl::not_null<Variables<TemporaryTagsList>*> temps_ptr,
-
-      const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
-      const tnsr::iaa<DataVector, 3>& d_pi,
-      const tnsr::ijaa<DataVector, 3>& d_phi,
+      // Add gradient tags
+      const Variables<tmpl::list<GhGradientTags..., ScalarGradientTags...>>&
+          d_vars
+      //
+      //   const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
+      //   const tnsr::iaa<DataVector, 3>& d_pi,
+      //   const tnsr::ijaa<DataVector, 3>& d_phi,
 
       const tuples::TaggedTuple<ExtraTags...>& arguments) {
     // Call TimeDerivativeTerms for GH
     GeneralizedHarmonic::TimeDerivative<3_st>::apply(
         get<GhDtTags>(dt_vars_ptr)..., get<GhTempTags>(temps_ptr)...,
-        d_spacetime_metric, d_pi, d_phi,
+        // Add gradients from tags?
+        get<GhGradientTags>(d_vars)
+        //
+        // d_spacetime_metric, d_pi, d_phi,
         get<Tags::detail::TemporaryReference<GhArgTags>>(arguments)...);
 
     // Additional computations needed here?
@@ -107,7 +125,9 @@ struct TimeDerivativeTermsImpl<
         // get<ScalarFluxTags>(fluxes_ptr)...,
         //
         get<ScalarTempTags>(temps_ptr)...,
-
+        // Add gradients from tags
+        get<ScalarGradientTags>(d_vars)...,
+        //
         // get<tmpl::conditional_t<
         //     tmpl::list_contains_v<extra_tags_list,
         //                           Tags::detail::TemporaryReference<
@@ -181,7 +201,11 @@ struct TimeDerivativeTerms : evolution::PassVariables {
       typename GeneralizedHarmonic::TimeDerivative<3_st>::argument_tags;
   using scalar_temp_tags =
       typename CurvedScalarWave::TimeDerivative<3_st>::temporary_tags;
-
+  // Add gradient tags
+  using scalar_gradient_tags =
+      typename CurvedScalarWave::System<3_st>::gradients_tags;
+  using d_tags = tmpl::append<gh_gradient_tags, scalar_gradient_tags>;
+  //
 
   // We do not need the following line. But keep it.
   // Additional temp tags are the derivatives of the metric since GH doesn't
@@ -205,17 +229,17 @@ struct TimeDerivativeTerms : evolution::PassVariables {
   using trace_reversed_stress_result_tags =
       tmpl::list<Tags::TraceReversedStressEnergy
                  /* Removed FourVelocity, MagneticField */>;
-  using trace_reversed_stress_argument_tags = tmpl::list<
-      /* Add scalar and scalar gradient tags when needed */
-      // Remove this
-    //   gr::Tags::SpacetimeMetric<3>,
-    //   gr::Tags::Shift<3_st, Frame::Inertial, DataVector>,
-    //   gr::Tags::Lapse<DataVector>
-      //
-      >;
-//   using temporary_tags = tmpl::remove_duplicates<
-//       tmpl::append<gh_temp_tags, scalar_temp_tags, scalar_extra_temp_tags,
-//                    trace_reversed_stress_result_tags>>;
+  using trace_reversed_stress_argument_tags = tmpl::list<>;
+  /* Add scalar and scalar gradient tags when needed */
+  // Remove this
+  //   gr::Tags::SpacetimeMetric<3>,
+  //   gr::Tags::Shift<3_st, Frame::Inertial, DataVector>,
+  //   gr::Tags::Lapse<DataVector>
+  //
+  //   >;
+  //   using temporary_tags = tmpl::remove_duplicates<
+  //       tmpl::append<gh_temp_tags, scalar_temp_tags, scalar_extra_temp_tags,
+  //                    trace_reversed_stress_result_tags>>;
   using temporary_tags = tmpl::remove_duplicates<
       tmpl::append<gh_temp_tags, scalar_temp_tags,
                    trace_reversed_stress_result_tags>>;
@@ -225,13 +249,23 @@ struct TimeDerivativeTerms : evolution::PassVariables {
   static void apply(
       const gsl::not_null<Variables<dt_tags>*> dt_vars_ptr,
       const gsl::not_null<Variables<db::wrap_tags_in<
-          ::Tags::Flux, typename CurvedScalarWave::System<3_st>::flux_variables,
+          ::Tags::Flux,
+          // Should this change? Better remove?
+          typename CurvedScalarWave::System<3_st>::flux_variables,
           tmpl::size_t<3>, Frame::Inertial>>*>
           fluxes_ptr,
+          //
       const gsl::not_null<Variables<temporary_tags>*> temps_ptr,
-      const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
-      const tnsr::iaa<DataVector, 3>& d_pi,
-      const tnsr::ijaa<DataVector, 3>& d_phi, const Args&... args) {
+
+      // Add gradients from tags
+      const Variables<d_tags>& d_vars,
+      //
+    //   const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
+    //   const tnsr::iaa<DataVector, 3>& d_pi,
+    //   const tnsr::ijaa<DataVector, 3>& d_phi,
+
+      const Args&... args
+      ) {
     const tuples::tagged_tuple_from_typelist<
         db::wrap_tags_in<Tags::detail::TemporaryReference, argument_tags>>
         arguments{args...};
@@ -241,15 +275,21 @@ struct TimeDerivativeTerms : evolution::PassVariables {
         scalar_flux_tags,
         //
         gh_temp_tags,
-        scalar_temp_tags, gh_gradient_tags, gh_arg_tags, scalar_arg_tags,
+        scalar_temp_tags, gh_gradient_tags,
+        // Add scalar gradients from tags
+        scalar_gradient_tags,
+        //
+        gh_arg_tags, scalar_arg_tags,
         // Should we keep this?
         // typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags,
         //
         trace_reversed_stress_result_tags,
         trace_reversed_stress_argument_tags>::apply(dt_vars_ptr, fluxes_ptr,
                                                     temps_ptr,
-                                                    d_spacetime_metric, d_pi,
-                                                    d_phi, arguments);
+                                                    d_vars
+                                                    // d_spacetime_metric, d_pi,
+                                                    // d_phi,
+                                                    arguments);
   }
 };
 } // namespace ScalarTensor
