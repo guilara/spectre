@@ -90,24 +90,30 @@ struct TimeDerivativeTermsImpl<
           typename CurvedScalarWave::System<3_st>::flux_variables,
           tmpl::size_t<3>, Frame::Inertial>>*>
           fluxes_ptr,
-          //
+      //
       const gsl::not_null<Variables<TemporaryTagsList>*> temps_ptr,
       // Add gradient tags
-      const Variables<tmpl::list<GhGradientTags..., ScalarGradientTags...>>&
-          d_vars,
+      //   const Variables<tmpl::list<GhGradientTags...,
+      //   ScalarGradientTags...>>&
+      //       d_vars,
+
+      const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
+      const tnsr::iaa<DataVector, 3>& d_pi,
+      const tnsr::ijaa<DataVector, 3>& d_phi,
+      // Add by hand the scalar gradients here
+      const tnsr::i<DataVector, 3>& d_psi_scalar,
+      const tnsr::i<DataVector, 3>& d_pi_scalar,
+      const tnsr::ij<DataVector, 3>& d_phi_scalar,
       //
-      //   const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
-      //   const tnsr::iaa<DataVector, 3>& d_pi,
-      //   const tnsr::ijaa<DataVector, 3>& d_phi,
 
       const tuples::TaggedTuple<ExtraTags...>& arguments) {
     // Call TimeDerivativeTerms for GH
     GeneralizedHarmonic::TimeDerivative<3_st>::apply(
         get<GhDtTags>(dt_vars_ptr)..., get<GhTempTags>(temps_ptr)...,
         // Add gradients from tags?
-        get<GhGradientTags>(d_vars)...,
+        // get<GhGradientTags>(d_vars)...,
         //
-        // d_spacetime_metric, d_pi, d_phi,
+        d_spacetime_metric, d_pi, d_phi,
         get<Tags::detail::TemporaryReference<GhArgTags>>(arguments)...);
 
     // Additional computations needed here?
@@ -126,8 +132,9 @@ struct TimeDerivativeTermsImpl<
         //
         get<ScalarTempTags>(temps_ptr)...,
         // Add gradients from tags
-        get<ScalarGradientTags>(d_vars)...,
+        // get<ScalarGradientTags>(d_vars)...,
         //
+        d_psi_scalar, d_pi_scalar, d_phi_scalar,
         // get<tmpl::conditional_t<
         //     tmpl::list_contains_v<extra_tags_list,
         //                           Tags::detail::TemporaryReference<
@@ -246,6 +253,7 @@ struct TimeDerivativeTerms : evolution::PassVariables {
   using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags>;
 
   template <typename... Args>
+//   template <typename... GradientVariables, typename... Args>
   static void apply(
       const gsl::not_null<Variables<dt_tags>*> dt_vars_ptr,
       const gsl::not_null<Variables<db::wrap_tags_in<
@@ -258,24 +266,31 @@ struct TimeDerivativeTerms : evolution::PassVariables {
       const gsl::not_null<Variables<temporary_tags>*> temps_ptr,
 
       // Add gradients from tags
-      const Variables<d_tags>& d_vars,
+      // Bug, not expanding the pack here
+    //   const GradientVariables&... d_vars,
       //
-    //   const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
-    //   const tnsr::iaa<DataVector, 3>& d_pi,
-    //   const tnsr::ijaa<DataVector, 3>& d_phi,
+      const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
+      const tnsr::iaa<DataVector, 3>& d_pi,
+      const tnsr::ijaa<DataVector, 3>& d_phi,
+
+      const tnsr::i<DataVector, 3>& d_psi_scalar,
+      const tnsr::i<DataVector, 3>& d_pi_scalar,
+      const tnsr::ij<DataVector, 3>& d_phi_scalar,
 
       const Args&... args
       ) {
-    const tuples::tagged_tuple_from_typelist<
-        db::wrap_tags_in<Tags::detail::TemporaryReference, argument_tags>>
-        arguments{args...};
+    // const tuples::tagged_tuple_from_typelist<
+    //     db::wrap_tags_in<Tags::detail::TemporaryReference, argument_tags>>
+    //     arguments{args...};
+    // const tuples::tagged_tuple_from_typelist<
+    //     db::wrap_tags_in<Tags::detail::TemporaryReference, d_tags>>
+    //     d_variables{d_vars...};
     detail::TimeDerivativeTermsImpl<
         gh_dt_tags, scalar_dt_tags,
         //
         scalar_flux_tags,
         //
-        gh_temp_tags,
-        scalar_temp_tags, gh_gradient_tags,
+        gh_temp_tags, scalar_temp_tags, gh_gradient_tags,
         // Add scalar gradients from tags
         scalar_gradient_tags,
         //
@@ -286,10 +301,13 @@ struct TimeDerivativeTerms : evolution::PassVariables {
         trace_reversed_stress_result_tags,
         trace_reversed_stress_argument_tags>::apply(dt_vars_ptr, fluxes_ptr,
                                                     temps_ptr,
-                                                    d_vars,
-                                                    // d_spacetime_metric, d_pi,
-                                                    // d_phi,
-                                                    arguments);
+                                                    // d_vars...,
+                                                    d_spacetime_metric, d_pi,
+                                                    d_phi,
+
+                                                    d_psi_scalar, d_pi_scalar,
+                                                    d_phi_scalar,
+                                                    args...);
   }
 };
 } // namespace ScalarTensor
