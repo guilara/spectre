@@ -69,8 +69,14 @@ void maximum_of_variable(gsl::not_null<double*> result,
  *
  */
 template <size_t Dim>
-void truncation_error(gsl::not_null<std::array<double, Dim>*> result,
+void relative_truncation_error(gsl::not_null<std::array<double, Dim>*> result,
                       const DataVector& input_data_vector,
                       const Mesh<Dim>& mesh);
+
+template <size_t Dim>
+void relative_truncation_error_impl(
+    gsl::not_null<std::array<double, Dim>*> result,
+    const DataVector& input_data_vector, const Mesh<Dim>& mesh,
+    const size_t UpperBound);
 
 }  // namespace PowerMonitors
