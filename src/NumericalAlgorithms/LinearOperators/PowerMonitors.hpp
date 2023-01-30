@@ -19,6 +19,12 @@ class DataVector;
  */
 namespace PowerMonitors {
 
+namespace detail {
+
+double relative_truncation_error_impl(const DataVector& input_power_monitors,
+                                      const size_t upperBound);
+} // namespace detail
+
 /// @{
 /*!
  * \ingroup SpectralGroup
@@ -46,6 +52,7 @@ std::array<DataVector, Dim> power_monitors(const DataVector& input_data_vector,
 /// @}
 
 /*!
+ * \ingroup SpectralGroup
  * \brief Returns the maximum value of a variable in the element.
  *
  * Compute the maximum of variable \f$ u \f$ in the element as
@@ -59,13 +66,28 @@ std::array<DataVector, Dim> power_monitors(const DataVector& input_data_vector,
  * of variable \f$ u \f$.
  *
  */
-void maximum_of_variable(gsl::not_null<double*> result,
-                         const DataVector& input_data_vector);
+double maximum_of_variable(const DataVector& input_data_vector);
 
+/// @{
 /*!
- * \brief Truncation errors.
+ * \ingroup SpectralGroup
+ * \brief Relative truncation error.
  *
- * Truncation error.
+ * Truncation error according to Eqs. (57) and (58) of Ref. \cite
+ * Szilagyi2014fna. Namely,
+ *
+ * \f{align*}{
+ *  \mathcal{T}\left[P_k\right] = \log_{10} \max \left(P_0, P_1\right)
+ *   - \dfrac{\sum_{j} \log_{10} \left(P_j\right) w_j }{\sum_{j} w_j} ,
+ * \f}
+ *
+ * with weights
+ *
+ * \f{align*}{
+ *  w_j = \exp\left[ - (j - N_k + \dfrac{1}{2})^2 \right] .
+ * \f}
+ *
+ * where \f$ N_k \f$ is the number of power monitors.
  *
  */
 template <size_t Dim>
@@ -74,9 +96,34 @@ void relative_truncation_error(gsl::not_null<std::array<double, Dim>*> result,
                       const Mesh<Dim>& mesh);
 
 template <size_t Dim>
-void relative_truncation_error_impl(
-    gsl::not_null<std::array<double, Dim>*> result,
-    const DataVector& input_data_vector, const Mesh<Dim>& mesh,
-    const size_t UpperBound);
+std::array<double, Dim> relative_truncation_error(
+    const DataVector& input_data_vector, const Mesh<Dim>& mesh);
+/// @}
+
+/*!
+ * \ingroup SpectralGroup
+ * \brief Returns an estimate of the numerical error.
+ *
+ * The estimate of the numerical error is given by
+ *
+ * \f{align*}{
+ *  \mathcal{E}\left[P_k\right] = \dfrac{u_\mathrm{max} \times 10^{
+ *   - \mathcal{T}[P_k]}}{
+ *  \mathrm{atol} + \mathrm{rtol} \times
+ *  u_\mathrm{max}} ,
+ * \f}
+ *
+ * where \f$ \mathcal{T}[P_k] \f$ is the relative error estimate computed from
+ * the power monitors \f$ P_k \f$.
+ *
+ */
+template <size_t Dim>
+void error_estimate(gsl::not_null<std::array<double, Dim>*> result,
+                               const DataVector& input_data_vector,
+                               const Mesh<Dim>& mesh);
+
+template <size_t Dim>
+std::array<double, Dim> error_estimate(const DataVector& input_data_vector,
+                                       const Mesh<Dim>& mesh);
 
 }  // namespace PowerMonitors
