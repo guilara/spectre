@@ -39,6 +39,14 @@ void bind_error_estimate_impl(py::module& m) {  // NOLINT
         py::arg("input_data_vector"), py::arg("mesh"));
 }
 
+template <size_t Dim>
+void bind_absolute_truncation_error_estimate_impl(py::module& m) {  // NOLINT
+  m.def("absolute_truncation_error_estimate",
+        py::overload_cast<const DataVector&, const Mesh<Dim>&>(
+            &absolute_truncation_error_estimate<Dim>),
+        py::arg("input_data_vector"), py::arg("mesh"));
+}
+
 }  // namespace
 
 void bind_power_monitors(py::module& m) {
@@ -51,6 +59,9 @@ void bind_power_monitors(py::module& m) {
   bind_error_estimate_impl<1>(m);
   bind_error_estimate_impl<2>(m);
   bind_error_estimate_impl<3>(m);
+  bind_absolute_truncation_error_estimate_impl<1>(m);
+  bind_absolute_truncation_error_estimate_impl<2>(m);
+  bind_absolute_truncation_error_estimate_impl<3>(m);
 }
 
 }  // namespace PowerMonitors::py_bindings

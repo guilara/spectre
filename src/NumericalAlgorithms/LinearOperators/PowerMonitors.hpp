@@ -100,6 +100,7 @@ std::array<double, Dim> relative_truncation_error(
     const DataVector& input_data_vector, const Mesh<Dim>& mesh);
 /// @}
 
+/// @{
 /*!
  * \ingroup SpectralGroup
  * \brief Returns an estimate of the numerical error.
@@ -125,5 +126,32 @@ void error_estimate(gsl::not_null<std::array<double, Dim>*> result,
 template <size_t Dim>
 std::array<double, Dim> error_estimate(const DataVector& input_data_vector,
                                        const Mesh<Dim>& mesh);
+/// @}
+
+/// @{
+/*!
+ * \ingroup SpectralGroup
+ * \brief Returns an estimate of the absolute truncation error.
+ *
+ * Calculated as smallest relative truncation error for all power monitors and
+ * with one less
+ *
+ * \f{align*}{
+ *  \epsilon\left[ P_k \right] = \min \left(\mathcal{T}_{N_k}\left[P_k\right],
+ * \mathcal{T}_{N_k - 1}\left[P_k\right]\right) ,
+ * \f}
+ *
+ * where \f$ N_k \f$ is the number of power monitors.
+ *
+ */
+template <size_t Dim>
+void absolute_truncation_error_estimate(
+    gsl::not_null<std::array<double, Dim>*> result,
+    const DataVector& input_data_vector, const Mesh<Dim>& mesh);
+
+template <size_t Dim>
+std::array<double, Dim> absolute_truncation_error_estimate(
+    const DataVector& input_data_vector, const Mesh<Dim>& mesh);
+/// @}
 
 }  // namespace PowerMonitors

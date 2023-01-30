@@ -19,6 +19,8 @@
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
 #include "Utilities/ConstantExpressions.hpp"
 
+#include "Parallel/Printf.hpp"
+
 namespace {
 
 void test_power_monitors_impl() {
@@ -35,11 +37,15 @@ void test_power_monitors_impl() {
   auto test_power_monitors =
       PowerMonitors::power_monitors<2_st>(test_data_vector, mesh);
 
+  // Define a floor for the log10 function
+  const double log_floor = 1.0e-16;
+
   // The only non-zero modal coefficient of a constant is the one corresponding
   // to the first Legendre polynomial
   DataVector check_data_vector =
-      DataVector{number_of_points_per_dimension, 0.0};
-  check_data_vector[0] = 1.0 / sqrt(number_of_points_per_dimension);
+      DataVector{number_of_points_per_dimension, log10(log_floor)};
+  check_data_vector[0] =
+      log10(std::max(1.0 / sqrt(number_of_points_per_dimension), log_floor));
 
   const std::array<DataVector, 2> expected_power_monitors{check_data_vector,
                                                           check_data_vector};
@@ -72,18 +78,23 @@ void test_power_monitors_second_impl() {
   auto test_power_monitors =
       PowerMonitors::power_monitors<2_st>(u_nodal, mesh);
 
+  // Define a floor for the log10 function
+  const double log_floor = 1.0e-16;
+
   // The only non-zero modal coefficient of a constant is the one corresponding
   // to the specified Legendre polynomial
 
   // In the x direction
   DataVector check_data_vector_x =
-      DataVector{number_of_points_per_dimension, 0.0};
-  check_data_vector_x[x_mode] = 1.0 / sqrt(number_of_points_per_dimension);
+      DataVector{number_of_points_per_dimension, log10(log_floor)};
+  check_data_vector_x[x_mode] =
+      log10(std::max(1.0 / sqrt(number_of_points_per_dimension), log_floor));
 
   // In the y direction
   DataVector check_data_vector_y =
-      DataVector{number_of_points_per_dimension, 0.0};
-  check_data_vector_y[y_mode] = 1.0 / sqrt(number_of_points_per_dimension);
+      DataVector{number_of_points_per_dimension, log10(log_floor)};
+  check_data_vector_y[y_mode] =
+      log10(std::max(1.0 / sqrt(number_of_points_per_dimension), log_floor));
 
   // We compare against the expected array
   const std::array<DataVector, 2> expected_power_monitors{
@@ -92,10 +103,147 @@ void test_power_monitors_second_impl() {
   CHECK_ITERABLE_APPROX(test_power_monitors, expected_power_monitors);
 }
 
+void test_relative_truncation_error_impl() {
+  // We check that the relative truncation error is consistent for a basis
+  // function in a mesh with a given number of collocation points and another
+  // with one less point
+  size_t number_of_points_per_dimension = 10;
+
+  const Mesh<2_st> mesh{number_of_points_per_dimension,
+                        Spectral::Basis::Legendre,
+                        Spectral::Quadrature::GaussLobatto};
+  const auto logical_coords = logical_coordinates(mesh);
+
+  // We will compare with a mesh with one less point
+  const Mesh<2_st> mesh_one_less{number_of_points_per_dimension - 1,
+                        Spectral::Basis::Legendre,
+                        Spectral::Quadrature::GaussLobatto};
+  const auto logical_coords_one_less = logical_coordinates(mesh_one_less);
+
+  // Build a test function containing only one Legendre basis function
+  // per dimension
+  size_t x_mode = 0;
+  size_t y_mode = 1;
+  std::array<size_t, 2> coeff = {x_mode, y_mode};
+
+  DataVector u_nodal(mesh.number_of_grid_points(), 1.0);
+  DataVector u_nodal_one_less(mesh_one_less.number_of_grid_points(), 1.0);
+  for (size_t dim = 0; dim < 2; ++dim) {
+    u_nodal *=
+        Spectral::compute_basis_function_value<Spectral::Basis::Legendre>(
+            gsl::at(coeff, dim), logical_coords.get(dim));
+    u_nodal_one_less *=
+        Spectral::compute_basis_function_value<Spectral::Basis::Legendre>(
+            gsl::at(coeff, dim), logical_coords_one_less.get(dim));
+  }
+
+  //
+  auto test_power_monitors = PowerMonitors::power_monitors<2_st>(u_nodal, mesh);
+  auto test_power_monitors_one_less =
+      PowerMonitors::power_monitors<2_st>(u_nodal_one_less, mesh_one_less);
+
+  // Compute the truncation error for u_nodal with one less mode
+  auto test_relative_truncation_error_one_mode_less_x = pow(10.0,
+      -1.0 * PowerMonitors::detail::relative_truncation_error_impl(
+          gsl::at(test_power_monitors, 0_st), mesh.extents(0) - 1));
+  auto test_relative_truncation_error_one_mode_less_y = pow(10.0,
+      -1.0 * PowerMonitors::detail::relative_truncation_error_impl(
+          gsl::at(test_power_monitors, 1_st), mesh.extents(1) - 1));
+
+  // Compute the relative truncation error for u_nodal_one_less with all its
+  // modes
+  auto test_relative_truncation_error_log10 =
+      PowerMonitors::relative_truncation_error<2_st>(u_nodal_one_less,
+                                                     mesh_one_less);
+  auto test_relative_truncation_error_x =
+      pow(10.0, -1.0 * test_relative_truncation_error_log10[0_st]);
+  auto test_relative_truncation_error_y =
+      pow(10.0, -1.0 * test_relative_truncation_error_log10[1_st]);
+
+  // Check consistency between the two truncation errors
+  CHECK_ITERABLE_APPROX(test_relative_truncation_error_x,
+        test_relative_truncation_error_one_mode_less_x);
+  CHECK_ITERABLE_APPROX(test_relative_truncation_error_y,
+        test_relative_truncation_error_one_mode_less_y);
+}
+
+void test_maximum_of_variable_impl() {
+  size_t number_of_points_per_dimension = 4;
+
+  const Mesh<2_st> mesh{number_of_points_per_dimension,
+                        Spectral::Basis::Legendre,
+                        Spectral::Quadrature::GaussLobatto};
+
+  const auto logical_coords = logical_coordinates(mesh);
+
+  // Build a test function containing only one Legendre basis function
+  // per dimension
+  size_t x_mode = 0;
+  size_t y_mode = 1;
+  std::array<size_t, 2> coeff = {x_mode, y_mode};
+
+  DataVector u_nodal(mesh.number_of_grid_points(), 1.0);
+  for (size_t dim = 0; dim < 2; ++dim) {
+    u_nodal *=
+        Spectral::compute_basis_function_value<Spectral::Basis::Legendre>(
+            gsl::at(coeff, dim), logical_coords.get(dim));
+  }
+
+  auto max_of_u_nodal = PowerMonitors::maximum_of_variable(u_nodal);
+
+  // Legendre polynomials have maximum amplitude unity
+  CHECK_ITERABLE_APPROX(max_of_u_nodal, 1.0);
+}
+
+void test_error_estimate_impl() {
+  size_t number_of_points_per_dimension = 4;
+
+  const Mesh<2_st> mesh{number_of_points_per_dimension,
+                        Spectral::Basis::Legendre,
+                        Spectral::Quadrature::GaussLobatto};
+
+  const auto logical_coords = logical_coordinates(mesh);
+
+  // Build a test function containing only one Legendre basis function
+  // per dimension
+  size_t x_mode = 0;
+  size_t y_mode = 1;
+  std::array<size_t, 2> coeff = {x_mode, y_mode};
+
+  DataVector u_nodal(mesh.number_of_grid_points(), 1.0);
+  for (size_t dim = 0; dim < 2; ++dim) {
+    u_nodal *=
+        Spectral::compute_basis_function_value<Spectral::Basis::Legendre>(
+            gsl::at(coeff, dim), logical_coords.get(dim));
+  }
+
+  // Get error estimates in both dimensions
+  auto test_error_estimate = PowerMonitors::error_estimate<2_st>(u_nodal, mesh);
+
+  // Compare with the result from the relative truncation error
+  auto relative_truncation_error =
+      PowerMonitors::relative_truncation_error<2_st>(u_nodal, mesh);
+  auto relative_truncation_error_x =
+      pow(10.0, -1.0 * relative_truncation_error[0]);
+  Parallel::printf("relative_truncation_error_x = %lf \n",
+                   relative_truncation_error_x);
+  auto relative_truncation_error_y =
+      pow(10.0, -1.0 * relative_truncation_error[1]);
+  Parallel::printf("relative_truncation_error_y = %lf \n",
+                   relative_truncation_error_y);
+  std::array<double, 2> check_vector = {relative_truncation_error_x,
+                                        relative_truncation_error_y};
+
+  CHECK_ITERABLE_APPROX(test_error_estimate, check_vector);
+}
+
 }  // namespace
 
 SPECTRE_TEST_CASE("Unit.Numerical.LinearOperators.PowerMonitors",
                   "[NumericalAlgorithms][LinearOperators][Unit]") {
   test_power_monitors_impl();
   test_power_monitors_second_impl();
+  test_relative_truncation_error_impl();
+  test_maximum_of_variable_impl();
+  test_error_estimate_impl();
 }
