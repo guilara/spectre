@@ -54,6 +54,66 @@ std::array<DataVector, Dim> power_monitors(
   return result;
 }
 
+template <size_t Dim>
+void truncation_error(gsl::not_null<std::array<double, Dim>*> result,
+                      const DataVector& input_data_vector,
+                      const Mesh<Dim>& mesh) {
+  // Temporary: compute power monitors
+  auto pm_array = power_monitors<Dim>(input_data_vector, mesh);
+
+  // Compute relative truncation error in each dimension
+  size_t number_of_points_per_dim = 0;
+  for (size_t sliced_dim = 0; sliced_dim < Dim; ++sliced_dim) {
+
+    // Number of power monitors in the current dimension
+    number_of_points_per_dim = gsl::at(pm_array, sliced_dim).size();
+
+    // Compute weighted average and total sum in the current dimension
+    double weighted_average = 0.0;
+    double weight_sum = 0.0;
+    double weight_value = 0.0;
+    for (size_t index = 0; index < number_of_points_per_dim; ++index) {
+      // Compute current weight
+      weight_value =
+          exp(-square(index - number_of_points_per_dim + 0.5));
+      // Add weighted power monitor
+      // (Need to check log argument or add floor)
+      weighted_average += weight_value *
+                          log10(gsl::at(pm_array, sliced_dim)[index]);
+      // Add term to weighted sum
+      weight_sum += weight_value;
+    }
+    weighted_average /= weight_sum;
+
+    // Maximum between the first two power monitors
+    // (Need to check log argument or add floor)
+    double first_term = log10(std::max(gsl::at(pm_array, sliced_dim)[0],
+                                  gsl::at(pm_array, sliced_dim)[1]));
+
+    // Compute relative truncation error
+    gsl::at(*result, sliced_dim) = first_term - weighted_average;
+  }
+}
+
+template <size_t Dim>
+std::array<DataVector, Dim> truncation_error(
+    const DataVector& input_data_vector, const Mesh<Dim>& mesh) {
+  std::array<double, Dim> result{};
+  truncation_error(make_not_null(&result), input_data_vector, mesh);
+  return result;
+}
+
+void maximum_of_variable(gsl::not_null<double*> result,
+                         const DataVector& input_data_vector) {
+  //
+  double max_value = 0.0;
+  for (auto value : input_data_vector) {
+    max_value += square(value);
+  }
+  max_value /= input_data_vector.size();
+  *result = sqrt(max_value);
+}
+
 }  // namespace PowerMonitors
 
 #define DIM(data) BOOST_PP_TUPLE_ELEM(0, data)
@@ -64,6 +124,9 @@ std::array<DataVector, Dim> power_monitors(
                                      const Mesh<DIM(data)>& mesh);             \
   template void PowerMonitors::power_monitors(                                 \
     const gsl::not_null<std::array<DataVector, DIM(data)>*> result,            \
+    const DataVector& input_data_vector, const Mesh<DIM(data)>& mesh);         \
+  template void PowerMonitors::truncation_error(                               \
+    const gsl::not_null<std::array<double, DIM(data)>*> result,                \
     const DataVector& input_data_vector, const Mesh<DIM(data)>& mesh);
 
 GENERATE_INSTANTIATIONS(INSTANTIATE, (1, 2, 3))

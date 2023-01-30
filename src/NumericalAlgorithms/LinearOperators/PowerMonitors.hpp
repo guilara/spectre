@@ -45,4 +45,32 @@ std::array<DataVector, Dim> power_monitors(const DataVector& input_data_vector,
                                            const Mesh<Dim>& mesh);
 /// @}
 
+/*!
+ * \brief Returns the maximum value of a variable in the element.
+ *
+ * Compute the maximum of variable \f$ u \f$ in the element as
+ *
+ * \f{align*}{
+ *  u_\mathrm{max} = \sqrt{ \frac{1}{N_0 N_1 N_2}
+ *   \sum_{k_0, k_1, k_2} \left( u_{k_0,k_1,k_2} \right)^2} ,
+ * \f}
+ *
+ * where \f$ u_{k_0,k_1,k_2}\f$ are the nodal coefficients
+ * of variable \f$ u \f$.
+ *
+ */
+void maximum_of_variable(gsl::not_null<double*> result,
+                         const DataVector& input_data_vector);
+
+/*!
+ * \brief Truncation errors.
+ *
+ * Truncation error.
+ *
+ */
+template <size_t Dim>
+void truncation_error(gsl::not_null<std::array<double, Dim>*> result,
+                      const DataVector& input_data_vector,
+                      const Mesh<Dim>& mesh);
+
 }  // namespace PowerMonitors
