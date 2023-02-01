@@ -40,131 +40,53 @@ struct ScalarTempTag : db::SimpleTag, db::PrefixTag {
   using type = typename Tag::type;
 };
 
-template <typename GhDtTagList, typename ScalarDtTagList,
-          typename ScalarFluxTagList, typename GhTempTagList,
-          typename ScalarTempTagList, typename GhGradientTagList,
-          // Add this?
-          typename ScalarGradientTagList,
-          //
-          typename GhArgTagList, typename ScalarArgTagList,
-          // Should we keep this?
-        //   typename ScalarTimeDerivativeArgTagList,
-          //
-          typename TraceReversedStressResultTagsList,
-          typename TraceReversedStressArgumentTagsList>
+template <size_t Dim>
 struct TimeDerivativeTermsImpl;
 
-template <typename... GhDtTags, typename... ScalarDtTags,
-          typename... ScalarFluxTags, typename... GhTempTags,
-          typename... ScalarTempTags, typename... GhGradientTags,
-          // Add this?
-          typename... ScalarGradientTags,
-          //
-          typename... GhArgTags,
-          typename... ScalarArgTags,
-          // Should we keep this?
-          //   typename... ScalarTimeDerivativeArgTags,
-          //
-          typename... TraceReversedStressResultTags,
-          typename... TraceReversedStressArgumentTags>
-struct TimeDerivativeTermsImpl<
-    tmpl::list<GhDtTags...>, tmpl::list<ScalarDtTags...>,
-    tmpl::list<ScalarFluxTags...>, tmpl::list<GhTempTags...>,
-    tmpl::list<ScalarTempTags...>, tmpl::list<GhGradientTags...>,
-    // Add this?
-    tmpl::list<ScalarGradientTags...>,
-    //
-    tmpl::list<GhArgTags...>, tmpl::list<ScalarArgTags...>,
-    // Should we keep this?
-    // tmpl::list<ScalarTimeDerivativeArgTags...>,
-    //
-    tmpl::list<TraceReversedStressResultTags...>,
-    tmpl::list<TraceReversedStressArgumentTags...>> {
-  template <typename TemporaryTagsList, typename... ExtraTags>
+template <size_t Dim>
+struct TimeDerivativeTermsImpl {
   static void apply(
-      const gsl::not_null<Variables<tmpl::list<GhDtTags..., ScalarDtTags...>>*>
-          dt_vars_ptr,
-      const gsl::not_null<Variables<db::wrap_tags_in<
-          ::Tags::Flux,
-          // Should this change? Better remove?
-          typename CurvedScalarWave::System<3_st>::flux_variables,
-          tmpl::size_t<3>, Frame::Inertial>>*>
-          fluxes_ptr,
-      //
-      const gsl::not_null<Variables<TemporaryTagsList>*> temps_ptr,
-      // Add gradient tags
-      //   const Variables<tmpl::list<GhGradientTags...,
-      //   ScalarGradientTags...>>&
-      //       d_vars,
+      gsl::not_null<Scalar<DataVector>*> dt_psi,
+      gsl::not_null<Scalar<DataVector>*> dt_pi,
+      gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> dt_phi,
 
-      const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
-      const tnsr::iaa<DataVector, 3>& d_pi,
-      const tnsr::ijaa<DataVector, 3>& d_phi,
-      // Add by hand the scalar gradients here
-      const tnsr::i<DataVector, 3>& d_psi_scalar,
-      const tnsr::i<DataVector, 3>& d_pi_scalar,
-      const tnsr::ij<DataVector, 3>& d_phi_scalar,
-      //
+      gsl::not_null<Scalar<DataVector>*> result_lapse,
+      gsl::not_null<tnsr::I<DataVector, Dim>*> result_shift,
+      gsl::not_null<tnsr::II<DataVector, Dim>*> result_inverse_spatial_metric,
+      gsl::not_null<Scalar<DataVector>*> result_gamma1,
+      gsl::not_null<Scalar<DataVector>*> result_gamma2,
 
-      const tuples::TaggedTuple<ExtraTags...>& arguments) {
+      const tnsr::i<DataVector, Dim>& d_psi,
+      const tnsr::i<DataVector, Dim>& d_pi,
+      const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& pi,
+      const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
+      const tnsr::I<DataVector, Dim>& shift,
+      const tnsr::i<DataVector, Dim>& deriv_lapse,
+      const tnsr::iJ<DataVector, Dim>& deriv_shift,
+      const tnsr::II<DataVector, Dim>& upper_spatial_metric,
+      const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
+      const Scalar<DataVector>& trace_extrinsic_curvature,
+      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
     // Call TimeDerivativeTerms for GH
-    GeneralizedHarmonic::TimeDerivative<3_st>::apply(
-        get<GhDtTags>(dt_vars_ptr)..., get<GhTempTags>(temps_ptr)...,
-        // Add gradients from tags?
-        // get<GhGradientTags>(d_vars)...,
-        //
-        d_spacetime_metric, d_pi, d_phi,
-        get<Tags::detail::TemporaryReference<GhArgTags>>(arguments)...);
-
-    // Additional computations needed here?
-    // lapse derivative, phi, inv_spatial_metric, shift, deriv shift,
-    // deriv spatial metric, extrinsic curvature, ...
-
-    using extra_tags_list = tmpl::list<ExtraTags...>;
+    // GeneralizedHarmonic::TimeDerivative<3_st>::apply(
+    //     get<GhDtTags>(dt_vars_ptr)..., get<GhTempTags>(temps_ptr)...,
+    //     d_spacetime_metric, d_pi, d_phi,
+    //     get<Tags::detail::TemporaryReference<GhArgTags>>(arguments)...);
 
     // Call TimeDerivativeTerms for scalar
-    // Check arguments in CurvedScalarWave::TimeDerivative
     CurvedScalarWave::TimeDerivative<3_st>::apply(
-        // This argument list needs to be corrected
-        get<ScalarDtTags>(dt_vars_ptr)...,
-        //
-        // get<ScalarFluxTags>(fluxes_ptr)...,
-        //
-        get<ScalarTempTags>(temps_ptr)...,
-        // Add gradients from tags
-        // get<ScalarGradientTags>(d_vars)...,
-        //
-        d_psi_scalar, d_pi_scalar, d_phi_scalar,
-        // get<tmpl::conditional_t<
-        //     tmpl::list_contains_v<extra_tags_list,
-        //                           Tags::detail::TemporaryReference<
-        //                               ScalarTimeDerivativeArgTags>>,
-        //     Tags::detail::TemporaryReference<ScalarTimeDerivativeArgTags>,
-        //     ScalarTimeDerivativeArgTags>>(arguments, *temps_ptr)...
-        get<Tags::detail::TemporaryReference<ScalarArgTags>>(arguments)...);
-    // Coupling terms between the two systems are added here, e.g.,
-    // backreaction of the stress-energy tensor on the metric
-    // As a first stage we will set the stress-energy tensor to zero
+        dt_psi, dt_pi, dt_phi,
 
-    // Defined in another StressEnergy files
-    // trace_reversed_stress_energy(
-    //     get<TraceReversedStressResultTags>(temps_ptr)...,
-    //     get<tmpl::conditional_t<
-    //         tmpl::list_contains_v<extra_tags_list,
-    //                               Tags::detail::TemporaryReference<
-    //                                   TraceReversedStressArgumentTags>>,
- //         Tags::detail::TemporaryReference<TraceReversedStressArgumentTags>,
-    //         TraceReversedStressArgumentTags>>(*temps_ptr, arguments)...);
-    trace_reversed_stress_energy(
-        get<TraceReversedStressResultTags>(temps_ptr)...);
+        result_lapse, result_shift, result_inverse_spatial_metric,
+        result_gamma1, result_gamma2,
 
-    // The addition to dt Pi is independent of the specific form of the stress
-    // tensor.
-    add_stress_energy_term_to_dt_pi(
-        get<::Tags::dt<GeneralizedHarmonic::Tags::Pi<3>>>(dt_vars_ptr),
-        get<ScalarTensor::Tags::TraceReversedStressEnergy>(
-            *temps_ptr),
-        get<gr::Tags::Lapse<DataVector>>(*temps_ptr));
+        d_psi, d_pi, d_phi, pi, phi, lapse, shift, deriv_lapse, deriv_shift,
+        upper_spatial_metric, trace_spatial_christoffel,
+        trace_extrinsic_curvature, gamma1, gamma2);
+
+    // trace_reversed_stress_energy();
+    // add_stress_energy_term_to_dt_pi();
+
   }
 };
 } // namespace detail
@@ -184,130 +106,56 @@ struct TimeDerivativeTermsImpl<
  * system, which is the only explicit coupling required to back-react the effect
  * of the scalar on the spacetime solution.
  */
-struct TimeDerivativeTerms : evolution::PassVariables {
-
-// Add using statements
-  using gh_dt_tags = db::wrap_tags_in<
-      ::Tags::dt,
-      typename GeneralizedHarmonic::System<3_st>::variables_tag::tags_list>;
+struct TimeDerivativeTerms {
   using scalar_dt_tags = db::wrap_tags_in<
       ::Tags::dt,
       typename CurvedScalarWave::System<3_st>::variables_tag::tags_list>;
-  using dt_tags = tmpl::append<gh_dt_tags, scalar_dt_tags>;
-  // We do not need this
+  using dt_tags = scalar_dt_tags;
   using scalar_flux_tags = tmpl::transform<
       typename CurvedScalarWave::System<3_st>::flux_variables,
       tmpl::bind<::Tags::Flux, tmpl::_1, tmpl::pin<tmpl::size_t<3_st>>,
                  tmpl::pin<Frame::Inertial>>>;
-  //
-  using gh_temp_tags =
-      typename GeneralizedHarmonic::TimeDerivative<3_st>::temporary_tags;
-  using gh_gradient_tags =
-      typename GeneralizedHarmonic::System<3_st>::gradients_tags;
-  using gh_arg_tags =
-      typename GeneralizedHarmonic::TimeDerivative<3_st>::argument_tags;
   using scalar_temp_tags =
       typename CurvedScalarWave::TimeDerivative<3_st>::temporary_tags;
-  // Add gradient tags
   using scalar_gradient_tags =
       typename CurvedScalarWave::System<3_st>::gradients_tags;
-  using d_tags = tmpl::append<gh_gradient_tags, scalar_gradient_tags>;
-  //
-
-  // We do not need the following line. But keep it.
-  // Additional temp tags are the derivatives of the metric since GH doesn't
-  // explicitly calculate those.
-//   using scalar_extra_temp_tags = tmpl::list<
-//       // Remove this
-//       ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>,
-//                     Frame::Inertial>,
-//       ::Tags::deriv<gr::Tags::Shift<3, Frame::Inertial, DataVector>,
-//                     tmpl::size_t<3>, Frame::Inertial>,
-//       ::Tags::deriv<gr::Tags::SpatialMetric<3, Frame::Inertial, DataVector>,
-//                     tmpl::size_t<3>, Frame::Inertial>,
-//       gr::Tags::ExtrinsicCurvature<3>
-//       //
-//       >;
-//   using scalar_arg_tags = tmpl::list_difference<
-//       typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags,
-//       tmpl::append<gh_temp_tags, scalar_extra_temp_tags>>;
+  using d_tags = scalar_gradient_tags;
   using scalar_arg_tags =
       typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags;
-  using trace_reversed_stress_result_tags =
-      tmpl::list<Tags::TraceReversedStressEnergy
-                 /* Removed FourVelocity, MagneticField */>;
-  using trace_reversed_stress_argument_tags = tmpl::list<>;
-  /* Add scalar and scalar gradient tags when needed */
-  // Remove this
-  //   gr::Tags::SpacetimeMetric<3>,
-  //   gr::Tags::Shift<3_st, Frame::Inertial, DataVector>,
-  //   gr::Tags::Lapse<DataVector>
-  //
-  //   >;
-  //   using temporary_tags = tmpl::remove_duplicates<
-  //       tmpl::append<gh_temp_tags, scalar_temp_tags, scalar_extra_temp_tags,
-  //                    trace_reversed_stress_result_tags>>;
-  using temporary_tags = tmpl::remove_duplicates<
-      tmpl::append<gh_temp_tags, scalar_temp_tags,
-                   trace_reversed_stress_result_tags>>;
-  using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags>;
+  using temporary_tags = scalar_temp_tags;
+  using argument_tags = scalar_arg_tags;
 
-  template <typename... Args>
-//   template <typename... GradientVariables, typename... Args>
   static void apply(
-      const gsl::not_null<Variables<dt_tags>*> dt_vars_ptr,
-      const gsl::not_null<Variables<db::wrap_tags_in<
-          ::Tags::Flux,
-          // Should this change? Better remove?
-          typename CurvedScalarWave::System<3_st>::flux_variables,
-          tmpl::size_t<3>, Frame::Inertial>>*>
-          fluxes_ptr,
-          //
-      const gsl::not_null<Variables<temporary_tags>*> temps_ptr,
+      gsl::not_null<Scalar<DataVector>*> dt_psi,
+      gsl::not_null<Scalar<DataVector>*> dt_pi,
+      gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*> dt_phi,
 
-      // Add gradients from tags
-      // Bug, not expanding the pack here
-    //   const GradientVariables&... d_vars,
-      //
-      const tnsr::iaa<DataVector, 3>& d_spacetime_metric,
-      const tnsr::iaa<DataVector, 3>& d_pi,
-      const tnsr::ijaa<DataVector, 3>& d_phi,
+      gsl::not_null<Scalar<DataVector>*> result_lapse,
+      gsl::not_null<tnsr::I<DataVector, 3_st>*> result_shift,
+      gsl::not_null<tnsr::II<DataVector, 3_st>*> result_inverse_spatial_metric,
+      gsl::not_null<Scalar<DataVector>*> result_gamma1,
+      gsl::not_null<Scalar<DataVector>*> result_gamma2,
 
-      const tnsr::i<DataVector, 3>& d_psi_scalar,
-      const tnsr::i<DataVector, 3>& d_pi_scalar,
-      const tnsr::ij<DataVector, 3>& d_phi_scalar,
+      const tnsr::i<DataVector, 3_st>& d_psi,
+      const tnsr::i<DataVector, 3_st>& d_pi,
+      const tnsr::ij<DataVector, 3_st>& d_phi, const Scalar<DataVector>& pi,
+      const tnsr::i<DataVector, 3_st>& phi, const Scalar<DataVector>& lapse,
+      const tnsr::I<DataVector, 3_st>& shift,
+      const tnsr::i<DataVector, 3_st>& deriv_lapse,
+      const tnsr::iJ<DataVector, 3_st>& deriv_shift,
+      const tnsr::II<DataVector, 3_st>& upper_spatial_metric,
+      const tnsr::I<DataVector, 3_st>& trace_spatial_christoffel,
+      const Scalar<DataVector>& trace_extrinsic_curvature,
+      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
+    detail::TimeDerivativeTermsImpl<3_st>::apply(
+        dt_psi, dt_pi, dt_phi,
 
-      const Args&... args
-      ) {
-    // const tuples::tagged_tuple_from_typelist<
-    //     db::wrap_tags_in<Tags::detail::TemporaryReference, argument_tags>>
-    //     arguments{args...};
-    // const tuples::tagged_tuple_from_typelist<
-    //     db::wrap_tags_in<Tags::detail::TemporaryReference, d_tags>>
-    //     d_variables{d_vars...};
-    detail::TimeDerivativeTermsImpl<
-        gh_dt_tags, scalar_dt_tags,
-        //
-        scalar_flux_tags,
-        //
-        gh_temp_tags, scalar_temp_tags, gh_gradient_tags,
-        // Add scalar gradients from tags
-        scalar_gradient_tags,
-        //
-        gh_arg_tags, scalar_arg_tags,
-        // Should we keep this?
-        // typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags,
-        //
-        trace_reversed_stress_result_tags,
-        trace_reversed_stress_argument_tags>::apply(dt_vars_ptr, fluxes_ptr,
-                                                    temps_ptr,
-                                                    // d_vars...,
-                                                    d_spacetime_metric, d_pi,
-                                                    d_phi,
+        result_lapse, result_shift, result_inverse_spatial_metric,
+        result_gamma1, result_gamma2,
 
-                                                    d_psi_scalar, d_pi_scalar,
-                                                    d_phi_scalar,
-                                                    args...);
+        d_psi, d_pi, d_phi, pi, phi, lapse, shift, deriv_lapse, deriv_shift,
+        upper_spatial_metric, trace_spatial_christoffel,
+        trace_extrinsic_curvature, gamma1, gamma2);
   }
 };
 } // namespace ScalarTensor
