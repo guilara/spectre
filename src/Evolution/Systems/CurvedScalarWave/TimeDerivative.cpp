@@ -76,6 +76,12 @@ void TimeDerivative<Dim>::apply(
           shift.get(m) * d_phi.get(m, k) + phi.get(m) * deriv_shift.get(k, m);
     }
   }
+
+  // // Compute scalar source. (Need to add source to temporal quantities.)
+  // compute_scalar_source(scalar_source, psi);
+  // // Add source terms
+  // add_scalar_source_to_dt_pi(dt_pi, scalar_source, lapse);
+
 }
 }  // namespace CurvedScalarWave
 // Generate explicit instantiations of partial_derivatives function as well as
