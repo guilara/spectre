@@ -97,9 +97,10 @@ struct TimeDerivativeTermsImpl {
 
       // Scalar temporal variables
       // These are duplicates
-      gsl::not_null<Scalar<DataVector>*> result_lapse,
-      gsl::not_null<tnsr::I<DataVector, Dim>*> result_shift,
-      gsl::not_null<tnsr::II<DataVector, Dim>*> result_inverse_spatial_metric,
+      //   gsl::not_null<Scalar<DataVector>*> result_lapse,
+      //   gsl::not_null<tnsr::I<DataVector, Dim>*> result_shift,
+      //   gsl::not_null<tnsr::II<DataVector, Dim>*>
+      //   result_inverse_spatial_metric,
       //
       gsl::not_null<Scalar<DataVector>*> result_gamma1_scalar,
       gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar,
@@ -112,8 +113,8 @@ struct TimeDerivativeTermsImpl {
       const tnsr::aa<DataVector, Dim>& pi,
       const tnsr::iaa<DataVector, Dim>& phi, const Scalar<DataVector>& gamma0,
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
-      const gauges::GaugeCondition& gauge_condition, const Mesh<Dim>& mesh,
-      double time,
+      const GeneralizedHarmonic::gauges::GaugeCondition& gauge_condition,
+      const Mesh<Dim>& mesh, double time,
       const tnsr::I<DataVector, Dim, Frame::Inertial>& inertial_coords,
       const InverseJacobian<DataVector, Dim, Frame::ElementLogical,
                             Frame::Inertial>& inverse_jacobian,
@@ -126,7 +127,11 @@ struct TimeDerivativeTermsImpl {
       const tnsr::ij<DataVector, Dim>& d_phi_scalar,
       const Scalar<DataVector>& pi_scalar,
       const tnsr::i<DataVector, Dim>& phi_scalar,
-      const Scalar<DataVector>& lapse, const tnsr::I<DataVector, Dim>& shift,
+      // These appear with the same name as temporal variables for the other
+      // system
+      const Scalar<DataVector>& lapse_scalar,
+      const tnsr::I<DataVector, Dim>& shift_scalar,
+      //
       const tnsr::i<DataVector, Dim>& deriv_lapse,
       const tnsr::iJ<DataVector, Dim>& deriv_shift,
       const tnsr::II<DataVector, Dim>& upper_spatial_metric,
@@ -134,7 +139,6 @@ struct TimeDerivativeTermsImpl {
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1_scalar,
       const Scalar<DataVector>& gamma2_scalar) {
-
     // Call TimeDerivativeTerms for GH
     GeneralizedHarmonic::TimeDerivative<3_st>::apply(
         // Check for duplicates
@@ -168,13 +172,18 @@ struct TimeDerivativeTermsImpl {
 
         // Scalar temporal variables
         // These are duplicates
-        result_lapse, result_shift, result_inverse_spatial_metric,
+        // result_lapse, result_shift, result_inverse_spatial_metric,
+        // Use those of the other system:
+        lapse, shift, inverse_spatial_metric,
         //
         result_gamma1_scalar, result_gamma2_scalar,
 
         // Scalar argument variables
-        d_psi_scalar, d_pi_scalar, d_phi_scalar, pi_scalar, phi_scalar, lapse,
-        shift, deriv_lapse, deriv_shift, upper_spatial_metric,
+        d_psi_scalar, d_pi_scalar, d_phi_scalar, pi_scalar, phi_scalar,
+        // These appear with the same name as temporals for the other system
+        lapse_scalar, shift_scalar,
+        //
+        deriv_lapse, deriv_shift, upper_spatial_metric,
         trace_spatial_christoffel, trace_extrinsic_curvature, gamma1_scalar,
         gamma2_scalar);
 
@@ -245,10 +254,10 @@ struct TimeDerivativeTerms {
   using gradient_tags = tmpl::append<gh_gradient_tags, scalar_gradient_tags>;
   using scalar_arg_tags =
       typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags;
-  using temporary_tags = tmpl::append<gh_temp_tags, scalar_temp_tags>;
-  //   using temporary_tags =
-  //       tmpl::remove_duplicates<tmpl::append<gh_temp_tags,
-  //       scalar_temp_tags>>;
+//   using temporary_tags = tmpl::append<gh_temp_tags, scalar_temp_tags>;
+  using temporary_tags =
+        tmpl::remove_duplicates<tmpl::append<gh_temp_tags,
+        scalar_temp_tags>>;
   using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags>;
   //...
   static void apply(
@@ -299,9 +308,10 @@ struct TimeDerivativeTerms {
       gsl::not_null<tnsr::abb<DataVector, 3_st>*> da_spacetime_metric,
       // Scalar temporal variables
       // These are duplicates
-      gsl::not_null<Scalar<DataVector>*> result_lapse,
-      gsl::not_null<tnsr::I<DataVector, 3_st>*> result_shift,
-      gsl::not_null<tnsr::II<DataVector, 3_st>*> result_inverse_spatial_metric,
+      //   gsl::not_null<Scalar<DataVector>*> result_lapse,
+      //   gsl::not_null<tnsr::I<DataVector, 3_st>*> result_shift,
+      //   gsl::not_null<tnsr::II<DataVector, 3_st>*>
+      //   result_inverse_spatial_metric,
       //
       gsl::not_null<Scalar<DataVector>*> result_gamma1_scalar,
       gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar,
@@ -314,8 +324,8 @@ struct TimeDerivativeTerms {
       const tnsr::aa<DataVector, 3_st>& pi,
       const tnsr::iaa<DataVector, 3_st>& phi, const Scalar<DataVector>& gamma0,
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
-      const gauges::GaugeCondition& gauge_condition, const Mesh<3_st>& mesh,
-      double time,
+      const GeneralizedHarmonic::gauges::GaugeCondition& gauge_condition,
+      const Mesh<3_st>& mesh, double time,
       const tnsr::I<DataVector, 3_st, Frame::Inertial>& inertial_coords,
       const InverseJacobian<DataVector, 3_st, Frame::ElementLogical,
                             Frame::Inertial>& inverse_jacobian,
@@ -327,7 +337,10 @@ struct TimeDerivativeTerms {
       const tnsr::ij<DataVector, 3_st>& d_phi_scalar,
       const Scalar<DataVector>& pi_scalar,
       const tnsr::i<DataVector, 3_st>& phi_scalar,
-      const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3_st>& shift,
+      // These appear with the same name as temporals for the other system
+      const Scalar<DataVector>& lapse_scalar,
+      const tnsr::I<DataVector, 3_st>& shift_scalar,
+      //
       const tnsr::i<DataVector, 3_st>& deriv_lapse,
       const tnsr::iJ<DataVector, 3_st>& deriv_shift,
       const tnsr::II<DataVector, 3_st>& upper_spatial_metric,
@@ -355,7 +368,8 @@ struct TimeDerivativeTerms {
         normal_spacetime_vector, normal_spacetime_one_form, da_spacetime_metric,
         // Scalar temporal variables
         // These are duplicates
-        result_lapse, result_shift, result_inverse_spatial_metric,
+        // result_lapse, result_shift, result_inverse_spatial_metric,
+        // Use those of the other system. They are written above.
         //
         result_gamma1_scalar, result_gamma2_scalar,
 
@@ -364,8 +378,11 @@ struct TimeDerivativeTerms {
         gamma1, gamma2, gauge_condition, mesh, time, inertial_coords,
         inverse_jacobian, mesh_velocity,
         // Scalar argument variables
-        d_psi_scalar, d_pi_scalar, d_phi_scalar, pi_scalar, phi_scalar, lapse,
-        shift, deriv_lapse, deriv_shift, upper_spatial_metric,
+        d_psi_scalar, d_pi_scalar, d_phi_scalar, pi_scalar, phi_scalar,
+        // These appear with the same name as temporals for the other system
+        lapse_scalar, shift_scalar,
+        //
+        deriv_lapse, deriv_shift, upper_spatial_metric,
         trace_spatial_christoffel, trace_extrinsic_curvature, gamma1_scalar,
         gamma2_scalar);
   }
