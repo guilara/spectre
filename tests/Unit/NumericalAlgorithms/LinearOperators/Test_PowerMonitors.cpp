@@ -19,8 +19,6 @@
 #include "NumericalAlgorithms/Spectral/Spectral.hpp"
 #include "Utilities/ConstantExpressions.hpp"
 
-#include "Parallel/Printf.hpp"
-
 namespace {
 
 void test_power_monitors_impl() {
@@ -225,12 +223,8 @@ void test_error_estimate_impl() {
       PowerMonitors::relative_truncation_error<2_st>(u_nodal, mesh);
   auto relative_truncation_error_x =
       pow(10.0, -1.0 * relative_truncation_error[0]);
-  Parallel::printf("relative_truncation_error_x = %lf \n",
-                   relative_truncation_error_x);
   auto relative_truncation_error_y =
       pow(10.0, -1.0 * relative_truncation_error[1]);
-  Parallel::printf("relative_truncation_error_y = %lf \n",
-                   relative_truncation_error_y);
   std::array<double, 2> check_vector = {relative_truncation_error_x,
                                         relative_truncation_error_y};
 
