@@ -15,8 +15,6 @@
 #include "Utilities/GenerateInstantiations.hpp"
 #include "Utilities/Gsl.hpp"
 
-#include "Parallel/Printf.hpp"
-
 namespace PowerMonitors {
 
 double detail::relative_truncation_error_impl(
@@ -34,7 +32,6 @@ double detail::relative_truncation_error_impl(
     weight_value = exp(-square(
         index - static_cast<double>(upperBound) + 0.5)
         );
-    Parallel::printf("weight = %lf \n ", weight_value);
     // Add weighted power monitor
     // (Need to check log argument or add floor)
     weighted_average +=
