@@ -132,7 +132,7 @@ void error_estimate(const gsl::not_null<std::array<double, Dim>*> result,
                     const DataVector& input_data_vector,
                     const Mesh<Dim>& mesh) {
   // Define tolerances
-  const double atol = 0.0;
+  const double atol = 1.0e-14;
   const double rtol = 1.0;
 
   // Get relative truncation error

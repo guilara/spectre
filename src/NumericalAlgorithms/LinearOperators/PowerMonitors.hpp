@@ -115,9 +115,9 @@ std::array<double, Dim> relative_truncation_error(
  * \f}
  *
  * where \f$ \mathcal{T}[P_k] \f$ is the relative error estimate computed from
- * the power monitors \f$ P_k \f$. We set \f$ \mathrm{rtol} = 0 \f$ and
- * \f$ \mathrm{rtol} = 1 \f$.
- *
+ * the power monitors \f$ P_k \f$. We set \f$ \mathrm{atol} \f$ to a small
+ * number (\f$ 10^{-14} \f$) in order to avoid dividing by zero if \f$ u \f$
+ * vanishes. We set \f$ \mathrm{rtol} = 1 \f$.
  */
 template <size_t Dim>
 void error_estimate(gsl::not_null<std::array<double, Dim>*> result,
