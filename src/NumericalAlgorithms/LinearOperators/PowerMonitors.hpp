@@ -58,11 +58,10 @@ std::array<DataVector, Dim> power_monitors(const DataVector& input_data_vector,
  * Compute the maximum of variable \f$ u \f$ in the element as
  *
  * \f{align*}{
- *  u_\mathrm{max} = \sqrt{ \frac{1}{N_0 N_1 N_2}
- *   \sum_{k_0, k_1, k_2} \left( u_{k_0,k_1,k_2} \right)^2} ,
+ *  u_\mathrm{max} = \max_{ijk} \left\lvert u_{ijk} \right\rvert ,
  * \f}
  *
- * where \f$ u_{k_0,k_1,k_2}\f$ are the nodal coefficients
+ * where \f$ u_{ijk}\f$ are the nodal coefficients
  * of variable \f$ u \f$.
  *
  */
@@ -74,7 +73,7 @@ double maximum_of_variable(const DataVector& input_data_vector);
  * \brief Relative truncation error.
  *
  * Truncation error according to Eqs. (57) and (58) of Ref. \cite
- * Szilagyi2014fna. Namely,
+ * Szilagyi2014fna, i.e.,
  *
  * \f{align*}{
  *  \mathcal{T}\left[P_k\right] = \log_{10} \max \left(P_0, P_1\right)
@@ -87,7 +86,8 @@ double maximum_of_variable(const DataVector& input_data_vector);
  *  w_j = \exp\left[ - (j - N_k + \dfrac{1}{2})^2 \right] .
  * \f}
  *
- * where \f$ N_k \f$ is the number of power monitors.
+ * where \f$ N_k \f$ is the number of power monitors. Here the second term
+ * is a weighted average with larger weights toward the highest modes.
  *
  */
 template <size_t Dim>
@@ -103,7 +103,7 @@ std::array<double, Dim> relative_truncation_error(
 /// @{
 /*!
  * \ingroup SpectralGroup
- * \brief Returns an estimate of the numerical error.
+ * \brief Returns an estimate of the absolute truncation error.
  *
  * The estimate of the numerical error is given by
  *
@@ -115,7 +115,8 @@ std::array<double, Dim> relative_truncation_error(
  * \f}
  *
  * where \f$ \mathcal{T}[P_k] \f$ is the relative error estimate computed from
- * the power monitors \f$ P_k \f$.
+ * the power monitors \f$ P_k \f$. We set \f$ \mathrm{rtol} = 0 \f$ and
+ * \f$ \mathrm{rtol} = 1 \f$.
  *
  */
 template <size_t Dim>
@@ -131,7 +132,7 @@ std::array<double, Dim> error_estimate(const DataVector& input_data_vector,
 /// @{
 /*!
  * \ingroup SpectralGroup
- * \brief Returns an estimate of the absolute truncation error.
+ * \brief Computes the minimum of two absolute truncation error estimates.
  *
  * Calculated as smallest relative truncation error for all power monitors and
  * with one less
@@ -142,7 +143,6 @@ std::array<double, Dim> error_estimate(const DataVector& input_data_vector,
  * \f}
  *
  * where \f$ N_k \f$ is the number of power monitors.
- *
  */
 template <size_t Dim>
 void absolute_truncation_error_estimate(
