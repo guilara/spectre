@@ -80,7 +80,8 @@ def plot_power_monitors(volfiles: Union[spectre_h5.H5Vol,
             np.zeros(element.mesh.extents(d)) for d in range(element.dim)
         ]
         for component in tensor_data:
-            modes = power_monitors(DataVector(component), element.mesh)
+            modes = np.power(
+                10.0, power_monitors(DataVector(component), element.mesh))
             for d, modes_dim in enumerate(modes):
                 all_modes[d] += modes_dim**2
         for d in range(element.dim):
