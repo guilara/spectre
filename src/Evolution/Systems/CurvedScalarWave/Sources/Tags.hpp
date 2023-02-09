@@ -11,7 +11,7 @@ namespace Tags {
 
 struct ScalarSource : db::SimpleTag {
   using type = Scalar<DataVector>;
-}
+};
 
 }  // namespace Tags
 

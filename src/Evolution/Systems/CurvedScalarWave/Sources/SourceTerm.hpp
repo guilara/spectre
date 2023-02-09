@@ -6,29 +6,10 @@
 #include "DataStructures/DataBox/Tag.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Sources/Tags.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "Utilities/Gsl.hpp"
 
 namespace CurvedScalarWave::Sources {
-
-namespace Tags {
-
-/*!
- * \brief Compute tag for the scalar source.
- *
- * \details Call compute_scalar_source.
- */
-struct ScalarSourceCompute : ScalarSource, db::ComputeTag {
-  using argument_tags = tmpl::list<CurvedScalarWave::Tags::Psi>;
-  using return_type = Scalar<DataVector>;
-  static constexpr void (*function)(
-      const gsl::not_null<return_type*> result,
-      const tnsr::i<DataVector, SpatialDim, Frame::Inertial>&,
-      const tnsr::i<DataVector, SpatialDim, Frame::Inertial>&) =
-      &compute_scalar_source;
-  using base = ScalarSource;
-};
-
-} // namespace Tags
 
 /*!
  * \brief Compute the scalar source term for the CurvedScalarWave system.
@@ -68,5 +49,23 @@ void compute_scalar_source(gsl::not_null<Scalar<DataVector>*> scalar_source,
 void add_scalar_source_to_dt_pi(gsl::not_null<Scalar<DataVector>*> dt_pi,
                                 const Scalar<DataVector>& scalar_source,
                                 const Scalar<DataVector>& lapse);
+
+namespace Tags {
+
+/*!
+ * \brief Compute tag for the scalar source.
+ *
+ * \details Call compute_scalar_source.
+ */
+struct ScalarSourceCompute : ScalarSource, db::ComputeTag {
+  using argument_tags = tmpl::list<CurvedScalarWave::Tags::Psi>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(const gsl::not_null<return_type*> result,
+                                    const Scalar<DataVector>&) =
+      &compute_scalar_source;
+  using base = ScalarSource;
+};
+
+}  // namespace Tags
 
 }  // namespace CurvedScalarWave::Sources
