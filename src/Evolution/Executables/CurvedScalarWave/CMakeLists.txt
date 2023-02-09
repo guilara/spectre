@@ -58,6 +58,17 @@ function(add_flat_plane_wave_executable DIM)
   )
 endfunction(add_flat_plane_wave_executable)
 
+# New executable
+function(add_interpolating_curved_scalar_wave_source_executable EXECUTABLE_NAME DIM BACKGROUND INITIAL_DATA)
+  add_spectre_parallel_executable(
+    "EvolveCurvedScalarWaveSource${EXECUTABLE_NAME}${DIM}D"
+    EvolveCurvedScalarWave
+    Evolution/Executables/CurvedScalarWave
+    "EvolutionMetavars<${DIM},${BACKGROUND},${INITIAL_DATA}>"
+    "${LIBS_TO_LINK};${INTERPOLATION_LIBS_TO_LINK}"
+  )
+endfunction(add_interpolating_curved_scalar_wave_source_executable)
+
 add_flat_plane_wave_executable(1)
 add_flat_plane_wave_executable(2)
 
@@ -69,6 +80,14 @@ add_interpolating_curved_scalar_wave_executable(
 )
 
 add_interpolating_curved_scalar_wave_executable(
+  ScalarWaveKerrSchild
+  3
+  gr::Solutions::KerrSchild
+  CurvedScalarWave::AnalyticData::PureSphericalHarmonic
+)
+
+# New executable
+add_interpolating_curved_scalar_wave_source_executable(
   ScalarWaveKerrSchild
   3
   gr::Solutions::KerrSchild
