@@ -7,6 +7,7 @@
 
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Characteristics.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Sources/Tags.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "NumericalAlgorithms/LinearOperators/PartialDerivatives.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
@@ -57,9 +58,11 @@ struct TimeDerivative {
       gr::Tags::Lapse<DataVector>,
       gr::Tags::Shift<Dim, Frame::Inertial, DataVector>,
       gr::Tags::InverseSpatialMetric<Dim, Frame::Inertial, DataVector>,
-      Tags::ConstraintGamma1, Tags::ConstraintGamma2>;
+      Tags::ConstraintGamma1, Tags::ConstraintGamma2,
+      Sources::Tags::ScalarSource>;
 
   using argument_tags = tmpl::list<
+      Tags::Psi,
       Tags::Pi, Tags::Phi<Dim>, gr::Tags::Lapse<DataVector>,
       gr::Tags::Shift<Dim, Frame::Inertial, DataVector>,
       ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<Dim>,
@@ -82,12 +85,13 @@ struct TimeDerivative {
       gsl::not_null<tnsr::II<DataVector, Dim>*> result_inverse_spatial_metric,
       gsl::not_null<Scalar<DataVector>*> result_gamma1,
       gsl::not_null<Scalar<DataVector>*> result_gamma2,
+      gsl::not_null<Scalar<DataVector>*> scalar_source,
 
       const tnsr::i<DataVector, Dim>& d_psi,
       const tnsr::i<DataVector, Dim>& d_pi,
-      const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& pi,
-      const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
-      const tnsr::I<DataVector, Dim>& shift,
+      const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& psi,
+      const Scalar<DataVector>& pi, const tnsr::i<DataVector, Dim>& phi,
+      const Scalar<DataVector>& lapse, const tnsr::I<DataVector, Dim>& shift,
       const tnsr::i<DataVector, Dim>& deriv_lapse,
       const tnsr::iJ<DataVector, Dim>& deriv_shift,
       const tnsr::II<DataVector, Dim>& upper_spatial_metric,

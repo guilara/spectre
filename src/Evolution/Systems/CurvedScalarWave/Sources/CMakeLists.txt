@@ -1,14 +1,14 @@
 # Distributed under the MIT License.
 # See LICENSE.txt for details.
 
-set(LIBRARY ScalarWaveSources)
+set(LIBRARY CurvedScalarWaveSources)
 
 add_spectre_library(${LIBRARY})
 
 spectre_target_sources(
   ${LIBRARY}
   PRIVATE
-  Tags.cpp
+  SourceTerm.cpp
   )
 
 spectre_target_headers(
@@ -22,4 +22,5 @@ spectre_target_headers(
 target_link_libraries(
   ${LIBRARY}
   PUBLIC
+  CurvedScalarWave
   )

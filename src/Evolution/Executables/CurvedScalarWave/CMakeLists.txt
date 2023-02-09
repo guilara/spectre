@@ -5,6 +5,7 @@ set(LIBS_TO_LINK
   CoordinateMaps
   CurvedScalarWave
   CurvedWaveEquationAnalyticData
+  CurvedScalarWaveSources
   DiscontinuousGalerkin
   DomainCreators
   Events
@@ -88,7 +89,7 @@ add_interpolating_curved_scalar_wave_executable(
 
 # New executable
 add_interpolating_curved_scalar_wave_source_executable(
-  ScalarWaveKerrSchild
+  ScalarWaveKerrSchildSource
   3
   gr::Solutions::KerrSchild
   CurvedScalarWave::AnalyticData::PureSphericalHarmonic
