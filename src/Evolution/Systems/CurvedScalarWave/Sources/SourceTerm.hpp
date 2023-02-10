@@ -14,15 +14,14 @@ namespace CurvedScalarWave::Sources {
 /*!
  * \brief Compute the scalar source term for the CurvedScalarWave system.
  *
- * \details The scalar source term depends on the problem at hand. For a
- * massive scalar,
+ * \details The scalar source term depends on the problem at hand. For a scalar
+ * subject to a potential,
  *
  * \f[
- * \partial_t \Pi_{ab} + \text{(spatial derivative terms)} =
- * \text{(CurvedScalarWave source terms)}
- * + (\mathrm{some factor})(\mathrm{scalar source}) .
+ * \mathrm{scalar source} = \partial V / \partial \psi .
  * \f]
  *
+ * For a massive scalar \f$ \partial V / \partial \psi = m_{\psi}^2 \psi \f$.
  */
 void compute_scalar_source(gsl::not_null<Scalar<DataVector>*> scalar_source,
                            const Scalar<DataVector>& psi);
@@ -34,10 +33,13 @@ void compute_scalar_source(gsl::not_null<Scalar<DataVector>*> scalar_source,
  * evolution equations is in the equation for \f$\Pi\f$:
  *
  * \f[
- * \partial_t \Pi_{ab} + \text{(spatial derivative terms)} =
- * \text{(CurvedScalarWave source terms)}
- * + (\mathrm{some factor})(\mathrm{scalar source}) .
+ * \partial_t \Pi_{ab} = \alpha (\mathrm{scalar source})
+ * + \text{(other CurvedScalarWave source terms)} ,
  * \f]
+ *
+ * where \f$ \mathrm{scalar source} = \partial V / \partial \psi \f$.
+ *
+ * For a massive scalar \f$ \partial V / \partial \psi = m_{\psi}^2 \psi \f$.
  *
  * This function adds that contribution to the existing value of `dt_pi`. The
  * spacetime terms in the Curved Scalar equation should be computed before
