@@ -39,8 +39,8 @@ void TimeDerivative<Dim>::apply(
     const tnsr::II<DataVector, Dim>& upper_spatial_metric,
     const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
     const Scalar<DataVector>& trace_extrinsic_curvature,
-    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
-    const double mass_psi) {
+    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2
+    /*, const double mass_psi*/) {
   *result_lapse = lapse;
   *result_shift = shift;
   *result_inverse_spatial_metric = upper_spatial_metric;
@@ -81,7 +81,8 @@ void TimeDerivative<Dim>::apply(
   }
 
   // Compute scalar source. (Need to add source to temporal quantities.)
-  Sources::compute_scalar_source(scalar_source, psi, mass_psi);
+  // Sources::compute_scalar_source(scalar_source, psi, mass_psi);
+  Sources::compute_scalar_source(scalar_source, psi);
   // Add source terms
   Sources::add_scalar_source_to_dt_pi(dt_pi, *scalar_source, lapse);
 }
