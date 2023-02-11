@@ -73,7 +73,7 @@ struct TimeDerivative {
       gr::Tags::TraceSpatialChristoffelSecondKind<Dim, Frame::Inertial,
                                                   DataVector>,
       gr::Tags::TraceExtrinsicCurvature<DataVector>, Tags::ConstraintGamma1,
-      Tags::ConstraintGamma2, Sources::Tags::ScalarMass>;
+      Tags::ConstraintGamma2/*, Sources::Tags::ScalarMass*/>;
 
   static void apply(
       gsl::not_null<Scalar<DataVector>*> dt_psi,
@@ -97,7 +97,7 @@ struct TimeDerivative {
       const tnsr::II<DataVector, Dim>& upper_spatial_metric,
       const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
       const Scalar<DataVector>& trace_extrinsic_curvature,
-      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
-      const double mass_psi);
+      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2
+      /*, const double mass_psi*/);
 };
 }  // namespace CurvedScalarWave

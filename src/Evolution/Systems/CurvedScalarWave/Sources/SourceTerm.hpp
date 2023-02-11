@@ -27,6 +27,9 @@ void compute_scalar_source(gsl::not_null<Scalar<DataVector>*> scalar_source,
                            const Scalar<DataVector>& psi,
                            const double mass_psi);
 
+void compute_scalar_source(gsl::not_null<Scalar<DataVector>*> scalar_source,
+                           const Scalar<DataVector>& psi);
+
 /*!
  * \brief Add in the scalar source term for the CurvedScalarWave system.
  *
@@ -61,11 +64,13 @@ namespace Tags {
  * \details Call compute_scalar_source.
  */
 struct ScalarSourceCompute : ScalarSource, db::ComputeTag {
-  using argument_tags = tmpl::list<CurvedScalarWave::Tags::Psi>;
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::Psi
+                 /*, CurvedScalarWave::Sources::Tags::ScalarMass*/>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(const gsl::not_null<return_type*> result,
-                                    const Scalar<DataVector>&) =
-      &compute_scalar_source;
+                                    const Scalar<DataVector>&
+                                  /*, const double*/) = &compute_scalar_source;
   using base = ScalarSource;
 };
 

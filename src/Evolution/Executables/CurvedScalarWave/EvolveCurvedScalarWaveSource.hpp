@@ -288,6 +288,7 @@ struct EvolutionMetavars {
       Initialization::Actions::TimeStepperHistory<EvolutionMetavars>,
       CurvedScalarWave::Actions::CalculateGrVars<system>,
       Initialization::Actions::AddSimpleTags<
+        //   CurvedScalarWave::Source::Tags::ScalarMass,
           CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
               volume_dim>,
           CurvedScalarWave::Initialization::InitializeEvolvedVariables<
