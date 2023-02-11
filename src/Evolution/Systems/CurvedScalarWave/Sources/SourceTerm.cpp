@@ -11,9 +11,9 @@ namespace CurvedScalarWave::Sources {
 
 void compute_scalar_source(
     const gsl::not_null<Scalar<DataVector>*> scalar_source,
-    const Scalar<DataVector>& psi) {
+    const Scalar<DataVector>& psi, const double mass_psi) {
   // Mass
-  const double mass_psi = 1.0;
+  // const double mass_psi = 1.0;
   scalar_source->get() = square(mass_psi) * psi.get();
 }
 

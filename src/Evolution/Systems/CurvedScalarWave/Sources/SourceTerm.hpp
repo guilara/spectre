@@ -24,7 +24,8 @@ namespace CurvedScalarWave::Sources {
  * For a massive scalar \f$ \partial V / \partial \psi = m_{\psi}^2 \psi \f$.
  */
 void compute_scalar_source(gsl::not_null<Scalar<DataVector>*> scalar_source,
-                           const Scalar<DataVector>& psi);
+                           const Scalar<DataVector>& psi,
+                           const double mass_psi);
 
 /*!
  * \brief Add in the scalar source term for the CurvedScalarWave system.
