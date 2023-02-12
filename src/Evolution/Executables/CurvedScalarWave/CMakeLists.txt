@@ -91,6 +91,14 @@ add_interpolating_curved_scalar_wave_executable(
 add_interpolating_curved_scalar_wave_source_executable(
   ScalarWaveKerrSchildSource
   3
+  gr::Solutions::Minkowski<3>
+  ScalarWave::Solutions::PlaneWave<3>
+)
+
+# New executable
+add_interpolating_curved_scalar_wave_source_executable(
+  ScalarWaveKerrSchildSource
+  3
   gr::Solutions::KerrSchild
   CurvedScalarWave::AnalyticData::PureSphericalHarmonic
 )
