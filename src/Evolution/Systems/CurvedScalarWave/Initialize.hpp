@@ -132,4 +132,22 @@ struct InitializeEvolvedVariables {
   }
 };
 
+/*!
+ * \brief Set initial scalar source to zero.
+ *
+ * \details Need to check the compute tag then computes the right scalar source.
+ */
+template <size_t Dim>
+struct InitializeScalarSource {
+  using return_tags =
+      tmpl::list<CurvedScalarWave::Sources::Tags::ScalarSource>;
+  using argument_tags = tmpl::list<domain::Tags::Mesh<Dim>>;
+
+  static void apply(const gsl::not_null<Scalar<DataVector>*> scalar_source,
+                    const Mesh<Dim>& mesh) {
+    const size_t number_of_grid_points = mesh.number_of_grid_points();
+    *scalar_source = Scalar<DataVector>{number_of_grid_points, 0.};
+  }
+};
+
 }  // namespace CurvedScalarWave::Initialization
