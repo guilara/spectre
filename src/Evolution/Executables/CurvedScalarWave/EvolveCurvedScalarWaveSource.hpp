@@ -274,6 +274,7 @@ struct EvolutionMetavars {
           tmpl::list<>>>>;
 
   using const_global_cache_tags = tmpl::list<
+      CurvedScalarWave::Sources::Tags::ScalarMass,
       CurvedScalarWave::Tags::BackgroundSpacetime<BackgroundSpacetime>,
       Tags::AnalyticData<InitialData>>;
 
@@ -288,7 +289,6 @@ struct EvolutionMetavars {
       Initialization::Actions::TimeStepperHistory<EvolutionMetavars>,
       CurvedScalarWave::Actions::CalculateGrVars<system>,
       Initialization::Actions::AddSimpleTags<
-        //   CurvedScalarWave::Source::Tags::ScalarMass,
           CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
               volume_dim>,
           CurvedScalarWave::Initialization::InitializeEvolvedVariables<
@@ -296,7 +296,7 @@ struct EvolutionMetavars {
       Initialization::Actions::AddComputeTags<
           tmpl::flatten<tmpl::list<
           // Add here source compute tag
-          CurvedScalarWave::Source::Tags::ScalarSourceCompute
+          CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
           //
           StepChoosers::step_chooser_compute_tags<
               EvolutionMetavars, local_time_stepping>

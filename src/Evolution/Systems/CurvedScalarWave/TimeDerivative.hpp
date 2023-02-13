@@ -62,7 +62,7 @@ struct TimeDerivative {
       Sources::Tags::ScalarSource>;
 
   using argument_tags = tmpl::list<
-      Tags::Psi,
+    //   Tags::Psi,
       Tags::Pi, Tags::Phi<Dim>, gr::Tags::Lapse<DataVector>,
       gr::Tags::Shift<Dim, Frame::Inertial, DataVector>,
       ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<Dim>,
@@ -89,9 +89,11 @@ struct TimeDerivative {
 
       const tnsr::i<DataVector, Dim>& d_psi,
       const tnsr::i<DataVector, Dim>& d_pi,
-      const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& psi,
-      const Scalar<DataVector>& pi, const tnsr::i<DataVector, Dim>& phi,
-      const Scalar<DataVector>& lapse, const tnsr::I<DataVector, Dim>& shift,
+      const tnsr::ij<DataVector, Dim>& d_phi,
+    //   const Scalar<DataVector>& psi,
+      const Scalar<DataVector>& pi,
+      const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
+      const tnsr::I<DataVector, Dim>& shift,
       const tnsr::i<DataVector, Dim>& deriv_lapse,
       const tnsr::iJ<DataVector, Dim>& deriv_shift,
       const tnsr::II<DataVector, Dim>& upper_spatial_metric,

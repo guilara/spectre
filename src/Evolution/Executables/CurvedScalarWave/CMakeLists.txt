@@ -63,7 +63,7 @@ endfunction(add_flat_plane_wave_executable)
 function(add_interpolating_curved_scalar_wave_source_executable EXECUTABLE_NAME DIM BACKGROUND INITIAL_DATA)
   add_spectre_parallel_executable(
     "EvolveCurvedScalarWaveSource${EXECUTABLE_NAME}${DIM}D"
-    EvolveCurvedScalarWave
+    EvolveCurvedScalarWaveSource
     Evolution/Executables/CurvedScalarWave
     "EvolutionMetavars<${DIM},${BACKGROUND},${INITIAL_DATA}>"
     "${LIBS_TO_LINK};${INTERPOLATION_LIBS_TO_LINK}"
@@ -89,7 +89,7 @@ add_interpolating_curved_scalar_wave_executable(
 
 # New executable
 add_interpolating_curved_scalar_wave_source_executable(
-  ScalarWaveKerrSchildSource
+  PlaneWaveMinkowskiSource
   3
   gr::Solutions::Minkowski<3>
   ScalarWave::Solutions::PlaneWave<3>
