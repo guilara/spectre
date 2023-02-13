@@ -19,8 +19,7 @@ struct ScalarSource : db::SimpleTag {
 namespace OptionTags {
 
 /*!
- * \brief The constraint damping parameter for divergence cleaning of electric
- * fields.
+ * \brief Scalar mass parameter.
  */
 struct ScalarMass {
   static std::string name() { return "ScalarMass"; }
@@ -37,7 +36,7 @@ namespace Tags {
 struct ScalarMass : db::SimpleTag {
   using type = double;
   using option_tags = tmpl::list<OptionTags::ScalarMass>;
-  // static constexpr bool pass_metavariables = false;
+  static constexpr bool pass_metavariables = false;
   static double create_from_options(const double mass_psi) { return mass_psi; }
 };
 

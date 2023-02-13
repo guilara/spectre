@@ -31,7 +31,8 @@ void TimeDerivative<Dim>::apply(
     const gsl::not_null<Scalar<DataVector>*> scalar_source,
 
     const tnsr::i<DataVector, Dim>& d_psi, const tnsr::i<DataVector, Dim>& d_pi,
-    const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& psi,
+    const tnsr::ij<DataVector, Dim>& d_phi,
+    // const Scalar<DataVector>& psi,
     const Scalar<DataVector>& pi, const tnsr::i<DataVector, Dim>& phi,
     const Scalar<DataVector>& lapse, const tnsr::I<DataVector, Dim>& shift,
     const tnsr::i<DataVector, Dim>& deriv_lapse,
@@ -82,7 +83,7 @@ void TimeDerivative<Dim>::apply(
 
   // Compute scalar source. (Need to add source to temporal quantities.)
   // Sources::compute_scalar_source(scalar_source, psi, mass_psi);
-  Sources::compute_scalar_source(scalar_source, psi);
+  // Sources::compute_scalar_source(scalar_source, psi);
   // Add source terms
   Sources::add_scalar_source_to_dt_pi(dt_pi, *scalar_source, lapse);
 }
