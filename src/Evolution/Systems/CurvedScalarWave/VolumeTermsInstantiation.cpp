@@ -48,8 +48,8 @@ namespace evolution::dg::Actions::detail {
       [[maybe_unused]] const Scalar<DataVector>* const det_inverse_jacobian,  \
       const std::optional<tnsr::I<DataVector, DIM(data), Frame::Inertial>>&   \
           mesh_velocity,                                                      \
-      const std::optional<Scalar<DataVector>>& div_mesh_velocity,             \
-      /*const Scalar<DataVector>& psi,*/                                      \
+      const std::optional<Scalar<DataVector>>&                                \
+          div_mesh_velocity, /*const Scalar<DataVector>& psi,*/               \
       const Scalar<DataVector>& pi,                                           \
       const tnsr::i<DataVector, DIM(data), Frame::Inertial>& phi,             \
       const Scalar<DataVector>& lapse,                                        \
@@ -61,7 +61,8 @@ namespace evolution::dg::Actions::detail {
       const tnsr::I<DataVector, DIM(data), Frame::Inertial>&                  \
           trace_spatial_christoffel,                                          \
       const Scalar<DataVector>& trace_extrinsic_curvature,                    \
-      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2      \
+      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,     \
+      const Scalar<DataVector>& scalar_source                                 \
       /*, const double& mass_psi*/);
 
 GENERATE_INSTANTIATIONS(INSTANTIATION, (1, 2, 3))

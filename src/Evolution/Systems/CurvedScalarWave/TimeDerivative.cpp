@@ -28,7 +28,7 @@ void TimeDerivative<Dim>::apply(
         result_inverse_spatial_metric,
     const gsl::not_null<Scalar<DataVector>*> result_gamma1,
     const gsl::not_null<Scalar<DataVector>*> result_gamma2,
-    const gsl::not_null<Scalar<DataVector>*> scalar_source,
+    // const gsl::not_null<Scalar<DataVector>*> scalar_source,
 
     const tnsr::i<DataVector, Dim>& d_psi, const tnsr::i<DataVector, Dim>& d_pi,
     const tnsr::ij<DataVector, Dim>& d_phi,
@@ -40,7 +40,8 @@ void TimeDerivative<Dim>::apply(
     const tnsr::II<DataVector, Dim>& upper_spatial_metric,
     const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
     const Scalar<DataVector>& trace_extrinsic_curvature,
-    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2
+    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
+    const Scalar<DataVector>& scalar_source
     /*, const double mass_psi*/) {
   *result_lapse = lapse;
   *result_shift = shift;
@@ -85,7 +86,8 @@ void TimeDerivative<Dim>::apply(
   // Sources::compute_scalar_source(scalar_source, psi, mass_psi);
   // Sources::compute_scalar_source(scalar_source, psi);
   // Add source terms
-  Sources::add_scalar_source_to_dt_pi(dt_pi, *scalar_source, lapse);
+  // Sources::add_scalar_source_to_dt_pi(dt_pi, *scalar_source, lapse);
+    Sources::add_scalar_source_to_dt_pi(dt_pi, scalar_source, lapse);
 }
 }  // namespace CurvedScalarWave
 // Generate explicit instantiations of partial_derivatives function as well as
