@@ -34,8 +34,20 @@ void test_compute_scalar_source () {
 }
 
 // We want to test WrappedGr
-void test_background__spacetime () {
+// Add the following libraries to the RunSingleTest cmake file:
+//   CurvedScalarWave
+//   CurvedScalarWaveSources
+//   GeneralRelativitySolutions
 //
+void test_background__spacetime () {
+    // Define solution parameters
+    const double mass = 1.0;
+    const std::array<double, 3> spin{{0.0, 0.0, 0.0}};
+    const std::array<double, 3> center{{0.0, 0.0, 0.0}};
+    // Create instance of wrapped solution
+    const GeneralizedHarmonic::Solutions::WrappedGr<gr::Solutions::KerrSchild>&
+        wrapped_ks_solution{mass, spin, center};
+
 }
 
 SPECTRE_TEST_CASE("Unit.Evolution.Systems.CurvedScalarWave.Sources.SourceTerm",
