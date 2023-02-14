@@ -27,9 +27,6 @@ void compute_scalar_source(gsl::not_null<Scalar<DataVector>*> scalar_source,
                            const Scalar<DataVector>& psi,
                            const double mass_psi);
 
-void compute_scalar_source(gsl::not_null<Scalar<DataVector>*> scalar_source,
-                           const Scalar<DataVector>& psi);
-
 /*!
  * \brief Add in the scalar source term for the CurvedScalarWave system.
  *
