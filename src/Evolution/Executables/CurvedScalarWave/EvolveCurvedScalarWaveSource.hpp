@@ -91,6 +91,9 @@
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrHorizon.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrSchild.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Minkowski.hpp"
+//
+#include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
+//
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/WaveEquation/PlaneWave.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
@@ -131,7 +134,9 @@ class er;
 template <size_t Dim, typename BackgroundSpacetime, typename InitialData>
 struct EvolutionMetavars {
   static constexpr size_t volume_dim = Dim;
-  using background_spacetime = BackgroundSpacetime;
+//   using background_spacetime = BackgroundSpacetime;
+  using background_spacetime =
+      GeneralizedHarmonic::Solutions::WrappedGr<BackgroundSpacetime>;
   static_assert(
       is_analytic_data_v<InitialData> xor is_analytic_solution_v<InitialData>,
       "initial_data must be either an analytic_data or an analytic_solution");
@@ -275,7 +280,9 @@ struct EvolutionMetavars {
 
   using const_global_cache_tags = tmpl::list<
       CurvedScalarWave::Sources::Tags::ScalarMass,
-      CurvedScalarWave::Tags::BackgroundSpacetime<BackgroundSpacetime>,
+      //   CurvedScalarWave::Tags::BackgroundSpacetime<BackgroundSpacetime>,
+      CurvedScalarWave::Tags::BackgroundSpacetime<
+          GeneralizedHarmonic::Solutions::WrappedGr<BackgroundSpacetime>>,
       Tags::AnalyticData<InitialData>>;
 
   using dg_registration_list =
