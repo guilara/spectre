@@ -43,9 +43,9 @@ void test_spacetime_riemann_tensor() {
 //
 void test_background__spacetime() {
   // Define solution parameters
-  const double mass = 1.0;
-  const std::array<double, 3> spin{{0.0, 0.0, 0.0}};
-  const std::array<double, 3> center{{0.0, 0.0, 0.0}};
+  const double mass = 0.5;
+  const std::array<double, 3> spin{{0.1, 0.2, 0.3}};
+  const std::array<double, 3> center{{1.0, 3.0, 2.0}};
   // Create instance of wrapped solution
   const GeneralizedHarmonic::Solutions::WrappedGr<gr::Solutions::KerrSchild>&
       wrapped_ks_solution{mass, spin, center};
@@ -54,7 +54,7 @@ void test_background__spacetime() {
   const tnsr::I<DataVector, gr::Solutions::KerrSchild::volume_dim,
                 Frame::Inertial>
       x{data_vector};
-  const double t = 44.44;
+  const double t = 1.0;
 
   const auto wrapped_gh_vars = wrapped_ks_solution.variables(
       x, t,
@@ -80,6 +80,12 @@ void test_background__spacetime() {
   Parallel::printf("Size of spacetime_metric: %d \n", spacetime_metric.size());
   Parallel::printf("Size of pi : %d \n", pi.size());
   Parallel::printf("Size of phi : %d \n", phi.size());
+  for (size_t index = 0; index < spacetime_metric.size(); ++index) {
+    Parallel::printf("index: %d \n", index);
+    Parallel::printf("spacetime_metric[index]: %lf \n",
+                     spacetime_metric[index]);
+    Parallel::printf("pi[index]: %lf \n", pi[index]);
+  }
 
   //   auto test_riemann_tensor =
   //       spacetime_riemann_tensor<DataVector, 4_st, ::Frame::Inertial>(
