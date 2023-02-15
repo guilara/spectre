@@ -209,6 +209,15 @@ struct MomentumConstraint : db::SimpleTag {
 };
 
 /*!
+ * \brief The Weyl tensor.
+ * \f$C_{abcd}\f$.
+ */
+template <size_t Dim, typename Frame, typename DataType>
+struct Weyl : db::SimpleTag {
+  using type = tnsr::abcc<DataType, Dim, Frame>;
+};
+
+/*!
  * \brief Computes the electric part of the Weyl tensor in vacuum
  * as: \f$ E_{ij} = R_{ij} + KK_{ij} - K^m_{i}K_{mj}\f$ where \f$R_{ij}\f$ is
  * the spatial Ricci tensor, \f$K_{ij}\f$ is the extrinsic curvature, and
@@ -245,6 +254,16 @@ template <typename DataType>
 struct WeylMagneticScalar : db::SimpleTag {
   using type = Scalar<DataType>;
 };
+
+/*!
+ * \brief The square \f$C_{abcd} C^{abcd}\f$ of Weyl tensor.
+ * \f$C_{abcd}\f$.
+ */
+template <typename DataType>
+struct WeylSquareScalar : db::SimpleTag {
+  using type = Scalar<DataType>;
+};
+
 }  // namespace Tags
 
 /// GR Tags commonly needed for the evolution of hydro systems
