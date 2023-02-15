@@ -1,7 +1,7 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Evolution/Systems/CurvedScalarWave/Sources/SourceTerm.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Sources/CurvatureSource.hpp"
 
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Utilities/ConstantExpressions.hpp"

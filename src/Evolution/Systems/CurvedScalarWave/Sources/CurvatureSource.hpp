@@ -38,9 +38,11 @@ namespace Tags {
  * \details Call compute_scalar_curvature_source. Needs that WeylElectric is in
  * data box.
  */
+template <size_t SpatialDim, typename Frame, typename DataType>
 struct ScalarCurvatureSourceCompute : ScalarSource, db::ComputeTag {
-  using argument_tags = tmpl::list<gr::Tags::WeylElectricScalarCompute,
-                                   CurvedScalarWave::Sources::Tags::ScalarMass>;
+  using argument_tags = tmpl::list<
+      gr::Tags::WeylElectricScalarCompute<SpatialDim, Frame, DataType>,
+      CurvedScalarWave::Sources::Tags::ScalarMass>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(const gsl::not_null<return_type*> result,
                                     const Scalar<DataVector>&, const double) =
