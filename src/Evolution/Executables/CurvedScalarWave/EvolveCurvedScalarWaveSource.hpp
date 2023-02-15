@@ -93,6 +93,8 @@
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Minkowski.hpp"
 //
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
+// #include "PointwiseFunctions/GeneralRelativity/Ricci.hpp"
+// #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 //
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/WaveEquation/PlaneWave.hpp"
@@ -300,14 +302,14 @@ struct EvolutionMetavars {
               volume_dim>,
           CurvedScalarWave::Initialization::InitializeEvolvedVariables<
               volume_dim>>,
-      Initialization::Actions::AddComputeTags<
-          tmpl::flatten<tmpl::list<
+      Initialization::Actions::AddComputeTags<tmpl::flatten<tmpl::list<
           // Add here source compute tag
+        //   gr::Tags::SpatialChristoffelSecondKindCompute<
+        //       volume_dim, ::Frame::Inertial, DataVector>,
           CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
           //
-          StepChoosers::step_chooser_compute_tags<
-              EvolutionMetavars, local_time_stepping>
-              >>>,
+          StepChoosers::step_chooser_compute_tags<EvolutionMetavars,
+                                                  local_time_stepping>>>>,
       ::evolution::dg::Initialization::Mortars<volume_dim, system>,
       intrp::Actions::ElementInitInterpPoints<
           intrp::Tags::InterpPointInfo<EvolutionMetavars>>,
