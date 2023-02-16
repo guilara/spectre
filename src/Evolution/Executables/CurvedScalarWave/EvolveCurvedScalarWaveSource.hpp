@@ -9,7 +9,7 @@
 
 #include "ApparentHorizons/Tags.hpp"
 //
-// #include "DataStructures/DataVector.hpp"
+#include "DataStructures/DataVector.hpp"
 //
 #include "DataStructures/Tensor/EagerMath/Norms.hpp"
 #include "Domain/Creators/Factory1D.hpp"
@@ -96,6 +96,7 @@
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Minkowski.hpp"
 //
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
+#include "PointwiseFunctions/GeneralRelativity/InverseSpacetimeMetric.hpp"
 // #include "PointwiseFunctions/GeneralRelativity/Ricci.hpp"
 // #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 //
@@ -307,10 +308,11 @@ struct EvolutionMetavars {
               volume_dim>>,
       Initialization::Actions::AddComputeTags<tmpl::flatten<tmpl::list<
           // Add here source compute tag
-        //gr::Tags::SpatialChristoffelSecondKindCompute<3_st, ::Frame::Inertial,
-        //                                                 DataVector>,
-        //   gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial, DataVector>,
-              CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
+          gr::Tags::InverseSpacetimeMetricCompute<3_st, ::Frame::Inertial,
+                                                  DataVector>,
+          //   gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial,
+          //   DataVector>,
+          CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
           //
           StepChoosers::step_chooser_compute_tags<EvolutionMetavars,
                                                   local_time_stepping>>>>,
