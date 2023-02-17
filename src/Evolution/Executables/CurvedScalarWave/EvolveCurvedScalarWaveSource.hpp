@@ -310,6 +310,7 @@ struct EvolutionMetavars {
           // Add here source compute tag
           gr::Tags::InverseSpacetimeMetricCompute<3_st, ::Frame::Inertial,
                                                   DataVector>,
+        //   ::Tags::DerivCompute<>
           //   gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial,
           //   DataVector>,
           CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
