@@ -27,7 +27,9 @@
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/TMPL.hpp"
 
+#include <sstream>
 #include "Parallel/Printf.hpp"
+#include "Utilities/GetOutput.hpp"
 
 namespace {
 
@@ -49,8 +51,11 @@ void test_background__spacetime() {
   // Create instance of wrapped solution
   const GeneralizedHarmonic::Solutions::WrappedGr<gr::Solutions::KerrSchild>&
       wrapped_ks_solution{mass, spin, center};
+  const gr::Solutions::KerrSchild& ks_solution{mass, spin, center};
 
-  const DataVector data_vector{3.0, 4.0};
+  const DataVector data_vector(10, 1.0);
+  Parallel::printf("KerrSchild::volume_dim = %d \n",
+                   gr::Solutions::KerrSchild::volume_dim);
   const tnsr::I<DataVector, gr::Solutions::KerrSchild::volume_dim,
                 Frame::Inertial>
       x{data_vector};
@@ -66,6 +71,15 @@ void test_background__spacetime() {
           GeneralizedHarmonic::Tags::Phi<gr::Solutions::KerrSchild::volume_dim,
                                          Frame::Inertial>>{});
 
+  const auto ks_vars = ks_solution.variables(
+      x, t,
+      tmpl::list<gr::Tags::SpatialChristoffelFirstKind<3, ::Frame::Inertial,
+                                                       DataVector>,
+                 gr::Tags::SpatialChristoffelSecondKind<3, ::Frame::Inertial,
+                                                        DataVector>,
+                 gr::Tags::TraceSpatialChristoffelSecondKind<
+                     3, ::Frame::Inertial, DataVector>>{});
+
   const auto& spacetime_metric =
       get<gr::Tags::SpacetimeMetric<gr::Solutions::KerrSchild::volume_dim,
                                     Frame::Inertial, DataVector>>(
@@ -77,15 +91,46 @@ void test_background__spacetime() {
       get<GeneralizedHarmonic::Tags::Phi<gr::Solutions::KerrSchild::volume_dim,
                                         Frame::Inertial>>(wrapped_gh_vars);
 
+  const auto& christ_down_trace =
+      get<gr::Tags::TraceSpatialChristoffelSecondKind<3, ::Frame::Inertial,
+                                                      DataVector>>(ks_vars);
+  // const DataVector christ_data = christ_down_trace.get();
+
   Parallel::printf("Size of spacetime_metric: %d \n", spacetime_metric.size());
   Parallel::printf("Size of pi : %d \n", pi.size());
   Parallel::printf("Size of phi : %d \n", phi.size());
-  for (size_t index = 0; index < spacetime_metric.size(); ++index) {
-    Parallel::printf("index: %d \n", index);
-    Parallel::printf("spacetime_metric[index]: %lf \n",
-                     spacetime_metric[index]);
-    Parallel::printf("pi[index]: %lf \n", pi[index]);
+  Parallel::printf("Size of christ_down_trace : %d \n",
+                   christ_down_trace.size());
+  // for (size_t index = 0; index < spacetime_metric.size(); ++index) {
+  //   Parallel::printf("index: %d \n", index);
+  //   Parallel::printf("spacetime_metric[index]: %lf \n",
+  //                    spacetime_metric[index]);
+  //   Parallel::printf("pi[index]: %lf \n", pi[index]);
+  // }
+  // for (size_t index = 0; index < christ_down_trace.size(); ++index) {
+  //   Parallel::printf("christ_down_trace[index]: %lf \n",
+  //                    christ_down_trace[index]);
+  // }
+
+  // const DataVector check_vec{0.0, 0.0, 0.0};
+  const auto check_tensor =
+      make_with_value<tnsr::I<DataVector, 3>>(christ_down_trace.size(), 0.0);
+  const auto check_tensor_2 =
+      make_with_value<tnsr::aa<DataVector, 3, ::Frame::Inertial>>(
+          data_vector.size(), 0.0);
+  // Parallel::printf("check size: %d \n", check_vec.size());
+
+  std::ostringstream os;
+
+  os << get_output(check_tensor_2);
+
+  Parallel::printf(os.str());
+
+  for (size_t index = 0; index < 3; ++index) {
   }
+
+  // CHECK_ITERABLE_APPROX(christ_down_trace, check_tensor);
+  // CHECK_ITERABLE_APPROX(spacetime_metric, check_tensor_2);
 
   //   auto test_riemann_tensor =
   //       spacetime_riemann_tensor<DataVector, 4_st, ::Frame::Inertial>(
