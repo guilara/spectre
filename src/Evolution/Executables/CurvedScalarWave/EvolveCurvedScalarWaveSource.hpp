@@ -310,10 +310,17 @@ struct EvolutionMetavars {
           // Add here source compute tag
           gr::Tags::InverseSpacetimeMetricCompute<3_st, ::Frame::Inertial,
                                                   DataVector>,
-        //   ::Tags::DerivCompute<>
-          //   gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial,
-          //   DataVector>,
-          CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
+          ::Tags::DerivTensorCompute<
+              gr::Tags::InverseSpacetimeMetric<volume_dim, ::Frame::Inertial,
+                                        DataVector>,
+              ::domain::Tags::InverseJacobian<
+                  volume_dim, ::Frame::ElementLogical, ::Frame::Inertial>
+                  /*, gr::Tags::DerivativesOfSpacetimeMetric<
+                  volume_dim, ::Frame::Inertial, DataVector>*/
+                  >,
+              //   gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial,
+              //   DataVector>,
+              CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
           //
           StepChoosers::step_chooser_compute_tags<EvolutionMetavars,
                                                   local_time_stepping>>>>,
