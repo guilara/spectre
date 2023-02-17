@@ -311,8 +311,9 @@ struct EvolutionMetavars {
           gr::Tags::InverseSpacetimeMetricCompute<3_st, ::Frame::Inertial,
                                                   DataVector>,
           ::Tags::DerivTensorCompute<
-              gr::Tags::InverseSpacetimeMetric<volume_dim, ::Frame::Inertial,
-                                        DataVector>,
+            //   gr::Tags::InverseSpacetimeMetric<volume_dim, ::Frame::Inertial,
+            //                             DataVector>,
+            gr::Tags::TraceExtrinsicCurvature<DataVector>,
               ::domain::Tags::InverseJacobian<
                   volume_dim, ::Frame::ElementLogical, ::Frame::Inertial>
                   /*, gr::Tags::DerivativesOfSpacetimeMetric<
