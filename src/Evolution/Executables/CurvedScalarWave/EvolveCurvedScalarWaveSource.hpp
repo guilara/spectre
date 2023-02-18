@@ -96,8 +96,8 @@
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Minkowski.hpp"
 //
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
-#include "PointwiseFunctions/GeneralRelativity/InverseSpacetimeMetric.hpp"
-// #include "PointwiseFunctions/GeneralRelativity/Ricci.hpp"
+// #include "PointwiseFunctions/GeneralRelativity/InverseSpacetimeMetric.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Ricci.hpp"
 // #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 //
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
@@ -301,6 +301,9 @@ struct EvolutionMetavars {
       Initialization::Actions::NonconservativeSystem<system>,
       Initialization::Actions::TimeStepperHistory<EvolutionMetavars>,
       CurvedScalarWave::Actions::CalculateGrVars<system>,
+      // Need to make a CalculateExtraGrVars<system> action
+      // with the variables the source computation needs
+      // for now we add them to spacetime_tags_list in the system
       Initialization::Actions::AddSimpleTags<
           CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
               volume_dim>,
@@ -308,20 +311,35 @@ struct EvolutionMetavars {
               volume_dim>>,
       Initialization::Actions::AddComputeTags<tmpl::flatten<tmpl::list<
           // Add here source compute tag
-          gr::Tags::InverseSpacetimeMetricCompute<3_st, ::Frame::Inertial,
-                                                  DataVector>,
+          //   gr::Tags::InverseSpacetimeMetricCompute<3_st, ::Frame::Inertial,
+          //                                           DataVector>,
           ::Tags::DerivTensorCompute<
-            //   gr::Tags::InverseSpacetimeMetric<volume_dim, ::Frame::Inertial,
-            //                             DataVector>,
-            gr::Tags::TraceExtrinsicCurvature<DataVector>,
+              //   gr::Tags::InverseSpacetimeMetric<volume_dim,
+              //   ::Frame::Inertial,
+              //                             DataVector>,
+              //   gr::Tags::TraceExtrinsicCurvature<DataVector>,
+              //   gr::Tags::DerivDetSpatialMetric<volume_dim,
+              //   ::Frame::Inertial,
+              //                                   DataVector>,
+              //   gr::Tags::TraceSpatialChristoffelSecondKind<3,
+              //   Frame::Inertial,
+              //                                               DataVector>,
+              gr::Tags::SpatialChristoffelSecondKind<3, ::Frame::Inertial,
+                                                     DataVector>,
+              //   gr::Tags::ExtrinsicCurvature<volume_dim, Frame::Inertial,
+              //                                DataVector>,
+              //   gr::Tags::SpatialChristoffelFirstKind<
+              //       volume_dim, ::Frame::Inertial, DataVector>,
               ::domain::Tags::InverseJacobian<
                   volume_dim, ::Frame::ElementLogical, ::Frame::Inertial>
-                  /*, gr::Tags::DerivativesOfSpacetimeMetric<
-                  volume_dim, ::Frame::Inertial, DataVector>*/
-                  >,
-              //   gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial,
-              //   DataVector>,
-              CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
+              /*, gr::Tags::DerivativesOfSpacetimeMetric<
+              volume_dim, ::Frame::Inertial, DataVector>*/
+              >,
+            gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial,
+            DataVector>,
+            gr::Tags::SpatialRicciScalarCompute<3_st, ::Frame::Inertial,
+            DataVector>,
+          CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
           //
           StepChoosers::step_chooser_compute_tags<EvolutionMetavars,
                                                   local_time_stepping>>>>,

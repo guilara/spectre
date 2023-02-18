@@ -52,7 +52,10 @@ struct System {
       gr::Tags::InverseSpatialMetric<volume_dim, Frame::Inertial, DataVector>,
       gr::Tags::TraceSpatialChristoffelSecondKind<volume_dim, Frame::Inertial,
                                                   DataVector>,
-      gr::Tags::TraceExtrinsicCurvature<DataVector>>;
+      gr::Tags::TraceExtrinsicCurvature<DataVector>,
+      /* Extra Gr tags */
+      gr::Tags::SpatialChristoffelSecondKind<volume_dim, Frame::Inertial,
+                                                  DataVector>>;
 
   using compute_volume_time_derivative_terms = TimeDerivative<Dim>;
   using normal_dot_fluxes = ComputeNormalDotFluxes<Dim>;
