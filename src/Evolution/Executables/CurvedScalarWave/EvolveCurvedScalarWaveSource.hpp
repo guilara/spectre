@@ -287,7 +287,11 @@ struct EvolutionMetavars {
           tmpl::list<>>>>;
 
   using const_global_cache_tags = tmpl::list<
+      // Add scalar mass tag
       CurvedScalarWave::Sources::Tags::ScalarMass,
+      // Add scalar coupling parameter tags
+      CurvedScalarWave::Sources::Tags::ScalarFirstCouplingParameter,
+      CurvedScalarWave::Sources::Tags::ScalarSecondCouplingParameter,
       //   CurvedScalarWave::Tags::BackgroundSpacetime<BackgroundSpacetime>,
       CurvedScalarWave::Tags::BackgroundSpacetime<
           GeneralizedHarmonic::Solutions::WrappedGr<BackgroundSpacetime>>,

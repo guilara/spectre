@@ -14,6 +14,24 @@
 namespace CurvedScalarWave::Sources {
 
 /*!
+ * \brief Compute the coupling function entering the scalar source term for the
+ * CurvedScalarWave system.
+ *
+ * \details The scalar source term depends on the problem at hand.
+ * Here we write a scalar source given by the curvature of the background
+ * spacetime and depending on two coupling parameters.
+ *
+ * \f[
+ * \mathrm{scalar source} = f'(\psi) E_{ab} E^{ab},
+ * \f]
+ *
+ * where \f$ f'(\psi) = p_1 \psi + p_2 \psi^2 \f$.
+ */
+Scalar<DataVector> coupling_function_prime(const Scalar<DataVector>& psi,
+                                            const double first_coupling_psi,
+                                            const double second_coupling_psi);
+
+/*!
  * \brief Compute the scalar source term for the CurvedScalarWave system.
  *
  * \details The scalar source term depends on the problem at hand.
@@ -21,14 +39,16 @@ namespace CurvedScalarWave::Sources {
  * spacetime,
  *
  * \f[
- * \mathrm{scalar source} = \partial V / \partial \psi ,
+ * \mathrm{scalar source} = f'(\psi) E_{ab} E^{ab},
  * \f]
  *
- * where \f$ \partial V / \partial \psi = m_{\psi} E_{ab} E^{ab} \f$.
+ * where \f$ f'(\psi) = p_1 \psi + p_2 \psi^2 \f$.
  */
 void compute_scalar_curvature_source(
     gsl::not_null<Scalar<DataVector>*> scalar_source,
-    const Scalar<DataVector>& weyl_electric_scalar, const double mass_psi);
+    const Scalar<DataVector>& weyl_electric_scalar,
+    const Scalar<DataVector>& psi, const double first_coupling_psi,
+    const double second_coupling_psi);
 
 namespace Tags {
 
@@ -40,14 +60,20 @@ namespace Tags {
  */
 template <size_t SpatialDim, typename Frame, typename DataType>
 struct ScalarCurvatureSourceCompute : ScalarSource, db::ComputeTag {
-  using argument_tags = tmpl::list<
-      gr::Tags::WeylElectricScalarCompute<SpatialDim, Frame, DataType>,
-      CurvedScalarWave::Sources::Tags::ScalarMass>;
-  using return_type = Scalar<DataVector>;
-  static constexpr void (*function)(const gsl::not_null<return_type*> result,
-                                    const Scalar<DataVector>&, const double) =
-      &compute_scalar_curvature_source;
-  using base = ScalarSource;
+//   using argument_tags = tmpl::list<
+//       gr::Tags::WeylElectricScalarCompute<SpatialDim, Frame, DataType>,
+//       CurvedScalarWave::Sources::Tags::ScalarMass>;
+using argument_tags =
+    tmpl::list<gr::Tags::WeylElectricScalarCompute<SpatialDim, Frame, DataType>,
+               CurvedScalarWave::Tags::Psi,
+               CurvedScalarWave::Sources::Tags::ScalarFirstCouplingParameter,
+               CurvedScalarWave::Sources::Tags::ScalarSecondCouplingParameter>;
+using return_type = Scalar<DataVector>;
+static constexpr void (*function)(
+    const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+    const Scalar<DataVector>&, const double,
+    const double) = &compute_scalar_curvature_source;
+using base = ScalarSource;
 };
 
 }  // namespace Tags
