@@ -171,7 +171,12 @@ struct EvolutionMetavars {
           ::Tags::PointwiseL2NormCompute<
               CurvedScalarWave::Tags::TwoIndexConstraint<volume_dim>>>>,
       domain::Tags::Coordinates<volume_dim, Frame::Grid>,
-      domain::Tags::Coordinates<volume_dim, Frame::Inertial>>;
+      domain::Tags::Coordinates<volume_dim, Frame::Inertial>,
+      // Add observe field tags for the new quantities
+      CurvedScalarWave::Sources::Tags::ScalarSource,
+      gr::Tags::SpatialRicciScalar<DataVector>,
+      gr::Tags::WeylElectricScalar<DataVector>,
+      gr::Tags::WeylMagneticScalar<DataVector>>;
   using non_tensor_compute_tags =
       tmpl::list<::Events::Tags::ObserverMeshCompute<volume_dim>,
                  deriv_compute>;
