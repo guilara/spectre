@@ -98,7 +98,7 @@
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
 // #include "PointwiseFunctions/GeneralRelativity/InverseSpacetimeMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Ricci.hpp"
-// #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 //
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/WaveEquation/PlaneWave.hpp"
@@ -338,6 +338,10 @@ struct EvolutionMetavars {
             gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial,
             DataVector>,
             gr::Tags::SpatialRicciScalarCompute<3_st, ::Frame::Inertial,
+            DataVector>,
+            gr::Tags::WeylElectricCompute<3_st, ::Frame::Inertial,
+            DataVector>,
+            gr::Tags::WeylElectricScalarCompute<3_st, ::Frame::Inertial,
             DataVector>,
           CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
           //
