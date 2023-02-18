@@ -53,7 +53,9 @@ struct System {
       gr::Tags::TraceSpatialChristoffelSecondKind<volume_dim, Frame::Inertial,
                                                   DataVector>,
       gr::Tags::TraceExtrinsicCurvature<DataVector>,
-      /* Extra Gr tags */
+      // Extra Gr tags
+      // Need to add Action CalculateExtraGrVars to initialize these
+      // separate from System
       gr::Tags::SqrtDetSpatialMetric<DataVector>,
       gr::Tags::ExtrinsicCurvature<volume_dim, Frame::Inertial, DataVector>,
       gr::Tags::SpatialChristoffelSecondKind<volume_dim, Frame::Inertial,

@@ -45,6 +45,7 @@
 //
 #include "Evolution/Systems/CurvedScalarWave/Sources/Tags.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Sources/SourceTerm.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Sources/CurvatureSource.hpp"
 //
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "IO/Observer/Actions/RegisterEvents.hpp"
@@ -316,28 +317,25 @@ struct EvolutionMetavars {
               gr::Tags::SpatialChristoffelSecondKind<3, ::Frame::Inertial,
                                                      DataVector>,
               ::domain::Tags::InverseJacobian<
-                  volume_dim, ::Frame::ElementLogical, ::Frame::Inertial>
-              >,
+                  volume_dim, ::Frame::ElementLogical, ::Frame::Inertial>>,
           ::Tags::DerivTensorCompute<
               gr::Tags::ExtrinsicCurvature<volume_dim, Frame::Inertial,
-                                             DataVector>,
+                                           DataVector>,
               ::domain::Tags::InverseJacobian<
-                  volume_dim, ::Frame::ElementLogical, ::Frame::Inertial>
-              >,
-            // Add curvature compute tags
-            gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial,
-            DataVector>,
-            gr::Tags::SpatialRicciScalarCompute<3_st, ::Frame::Inertial,
-            DataVector>,
-            gr::Tags::WeylElectricCompute<3_st, ::Frame::Inertial,
-            DataVector>,
-            gr::Tags::WeylElectricScalarCompute<3_st, ::Frame::Inertial,
-            DataVector>,
-            gr::Tags::WeylMagneticCompute<::Frame::Inertial,
-            DataVector>,
-            gr::Tags::WeylMagneticScalarCompute<::Frame::Inertial,
-            DataVector>,
-          CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
+                  volume_dim, ::Frame::ElementLogical, ::Frame::Inertial>>,
+          // Add curvature compute tags
+          gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial, DataVector>,
+          gr::Tags::SpatialRicciScalarCompute<3_st, ::Frame::Inertial,
+                                              DataVector>,
+          gr::Tags::WeylElectricCompute<3_st, ::Frame::Inertial, DataVector>,
+          gr::Tags::WeylElectricScalarCompute<3_st, ::Frame::Inertial,
+                                              DataVector>,
+          gr::Tags::WeylMagneticCompute<::Frame::Inertial, DataVector>,
+          gr::Tags::WeylMagneticScalarCompute<::Frame::Inertial, DataVector>,
+          // Add source compute tags
+          //   CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
+          CurvedScalarWave::Sources::Tags::ScalarCurvatureSourceCompute<
+              volume_dim, Frame::Inertial, DataVector>,
           //
           StepChoosers::step_chooser_compute_tags<EvolutionMetavars,
                                                   local_time_stepping>>>>,
