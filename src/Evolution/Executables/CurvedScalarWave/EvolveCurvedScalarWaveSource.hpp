@@ -99,6 +99,7 @@
 // #include "PointwiseFunctions/GeneralRelativity/InverseSpacetimeMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Ricci.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
 //
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/WaveEquation/PlaneWave.hpp"
@@ -310,31 +311,20 @@ struct EvolutionMetavars {
           CurvedScalarWave::Initialization::InitializeEvolvedVariables<
               volume_dim>>,
       Initialization::Actions::AddComputeTags<tmpl::flatten<tmpl::list<
-          // Add here source compute tag
-          //   gr::Tags::InverseSpacetimeMetricCompute<3_st, ::Frame::Inertial,
-          //                                           DataVector>,
+          // Add compute tags for derivatives needed to compute curvatures
           ::Tags::DerivTensorCompute<
-              //   gr::Tags::InverseSpacetimeMetric<volume_dim,
-              //   ::Frame::Inertial,
-              //                             DataVector>,
-              //   gr::Tags::TraceExtrinsicCurvature<DataVector>,
-              //   gr::Tags::DerivDetSpatialMetric<volume_dim,
-              //   ::Frame::Inertial,
-              //                                   DataVector>,
-              //   gr::Tags::TraceSpatialChristoffelSecondKind<3,
-              //   Frame::Inertial,
-              //                                               DataVector>,
               gr::Tags::SpatialChristoffelSecondKind<3, ::Frame::Inertial,
                                                      DataVector>,
-              //   gr::Tags::ExtrinsicCurvature<volume_dim, Frame::Inertial,
-              //                                DataVector>,
-              //   gr::Tags::SpatialChristoffelFirstKind<
-              //       volume_dim, ::Frame::Inertial, DataVector>,
               ::domain::Tags::InverseJacobian<
                   volume_dim, ::Frame::ElementLogical, ::Frame::Inertial>
-              /*, gr::Tags::DerivativesOfSpacetimeMetric<
-              volume_dim, ::Frame::Inertial, DataVector>*/
               >,
+          ::Tags::DerivTensorCompute<
+              gr::Tags::ExtrinsicCurvature<volume_dim, Frame::Inertial,
+                                             DataVector>,
+              ::domain::Tags::InverseJacobian<
+                  volume_dim, ::Frame::ElementLogical, ::Frame::Inertial>
+              >,
+            // Add curvature compute tags
             gr::Tags::SpatialRicciCompute<3_st, ::Frame::Inertial,
             DataVector>,
             gr::Tags::SpatialRicciScalarCompute<3_st, ::Frame::Inertial,
@@ -342,6 +332,10 @@ struct EvolutionMetavars {
             gr::Tags::WeylElectricCompute<3_st, ::Frame::Inertial,
             DataVector>,
             gr::Tags::WeylElectricScalarCompute<3_st, ::Frame::Inertial,
+            DataVector>,
+            gr::Tags::WeylMagneticCompute<::Frame::Inertial,
+            DataVector>,
+            gr::Tags::WeylMagneticScalarCompute<::Frame::Inertial,
             DataVector>,
           CurvedScalarWave::Sources::Tags::ScalarSourceCompute,
           //
