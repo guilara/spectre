@@ -26,7 +26,28 @@ struct ScalarMass {
   using type = double;
   static constexpr Options::String help{
       "Mass of the scalar field in code units"};
-  // using group = XXX;
+};
+
+/*!
+ * \brief Coupling parameter 1.
+ */
+struct ScalarFirstCouplingParameter {
+  static std::string name() { return "ScalarFirstCouplingParameter"; }
+  using type = double;
+  static constexpr Options::String help{
+      "First coupling parameter entering in the scalar field source, in code "
+      "units"};
+};
+
+/*!
+ * \brief Coupling parameter 2.
+ */
+struct ScalarSecondCouplingParameter {
+  static std::string name() { return "ScalarSecondCouplingParameter"; }
+  using type = double;
+  static constexpr Options::String help{
+      "Second coupling parameter entering in the scalar field source, in code "
+      "units"};
 };
 
 }  // namespace OptionTags
@@ -38,6 +59,24 @@ struct ScalarMass : db::SimpleTag {
   using option_tags = tmpl::list<OptionTags::ScalarMass>;
   static constexpr bool pass_metavariables = false;
   static double create_from_options(const double mass_psi) { return mass_psi; }
+};
+
+struct ScalarFirstCouplingParameter : db::SimpleTag {
+  using type = double;
+  using option_tags = tmpl::list<OptionTags::ScalarFirstCouplingParameter>;
+  static constexpr bool pass_metavariables = false;
+  static double create_from_options(const double first_coupling_psi) {
+    return first_coupling_psi;
+  }
+};
+
+struct ScalarSecondCouplingParameter : db::SimpleTag {
+  using type = double;
+  using option_tags = tmpl::list<OptionTags::ScalarSecondCouplingParameter>;
+  static constexpr bool pass_metavariables = false;
+  static double create_from_options(const double second_coupling_psi) {
+    return second_coupling_psi;
+  }
 };
 
 } // namespace Tags
