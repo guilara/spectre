@@ -9,6 +9,7 @@
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
 #include "Utilities/Gsl.hpp"
 
 namespace CurvedScalarWave::Sources {
@@ -47,6 +48,7 @@ Scalar<DataVector> coupling_function_prime(const Scalar<DataVector>& psi,
 void compute_scalar_curvature_source(
     gsl::not_null<Scalar<DataVector>*> scalar_source,
     const Scalar<DataVector>& weyl_electric_scalar,
+    const Scalar<DataVector>& weyl_magnetic_scalar,
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi);
 
@@ -65,13 +67,14 @@ struct ScalarCurvatureSourceCompute : ScalarSource, db::ComputeTag {
 //       CurvedScalarWave::Sources::Tags::ScalarMass>;
 using argument_tags =
     tmpl::list<gr::Tags::WeylElectricScalarCompute<SpatialDim, Frame, DataType>,
+               gr::Tags::WeylMagneticScalarCompute<Frame, DataType>,
                CurvedScalarWave::Tags::Psi,
                CurvedScalarWave::Sources::Tags::ScalarFirstCouplingParameter,
                CurvedScalarWave::Sources::Tags::ScalarSecondCouplingParameter>;
 using return_type = Scalar<DataVector>;
 static constexpr void (*function)(
     const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
-    const Scalar<DataVector>&, const double,
+    const Scalar<DataVector>&, const Scalar<DataVector>&, const double,
     const double) = &compute_scalar_curvature_source;
 using base = ScalarSource;
 };
