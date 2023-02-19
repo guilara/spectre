@@ -25,7 +25,7 @@ namespace CurvedScalarWave::Sources {
  * \mathrm{scalar source} = f'(\psi) E_{ab} E^{ab},
  * \f]
  *
- * where \f$ f'(\psi) = p_1 \psi + p_2 \psi^2 \f$.
+ * where \f$ f'(\psi) = p_1 + p_2 \psi \f$.
  */
 Scalar<DataVector> coupling_function_prime(const Scalar<DataVector>& psi,
                                             const double first_coupling_psi,
@@ -42,7 +42,7 @@ Scalar<DataVector> coupling_function_prime(const Scalar<DataVector>& psi,
  * \mathrm{scalar source} = f'(\psi) E_{ab} E^{ab},
  * \f]
  *
- * where \f$ f'(\psi) = p_1 \psi + p_2 \psi^2 \f$.
+ * where \f$ f'(\psi) = p_1 + p_2 \psi \f$.
  */
 void compute_scalar_curvature_source(
     gsl::not_null<Scalar<DataVector>*> scalar_source,
