@@ -12,9 +12,9 @@ namespace CurvedScalarWave::Sources {
 Scalar<DataVector> coupling_function_prime(const Scalar<DataVector>& psi,
                                            const double first_coupling_psi,
                                            const double second_coupling_psi) {
-  Scalar<DataVector> result{psi.size(), 0.0};
-  result.get() =
-      first_coupling_psi * psi.get() + second_coupling_psi * square(psi.get());
+  Scalar<DataVector> result{psi.size(), 1.0};
+  result.get() *= first_coupling_psi;
+  result.get() += second_coupling_psi * psi.get();
   return result;
 }
 
