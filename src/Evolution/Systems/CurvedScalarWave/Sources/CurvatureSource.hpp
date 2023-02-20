@@ -14,6 +14,7 @@
 
 namespace CurvedScalarWave::Sources {
 
+/// @{
 /*!
  * \brief Compute the coupling function entering the scalar source term for the
  * CurvedScalarWave system.
@@ -31,6 +32,12 @@ namespace CurvedScalarWave::Sources {
 Scalar<DataVector> coupling_function_prime(const Scalar<DataVector>& psi,
                                             const double first_coupling_psi,
                                             const double second_coupling_psi);
+
+void multiply_by_coupling_function_prime(
+    gsl::not_null<Scalar<DataVector>*> scalar_source,
+    const Scalar<DataVector>& psi, const double first_coupling_psi,
+    const double second_coupling_psi);
+/// @}
 
 /*!
  * \brief Compute the scalar source term for the CurvedScalarWave system.
@@ -50,7 +57,7 @@ void compute_scalar_curvature_source(
     const Scalar<DataVector>& weyl_electric_scalar,
     const Scalar<DataVector>& weyl_magnetic_scalar,
     const Scalar<DataVector>& psi, const double first_coupling_psi,
-    const double second_coupling_psi);
+    const double second_coupling_psi, const double mass_psi);
 
 namespace Tags {
 
@@ -67,12 +74,13 @@ using argument_tags =
                gr::Tags::WeylMagneticScalarCompute<Frame, DataType>,
                CurvedScalarWave::Tags::Psi,
                CurvedScalarWave::Sources::Tags::ScalarFirstCouplingParameter,
-               CurvedScalarWave::Sources::Tags::ScalarSecondCouplingParameter>;
+               CurvedScalarWave::Sources::Tags::ScalarSecondCouplingParameter,
+               CurvedScalarWave::Sources::Tags::ScalarMass>;
 using return_type = Scalar<DataVector>;
 static constexpr void (*function)(
     const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
     const Scalar<DataVector>&, const Scalar<DataVector>&, const double,
-    const double) = &compute_scalar_curvature_source;
+    const double, const double) = &compute_scalar_curvature_source;
 using base = ScalarSource;
 };
 
