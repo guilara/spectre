@@ -12,7 +12,6 @@ namespace CurvedScalarWave::Sources {
 Scalar<DataVector> coupling_function_prime(const Scalar<DataVector>& psi,
                                            const double first_coupling_psi,
                                            const double second_coupling_psi) {
-  // Scalar<DataVector> result{psi.size(), 1.0};
   auto result = make_with_value<Scalar<DataVector>>(psi, 1.);
   result.get() *= first_coupling_psi;
   result.get() += second_coupling_psi * psi.get();
@@ -26,7 +25,6 @@ void compute_scalar_curvature_source(
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi) {
   // Make sure it has the same size
-  // destructive_resize_components(scalar_source, psi.size());
   *scalar_source = make_with_value<Scalar<DataVector>>(psi, 0.);
   // Compute the Riemann squared scalar in vacuum
   scalar_source->get() =

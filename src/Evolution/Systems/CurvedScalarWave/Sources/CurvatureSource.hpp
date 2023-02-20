@@ -62,9 +62,6 @@ namespace Tags {
  */
 template <size_t SpatialDim, typename Frame, typename DataType>
 struct ScalarCurvatureSourceCompute : ScalarSource, db::ComputeTag {
-//   using argument_tags = tmpl::list<
-//       gr::Tags::WeylElectricScalarCompute<SpatialDim, Frame, DataType>,
-//       CurvedScalarWave::Sources::Tags::ScalarMass>;
 using argument_tags =
     tmpl::list<gr::Tags::WeylElectricScalarCompute<SpatialDim, Frame, DataType>,
                gr::Tags::WeylMagneticScalarCompute<Frame, DataType>,
