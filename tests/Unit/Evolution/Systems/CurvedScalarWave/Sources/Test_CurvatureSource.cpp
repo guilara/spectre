@@ -42,6 +42,7 @@
 #include "Utilities/TMPL.hpp"
 #include "Utilities/TaggedTuple.hpp"
 
+
 namespace {
 using Affine = domain::CoordinateMaps::Affine;
 using Affine3D = domain::CoordinateMaps::ProductOf3Maps<Affine, Affine, Affine>;
@@ -61,6 +62,9 @@ void test_compute_scalar_curvature_source(const DataType& used_for_size) {
   // The Kretchmann for a non-rotating black hole in both Schwarzschild and
   // Kerr-Schild coordinates is 48 M^2 / r^6 , where r^2 = x^2 + y^2 + z^2.
 
+  // We also check that the Weyl magnetic scalar vanishes for the Schwarzschild
+  // metric in these coordinates
+
   // Add the following libraries to the RunSingleTest cmake file:
   //   LinearOperators
   //   CurvedScalarWave
@@ -68,7 +72,7 @@ void test_compute_scalar_curvature_source(const DataType& used_for_size) {
   //   GeneralRelativitySolutions
 
   // Define solution parameters
-  const double mass = 1.0;
+  const double mass = 2.0;
   const std::array<double, 3> spin{{0.0, 0.0, 0.0}};
   const std::array<double, 3> center{{0.0, 0.0, 0.0}};
   // Create instance of solution
@@ -143,12 +147,33 @@ void test_compute_scalar_curvature_source(const DataType& used_for_size) {
   const double first_coupling_psi = 1.0;
   const double second_coupling_psi = 0.0;
   const double mass_psi = 0.0;
-  const auto& psi = make_with_value<Scalar<DataVector>>(num_points_3d, 0.0);
+  const auto& psi = make_with_value<Scalar<DataType>>(num_points_3d, 0.0);
 
   const auto& source_term =
       CurvedScalarWave::Sources::compute_scalar_curvature_source(
           weyl_electric_scalar, weyl_magnetic_scalar, psi, first_coupling_psi,
           second_coupling_psi, mass_psi);
+
+  // Compute magnitude for the coordinates
+  const DataType r = get(magnitude(x));
+  const DataType one_over_r_sixth = square(1.0 / cube(r));
+
+  // Compute the analytic Kretschmann
+  const DataType expected_kretch = 48.0 * square(mass) * one_over_r_sixth;
+  const Scalar<DataType> expected_source_term{expected_kretch};
+
+  // Compute expected Weyl magnetic
+  const auto& expected_weyl_magnetic_scalar =
+      make_with_value<Scalar<DataType>>(num_points_3d, 0.0);
+
+  // A custom epsilon is used here because the Legendre polynomials don't fit
+  // the derivative of 1 / r well --see Test_KerrSchild.cpp for a
+  // similar issue.
+  Approx approx = Approx::custom().epsilon(1e-11).scale(1.0);
+  CHECK_ITERABLE_CUSTOM_APPROX(weyl_magnetic_scalar,
+                               expected_weyl_magnetic_scalar, approx);
+  CHECK_ITERABLE_CUSTOM_APPROX(source_term, expected_source_term, approx);
+
 }
 
 SPECTRE_TEST_CASE(
