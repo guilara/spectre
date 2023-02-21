@@ -129,7 +129,8 @@ void test_compute_scalar_curvature_source(const DataType& used_for_size) {
       spatial_ricci_tensor, extrinsic_curvature, ig);
   // Compute Weyl Electric Square scalar
   const auto& weyl_electric_scalar =
-      gr::weyl_electric_scalar<3, FrameType, DataType>(extrinsic_curvature, ig);
+      gr::weyl_electric_scalar<3, FrameType, DataType>(weyl_electric_tensor,
+                                                       ig);
 
   // Compute Weyl Magnetic tensor
   const auto& weyl_magnetic_tensor = gr::weyl_magnetic<FrameType, DataType>(
@@ -139,9 +140,16 @@ void test_compute_scalar_curvature_source(const DataType& used_for_size) {
       gr::weyl_magnetic_scalar<FrameType, DataType>(weyl_magnetic_tensor, ig);
 
   // Compute source term
+  const double first_coupling_psi = 1.0;
+  const double second_coupling_psi = 0.0;
+  const double mass_psi = 0.0;
+  const auto& psi = make_with_value<Scalar<DataVector>>(num_points_3d, 0.0);
 
+  const auto& source_term =
+      CurvedScalarWave::Sources::compute_scalar_curvature_source(
+          weyl_electric_scalar, weyl_magnetic_scalar, psi, first_coupling_psi,
+          second_coupling_psi, mass_psi);
 }
-
 
 SPECTRE_TEST_CASE(
     "Unit.Evolution.Systems.CurvedScalarWave.Sources.CurvatureSource",
