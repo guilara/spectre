@@ -39,6 +39,7 @@ void multiply_by_coupling_function_prime(
     const double second_coupling_psi);
 /// @}
 
+/// @{
 /*!
  * \brief Compute the scalar source term for the CurvedScalarWave system.
  *
@@ -58,6 +59,13 @@ void compute_scalar_curvature_source(
     const Scalar<DataVector>& weyl_magnetic_scalar,
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi, const double mass_psi);
+
+Scalar<DataVector> compute_scalar_curvature_source(
+    const Scalar<DataVector>& weyl_electric_scalar,
+    const Scalar<DataVector>& weyl_magnetic_scalar,
+    const Scalar<DataVector>& psi, const double first_coupling_psi,
+    const double second_coupling_psi, const double mass_psi);
+/// @}
 
 namespace Tags {
 
