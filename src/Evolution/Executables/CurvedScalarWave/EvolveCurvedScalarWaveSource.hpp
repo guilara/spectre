@@ -191,6 +191,7 @@ struct EvolutionMetavars {
     using compute_items_on_target =
         tmpl::list<CurvedScalarWave::Tags::PsiSquaredCompute,
                    StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
+                   // Replace to PsiSquared for Psi
                    StrahlkorperGr::Tags::SurfaceIntegralCompute<
                        CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
     using compute_target_points =
