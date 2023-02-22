@@ -188,18 +188,17 @@ struct EvolutionMetavars {
     using vars_to_interpolate_to_target =
         tmpl::list<gr::Tags::SpatialMetric<Dim, ::Frame::Inertial, DataVector>,
                    CurvedScalarWave::Tags::Psi>;
-    using compute_items_on_target =
-        tmpl::list<CurvedScalarWave::Tags::PsiSquaredCompute,
-                   StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
-                   // Replace to PsiSquared for Psi
-                   StrahlkorperGr::Tags::SurfaceIntegralCompute<
-                       CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
+    // Compute surface integral for the scalar field
+    using compute_items_on_target = tmpl::list<
+        StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
+        StrahlkorperGr::Tags::SurfaceIntegralCompute<
+            CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>;
     using compute_target_points =
         intrp::TargetPoints::Sphere<SphericalSurface, ::Frame::Inertial>;
     using post_interpolation_callback =
         intrp::callbacks::ObserveTimeSeriesOnSurface<
             tmpl::list<StrahlkorperGr::Tags::SurfaceIntegralCompute<
-                CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>,
+                CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>,
             SphericalSurface>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::dg_element_array;
