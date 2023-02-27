@@ -57,7 +57,7 @@ tnsr::I<DataType, 3, FrameType> spatial_coords(const DataType& used_for_size) {
 }
 
 template <typename FrameType, typename DataType>
-void test_compute_scalar_curvature_source(const DataType& used_for_size) {
+void test_compute_scalar_curvature_source() {
   // We want to compare with analytic results for the Schwarzschild metric
   // The Kretchmann for a non-rotating black hole in both Schwarzschild and
   // Kerr-Schild coordinates is 48 M^2 / r^6 , where r^2 = x^2 + y^2 + z^2.
@@ -123,10 +123,6 @@ void test_compute_scalar_curvature_source(const DataType& used_for_size) {
       gr::ricci_tensor<3, FrameType, IndexType::Spatial, DataType>(
           spatial_christoffel_second_kind,
           deriv_spatial_christoffel_second_kind);
-  // Compute spatial Ricci scalar
-  const auto& spatial_ricci_scalar =
-      gr::ricci_scalar<3, FrameType, IndexType::Spatial, DataType>(
-          spatial_ricci_tensor, ig);
 
   // Compute Weyl Electric tensor
   const auto& weyl_electric_tensor = gr::weyl_electric<3, FrameType, DataType>(
@@ -179,8 +175,7 @@ void test_compute_scalar_curvature_source(const DataType& used_for_size) {
 SPECTRE_TEST_CASE(
     "Unit.Evolution.Systems.CurvedScalarWave.Sources.CurvatureSource",
     "[Unit][Evolution][Options]") {
-  test_compute_scalar_curvature_source<::Frame::Inertial, DataVector>(
-      DataVector(5));
+  test_compute_scalar_curvature_source<::Frame::Inertial, DataVector>();
 }
 
 }  // namespace
