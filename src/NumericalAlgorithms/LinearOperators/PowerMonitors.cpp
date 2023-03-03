@@ -96,8 +96,12 @@ double relative_truncation_error(const DataVector& input_power_monitors,
     leading_term = - 34.0;
   }
 
+  // // Compute relative truncation error
+  // return leading_term - weighted_average;
   // Compute relative truncation error
-  return leading_term - weighted_average;
+  // Pileup modes may change the expected sign from positive to negative
+  // Prevent this by taking the maximum with zero
+  return std::max(leading_term - weighted_average, 0.0);
 }
 
 template <size_t Dim>
