@@ -92,10 +92,91 @@ void test_power_monitors_second_impl() {
   CHECK_ITERABLE_APPROX(test_power_monitors, expected_power_monitors);
 }
 
+void test_relative_truncation_error_impl() {
+  // We check that the relative truncation error is consistent for a basis
+  // function in a mesh with a given number of collocation points and another
+  // with one less point
+  size_t number_of_points_per_dimension = 10;
+
+  const Mesh<2_st> mesh{number_of_points_per_dimension,
+                        Spectral::Basis::Legendre,
+                        Spectral::Quadrature::GaussLobatto};
+  const auto logical_coords = logical_coordinates(mesh);
+
+  // We will compare with a mesh with one less point
+  const Mesh<2_st> mesh_one_less{number_of_points_per_dimension - 1,
+                        Spectral::Basis::Legendre,
+                        Spectral::Quadrature::GaussLobatto};
+  const auto logical_coords_one_less = logical_coordinates(mesh_one_less);
+
+  // Build a test function containing only one Legendre basis function
+  // per dimension
+  size_t x_mode = 0;
+  size_t y_mode = 1;
+  std::array<size_t, 2> coeff = {x_mode, y_mode};
+
+  DataVector u_nodal(mesh.number_of_grid_points(), 1.0);
+  DataVector u_nodal_one_less(mesh_one_less.number_of_grid_points(), 1.0);
+  for (size_t dim = 0; dim < 2; ++dim) {
+    u_nodal *=
+        Spectral::compute_basis_function_value<Spectral::Basis::Legendre>(
+            gsl::at(coeff, dim), logical_coords.get(dim));
+    u_nodal_one_less *=
+        Spectral::compute_basis_function_value<Spectral::Basis::Legendre>(
+            gsl::at(coeff, dim), logical_coords_one_less.get(dim));
+  }
+
+  auto test_power_monitors = PowerMonitors::power_monitors<2_st>(u_nodal, mesh);
+  auto test_power_monitors_one_less =
+      PowerMonitors::power_monitors<2_st>(u_nodal_one_less, mesh_one_less);
+
+  // Compute the truncation error for u_nodal with one less mode
+  auto test_relative_truncation_error_one_mode_less_x = pow(10.0,
+      -1.0 * PowerMonitors::relative_truncation_error(
+          gsl::at(test_power_monitors, 0_st), mesh.extents(0) - 1));
+  auto test_relative_truncation_error_one_mode_less_y = pow(10.0,
+      -1.0 * PowerMonitors::relative_truncation_error(
+          gsl::at(test_power_monitors, 1_st), mesh.extents(1) - 1));
+
+  // Compute the relative truncation error for u_nodal_one_less with all its
+  // modes
+  auto test_relative_truncation_error_log10 =
+      PowerMonitors::relative_truncation_error<2_st>(u_nodal_one_less,
+                                                     mesh_one_less);
+  auto test_relative_truncation_error_x =
+      pow(10.0, -1.0 * test_relative_truncation_error_log10[0_st]);
+  auto test_relative_truncation_error_y =
+      pow(10.0, -1.0 * test_relative_truncation_error_log10[1_st]);
+
+  // Check consistency between the two truncation errors
+  CHECK_ITERABLE_APPROX(test_relative_truncation_error_x,
+        test_relative_truncation_error_one_mode_less_x);
+  CHECK_ITERABLE_APPROX(test_relative_truncation_error_y,
+        test_relative_truncation_error_one_mode_less_y);
+
+  // Test truncation error
+  // Get error estimates in both dimensions
+  auto test_truncation_error =
+      PowerMonitors::truncation_error<2_st>(u_nodal, mesh);
+
+  // Compare with the result from the relative truncation error
+  auto relative_truncation_error =
+      PowerMonitors::relative_truncation_error<2_st>(u_nodal, mesh);
+  auto relative_truncation_error_x =
+      pow(10.0, -1.0 * relative_truncation_error[0]);
+  auto relative_truncation_error_y =
+      pow(10.0, -1.0 * relative_truncation_error[1]);
+  std::array<double, 2> check_vector = {relative_truncation_error_x,
+                                        relative_truncation_error_y};
+
+  CHECK_ITERABLE_APPROX(test_truncation_error, check_vector);
+}
+
 }  // namespace
 
 SPECTRE_TEST_CASE("Unit.Numerical.LinearOperators.PowerMonitors",
                   "[NumericalAlgorithms][LinearOperators][Unit]") {
   test_power_monitors_impl();
   test_power_monitors_second_impl();
+  test_relative_truncation_error_impl();
 }

@@ -21,6 +21,14 @@ void bind_power_monitors_impl(py::module& m) {  // NOLINT
         py::overload_cast<const DataVector&, const Mesh<Dim>&> (
           &power_monitors<Dim>),
         py::arg("input_data_vector"), py::arg("mesh"));
+  m.def("relative_truncation_error",
+        py::overload_cast<const DataVector&, const Mesh<Dim>&>(
+            &relative_truncation_error<Dim>),
+        py::arg("input_data_vector"), py::arg("mesh"));
+  m.def("truncation_error",
+        py::overload_cast<const DataVector&, const Mesh<Dim>&>(
+            &truncation_error<Dim>),
+        py::arg("input_data_vector"), py::arg("mesh"));
 }
 }  // namespace
 

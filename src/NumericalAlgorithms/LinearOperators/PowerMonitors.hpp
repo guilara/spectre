@@ -45,4 +45,64 @@ std::array<DataVector, Dim> power_monitors(const DataVector& input_data_vector,
                                            const Mesh<Dim>& mesh);
 /// @}
 
+/// @{
+/*!
+ * \ingroup SpectralGroup
+ * \brief Compute the negative log10 of the relative truncation error.
+ *
+ * Truncation error according to Eqs. (57) and (58) of Ref.
+ * \cite Szilagyi2014fna, i.e.,
+ *
+ * \f{align*}{
+ *  \mathcal{T}\left[P_k\right] = \log_{10} \max \left(P_0, P_1\right)
+ *   - \dfrac{\sum_{j} \log_{10} \left(P_j\right) w_j }{\sum_{j} w_j} ,
+ * \f}
+ *
+ * with weights
+ *
+ * \f{align*}{
+ *  w_j = \exp\left[ - (j - N_k + \dfrac{1}{2})^2 \right] .
+ * \f}
+ *
+ * where \f$ N_k \f$ is the number of modes or gridpoints in dimension k. Here
+ * the second term is a weighted average with larger weights toward the highest
+ * modes. The negative of this number should correspond to the number of digits
+ * resolved by the spectral expansion.
+ *
+ */
+double relative_truncation_error(const DataVector& input_power_monitors,
+                                 const size_t num_modes);
+
+template <size_t Dim>
+std::array<double, Dim> relative_truncation_error(
+    const DataVector& input_data_vector, const Mesh<Dim>& mesh);
+
+template <size_t Dim>
+std::array<double, Dim> relative_truncation_error(
+    const std::array<DataVector, Dim>& input_power_monitors);
+/// @}
+
+/// @{
+/*!
+ * \ingroup SpectralGroup
+ * \brief Returns an estimate of the absolute truncation error.
+ *
+ * The estimate of the numerical error is given by
+ *
+ * \f{align*}{
+ *  \mathcal{E}\left[P_k\right] = u_\mathrm{max} \times 10^{- \mathcal{T}[P_k]},
+ * \f}
+ *
+ * where \f$ \mathcal{T}[P_k] \f$ is the relative error estimate computed from
+ * the power monitors \f$ P_k \f$.
+ */
+template <size_t Dim>
+std::array<double, Dim> truncation_error(const DataVector& input_data_vector,
+                                       const Mesh<Dim>& mesh);
+
+template <size_t Dim>
+std::array<double, Dim> truncation_error(
+    const std::array<double, Dim>& relative_truncation_error,
+    const DataVector& input_data_vector);
+/// @}
 }  // namespace PowerMonitors
