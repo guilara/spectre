@@ -7,6 +7,7 @@
 #include <pybind11/stl.h>
 
 #include "DataStructures/DataVector.hpp"
+#include "DataStructures/Tensor/Tensor.hpp"
 #include "NumericalAlgorithms/LinearOperators/PowerMonitors.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 
@@ -29,6 +30,10 @@ void bind_power_monitors_impl(py::module& m) {  // NOLINT
         py::overload_cast<const DataVector&, const Mesh<Dim>&>(
             &truncation_error<Dim>),
         py::arg("input_data_vector"), py::arg("mesh"));
+  m.def("truncation_error_max",
+        py::overload_cast<const Scalar<DataVector>&, const Mesh<Dim>&>(
+            &truncation_error_max<Dim>),
+        py::arg("input_scalar"), py::arg("mesh"));
 }
 }  // namespace
 

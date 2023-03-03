@@ -6,6 +6,7 @@
 #include <array>
 #include <cstddef>
 
+#include "DataStructures/Tensor/Tensor.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/TMPL.hpp"
@@ -105,4 +106,9 @@ std::array<double, Dim> truncation_error(
     const std::array<double, Dim>& relative_truncation_error,
     const DataVector& input_data_vector);
 /// @}
+
+template <size_t Dim>
+double truncation_error_max(const Scalar<DataVector>& input_scalar,
+                            const Mesh<Dim>& mesh);
+
 }  // namespace PowerMonitors

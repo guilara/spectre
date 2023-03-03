@@ -3,12 +3,14 @@
 
 #include "NumericalAlgorithms/LinearOperators/PowerMonitors.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/ModalVector.hpp"
 #include "DataStructures/SliceIterator.hpp"
+#include "DataStructures/Tensor/Tensor.hpp"
 #include "NumericalAlgorithms/LinearOperators/CoefficientTransforms.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "Utilities/ConstantExpressions.hpp"
@@ -143,6 +145,17 @@ std::array<double, Dim> truncation_error(
   return result;
 }
 
+template <size_t Dim>
+double truncation_error_max(const Scalar<DataVector>& input_scalar,
+                            const Mesh<Dim>& mesh) {
+  const std::array<double, Dim> error_in_all_dimensions =
+      truncation_error(input_scalar.get(), mesh);
+  const auto result_it = std::max_element(error_in_all_dimensions.begin(),
+                              error_in_all_dimensions.end());
+  const double result = *result_it;
+  return result;
+}
+
 }  // namespace PowerMonitors
 
 #define DIM(data) BOOST_PP_TUPLE_ELEM(0, data)
@@ -161,7 +174,9 @@ std::array<double, Dim> truncation_error(
     const DataVector& input_data_vector, const Mesh<DIM(data)>& mesh);         \
   template std::array<double, DIM(data)> PowerMonitors::truncation_error(      \
     const std::array<double, DIM(data)>& relative_truncation_error,            \
-    const DataVector& input_data_vector);
+    const DataVector& input_data_vector);                                      \
+  template double PowerMonitors::truncation_error_max(                         \
+    const Scalar<DataVector>& input_scalar, const Mesh<DIM(data)>& mesh);
 
 GENERATE_INSTANTIATIONS(INSTANTIATE, (1, 2, 3))
 
