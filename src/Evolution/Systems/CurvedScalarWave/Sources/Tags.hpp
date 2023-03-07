@@ -50,6 +50,18 @@ struct ScalarSecondCouplingParameter {
       "units"};
 };
 
+/*!
+ * \brief Constraint damping parameter corresponding to gamma2.
+ */
+struct ConstraintDampingExternalParameterGamma2 {
+  static std::string name() {
+    return "ConstraintDampingExternalParameterGamma2";
+  }
+  using type = double;
+  static constexpr Options::String help{
+      "Constraint damping parameter corresponding to gamma2"};
+};
+
 }  // namespace OptionTags
 
 namespace Tags {
@@ -76,6 +88,16 @@ struct ScalarSecondCouplingParameter : db::SimpleTag {
   static constexpr bool pass_metavariables = false;
   static double create_from_options(const double second_coupling_psi) {
     return second_coupling_psi;
+  }
+};
+
+struct ConstraintDampingExternalParameterGamma2 : db::SimpleTag {
+  using type = double;
+  using option_tags =
+      tmpl::list<OptionTags::ConstraintDampingExternalParameterGamma2>;
+  static constexpr bool pass_metavariables = false;
+  static double create_from_options(const double external_gamma2_parameter) {
+    return external_gamma2_parameter;
   }
 };
 

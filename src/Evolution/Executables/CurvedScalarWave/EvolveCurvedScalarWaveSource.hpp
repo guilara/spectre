@@ -296,6 +296,8 @@ struct EvolutionMetavars {
   using const_global_cache_tags = tmpl::list<
       // Add scalar mass tag
       CurvedScalarWave::Sources::Tags::ScalarMass,
+      // Add constrain damping parameter
+      CurvedScalarWave::Sources::Tags::ConstraintDampingExternalParameterGamma2,
       // Add scalar coupling parameter tags
       CurvedScalarWave::Sources::Tags::ScalarFirstCouplingParameter,
       CurvedScalarWave::Sources::Tags::ScalarSecondCouplingParameter,
@@ -318,8 +320,11 @@ struct EvolutionMetavars {
       // with the variables the source computation needs
       // for now we add them to spacetime_tags_list in the system
       Initialization::Actions::AddSimpleTags<
-          CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
-              volume_dim>,
+    //   CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
+    //       volume_dim>,
+    // New initializer for damping parameters
+          CurvedScalarWave::Initialization::
+              InitializeConstraintDampingGammasExternal<volume_dim>,
           CurvedScalarWave::Initialization::InitializeEvolvedVariables<
               volume_dim>>,
       Initialization::Actions::AddComputeTags<tmpl::flatten<tmpl::list<

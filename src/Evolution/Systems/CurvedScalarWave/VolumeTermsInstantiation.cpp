@@ -62,8 +62,8 @@ namespace evolution::dg::Actions::detail {
           trace_spatial_christoffel,                                          \
       const Scalar<DataVector>& trace_extrinsic_curvature,                    \
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,     \
-      const Scalar<DataVector>& scalar_source                                 \
-      /*, const double& mass_psi*/);
+      const Scalar<DataVector>& scalar_source /*, const double& mass_psi*/,   \
+      const double& external_gamma2_parameter);
 
 GENERATE_INSTANTIATIONS(INSTANTIATION, (1, 2, 3))
 

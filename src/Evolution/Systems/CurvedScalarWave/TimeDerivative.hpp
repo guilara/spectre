@@ -75,7 +75,8 @@ struct TimeDerivative {
                                                   DataVector>,
       gr::Tags::TraceExtrinsicCurvature<DataVector>, Tags::ConstraintGamma1,
       Tags::ConstraintGamma2, Sources::Tags::ScalarSource
-      /*, Sources::Tags::ScalarMass*/>;
+      /*, Sources::Tags::ScalarMass*/,
+      Sources::Tags::ConstraintDampingExternalParameterGamma2>;
 
   static void apply(
       gsl::not_null<Scalar<DataVector>*> dt_psi,
@@ -102,6 +103,7 @@ struct TimeDerivative {
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
       const Scalar<DataVector>& scalar_source
-      /*, const double mass_psi*/);
+      /*, const double mass_psi*/,
+      const double external_gamma2_parameter);
 };
 }  // namespace CurvedScalarWave

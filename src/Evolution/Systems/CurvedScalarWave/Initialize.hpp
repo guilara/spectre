@@ -11,6 +11,9 @@
 #include "Evolution/Initialization/InitialData.hpp"
 #include "Evolution/Initialization/Tags.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BackgroundSpacetime.hpp"
+//
+#include "Evolution/Systems/CurvedScalarWave/Sources/Tags.hpp"
+//
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/ScalarWave/System.hpp"
 #include "Evolution/Systems/ScalarWave/TagsDeclarations.hpp"
@@ -42,6 +45,28 @@ struct InitializeConstraintDampingGammas {
     const size_t number_of_grid_points = mesh.number_of_grid_points();
     *gamma1 = Scalar<DataVector>{number_of_grid_points, 0.};
     *gamma2 = Scalar<DataVector>{number_of_grid_points, 1.};
+  }
+};
+
+// My Constraint Damping Initializer
+
+template <size_t Dim>
+struct InitializeConstraintDampingGammasExternal {
+  using return_tags =
+      tmpl::list<Tags::ConstraintGamma1, Tags::ConstraintGamma2>;
+  using argument_tags =
+      tmpl::list<domain::Tags::Mesh<Dim>,
+                 CurvedScalarWave::Sources::Tags::
+                     ConstraintDampingExternalParameterGamma2>;
+
+  static void apply(const gsl::not_null<Scalar<DataVector>*> gamma1,
+                    const gsl::not_null<Scalar<DataVector>*> gamma2,
+                    const Mesh<Dim>& mesh,
+                    const double external_gamma2_parameter) {
+    const size_t number_of_grid_points = mesh.number_of_grid_points();
+    *gamma1 = Scalar<DataVector>{number_of_grid_points, 0.};
+    *gamma2 =
+        Scalar<DataVector>{number_of_grid_points, external_gamma2_parameter};
   }
 };
 
