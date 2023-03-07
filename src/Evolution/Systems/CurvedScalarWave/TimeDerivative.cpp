@@ -48,11 +48,11 @@ void TimeDerivative<Dim>::apply(
   *result_shift = shift;
   *result_inverse_spatial_metric = upper_spatial_metric;
   *result_gamma1 = gamma1;
-  // *result_gamma2 = gamma2;
+  *result_gamma2 = gamma2;
 
   // New constraint damping strategy. Specify on input file
   // Need consisten intialization
-  result_gamma2->get() = external_gamma2_parameter * gamma2.get();
+  // result_gamma2->get() = external_gamma2_parameter * gamma2.get();
   // result_gamma2->get() = external_gamma2_parameter / lapse.get();
 
   dt_psi->get() = -lapse.get() * pi.get();
