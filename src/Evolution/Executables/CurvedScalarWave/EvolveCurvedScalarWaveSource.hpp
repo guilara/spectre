@@ -70,6 +70,9 @@
 #include "ParallelAlgorithms/Actions/AddSimpleTags.hpp"
 #include "ParallelAlgorithms/Actions/InitializeItems.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
+//
+#include "ParallelAlgorithms/Actions/RandomizeVariables.hpp"
+//
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/ObserveNorms.hpp"
@@ -313,6 +316,9 @@ struct EvolutionMetavars {
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
 
+  // For labeling the yaml option for RandomizeVariables
+  struct RandomizeInitialGuess {};
+
   using initialization_actions = tmpl::list<
       Initialization::Actions::InitializeItems<
           Initialization::TimeStepping<EvolutionMetavars, local_time_stepping>,
@@ -331,6 +337,11 @@ struct EvolutionMetavars {
               InitializeConstraintDampingGammasExternal<volume_dim>,
           CurvedScalarWave::Initialization::InitializeEvolvedVariables<
               volume_dim>>,
+      //
+      // Random noise system::variables_tag
+      Actions::RandomizeVariables<
+          typename system::variables_tag, RandomizeInitialGuess>,
+      //
       Initialization::Actions::AddComputeTags<tmpl::flatten<tmpl::list<
           // Add compute tags for derivatives needed to compute curvatures
           ::Tags::DerivTensorCompute<
