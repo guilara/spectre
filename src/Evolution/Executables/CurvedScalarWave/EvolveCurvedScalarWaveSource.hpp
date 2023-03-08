@@ -176,7 +176,11 @@ struct EvolutionMetavars {
       CurvedScalarWave::Sources::Tags::ScalarSource,
       gr::Tags::SpatialRicciScalar<DataVector>,
       gr::Tags::WeylElectricScalar<DataVector>,
-      gr::Tags::WeylMagneticScalar<DataVector>>;
+      gr::Tags::WeylMagneticScalar<DataVector>,
+      // Add observe fields for damping parameters
+      // ConstraintGamma2
+      CurvedScalarWave::Tags::ConstraintGamma1,
+      CurvedScalarWave::Tags::ConstraintGamma2>;
   using non_tensor_compute_tags =
       tmpl::list<::Events::Tags::ObserverMeshCompute<volume_dim>,
                  deriv_compute>;
