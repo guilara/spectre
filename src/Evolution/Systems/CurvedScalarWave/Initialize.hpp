@@ -19,6 +19,8 @@
 #include "Evolution/Systems/ScalarWave/TagsDeclarations.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "PointwiseFunctions/AnalyticData/Tags.hpp"
+//
+#include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 
 namespace CurvedScalarWave::Initialization {
 /// \ingroup InitializationGroup
@@ -56,17 +58,20 @@ struct InitializeConstraintDampingGammasExternal {
       tmpl::list<Tags::ConstraintGamma1, Tags::ConstraintGamma2>;
   using argument_tags =
       tmpl::list<domain::Tags::Mesh<Dim>,
+                 gr::Tags::Lapse<DataVector>,
                  CurvedScalarWave::Sources::Tags::
                      ConstraintDampingExternalParameterGamma2>;
 
   static void apply(const gsl::not_null<Scalar<DataVector>*> gamma1,
                     const gsl::not_null<Scalar<DataVector>*> gamma2,
                     const Mesh<Dim>& mesh,
+                    const Scalar<DataVector>& lapse,
                     const double external_gamma2_parameter) {
     const size_t number_of_grid_points = mesh.number_of_grid_points();
     *gamma1 = Scalar<DataVector>{number_of_grid_points, 0.};
-    *gamma2 =
-        Scalar<DataVector>{number_of_grid_points, external_gamma2_parameter};
+    // *gamma2 =
+    //     Scalar<DataVector>{number_of_grid_points, external_gamma2_parameter};
+    gamma2->get() = external_gamma2_parameter / lapse.get();
   }
 };
 
