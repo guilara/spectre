@@ -102,3 +102,11 @@ add_interpolating_curved_scalar_wave_source_executable(
   gr::Solutions::KerrSchild
   CurvedScalarWave::AnalyticData::PureSphericalHarmonic
 )
+
+# New executable
+add_interpolating_curved_scalar_wave_source_executable(
+  ConstantScalarKerrSchildSource
+  3
+  gr::Solutions::KerrSchild
+  CurvedScalarWave::AnalyticData::NoiseFloorScalar
+)

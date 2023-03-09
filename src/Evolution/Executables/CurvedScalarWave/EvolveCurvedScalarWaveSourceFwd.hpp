@@ -19,6 +19,7 @@ class PlaneWave;
 
 namespace CurvedScalarWave::AnalyticData {
 class PureSphericalHarmonic;
+class NoiseFloorScalar;
 }
 
 template <size_t Dim, typename BackgroundSpacetime, typename InitialData>
