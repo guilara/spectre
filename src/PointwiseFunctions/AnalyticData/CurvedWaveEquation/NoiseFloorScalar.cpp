@@ -22,9 +22,9 @@ namespace CurvedScalarWave::AnalyticData {
 NoiseFloorScalar::NoiseFloorScalar(const double amplitude,
                                              const Options::Context& context)
     : amplitude_(amplitude) {
-  if (amplitude_ <= 0.) {
+  if (amplitude_ < 0.) {
     PARSE_ERROR(context,
-                "The amplitude must be greater than 0 but is " << amplitude_);
+                "The amplitude must be non-negative but is " << amplitude_);
   }
 }
 
@@ -39,9 +39,10 @@ NoiseFloorScalar::variables(const tnsr::I<DataVector, 3>& x,
   //     make_not_null(&generator), make_not_null(&distribution), x);
 
   // Make with constant value
-  Scalar<DataVector> psi{amplitude_};
-  Scalar<DataVector> pi{amplitude_};
-  tnsr::i<DataVector, 3> phi{amplitude_};
+  Scalar<DataVector> psi = make_with_value<Scalar<DataVector>>(x, amplitude_);
+  Scalar<DataVector> pi = make_with_value<Scalar<DataVector>>(x, amplitude_);
+  tnsr::i<DataVector, 3> phi =
+      make_with_value<tnsr::i<DataVector, 3>>(x, amplitude_);
 
   return tuples::TaggedTuple<CurvedScalarWave::Tags::Psi,
                              CurvedScalarWave::Tags::Pi,
