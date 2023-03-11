@@ -41,7 +41,7 @@ void multiply_by_coupling_function_prime(
 
 /// @{
 /*!
- * \brief Compute the coupling function entering the scalar source term for the
+ * \brief Quartic coupling function entering the scalar source term for the
  * CurvedScalarWave system.
  *
  * \details The scalar source term depends on the problem at hand.
@@ -52,7 +52,7 @@ void multiply_by_coupling_function_prime(
  * \mathrm{scalar source} = - f'(\psi) \mathcal{G},
  * \f]
  *
- * where \f$ f'(\psi) = \dfrac{p_1}{8} \psi + \dfrac{p_2}{16} \psi^3 \f$,
+ * where \f$ f'(\psi) = \dfrac{p_1}{4} \psi + \dfrac{p_2}{4} \psi^3 \f$,
  * and \(\mathcal{G} = 8 \left(E_{ab}E^{ab} - B_{ab}B^{ab}\right)\) is the GB
  * invariant.
  */
@@ -64,6 +64,31 @@ void multiply_by_coupling_function_prime_quartic(
     gsl::not_null<Scalar<DataVector>*> scalar_source,
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi);
+/// @}
+
+/// @{
+/*!
+ * \brief Exponential coupling function entering the scalar source term for the
+ * CurvedScalarWave system.
+ *
+ * \details The scalar source term depends on the problem at hand.
+ * Here we write a scalar source given by the curvature of the background
+ * spacetime and depending on two coupling parameters.
+ *
+ * \f[
+ * \mathrm{scalar source} = - f'(\psi) \mathcal{G},
+ * \f]
+ *
+ * where \f$ f'(\psi) = \dfrac{p_1}{4} \psi e^{-\frac{3}{2} \psi^2} \f$,
+ * and \(\mathcal{G} = 8 \left(E_{ab}E^{ab} - B_{ab}B^{ab}\right)\) is the GB
+ * invariant.
+ */
+Scalar<DataVector> coupling_function_prime_exponential(
+    const Scalar<DataVector>& psi, const double first_coupling_psi);
+
+void multiply_by_coupling_function_prime_exponential(
+    gsl::not_null<Scalar<DataVector>*> scalar_source,
+    const Scalar<DataVector>& psi, const double first_coupling_psi);
 /// @}
 
 /// @{

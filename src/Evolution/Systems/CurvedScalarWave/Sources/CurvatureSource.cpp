@@ -29,8 +29,8 @@ Scalar<DataVector> coupling_function_prime_quartic(
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi) {
   auto result = make_with_value<Scalar<DataVector>>(psi, 0.);
-  result.get() = -(first_coupling_psi / 8.0) * psi.get();
-  result.get() += -(second_coupling_psi / 16.0) * cube(psi.get());
+  result.get() = -(first_coupling_psi / 4.0) * psi.get();
+  result.get() += -(second_coupling_psi / 4.0) * cube(psi.get());
   return result;
 }
 
@@ -38,8 +38,23 @@ void multiply_by_coupling_function_prime_quartic(
     gsl::not_null<Scalar<DataVector>*> scalar_source,
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi) {
-  *scalar_source->get() *= -(first_coupling_psi / 8.0) * psi.get() -
-                           (second_coupling_psi / 16.0) * cube(psi.get());
+  *scalar_source->get() *= -(first_coupling_psi / 4.0) * psi.get() -
+                           (second_coupling_psi / 4.0) * cube(psi.get());
+}
+
+Scalar<DataVector> coupling_function_prime_exponential(
+    const Scalar<DataVector>& psi, const double first_coupling_psi) {
+  auto result = make_with_value<Scalar<DataVector>>(psi, 0.);
+  result.get() = -(first_coupling_psi / 4.0) * psi.get() *
+                 exp(-(3.0 / 2.0) * square(psi.get()));
+  return result;
+}
+
+void multiply_by_coupling_function_prime_exponential(
+    gsl::not_null<Scalar<DataVector>*> scalar_source,
+    const Scalar<DataVector>& psi, const double first_coupling_psi) {
+  *scalar_source->get() *= -(first_coupling_psi / 4.0) * psi.get() *
+                           exp(-(3.0 / 2.0) * square(psi.get()));
 }
 
 void compute_scalar_curvature_source(
