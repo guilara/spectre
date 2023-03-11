@@ -32,7 +32,7 @@ struct ScalarMass {
  * \brief Coupling parameter 1.
  */
 struct ScalarFirstCouplingParameter {
-  static std::string name() { return "ScalarFirstCouplingParameter"; }
+  static std::string name() { return "EtaCouplingParameter"; }
   using type = double;
   static constexpr Options::String help{
       "First coupling parameter entering in the scalar field source, in code "
@@ -43,7 +43,7 @@ struct ScalarFirstCouplingParameter {
  * \brief Coupling parameter 2.
  */
 struct ScalarSecondCouplingParameter {
-  static std::string name() { return "ScalarSecondCouplingParameter"; }
+  static std::string name() { return "ZetaCouplingParameter"; }
   using type = double;
   static constexpr Options::String help{
       "Second coupling parameter entering in the scalar field source, in code "
