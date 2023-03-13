@@ -40,157 +40,6 @@ struct ScalarTempTag : db::SimpleTag, db::PrefixTag {
   using type = typename Tag::type;
 };
 
-template <size_t Dim>
-struct TimeDerivativeTermsImpl;
-
-template <size_t Dim>
-struct TimeDerivativeTermsImpl {
-  static void apply(
-
-      // Check for duplicates in these arguments
-
-      // GH dt variables
-      gsl::not_null<tnsr::aa<DataVector, Dim>*> dt_spacetime_metric,
-      gsl::not_null<tnsr::aa<DataVector, Dim>*> dt_pi,
-      gsl::not_null<tnsr::iaa<DataVector, Dim>*> dt_phi,
-      // Scalar dt variables
-      gsl::not_null<Scalar<DataVector>*> dt_psi_scalar,
-      gsl::not_null<Scalar<DataVector>*> dt_pi_scalar,
-      gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> dt_phi_scalar,
-
-      // GH temporal variables
-      gsl::not_null<Scalar<DataVector>*> temp_gamma1,
-      gsl::not_null<Scalar<DataVector>*> temp_gamma2,
-      gsl::not_null<tnsr::a<DataVector, Dim>*> temp_gauge_function,
-      gsl::not_null<tnsr::ab<DataVector, Dim>*>
-          temp_spacetime_deriv_gauge_function,
-      gsl::not_null<Scalar<DataVector>*> gamma1gamma2,
-      gsl::not_null<Scalar<DataVector>*> half_half_pi_two_normals,
-      gsl::not_null<Scalar<DataVector>*> normal_dot_gauge_constraint,
-      gsl::not_null<Scalar<DataVector>*> gamma1_plus_1,
-      gsl::not_null<tnsr::a<DataVector, Dim>*> pi_one_normal,
-      gsl::not_null<tnsr::a<DataVector, Dim>*> gauge_constraint,
-      gsl::not_null<tnsr::i<DataVector, Dim>*> half_phi_two_normals,
-      gsl::not_null<tnsr::aa<DataVector, Dim>*>
-          shift_dot_three_index_constraint,
-      gsl::not_null<tnsr::aa<DataVector, Dim>*>
-          mesh_velocity_dot_three_index_constraint,
-      gsl::not_null<tnsr::ia<DataVector, Dim>*> phi_one_normal,
-      gsl::not_null<tnsr::aB<DataVector, Dim>*> pi_2_up,
-      gsl::not_null<tnsr::iaa<DataVector, Dim>*> three_index_constraint,
-      gsl::not_null<tnsr::Iaa<DataVector, Dim>*> phi_1_up,
-      gsl::not_null<tnsr::iaB<DataVector, Dim>*> phi_3_up,
-      gsl::not_null<tnsr::abC<DataVector, Dim>*> christoffel_first_kind_3_up,
-      gsl::not_null<Scalar<DataVector>*> lapse,
-      gsl::not_null<tnsr::I<DataVector, Dim>*> shift,
-      gsl::not_null<tnsr::ii<DataVector, Dim>*> spatial_metric,
-      gsl::not_null<tnsr::II<DataVector, Dim>*> inverse_spatial_metric,
-      gsl::not_null<Scalar<DataVector>*> det_spatial_metric,
-      gsl::not_null<Scalar<DataVector>*> sqrt_det_spatial_metric,
-      gsl::not_null<tnsr::AA<DataVector, Dim>*> inverse_spacetime_metric,
-      gsl::not_null<tnsr::abb<DataVector, Dim>*> christoffel_first_kind,
-      gsl::not_null<tnsr::Abb<DataVector, Dim>*> christoffel_second_kind,
-      gsl::not_null<tnsr::a<DataVector, Dim>*> trace_christoffel,
-      gsl::not_null<tnsr::A<DataVector, Dim>*> normal_spacetime_vector,
-      gsl::not_null<tnsr::a<DataVector, Dim>*> normal_spacetime_one_form,
-      gsl::not_null<tnsr::abb<DataVector, Dim>*> da_spacetime_metric,
-
-      // Scalar temporal variables
-      // These are duplicates
-      //   gsl::not_null<Scalar<DataVector>*> result_lapse,
-      //   gsl::not_null<tnsr::I<DataVector, Dim>*> result_shift,
-      //   gsl::not_null<tnsr::II<DataVector, Dim>*>
-      //   result_inverse_spatial_metric,
-      //
-      gsl::not_null<Scalar<DataVector>*> result_gamma1_scalar,
-      gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar,
-
-      // GH argument variables
-      const tnsr::iaa<DataVector, Dim>& d_spacetime_metric,
-      const tnsr::iaa<DataVector, Dim>& d_pi,
-      const tnsr::ijaa<DataVector, Dim>& d_phi,
-      const tnsr::aa<DataVector, Dim>& spacetime_metric,
-      const tnsr::aa<DataVector, Dim>& pi,
-      const tnsr::iaa<DataVector, Dim>& phi, const Scalar<DataVector>& gamma0,
-      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
-      const GeneralizedHarmonic::gauges::GaugeCondition& gauge_condition,
-      const Mesh<Dim>& mesh, double time,
-      const tnsr::I<DataVector, Dim, Frame::Inertial>& inertial_coords,
-      const InverseJacobian<DataVector, Dim, Frame::ElementLogical,
-                            Frame::Inertial>& inverse_jacobian,
-      const std::optional<tnsr::I<DataVector, Dim, Frame::Inertial>>&
-          mesh_velocity,
-
-      // Scalar argument variables
-      const tnsr::i<DataVector, Dim>& d_psi_scalar,
-      const tnsr::i<DataVector, Dim>& d_pi_scalar,
-      const tnsr::ij<DataVector, Dim>& d_phi_scalar,
-      const Scalar<DataVector>& pi_scalar,
-      const tnsr::i<DataVector, Dim>& phi_scalar,
-      // These appear with the same name as temporal variables for the other
-      // system
-      const Scalar<DataVector>& lapse_scalar,
-      const tnsr::I<DataVector, Dim>& shift_scalar,
-      //
-      const tnsr::i<DataVector, Dim>& deriv_lapse,
-      const tnsr::iJ<DataVector, Dim>& deriv_shift,
-      const tnsr::II<DataVector, Dim>& upper_spatial_metric,
-      const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
-      const Scalar<DataVector>& trace_extrinsic_curvature,
-      const Scalar<DataVector>& gamma1_scalar,
-      const Scalar<DataVector>& gamma2_scalar) {
-    // Call TimeDerivativeTerms for GH
-    GeneralizedHarmonic::TimeDerivative<3_st>::apply(
-        // Check for duplicates
-        // GH dt variables
-        dt_spacetime_metric, dt_pi, dt_phi,
-
-        // GH temporal variables
-        temp_gamma1, temp_gamma2, temp_gauge_function,
-        temp_spacetime_deriv_gauge_function, gamma1gamma2,
-        half_half_pi_two_normals, normal_dot_gauge_constraint, gamma1_plus_1,
-        pi_one_normal, gauge_constraint, half_phi_two_normals,
-        shift_dot_three_index_constraint,
-        mesh_velocity_dot_three_index_constraint, phi_one_normal, pi_2_up,
-        three_index_constraint, phi_1_up, phi_3_up, christoffel_first_kind_3_up,
-        lapse, shift, spatial_metric, inverse_spatial_metric,
-        det_spatial_metric, sqrt_det_spatial_metric, inverse_spacetime_metric,
-        christoffel_first_kind, christoffel_second_kind, trace_christoffel,
-        normal_spacetime_vector, normal_spacetime_one_form, da_spacetime_metric,
-
-        // GH argument variables
-        d_spacetime_metric, d_pi, d_phi, spacetime_metric, pi, phi, gamma0,
-        gamma1, gamma2, gauge_condition, mesh, time, inertial_coords,
-        inverse_jacobian, mesh_velocity
-        );
-
-    // Call TimeDerivativeTerms for scalar
-    CurvedScalarWave::TimeDerivative<3_st>::apply(
-        // Check for duplicates
-        // Scalar dt variables
-        dt_psi_scalar, dt_pi_scalar, dt_phi_scalar,
-
-        // Scalar temporal variables
-        // These are duplicates
-        // result_lapse, result_shift, result_inverse_spatial_metric,
-        // Use those of the other system:
-        lapse, shift, inverse_spatial_metric,
-        //
-        result_gamma1_scalar, result_gamma2_scalar,
-
-        // Scalar argument variables
-        d_psi_scalar, d_pi_scalar, d_phi_scalar, pi_scalar, phi_scalar,
-        // These appear with the same name as temporals for the other system
-        lapse_scalar, shift_scalar,
-        //
-        deriv_lapse, deriv_shift, upper_spatial_metric,
-        trace_spatial_christoffel, trace_extrinsic_curvature, gamma1_scalar,
-        gamma2_scalar);
-
-    // trace_reversed_stress_energy();
-    // add_stress_energy_term_to_dt_pi();
-  }
-};
 } // namespace detail
 
 /*!
@@ -348,11 +197,11 @@ struct TimeDerivativeTerms {
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1_scalar,
       const Scalar<DataVector>& gamma2_scalar) {
-    detail::TimeDerivativeTermsImpl<3_st>::apply(
+    // Call TimeDerivativeTerms for GH
+    GeneralizedHarmonic::TimeDerivative<3_st>::apply(
+        // Check for duplicates
         // GH dt variables
         dt_spacetime_metric, dt_pi, dt_phi,
-        // Scalar dt variables
-        dt_psi_scalar, dt_pi_scalar, dt_phi_scalar,
 
         // GH temporal variables
         temp_gamma1, temp_gamma2, temp_gauge_function,
@@ -366,17 +215,26 @@ struct TimeDerivativeTerms {
         det_spatial_metric, sqrt_det_spatial_metric, inverse_spacetime_metric,
         christoffel_first_kind, christoffel_second_kind, trace_christoffel,
         normal_spacetime_vector, normal_spacetime_one_form, da_spacetime_metric,
-        // Scalar temporal variables
-        // These are duplicates
-        // result_lapse, result_shift, result_inverse_spatial_metric,
-        // Use those of the other system. They are written above.
-        //
-        result_gamma1_scalar, result_gamma2_scalar,
 
         // GH argument variables
         d_spacetime_metric, d_pi, d_phi, spacetime_metric, pi, phi, gamma0,
         gamma1, gamma2, gauge_condition, mesh, time, inertial_coords,
-        inverse_jacobian, mesh_velocity,
+        inverse_jacobian, mesh_velocity);
+
+    // Call TimeDerivativeTerms for scalar
+    CurvedScalarWave::TimeDerivative<3_st>::apply(
+        // Check for duplicates
+        // Scalar dt variables
+        dt_psi_scalar, dt_pi_scalar, dt_phi_scalar,
+
+        // Scalar temporal variables
+        // These are duplicates
+        // result_lapse, result_shift, result_inverse_spatial_metric,
+        // Use those of the other system:
+        lapse, shift, inverse_spatial_metric,
+        //
+        result_gamma1_scalar, result_gamma2_scalar,
+
         // Scalar argument variables
         d_psi_scalar, d_pi_scalar, d_phi_scalar, pi_scalar, phi_scalar,
         // These appear with the same name as temporals for the other system
@@ -385,6 +243,10 @@ struct TimeDerivativeTerms {
         deriv_lapse, deriv_shift, upper_spatial_metric,
         trace_spatial_christoffel, trace_extrinsic_curvature, gamma1_scalar,
         gamma2_scalar);
+
+    // trace_reversed_stress_energy();
+    // add_stress_energy_term_to_dt_pi();
+
   }
 };
 } // namespace ScalarTensor
