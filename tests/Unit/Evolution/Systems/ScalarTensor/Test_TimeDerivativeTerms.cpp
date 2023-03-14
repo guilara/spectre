@@ -238,6 +238,10 @@ SPECTRE_TEST_CASE(
   // to dt pi for the expected variables
   //   ScalarTensor::trace_reversed_stress_energy(...);
   //   ScalarTensor::add_stress_energy_term_to_dt_pi(...);
+  get<ScalarTensor::Tags::TraceReversedStressEnergy>(expected_temp_variables) =
+      make_with_value<
+          typename ScalarTensor::Tags::TraceReversedStressEnergy::type>(
+          DataVector{element_size}, 0.0);
 
   // Finally we compare
   CHECK_VARIABLES_APPROX(dt_variables, expected_dt_variables);

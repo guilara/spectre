@@ -131,27 +131,6 @@ struct TimeDerivativeTermsImpl {
  * of the scalar on the spacetime solution.
  */
 struct TimeDerivativeTerms {
-
-
-//   using scalar_dt_tags = db::wrap_tags_in<
-//       ::Tags::dt,
-//       typename CurvedScalarWave::System<3_st>::variables_tag::tags_list>;
-//   using dt_tags = scalar_dt_tags;
-//   using scalar_flux_tags = tmpl::transform<
-//       typename CurvedScalarWave::System<3_st>::flux_variables,
-//       tmpl::bind<::Tags::Flux, tmpl::_1, tmpl::pin<tmpl::size_t<3_st>>,
-//                  tmpl::pin<Frame::Inertial>>>;
-//   using scalar_temp_tags =
-//       typename CurvedScalarWave::TimeDerivative<3_st>::temporary_tags;
-//   using scalar_gradient_tags =
-//       typename CurvedScalarWave::System<3_st>::gradients_tags;
-//   using d_tags = scalar_gradient_tags;
-//   using scalar_arg_tags =
-//       typename CurvedScalarWave::TimeDerivative<3_st>::argument_tags;
-//   using temporary_tags = scalar_temp_tags;
-//   using argument_tags = scalar_arg_tags;
-
-//...
   using gh_dt_tags = db::wrap_tags_in<
       ::Tags::dt,
       typename GeneralizedHarmonic::System<3_st>::variables_tag::tags_list>;
@@ -171,6 +150,8 @@ struct TimeDerivativeTerms {
       typename GeneralizedHarmonic::TimeDerivative<3_st>::argument_tags;
   using scalar_temp_tags =
       typename CurvedScalarWave::TimeDerivative<3_st>::temporary_tags;
+  using scalar_extra_temp_tags =
+      tmpl::list<ScalarTensor::Tags::TraceReversedStressEnergy>;
   using scalar_gradient_tags =
       typename CurvedScalarWave::System<3_st>::gradients_tags;
   using gradient_tags = tmpl::append<gh_gradient_tags, scalar_gradient_tags>;
@@ -179,7 +160,7 @@ struct TimeDerivativeTerms {
 //   using temporary_tags = tmpl::append<gh_temp_tags, scalar_temp_tags>;
   using temporary_tags =
         tmpl::remove_duplicates<tmpl::append<gh_temp_tags,
-        scalar_temp_tags>>;
+        scalar_temp_tags, scalar_extra_temp_tags>>;
   using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags>;
   //...
   static void apply(
@@ -237,6 +218,10 @@ struct TimeDerivativeTerms {
       //
       gsl::not_null<Scalar<DataVector>*> result_gamma1_scalar,
       gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar,
+
+      // Extra temporal tags
+      // Avoid compute tags for deriv of lapse and shift by adding them here
+      gsl::not_null<tnsr::aa<DataVector, 3_st>*> stress_energy,
 
       // GH argument variables
       // GH spatial derivatives
@@ -300,6 +285,14 @@ struct TimeDerivativeTerms {
         gamma1, gamma2, gauge_condition, mesh, time, inertial_coords,
         inverse_jacobian, mesh_velocity);
 
+    // Need to compute
+        //     deriv_lapse, deriv_shift,
+        // upper_spatial_metric, // inverse_spatial_metric above
+        // trace_spatial_christoffel, // trace_christoffel above
+        // trace_extrinsic_curvature
+    // GeneralizedHarmonic::extrinsic_curvature(
+    //     extrinsic_curvature, *normal_spacetime_vector, *pi, *phi);
+
     // Call TimeDerivativeTerms for scalar
     CurvedScalarWave::TimeDerivative<3_st>::apply(
         // Check for duplicates
@@ -309,7 +302,8 @@ struct TimeDerivativeTerms {
         // Scalar temporal variables
         // These are duplicates
         // result_lapse, result_shift, result_inverse_spatial_metric,
-        // Use those of the other system:
+        // Use those of the other system. Can't be updated by this system
+        // Could comment the update on the CurvedScalarWave system
         lapse, shift, inverse_spatial_metric,
         //
         result_gamma1_scalar, result_gamma2_scalar,
@@ -323,12 +317,16 @@ struct TimeDerivativeTerms {
         trace_spatial_christoffel, trace_extrinsic_curvature, gamma1_scalar,
         gamma2_scalar);
 
-    // // Need add required tags
-    // trace_reversed_stress_energy(stress_energy,
-    // /* Add scalar and scalar gradients */
-    // spacetime_metric, shift, lapse);
-    // add_stress_energy_term_to_dt_pi(
-    //     dt_pi, trace_reversed_stress_energy, lapse);
+    // Need add required tags
+    trace_reversed_stress_energy(stress_energy,
+        /* Add scalar and scalar gradients */
+        spacetime_metric,
+        /* Use temporals */
+        shift_scalar, lapse_scalar);
+    add_stress_energy_term_to_dt_pi(
+        dt_pi,
+        /* Use temporals */
+        *stress_energy, lapse_scalar);
   }
 };
 } // namespace ScalarTensor
