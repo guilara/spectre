@@ -166,9 +166,15 @@ struct TimeDerivativeTerms {
       gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar,
 
       // GH argument variables
+      // GH spatial derivatives
       const tnsr::iaa<DataVector, 3_st>& d_spacetime_metric,
       const tnsr::iaa<DataVector, 3_st>& d_pi,
       const tnsr::ijaa<DataVector, 3_st>& d_phi,
+      // scalar spatial derivatives
+      const tnsr::i<DataVector, 3_st>& d_psi_scalar,
+      const tnsr::i<DataVector, 3_st>& d_pi_scalar,
+      const tnsr::ij<DataVector, 3_st>& d_phi_scalar,
+      //
       const tnsr::aa<DataVector, 3_st>& spacetime_metric,
       const tnsr::aa<DataVector, 3_st>& pi,
       const tnsr::iaa<DataVector, 3_st>& phi, const Scalar<DataVector>& gamma0,
@@ -181,9 +187,9 @@ struct TimeDerivativeTerms {
       const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
           mesh_velocity,
       // Scalar argument variables
-      const tnsr::i<DataVector, 3_st>& d_psi_scalar,
-      const tnsr::i<DataVector, 3_st>& d_pi_scalar,
-      const tnsr::ij<DataVector, 3_st>& d_phi_scalar,
+      //   const tnsr::i<DataVector, 3_st>& d_psi_scalar,
+      //   const tnsr::i<DataVector, 3_st>& d_pi_scalar,
+      //   const tnsr::ij<DataVector, 3_st>& d_phi_scalar,
       const Scalar<DataVector>& pi_scalar,
       const tnsr::i<DataVector, 3_st>& phi_scalar,
       // These appear with the same name as temporals for the other system
@@ -246,7 +252,6 @@ struct TimeDerivativeTerms {
 
     // trace_reversed_stress_energy();
     // add_stress_energy_term_to_dt_pi();
-
   }
 };
 } // namespace ScalarTensor
