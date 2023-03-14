@@ -240,7 +240,7 @@ SPECTRE_TEST_CASE(
   //   ScalarTensor::add_stress_energy_term_to_dt_pi(...);
 
   // Finally we compare
-  // CHECK_VARIABLES_APPROX(dt_variables, expected_dt_variables);
-  // CHECK_VARIABLES_APPROX(flux_variables, expected_flux_variables);
-  // CHECK_VARIABLES_APPROX(temp_variables, expected_temp_variables);
+  CHECK_VARIABLES_APPROX(dt_variables, expected_dt_variables);
+  CHECK_VARIABLES_APPROX(flux_variables, expected_flux_variables);
+  CHECK_VARIABLES_APPROX(temp_variables, expected_temp_variables);
 }

@@ -15,7 +15,6 @@
 
 /// Boundary corrections/numerical fluxes
 namespace ScalarTensor::BoundaryCorrections {
-
 /// \cond
 template <typename DerivedGhCorrection, typename DerivedScalarCorrection>
 class ProductOfCorrections;
@@ -56,7 +55,7 @@ class BoundaryCorrection : public PUP::able {
       typename GeneralizedHarmonic::BoundaryCorrections::BoundaryCorrection<
           3_st>::creatable_classes,
       typename CurvedScalarWave::BoundaryCorrections::
-          BoundaryCorrection::creatable_classes>::type;
+          BoundaryCorrection<3_st>::creatable_classes>::type;
 
   virtual std::unique_ptr<BoundaryCorrection> get_clone() const = 0;
 };
