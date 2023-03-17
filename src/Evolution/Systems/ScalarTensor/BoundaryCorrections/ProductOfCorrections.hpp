@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <pup.h>
 
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/Factory.hpp"
@@ -19,6 +20,10 @@
 #include "Utilities/PrettyType.hpp"
 #include "Utilities/TMPL.hpp"
 
+/// \cond
+class DataVector;
+/// \endcond
+
 namespace ScalarTensor::BoundaryCorrections {
 
 /*!
@@ -28,7 +33,6 @@ namespace ScalarTensor::BoundaryCorrections {
 template <typename DerivedGhCorrection, typename DerivedScalarCorrection>
 class ProductOfCorrections final : public BoundaryCorrection {
  public:
-  // Define
   using dg_package_field_tags =
       tmpl::append<typename DerivedGhCorrection::dg_package_field_tags,
                    typename DerivedScalarCorrection::dg_package_field_tags>;
@@ -36,9 +40,6 @@ class ProductOfCorrections final : public BoundaryCorrection {
   using dg_package_data_temporary_tags = tmpl::remove_duplicates<tmpl::append<
       typename DerivedGhCorrection::dg_package_data_temporary_tags,
       typename DerivedScalarCorrection::dg_package_data_temporary_tags>>;
-
-//   using dg_package_data_primitive_tags =
-//       typename DerivedScalarCorrection::dg_package_data_primitive_tags;
 
   using dg_package_data_volume_tags = tmpl::append<
       typename DerivedGhCorrection::dg_package_data_volume_tags,
@@ -119,54 +120,45 @@ class ProductOfCorrections final : public BoundaryCorrection {
       gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*>
           packaged_char_speeds,
       // Scalar packaged fields
-      gsl::not_null<Scalar<DataVector>*> packaged_v_psi,
-      gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> packaged_v_zero,
-      gsl::not_null<Scalar<DataVector>*> packaged_v_plus,
-      gsl::not_null<Scalar<DataVector>*> packaged_v_minus,
-      gsl::not_null<Scalar<DataVector>*> packaged_gamma2,
+      gsl::not_null<Scalar<DataVector>*> packaged_v_psi_scalar,
       gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*>
-          packaged_interface_unit_normal,
+          packaged_v_zero_scalar,
+      gsl::not_null<Scalar<DataVector>*> packaged_v_plus_scalar,
+      gsl::not_null<Scalar<DataVector>*> packaged_v_minus_scalar,
+      gsl::not_null<Scalar<DataVector>*> packaged_gamma2_scalar,
+      gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*>
+          packaged_interface_unit_normal_scalar,
       gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*>
-          packaged_char_speeds,
+          packaged_char_speeds_scalar,
       // GH variables
       const tnsr::aa<DataVector, Dim, Frame::Inertial>& spacetime_metric,
       const tnsr::aa<DataVector, Dim, Frame::Inertial>& pi,
       const tnsr::iaa<DataVector, Dim, Frame::Inertial>& phi,
       // Scalar variables
-      const Scalar<DataVector>& psi, const Scalar<DataVector>& pi,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>& phi,
+      const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>& pi_scalar,
+      const tnsr::i<DataVector, Dim, Frame::Inertial>& phi_scalar,
       // GH fluxes
-      const typename GhFluxTags::type&... gh_fluxes,
       // Scalar fluxes
-      const typename ScalarFluxTags::type&... scalar_fluxes,
       // GH temporaries
       const Scalar<DataVector>& constraint_gamma1,
       const Scalar<DataVector>& constraint_gamma2,
       const Scalar<DataVector>& lapse,
       const tnsr::I<DataVector, Dim, Frame::Inertial>& shift,
       // Scalar temporaries (without repeating tags)
-      const Scalar<DataVector>& lapse,
-      const tnsr::I<DataVector, Dim, Frame::Inertial>& shift,
+      // const Scalar<DataVector>& lapse,
+      // const tnsr::I<DataVector, Dim, Frame::Inertial>& shift,
       const tnsr::II<DataVector, Dim, Frame::Inertial>& inverse_spatial_metric,
-      const Scalar<DataVector>& constraint_gamma1,
-      const Scalar<DataVector>& constraint_gamma2,
-      // GH primitives
-      // const typename GhPrimTags::type&... gh_primitives,
-      // Scalar primitives
-      // const typename ScalarPrimTags::type&... scalar_primitives,
+      const Scalar<DataVector>& constraint_gamma1_scalar,
+      const Scalar<DataVector>& constraint_gamma2_scalar,
       // Mesh variables
       const tnsr::i<DataVector, 3, Frame::Inertial>& normal_covector,
       const tnsr::I<DataVector, 3, Frame::Inertial>& normal_vector,
       const std::optional<tnsr::I<DataVector, 3, Frame::Inertial>>&
           mesh_velocity,
       const std::optional<Scalar<DataVector>>& normal_dot_mesh_velocity
-      // ,
       // GH volume quantities
-      // const typename GhVolumeTags::type&... gh_volume_quantities,
       // Scalar volume quantities
-      // const typename ScalarVolumeTags::type&... scalar_volume_quantities
-      ) {
-    // Solve name conflicts
+  ) {
     const double gh_correction_result =
         derived_gh_correction_.dg_package_data(
       // GH packaged variables
@@ -185,7 +177,7 @@ class ProductOfCorrections final : public BoundaryCorrection {
         constraint_gamma2,
         lapse,
         shift,
-      // Scalar mesh variables
+      // GH mesh variables
         normal_covector,
         normal_vector,
         mesh_velocity,
@@ -195,24 +187,24 @@ class ProductOfCorrections final : public BoundaryCorrection {
     const double scalar_correction_result =
         derived_scalar_correction_.dg_package_data(
       // Scalar packaged variables
-        packaged_v_psi,
-        packaged_v_zero,
-        packaged_v_plus,
-        packaged_v_minus,
-        packaged_gamma2,
-        packaged_interface_unit_normal,
-        packaged_char_speeds,
+        packaged_v_psi_scalar,
+        packaged_v_zero_scalar,
+        packaged_v_plus_scalar,
+        packaged_v_minus_scalar,
+        packaged_gamma2_scalar,
+        packaged_interface_unit_normal_scalar,
+        packaged_char_speeds_scalar,
       // Scalar variables
-        psi, pi, phi,
+        psi_scalar, pi_scalar, phi_scalar,
       // Scalar temporaries
         lapse,
         shift,
         inverse_spatial_metric,
-        constraint_gamma1,
-        constraint_gamma2,
+        constraint_gamma1_scalar,
+        constraint_gamma2_scalar,
       // Scalar mesh variables
-        interface_unit_normal,
-        interface_unit_normal_vector,
+        normal_covector,
+        normal_vector,
         mesh_velocity,
         normal_dot_mesh_velocity
         );
@@ -228,10 +220,10 @@ class ProductOfCorrections final : public BoundaryCorrection {
       gsl::not_null<tnsr::iaa<DataVector, Dim, Frame::Inertial>*>
           boundary_correction_phi,
       // Scalar boundary corrections
-      gsl::not_null<Scalar<DataVector>*> psi_boundary_correction,
-      gsl::not_null<Scalar<DataVector>*> pi_boundary_correction,
+      gsl::not_null<Scalar<DataVector>*> psi_boundary_correction_scalar,
+      gsl::not_null<Scalar<DataVector>*> pi_boundary_correction_scalar,
       gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*>
-          phi_boundary_correction,
+          phi_boundary_correction_scalar,
       // GH internal packages field tags
       const tnsr::aa<DataVector, Dim, Frame::Inertial>&
           char_speed_v_spacetime_metric_int,
@@ -246,14 +238,14 @@ class ProductOfCorrections final : public BoundaryCorrection {
           char_speed_constraint_gamma2_v_spacetime_metric_int,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int,
       // Scalar internal packaged field tags
-      const Scalar<DataVector>& v_psi_int,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>& v_zero_int,
-      const Scalar<DataVector>& v_plus_int,
-      const Scalar<DataVector>& v_minus_int,
-      const Scalar<DataVector>& gamma2_int,
+      const Scalar<DataVector>& v_psi_int_scalar,
+      const tnsr::i<DataVector, Dim, Frame::Inertial>& v_zero_int_scalar,
+      const Scalar<DataVector>& v_plus_int_scalar,
+      const Scalar<DataVector>& v_minus_int_scalar,
+      const Scalar<DataVector>& gamma2_int_scalar,
       const tnsr::i<DataVector, Dim, Frame::Inertial>&
-          interface_unit_normal_int,
-      const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int,
+          interface_unit_normal_int_scalar,
+      const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int_scalar,
       // GH external packaged fields
       const tnsr::aa<DataVector, Dim, Frame::Inertial>&
           char_speed_v_spacetime_metric_ext,
@@ -268,17 +260,16 @@ class ProductOfCorrections final : public BoundaryCorrection {
           char_speed_constraint_gamma2_v_spacetime_metric_ext,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext,
       // Scalar external packaged fields
-      const Scalar<DataVector>& v_psi_ext,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>& v_zero_ext,
-      const Scalar<DataVector>& v_plus_ext,
-      const Scalar<DataVector>& v_minus_ext,
-      const Scalar<DataVector>& gamma2_ext,
+      const Scalar<DataVector>& v_psi_ext_scalar,
+      const tnsr::i<DataVector, Dim, Frame::Inertial>& v_zero_ext_scalar,
+      const Scalar<DataVector>& v_plus_ext_scalar,
+      const Scalar<DataVector>& v_minus_ext_scalar,
+      const Scalar<DataVector>& gamma2_ext_scalar,
       const tnsr::i<DataVector, Dim, Frame::Inertial>&
-          interface_unit_normal_ext,
-      const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext,
+          interface_unit_normal_ext_scalar,
+      const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext_scalar,
       // DG formulation
       const dg::Formulation dg_formulation) {
-    // Solve name conflicts
     derived_gh_correction_.dg_boundary_terms(
         // gh_boundary_corrections...,
         boundary_correction_spacetime_metric,
@@ -309,27 +300,27 @@ class ProductOfCorrections final : public BoundaryCorrection {
 
     derived_scalar_correction_.dg_boundary_terms(
         // scalar_boundary_corrections...,
-        psi_boundary_correction,
-        pi_boundary_correction,
-        phi_boundary_correction,
+        psi_boundary_correction_scalar,
+        pi_boundary_correction_scalar,
+        phi_boundary_correction_scalar,
 
         // scalar_internal_packaged_fields...,
-        v_psi_int,
-        v_zero_int,
-        v_plus_int,
-        v_minus_int,
-        gamma2_int,
-        interface_unit_normal_int,
-        char_speeds_int,
+        v_psi_int_scalar,
+        v_zero_int_scalar,
+        v_plus_int_scalar,
+        v_minus_int_scalar,
+        gamma2_int_scalar,
+        interface_unit_normal_int_scalar,
+        char_speeds_int_scalar,
 
         // scalar_external_packaged_fields...,
-        v_psi_ext,
-        v_zero_ext,
-        v_plus_ext,
-        v_minus_ext,
-        gamma2_ext,
-        interface_unit_normal_ext,
-        char_speeds_ext,
+        v_psi_ext_scalar,
+        v_zero_ext_scalar,
+        v_plus_ext_scalar,
+        v_minus_ext_scalar,
+        gamma2_ext_scalar,
+        interface_unit_normal_ext_scalar,
+        char_speeds_ext_scalar,
 
         dg_formulation);
   }
