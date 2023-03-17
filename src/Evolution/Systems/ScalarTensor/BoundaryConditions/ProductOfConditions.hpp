@@ -33,10 +33,6 @@ namespace detail {
 
 // This defines evolution::BoundaryConditions::Type bc_type
 // for different templated variables
-// Have not included Ghost and TimeDerivative BCs
-template </* Add templated variables */>
-struct UnionOfBcTypes {};
-
 template <evolution::BoundaryConditions::Type GhBcType>
 struct UnionOfBcTypes<
     GhBcType, evolution::BoundaryConditions::Type::DemandOutgoingCharSpeeds> {
@@ -67,151 +63,6 @@ struct UnionOfBcTypes<
       evolution::BoundaryConditions::Type::DemandOutgoingCharSpeeds;
 };
 
-// Need to understand if we need this
-// This could combine ghost for one and something else for the other
-struct ScalarDoNothingGhostCondition {
-  // What does this do?
-  std::optional<std::string> dg_ghost();
-};
-
-// Need to understand if we need this
-struct GhDoNothingGhostCondition {
-  // What does this do?
-  std::optional<std::string> dg_ghost();
-};
-
-template <
-    typename DerivedGhCondition, typename DerivedScalarCondition,
-    typename GhEvolvedTagList, typename ScalarEvolvedTagList,
-    typename GhFluxTagList, typename ScalarFluxTagList,
-    typename GhInteriorEvolvedTagList,
-    typename ScalarInteriorEvolvedTagList,
-    typename DeduplicatedInteriorEvolvedTagList,
-    // Comment this ?
-    typename GhInteriorPrimitiveTagList,
-    typename ScalarInteriorPrimitiveTgs,
-    //
-    typename GhInteriorTempTagList,
-    typename ScalarInteriorTempTagList,
-    typename DeduplicatedTempTagList, typename GhInteriorDtTagList,
-    typename ScalarInteriorDtTagList, typename GhInteriorDerivTagList,
-    typename ScalarInteriorDerivTagList, typename GhGridlessTagList,
-    typename ScalarGridlessTagList,
-    typename DeduplicatedGridlessTagList>
-struct ProductOfConditionsImpl;
-
-template <typename DerivedGhCondition, typename DerivedScalarCondition,
-          typename... GhEvolvedTags, typename... ScalarEvolvedTags,
-          typename... GhFluxTags, typename... ScalarFluxTags,
-          typename... GhInteriorEvolvedTags,
-          typename... ScalarInteriorEvolvedTags,
-          typename... DeduplicatedInteriorEvolvedTags,
-          // Comment this ?
-          typename... GhInteriorPrimitiveTags,
-          typename... ScalarInteriorPrimitiveTags,
-          //
-          typename... GhInteriorTempTags, typename... ScalarInteriorTempTags,
-          typename... DeduplicatedTempTags, typename... GhInteriorDtTags,
-          typename... ScalarInteriorDtTags, typename... GhInteriorDerivTags,
-          typename... ScalarInteriorDerivTags, typename... GhGridlessTags,
-          typename... ScalarGridlessTags, typename... DeduplicatedGridlessTags>
-struct ProductOfConditionsImpl<
-    DerivedGhCondition, DerivedScalarCondition, tmpl::list<GhEvolvedTags...>,
-    tmpl::list<ScalarEvolvedTags...>, tmpl::list<GhFluxTags...>,
-    tmpl::list<ScalarFluxTags...>, tmpl::list<GhInteriorEvolvedTags...>,
-    tmpl::list<ScalarInteriorEvolvedTags...>,
-    tmpl::list<DeduplicatedInteriorEvolvedTags...>,
-    // Comment this?
-    tmpl::list<GhInteriorPrimitiveTags...>,
-    tmpl::list<ScalarInteriorPrimitiveTags...>,
-    //
-    tmpl::list<GhInteriorTempTags...>, tmpl::list<ScalarInteriorTempTags...>,
-    tmpl::list<DeduplicatedTempTags...>, tmpl::list<GhInteriorDtTags...>,
-    tmpl::list<ScalarInteriorDtTags...>, tmpl::list<GhInteriorDerivTags...>,
-    tmpl::list<ScalarInteriorDerivTags...>, tmpl::list<GhGridlessTags...>,
-    tmpl::list<ScalarGridlessTags...>,
-    tmpl::list<DeduplicatedGridlessTags...>> {
-
-// Puts together this function from both systems
-// CurvedScalarWave seems not to have dg_ghost() defined
-// template </* Add templated variables */>
-// static std::optional<std::string> dg_ghost(/* Add variables */);
-
-template </* Add templated variables */
-          typename... GridlessVariables>
-static std::optional<std::string> dg_demand_outgoing_char_speeds(
-    /* Add variables */
-    const DerivedGhCondition& gh_condition,
-    const DerivedScalarCondition& scalar_condition,
-    const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
-        face_mesh_velocity,
-    const tnsr::i<DataVector, 3_st, Frame::Inertial>& normal_covector,
-    const tnsr::I<DataVector, 3_st, Frame::Inertial>& normal_vector,
-    const typename DeduplicatedInteriorEvolvedTags::type&...
-        int_evolved_variables,
-    // Comment this ?
-    const typename GhInteriorPrimitiveTags::type&... gh_int_prim_variables,
-    const typename ScalarInteriorPrimitiveTags::type&...
-        scalar_int_prim_variables,
-    //
-    const typename DeduplicatedTempTags::type&... temp_variables,
-    const typename GhInteriorDtTags::type&... gh_int_dt_variables,
-    const typename ScalarInteriorDtTags::type&... scalar_int_dt_variables,
-    const typename GhInteriorDerivTags::type&... gh_int_deriv_variables,
-    const typename ScalarInteriorDerivTags::type&...
-        scalar_int_deriv_variables,
-    const GridlessVariables&... gridless_variables) {
-  using gridless_tags_and_types =
-      tmpl::map<tmpl::pair<DeduplicatedGridlessTags, GridlessVariables>...>;
-
-  tuples::TaggedTuple<
-      Tags::detail::TemporaryReference<
-          DeduplicatedGridlessTags,
-          tmpl::at<gridless_tags_and_types, DeduplicatedGridlessTags>>...,
-      Tags::detail::TemporaryReference<DeduplicatedTempTags>...,
-      Tags::detail::TemporaryReference<DeduplicatedInteriorEvolvedTags>...>
-      shuffle_refs{gridless_variables..., temp_variables...,
-                   int_evolved_variables...};
-  // DemandOutgoingCharSpeeds condition is only valid if both boundary
-  // conditions are DemandOutgoingCharSpeeds, so we directly apply both. A
-  // static_assert elsewhere is triggered if only one boundary condition is
-  // DemandOutgoingCharSpeeds.
-  auto gh_string = gh_condition.dg_demand_outgoing_char_speeds(
-      face_mesh_velocity, normal_covector, normal_vector,
-      tuples::get<Tags::detail::TemporaryReference<GhInteriorEvolvedTags>>(
-          shuffle_refs)...,
-      gh_int_prim_variables...,
-      tuples::get<Tags::detail::TemporaryReference<GhInteriorTempTags>>(
-          shuffle_refs)...,
-      gh_int_dt_variables..., gh_int_deriv_variables...,
-      tuples::get<Tags::detail::TemporaryReference<
-          GhGridlessTags, tmpl::at<gridless_tags_and_types, GhGridlessTags>>>(
-          shuffle_refs)...);
-  auto scalar_string = scalar_condition.dg_demand_outgoing_char_speeds(
-      face_mesh_velocity, normal_covector, normal_vector,
-      tuples::get<
-          Tags::detail::TemporaryReference<ScalarInteriorEvolvedTags>>(
-          shuffle_refs)...,
-      scalar_int_prim_variables...,
-      tuples::get<Tags::detail::TemporaryReference<ScalarInteriorTempTags>>(
-          shuffle_refs)...,
-      scalar_int_dt_variables..., scalar_int_deriv_variables...,
-      tuples::get<Tags::detail::TemporaryReference<
-          ScalarGridlessTags,
-          tmpl::at<gridless_tags_and_types, ScalarGridlessTags>>>(
-          shuffle_refs)...);
-  if (not gh_string.has_value()) {
-    return scalar_string;
-  }
-  if (not scalar_string.has_value()) {
-    return gh_string;
-  }
-  return gh_string.value() + ";" + scalar_string.value();
-}
-
-// template </* Add templated variables */>
-// static std::optional<std::string> dg_time_derivative(/* Add variables */);
-};
 }  // namespace detail
 
 /*!
@@ -229,12 +80,6 @@ class ProductOfConditions final : public BoundaryCondition {
       tmpl::remove_duplicates<tmpl::append<
           typename DerivedGhCondition::dg_interior_evolved_variables_tags,
           typename DerivedScalarCondition::dg_interior_evolved_variables_tags>>;
-
-  // Comment this line?
-  using dg_interior_primitive_variables_tags = tmpl::append<
-      tmpl::list<>,
-      typename DerivedScalarCondition::dg_interior_primitive_variables_tags>;
-  //
 
   using dg_interior_temporary_tags = tmpl::remove_duplicates<tmpl::append<
       typename DerivedGhCondition::dg_interior_temporary_tags,
@@ -255,38 +100,6 @@ class ProductOfConditions final : public BoundaryCondition {
           DerivedGhCondition>,
       evolution::dg::Actions::detail::get_deriv_vars_from_boundary_condition<
           DerivedScalarCondition>>;
-
-  using product_of_conditions_impl = detail::ProductOfConditionsImpl<
-      DerivedGhCondition, DerivedScalarCondition,
-      typename GeneralizedHarmonic::System<3_st>::variables_tag::tags_list,
-      typename CurvedScalarWave::System<3_st>::variables_tag::tags_list,
-      db::wrap_tags_in<
-          ::Tags::Flux,
-          typename GeneralizedHarmonic::System<3_st>::flux_variables,
-          tmpl::size_t<3_st>, Frame::Inertial>,
-      db::wrap_tags_in<::Tags::Flux,
-                       typename CurvedScalarWave::System<3_st>::flux_variables,
-                       tmpl::size_t<3_st>, Frame::Inertial>,
-      typename DerivedGhCondition::dg_interior_evolved_variables_tags,
-      typename DerivedScalarCondition::dg_interior_evolved_variables_tags,
-      dg_interior_evolved_variables_tags,
-      // Comment this line?
-      tmpl::list<>,
-      typename DerivedScalarCondition::dg_interior_primitive_variables_tags,
-      //
-      typename DerivedGhCondition::dg_interior_temporary_tags,
-      typename DerivedScalarCondition::dg_interior_temporary_tags,
-      dg_interior_temporary_tags,
-      evolution::dg::Actions::detail::get_dt_vars_from_boundary_condition<
-          DerivedGhCondition>,
-      evolution::dg::Actions::detail::get_dt_vars_from_boundary_condition<
-          DerivedScalarCondition>,
-      evolution::dg::Actions::detail::get_deriv_vars_from_boundary_condition<
-          DerivedGhCondition>,
-      evolution::dg::Actions::detail::get_deriv_vars_from_boundary_condition<
-          DerivedScalarCondition>,
-      typename DerivedGhCondition::dg_gridless_tags,
-      typename DerivedScalarCondition::dg_gridless_tags, dg_gridless_tags>;
 
   static std::string name() {
     return "Product" + pretty_type::name<DerivedGhCondition>() + "And" +
@@ -342,19 +155,54 @@ class ProductOfConditions final : public BoundaryCondition {
   auto get_clone() const -> std::unique_ptr<
       domain::BoundaryConditions::BoundaryCondition> override;
 
-  // template <typename... Args>
-  // std::optional<std::string> dg_ghost(Args&&... args);
-
-  template <typename... Args>
   std::optional<std::string> dg_demand_outgoing_char_speeds(
-      Args&&... args) const {
-    return product_of_conditions_impl::dg_demand_outgoing_char_speeds(
-        derived_gh_condition_, derived_scalar_condition_,
-        std::forward<Args>(args)...);
+      // GH arguments
+      const std::optional<tnsr::I<DataVector, Dim, Frame::Inertial>>&
+          face_mesh_velocity,
+      const tnsr::i<DataVector, Dim, Frame::Inertial>&
+          outward_directed_normal_covector,
+      const tnsr::I<DataVector, Dim, Frame::Inertial>&
+          outward_directed_normal_vector,
 
-  // template <typename... Args>
-  // std::optional<std::string> dg_time_derivative(Args && ... args);
+      // Scalar arguments
+    //   const std::optional<tnsr::I<DataVector, Dim, Frame::Inertial>>&
+    //       face_mesh_velocity,
+    //   const tnsr::i<DataVector, Dim>& normal_covector,
+    //   const tnsr::I<DataVector, Dim>& /*normal_vector*/,
 
+      // GH
+      const Scalar<DataVector>& gamma_1,
+      const Scalar<DataVector>& lapse,
+      const tnsr::I<DataVector, Dim, Frame::Inertial>& shift
+
+      // Scalar
+      const Scalar<DataVector>& gamma1_scalar
+    //,const Scalar<DataVector>& lapse, const tnsr::I<DataVector, Dim>& shift
+      ) {
+    // DemandOutgoingCharSpeeds condition is only valid if both boundary
+    // conditions are DemandOutgoingCharSpeeds, so we directly apply both. A
+    // static_assert elsewhere is triggered if only one boundary condition is
+    // DemandOutgoingCharSpeeds.
+    auto gh_string = derived_gh_condition_.dg_demand_outgoing_char_speeds(
+            face_mesh_velocity,
+            outward_directed_normal_covector,
+            outward_directed_normal_vector,
+
+            gamma_1, lapse, shift);
+    auto scalar_string =
+        derived_scalar_condition_.dg_demand_outgoing_char_speeds(
+            face_mesh_velocity,
+            outward_directed_normal_covector,
+            outward_directed_normal_vector,
+
+            gamma1_scalar, lapse, shift);
+    if (not gh_string.has_value()) {
+      return scalar_string;
+    }
+    if (not scalar_string.has_value()) {
+      return gh_string;
+    }
+    return gh_string.value() + ";" + scalar_string.value();
   }
 
  private:
