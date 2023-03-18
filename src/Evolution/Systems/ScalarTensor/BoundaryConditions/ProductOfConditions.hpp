@@ -63,6 +63,14 @@ struct UnionOfBcTypes<
       evolution::BoundaryConditions::Type::DemandOutgoingCharSpeeds;
 };
 
+template <>
+struct UnionOfBcTypes<
+    evolution::BoundaryConditions::Type::Ghost,
+    evolution::BoundaryConditions::Type::Ghost> {
+  static constexpr evolution::BoundaryConditions::Type bc_type =
+      evolution::BoundaryConditions::Type::Ghost;
+};
+
 }  // namespace detail
 
 /*!
@@ -196,6 +204,82 @@ class ProductOfConditions final : public BoundaryCondition {
             outward_directed_normal_vector,
 
             gamma1_scalar, lapse, shift);
+    if (not gh_string.has_value()) {
+      return scalar_string;
+    }
+    if (not scalar_string.has_value()) {
+      return gh_string;
+    }
+    return gh_string.value() + ";" + scalar_string.value();
+  }
+
+
+  // Boundary conditions for Dirichlet-Minkowski/SphericalRadiation
+  std::optional<std::string> dg_ghost(
+      // GH evolved variables
+      const gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+          spacetime_metric,
+      const gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*> pi,
+      const gsl::not_null<tnsr::iaa<DataVector, Dim, Frame::Inertial>*> phi,
+      // Scalar evolved variables
+      gsl::not_null<Scalar<DataVector>*> psi_ext,
+      gsl::not_null<Scalar<DataVector>*> pi_ext,
+      gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> phi_ext,
+      // GH temporary variables
+      const gsl::not_null<Scalar<DataVector>*> gamma1,
+      const gsl::not_null<Scalar<DataVector>*> gamma2,
+      const gsl::not_null<Scalar<DataVector>*> lapse,
+      const gsl::not_null<tnsr::I<DataVector, Dim, Frame::Inertial>*> shift,
+      const gsl::not_null<tnsr::II<DataVector, Dim, Frame::Inertial>*>
+          inv_spatial_metric,
+      // Scalar temporary variables
+      gsl::not_null<Scalar<DataVector>*> gamma2_ext,
+      // GH mesh variables
+      const std::optional<
+          tnsr::I<DataVector, Dim, Frame::Inertial>>& face_mesh_velocity,
+      const tnsr::i<DataVector, Dim, Frame::Inertial>& normal_covector,
+      const tnsr::I<DataVector, Dim, Frame::Inertial>& normal_vector,
+      // Scalar mesh variables
+    //   const std::optional<
+    //       tnsr::I<DataVector, Dim, Frame::Inertial>>& face_mesh_velocity,
+    //   const tnsr::i<DataVector, Dim, Frame::Inertial>& normal_covector,
+      // GH interior variables
+      const Scalar<DataVector>& interior_gamma1,
+      const Scalar<DataVector>& interior_gamma2,
+      // Scalar interior variables
+      const Scalar<DataVector>& psi,
+      const tnsr::i<DataVector, Dim, Frame::Inertial>& phi,
+      const tnsr::I<DataVector, Dim, Frame::Inertial>& coords,
+      const Scalar<DataVector>& gamma2) {
+    // GeneralizedHarmonic::BoundaryConditions::DirichletMinkowski
+    auto gh_string = derived_gh_condition_.dg_ghost(
+        spacetime_metric,
+        pi,
+        phi,
+        gamma1,
+        gamma2,
+        lapse,
+        shift,
+        inv_spatial_metric,
+        face_mesh_velocity,
+        normal_covector,
+        normal_vector,
+        interior_gamma1,
+        interior_gamma2
+        );
+
+    // ScalarWave::BoundaryConditions::SphericalRadiation
+    auto scalar_string = derived_scalar_condition_.dg_ghost(
+        psi_ext,
+        pi_ext,
+        phi_ext,
+        gamma2_ext,
+        face_mesh_velocity,
+        normal_covector,
+        psi,
+        phi,
+        coords,
+        gamma2);
     if (not gh_string.has_value()) {
       return scalar_string;
     }
