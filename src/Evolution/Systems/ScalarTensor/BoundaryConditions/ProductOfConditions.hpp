@@ -18,6 +18,9 @@
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 // Missing Curved Scalar and Scalar Tensor headers
+#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/CurvedScalarWave/System.hpp"
+//
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Formulation.hpp"
 #include "Options/Options.hpp"
 #include "Parallel/CharmPupable.hpp"
@@ -214,43 +217,46 @@ class ProductOfConditions final : public BoundaryCondition {
   }
 
 
-  // Boundary conditions for Dirichlet-Minkowski/SphericalRadiation
+  // Boundary conditions for Dirichlet-Minkowski/Constant
   std::optional<std::string> dg_ghost(
       // GH evolved variables
       const gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
           spacetime_metric,
       const gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*> pi,
       const gsl::not_null<tnsr::iaa<DataVector, Dim, Frame::Inertial>*> phi,
-      // Scalar evolved variables
-      gsl::not_null<Scalar<DataVector>*> psi_ext,
-      gsl::not_null<Scalar<DataVector>*> pi_ext,
-      gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> phi_ext,
+      // Scalar evolved variables. Change names
+      const gsl::not_null<Scalar<DataVector>*> psi_scalar,
+      const gsl::not_null<Scalar<DataVector>*> pi_scalar,
+      const gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*>
+          phi_scalar,
       // GH temporary variables
       const gsl::not_null<Scalar<DataVector>*> gamma1,
       const gsl::not_null<Scalar<DataVector>*> gamma2,
       const gsl::not_null<Scalar<DataVector>*> lapse,
       const gsl::not_null<tnsr::I<DataVector, Dim, Frame::Inertial>*> shift,
+      // Scalar temporary variables. Change names
+      // const gsl::not_null<Scalar<DataVector>*> lapse,
+      // const gsl::not_null<tnsr::I<DataVector, Dim>*> shift,
+      const gsl::not_null<Scalar<DataVector>*> gamma1_scalar,
+      const gsl::not_null<Scalar<DataVector>*> gamma2_scalar,
+      // Inverse metric
       const gsl::not_null<tnsr::II<DataVector, Dim, Frame::Inertial>*>
           inv_spatial_metric,
-      // Scalar temporary variables
-      gsl::not_null<Scalar<DataVector>*> gamma2_ext,
-      // GH mesh variables
-      const std::optional<
-          tnsr::I<DataVector, Dim, Frame::Inertial>>& face_mesh_velocity,
+      // Mesh variables
+      const std::optional<tnsr::I<DataVector, Dim, Frame::Inertial>>&
+          face_mesh_velocity,
       const tnsr::i<DataVector, Dim, Frame::Inertial>& normal_covector,
       const tnsr::I<DataVector, Dim, Frame::Inertial>& normal_vector,
-      // Scalar mesh variables
-    //   const std::optional<
-    //       tnsr::I<DataVector, Dim, Frame::Inertial>>& face_mesh_velocity,
-    //   const tnsr::i<DataVector, Dim, Frame::Inertial>& normal_covector,
       // GH interior variables
       const Scalar<DataVector>& interior_gamma1,
       const Scalar<DataVector>& interior_gamma2,
       // Scalar interior variables
-      const Scalar<DataVector>& psi,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>& phi,
-      const tnsr::I<DataVector, Dim, Frame::Inertial>& coords,
-      const Scalar<DataVector>& gamma2) {
+      const tnsr::II<DataVector, Dim, Frame::Inertial>&
+          inverse_spatial_metric_interior,
+      const Scalar<DataVector>& gamma1_interior_scalar,
+      const Scalar<DataVector>& gamma2_interior_scalar,
+      const Scalar<DataVector>& lapse_interior,
+      const tnsr::I<DataVector, Dim>& shift_interior) {
     // GeneralizedHarmonic::BoundaryConditions::DirichletMinkowski
     auto gh_string = derived_gh_condition_.dg_ghost(
         spacetime_metric,
@@ -268,18 +274,25 @@ class ProductOfConditions final : public BoundaryCondition {
         interior_gamma2
         );
 
-    // ScalarWave::BoundaryConditions::SphericalRadiation
+    // CurvedScalarWave::BoundaryConditions::AnalyticConstant
     auto scalar_string = derived_scalar_condition_.dg_ghost(
-        psi_ext,
-        pi_ext,
-        phi_ext,
-        gamma2_ext,
+      // Change names
+        psi_scalar,
+        pi_scalar,
+        phi_scalar,
+        lapse,
+        shift,
+        gamma1_scalar,
+        gamma2_scalar,
+        inverse_spatial_metric,
         face_mesh_velocity,
         normal_covector,
-        psi,
-        phi,
-        coords,
-        gamma2);
+        normal_vector,
+        inverse_spatial_metric_interior,
+        gamma1_interior_scalar,
+        gamma2_interior_scalar,
+        lapse_interior,
+        shift_interior);
     if (not gh_string.has_value()) {
       return scalar_string;
     }
