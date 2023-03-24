@@ -236,8 +236,30 @@ struct EvolutionMetavars {
     using interpolating_component = typename metavariables::dg_element_array;
   };
 
+  struct SphericalSurface3
+      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    using temporal_id = ::Tags::Time;
+    using vars_to_interpolate_to_target =
+        tmpl::list<gr::Tags::SpatialMetric<Dim, ::Frame::Inertial, DataVector>,
+                   CurvedScalarWave::Tags::Psi>;
+    // Compute surface integral for the scalar field
+    using compute_items_on_target =
+        tmpl::list<StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
+                   StrahlkorperGr::Tags::SurfaceIntegralCompute<
+                       CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<SphericalSurface3, ::Frame::Inertial>;
+    using post_interpolation_callback =
+        intrp::callbacks::ObserveTimeSeriesOnSurface<
+            tmpl::list<StrahlkorperGr::Tags::SurfaceIntegralCompute<
+                CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>,
+            SphericalSurface3>;
+    template <typename metavariables>
+    using interpolating_component = typename metavariables::dg_element_array;
+  };
+
   using interpolation_target_tags =
-      tmpl::list<SphericalSurface, SphericalSurface2>;
+      tmpl::list<SphericalSurface, SphericalSurface2, SphericalSurface3>;
   using interpolator_source_vars = tmpl::list<
       gr::Tags::SpatialMetric<volume_dim, ::Frame::Inertial, DataVector>,
       CurvedScalarWave::Tags::Psi>;
@@ -265,6 +287,9 @@ struct EvolutionMetavars {
                             interpolator_source_vars>,
                         intrp::Events::InterpolateWithoutInterpComponent<
                             volume_dim, SphericalSurface2, EvolutionMetavars,
+                            interpolator_source_vars>,
+                        intrp::Events::InterpolateWithoutInterpComponent<
+                            volume_dim, SphericalSurface3, EvolutionMetavars,
                             interpolator_source_vars>>,
                     tmpl::list<>>,
                 Events::time_events<system>>>>,
@@ -438,7 +463,8 @@ struct EvolutionMetavars {
           interpolate,
           tmpl::list<
               intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface>,
-              intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface2>>,
+              intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface2>,
+              intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface3>>,
           tmpl::list<>>,
       dg_element_array>>;
 
