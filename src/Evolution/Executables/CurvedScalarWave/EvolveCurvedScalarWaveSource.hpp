@@ -214,7 +214,30 @@ struct EvolutionMetavars {
     using interpolating_component = typename metavariables::dg_element_array;
   };
 
-  using interpolation_target_tags = tmpl::list<SphericalSurface>;
+  struct SphericalSurface2
+      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    using temporal_id = ::Tags::Time;
+    using vars_to_interpolate_to_target =
+        tmpl::list<gr::Tags::SpatialMetric<Dim, ::Frame::Inertial, DataVector>,
+                   CurvedScalarWave::Tags::Psi>;
+    // Compute surface integral for the scalar field
+    using compute_items_on_target =
+        tmpl::list<StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
+                   StrahlkorperGr::Tags::SurfaceIntegralCompute<
+                       CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<SphericalSurface2, ::Frame::Inertial>;
+    using post_interpolation_callback =
+        intrp::callbacks::ObserveTimeSeriesOnSurface<
+            tmpl::list<StrahlkorperGr::Tags::SurfaceIntegralCompute<
+                CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>,
+            SphericalSurface2>;
+    template <typename metavariables>
+    using interpolating_component = typename metavariables::dg_element_array;
+  };
+
+  using interpolation_target_tags =
+      tmpl::list<SphericalSurface, SphericalSurface2>;
   using interpolator_source_vars = tmpl::list<
       gr::Tags::SpatialMetric<volume_dim, ::Frame::Inertial, DataVector>,
       CurvedScalarWave::Tags::Psi>;
@@ -227,28 +250,33 @@ struct EvolutionMetavars {
                 volume_dim>>,
         tmpl::pair<DenseTrigger, DenseTriggers::standard_dense_triggers>,
         tmpl::pair<DomainCreator<volume_dim>, domain_creators<volume_dim>>,
-        tmpl::pair<Event,
-                   tmpl::flatten<tmpl::list<
-                       Events::Completion,
-                       dg::Events::field_observations<volume_dim, Tags::Time,
-                                                      observe_fields,
-                                                      non_tensor_compute_tags>,
-                       tmpl::conditional_t<
-                           interpolate,
-                           intrp::Events::InterpolateWithoutInterpComponent<
-                               volume_dim, SphericalSurface, EvolutionMetavars,
-                               interpolator_source_vars>,
-                           tmpl::list<>>,
-                       Events::time_events<system>>>>,
+        tmpl::pair<
+            Event,
+            tmpl::flatten<tmpl::list<
+                Events::Completion,
+                dg::Events::field_observations<volume_dim, Tags::Time,
+                                               observe_fields,
+                                               non_tensor_compute_tags>,
+                tmpl::conditional_t<
+                    interpolate,
+                    tmpl::list<
+                        intrp::Events::InterpolateWithoutInterpComponent<
+                            volume_dim, SphericalSurface, EvolutionMetavars,
+                            interpolator_source_vars>,
+                        intrp::Events::InterpolateWithoutInterpComponent<
+                            volume_dim, SphericalSurface2, EvolutionMetavars,
+                            interpolator_source_vars>>,
+                    tmpl::list<>>,
+                Events::time_events<system>>>>,
         tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
         tmpl::pair<MathFunction<1, Frame::Inertial>,
                    MathFunctions::all_math_functions<1, Frame::Inertial>>,
-        tmpl::pair<PhaseChange,
-                   tmpl::list<PhaseControl::VisitAndReturn<
-                                  Parallel::Phase::LoadBalancing>,
-                              PhaseControl::VisitAndReturn<
-                                  Parallel::Phase::WriteCheckpoint>,
-                              PhaseControl::CheckpointAndExitAfterWallclock>>,
+        tmpl::pair<
+            PhaseChange,
+            tmpl::list<
+                PhaseControl::VisitAndReturn<Parallel::Phase::LoadBalancing>,
+                PhaseControl::VisitAndReturn<Parallel::Phase::WriteCheckpoint>,
+                PhaseControl::CheckpointAndExitAfterWallclock>>,
         tmpl::pair<StepChooser<StepChooserUse::LtsStep>,
                    tmpl::push_back<StepChoosers::standard_step_choosers<system>,
                                    StepChoosers::ByBlock<
@@ -403,14 +431,16 @@ struct EvolutionMetavars {
                            dg_registration_list, tmpl::list<>>;
   };
 
-  using component_list = tmpl::flatten<
-      tmpl::list<observers::Observer<EvolutionMetavars>,
-                 observers::ObserverWriter<EvolutionMetavars>,
-                 tmpl::conditional_t<interpolate,
-                                     intrp::InterpolationTarget<
-                                         EvolutionMetavars, SphericalSurface>,
-                                     tmpl::list<>>,
-                 dg_element_array>>;
+  using component_list = tmpl::flatten<tmpl::list<
+      observers::Observer<EvolutionMetavars>,
+      observers::ObserverWriter<EvolutionMetavars>,
+      tmpl::conditional_t<
+          interpolate,
+          tmpl::list<
+              intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface>,
+              intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface2>>,
+          tmpl::list<>>,
+      dg_element_array>>;
 
   static constexpr Options::String help{
       "Evolve a scalar wave in Dim spatial dimension on a curved background "
