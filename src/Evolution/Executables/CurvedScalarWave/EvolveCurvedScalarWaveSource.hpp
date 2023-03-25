@@ -114,6 +114,7 @@
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/ExtrinsicCurvature.hpp"
 #include "PointwiseFunctions/MathFunctions/Factory.hpp"
 #include "PointwiseFunctions/MathFunctions/MathFunction.hpp"
+#include "PointwiseFunctions/ScalarTensor/ScalarCharge.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/ChangeSlabSize.hpp"
 #include "Time/Actions/RecordTimeStepperData.hpp"
@@ -219,18 +220,43 @@ struct EvolutionMetavars {
     using temporal_id = ::Tags::Time;
     using vars_to_interpolate_to_target =
         tmpl::list<gr::Tags::SpatialMetric<Dim, ::Frame::Inertial, DataVector>,
-                   CurvedScalarWave::Tags::Psi>;
+                   gr::Tags::InverseSpatialMetric<Dim, ::Frame::Inertial>,
+                   CurvedScalarWave::Tags::Psi,
+                   CurvedScalarWave::Tags::Phi<Dim>>;
     // Compute surface integral for the scalar field
-    using compute_items_on_target =
-        tmpl::list<StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
-                   StrahlkorperGr::Tags::SurfaceIntegralCompute<
-                       CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>;
+    using compute_items_on_target = tmpl::list<
+        StrahlkorperTags::ThetaPhiCompute<::Frame::Inertial>,
+        StrahlkorperTags::RadiusCompute<::Frame::Inertial>,
+        StrahlkorperTags::RhatCompute<::Frame::Inertial>,
+        StrahlkorperTags::InvJacobianCompute<::Frame::Inertial>,
+        // StrahlkorperTags::InvHessianCompute<::Frame::Inertial>,
+        StrahlkorperTags::JacobianCompute<::Frame::Inertial>,
+        StrahlkorperTags::DxRadiusCompute<::Frame::Inertial>,
+        // StrahlkorperTags::D2xRadiusCompute<::Frame::Inertial>,
+        StrahlkorperTags::NormalOneFormCompute<::Frame::Inertial>,
+        StrahlkorperTags::OneOverOneFormMagnitudeCompute<Dim, ::Frame::Inertial,
+                                                         DataVector>,
+        // StrahlkorperTags::TangentsCompute<::Frame::Inertial>,
+        StrahlkorperTags::UnitNormalOneFormCompute<::Frame::Inertial>,
+        StrahlkorperTags::UnitNormalVectorCompute<::Frame::Inertial>,
+        StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
+        ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrandCompute<
+            ::Frame::Inertial>,
+        StrahlkorperGr::Tags::SurfaceIntegralCompute<
+            ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
+            ::Frame::Inertial>,
+        StrahlkorperGr::Tags::SurfaceIntegralCompute<
+            CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>;
     using compute_target_points =
         intrp::TargetPoints::Sphere<SphericalSurface2, ::Frame::Inertial>;
     using post_interpolation_callback =
         intrp::callbacks::ObserveTimeSeriesOnSurface<
             tmpl::list<StrahlkorperGr::Tags::SurfaceIntegralCompute<
-                CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>,
+                           CurvedScalarWave::Tags::Psi, ::Frame::Inertial>,
+                       StrahlkorperGr::Tags::SurfaceIntegralCompute<
+                           ScalarTensor::StrahlkorperScalar::Tags::
+                               ScalarChargeIntegrand,
+                           ::Frame::Inertial>>,
             SphericalSurface2>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::dg_element_array;

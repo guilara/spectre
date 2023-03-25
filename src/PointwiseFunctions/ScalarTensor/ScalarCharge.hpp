@@ -3,21 +3,24 @@
 
 #pragma once
 
+#include <array>
+#include <utility>
+
 #include "ApparentHorizons/StrahlkorperGr.hpp"
+#include "ApparentHorizons/TagsDeclarations.hpp"  // IWYU pragma: keep
+#include "DataStructures/DataBox/Tag.hpp"
+#include "DataStructures/DataBox/TagName.hpp"
+#include "DataStructures/DataVector.hpp"
+#include "DataStructures/Tensor/EagerMath/Magnitude.hpp"
+#include "DataStructures/Tensor/Tensor.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
-
-/// \cond
-class DataVector;
-template <typename Frame>
-class Strahlkorper;
-template <typename X, typename Symm, typename IndexList>
-class Tensor;
-
-namespace gsl {
-template <typename>
-struct not_null;
-}  // namespace gsl
-/// \endcond
+#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "NumericalAlgorithms/SphericalHarmonics/Strahlkorper.hpp"
+#include "NumericalAlgorithms/SphericalHarmonics/TagsDeclarations.hpp"
+#include "NumericalAlgorithms/SphericalHarmonics/TagsTypeAliases.hpp"
+#include "PointwiseFunctions/GeneralRelativity/TagsDeclarations.hpp"  // IWYU pragma: keep
+#include "Utilities/Gsl.hpp"
+#include "Utilities/TMPL.hpp"
 
 namespace ScalarTensor {
 
@@ -63,9 +66,9 @@ struct ScalarChargeIntegrandCompute : ScalarChargeIntegrand, db::ComputeTag {
       const tnsr::i<DataVector, 3_st, Frame>&,
       const tnsr::I<DataVector, 3_st, Frame>&, const Scalar<DataVector>&)>(
       &ScalarTensor::scalar_charge_integrand<Frame>);
-  using argument_tags =
-      tmpl::list<CurvedScalarWave::Tags::Phi<3_st>,
-                 StrahlkorperTags::UnitNormalVector<Frame>, AreaElement<Frame>>;
+  using argument_tags = tmpl::list<CurvedScalarWave::Tags::Phi<3_st>,
+                                   StrahlkorperTags::UnitNormalVector<Frame>,
+                                   StrahlkorperGr::Tags::AreaElement<Frame>>;
   using return_type = Scalar<DataVector>;
 };
 

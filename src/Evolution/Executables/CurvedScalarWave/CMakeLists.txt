@@ -28,6 +28,7 @@ set(LIBS_TO_LINK
 set(INTERPOLATION_LIBS_TO_LINK
   ApparentHorizons
   ParallelInterpolation
+  ScalarTensorPointwise
 )
 
 function(add_curved_scalar_wave_executable EXECUTABLE_NAME DIM BACKGROUND INITIAL_DATA)
