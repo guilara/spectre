@@ -196,9 +196,15 @@ struct EvolutionMetavars {
   struct SphericalSurface
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
-    using vars_to_interpolate_to_target =
-        tmpl::list<gr::Tags::SpatialMetric<Dim, ::Frame::Inertial, DataVector>,
-                   CurvedScalarWave::Tags::Psi>;
+
+    // Note: These need to be the same as in `interpolator_source_vars`.
+    // For now, all interpolator targets in this executable need the same
+    // tags here
+    using vars_to_interpolate_to_target = tmpl::list<
+        gr::Tags::SpatialMetric<Dim, ::Frame::Inertial, DataVector>,
+        gr::Tags::InverseSpatialMetric<volume_dim, ::Frame::Inertial>,
+        CurvedScalarWave::Tags::Phi<Dim>,
+        CurvedScalarWave::Tags::Psi>;
     // Compute surface integral for the scalar field
     using compute_items_on_target = tmpl::list<
         StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
@@ -218,25 +224,26 @@ struct EvolutionMetavars {
   struct SphericalSurface2
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
-    using vars_to_interpolate_to_target =
-        tmpl::list<gr::Tags::SpatialMetric<Dim, ::Frame::Inertial, DataVector>,
-                   gr::Tags::InverseSpatialMetric<Dim, ::Frame::Inertial>,
-                   CurvedScalarWave::Tags::Psi,
-                   CurvedScalarWave::Tags::Phi<Dim>>;
-    // Compute surface integral for the scalar field
+
+    // Note: These need to be the same as in `interpolator_source_vars`.
+    // For now, all interpolator targets in this executable need the same
+    // tags here
+    using vars_to_interpolate_to_target = tmpl::list<
+        gr::Tags::SpatialMetric<Dim, ::Frame::Inertial, DataVector>,
+        gr::Tags::InverseSpatialMetric<Dim, ::Frame::Inertial>,
+        CurvedScalarWave::Tags::Phi<Dim>,
+        CurvedScalarWave::Tags::Psi>;
+    // Most of these tags are required to compute the unit normal
     using compute_items_on_target = tmpl::list<
         StrahlkorperTags::ThetaPhiCompute<::Frame::Inertial>,
         StrahlkorperTags::RadiusCompute<::Frame::Inertial>,
         StrahlkorperTags::RhatCompute<::Frame::Inertial>,
         StrahlkorperTags::InvJacobianCompute<::Frame::Inertial>,
-        // StrahlkorperTags::InvHessianCompute<::Frame::Inertial>,
         StrahlkorperTags::JacobianCompute<::Frame::Inertial>,
         StrahlkorperTags::DxRadiusCompute<::Frame::Inertial>,
-        // StrahlkorperTags::D2xRadiusCompute<::Frame::Inertial>,
         StrahlkorperTags::NormalOneFormCompute<::Frame::Inertial>,
         StrahlkorperTags::OneOverOneFormMagnitudeCompute<Dim, ::Frame::Inertial,
                                                          DataVector>,
-        // StrahlkorperTags::TangentsCompute<::Frame::Inertial>,
         StrahlkorperTags::UnitNormalOneFormCompute<::Frame::Inertial>,
         StrahlkorperTags::UnitNormalVectorCompute<::Frame::Inertial>,
         StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
@@ -251,12 +258,13 @@ struct EvolutionMetavars {
         intrp::TargetPoints::Sphere<SphericalSurface2, ::Frame::Inertial>;
     using post_interpolation_callback =
         intrp::callbacks::ObserveTimeSeriesOnSurface<
-            tmpl::list<StrahlkorperGr::Tags::SurfaceIntegralCompute<
-                           CurvedScalarWave::Tags::Psi, ::Frame::Inertial>,
-                       StrahlkorperGr::Tags::SurfaceIntegralCompute<
+            tmpl::list<
+            StrahlkorperGr::Tags::SurfaceIntegralCompute<
                            ScalarTensor::StrahlkorperScalar::Tags::
                                ScalarChargeIntegrand,
-                           ::Frame::Inertial>>,
+                           ::Frame::Inertial>,
+                       StrahlkorperGr::Tags::SurfaceIntegralCompute<
+                           CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>,
             SphericalSurface2>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::dg_element_array;
@@ -265,9 +273,15 @@ struct EvolutionMetavars {
   struct SphericalSurface3
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
-    using vars_to_interpolate_to_target =
-        tmpl::list<gr::Tags::SpatialMetric<Dim, ::Frame::Inertial, DataVector>,
-                   CurvedScalarWave::Tags::Psi>;
+
+    // Note: These need to be the same as in `interpolator_source_vars`.
+    // For now, all interpolator targets in this executable need the same
+    // tags here
+    using vars_to_interpolate_to_target = tmpl::list<
+        gr::Tags::SpatialMetric<Dim, ::Frame::Inertial, DataVector>,
+        gr::Tags::InverseSpatialMetric<volume_dim, ::Frame::Inertial>,
+        CurvedScalarWave::Tags::Phi<Dim>,
+        CurvedScalarWave::Tags::Psi>;
     // Compute surface integral for the scalar field
     using compute_items_on_target =
         tmpl::list<StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
@@ -286,8 +300,13 @@ struct EvolutionMetavars {
 
   using interpolation_target_tags =
       tmpl::list<SphericalSurface, SphericalSurface2, SphericalSurface3>;
+
+  // Note: These tags need ot match those in `vars_to_interpolate_to_target`.
+  // See InterpolateWithoutInterpComponent.hpp.
   using interpolator_source_vars = tmpl::list<
       gr::Tags::SpatialMetric<volume_dim, ::Frame::Inertial, DataVector>,
+      gr::Tags::InverseSpatialMetric<volume_dim, ::Frame::Inertial>,
+      CurvedScalarWave::Tags::Phi<Dim>,
       CurvedScalarWave::Tags::Psi>;
   struct factory_creation
       : tt::ConformsTo<Options::protocols::FactoryCreation> {
