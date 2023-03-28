@@ -17,9 +17,11 @@
 #include "Evolution/DiscontinuousGalerkin/Actions/ComputeTimeDerivativeHelpers.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
-// Missing Curved Scalar and Scalar Tensor headers
+//
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
+#include "Evolution/Systems/ScalarTensor/BoundaryConditions/BoundaryCondition.hpp"
+#include "Evolution/Systems/ScalarTensor/Tags.hpp"
 //
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Formulation.hpp"
 #include "Options/Options.hpp"
@@ -36,6 +38,15 @@ namespace detail {
 
 // This defines evolution::BoundaryConditions::Type bc_type
 // for different templated variables
+// For now only Ghost type for exterior boundaries and DemandOutgoing for
+// interior boundaries
+template <>
+struct UnionOfBcTypes<evolution::BoundaryConditions::Type::Ghost,
+                      evolution::BoundaryConditions::Type::Ghost> {
+  static constexpr evolution::BoundaryConditions::Type bc_type =
+      evolution::BoundaryConditions::Type::Ghost;
+};
+
 template <evolution::BoundaryConditions::Type GhBcType>
 struct UnionOfBcTypes<
     GhBcType, evolution::BoundaryConditions::Type::DemandOutgoingCharSpeeds> {
@@ -66,14 +77,6 @@ struct UnionOfBcTypes<
       evolution::BoundaryConditions::Type::DemandOutgoingCharSpeeds;
 };
 
-template <>
-struct UnionOfBcTypes<
-    evolution::BoundaryConditions::Type::Ghost,
-    evolution::BoundaryConditions::Type::Ghost> {
-  static constexpr evolution::BoundaryConditions::Type bc_type =
-      evolution::BoundaryConditions::Type::Ghost;
-};
-
 }  // namespace detail
 
 /*!
@@ -84,9 +87,11 @@ struct UnionOfBcTypes<
 template <typename DerivedGhCondition, typename DerivedScalarCondition>
 class ProductOfConditions final : public BoundaryCondition {
  public:
-    // Add missing using statements and ProductOfConditionsImpl function calls
+  static constexpr evolution::BoundaryConditions::Type bc_type =
+      detail::UnionOfBcTypes<DerivedGhCondition::bc_type,
+                             DerivedScalarCondition::bc_type>::bc_type;
 
-// Removed Ghost and TimeDerivative BCs in the using statements
+  // Removed Ghost and TimeDerivative BCs in the using statements
   using dg_interior_evolved_variables_tags =
       tmpl::remove_duplicates<tmpl::append<
           typename DerivedGhCondition::dg_interior_evolved_variables_tags,
