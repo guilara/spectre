@@ -188,6 +188,10 @@ struct TimeDerivativeTerms {
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1_scalar,
       const Scalar<DataVector>& gamma2_scalar) {
+    // Note: Check that CurvedScalarWave does not update GH variables
+    // to a different value. If it does, invert the order of application of the
+    // corrections first, so that the GH update is applied at last
+
     // Call TimeDerivativeTerms for GH
     GeneralizedHarmonic::TimeDerivative<3_st>::apply(
         // Check for duplicates

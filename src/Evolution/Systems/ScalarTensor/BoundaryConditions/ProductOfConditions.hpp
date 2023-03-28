@@ -262,6 +262,10 @@ class ProductOfConditions final : public BoundaryCondition {
       const Scalar<DataVector>& gamma2_interior_scalar,
       const Scalar<DataVector>& lapse_interior,
       const tnsr::I<DataVector, Dim>& shift_interior) {
+    // Note: Check that CurvedScalarWave does not update GH variables
+    // to a different value. If it does, invert the order of application of the
+    // corrections first, so that the GH update is applied at last
+
     // GeneralizedHarmonic::BoundaryConditions::DirichletMinkowski
     auto gh_string = derived_gh_condition_.dg_ghost(
         spacetime_metric,
