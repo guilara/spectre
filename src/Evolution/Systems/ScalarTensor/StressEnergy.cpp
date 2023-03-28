@@ -38,14 +38,4 @@ void trace_reversed_stress_energy(
   }
 }
 
-// void trace_reversed_stress_energy(
-//     const gsl::not_null<tnsr::aa<DataVector, 3>*> stress_energy) {
-//   // We set it to zero for now
-//   for (size_t a = 0; a < 4; ++a) {
-//     for (size_t b = a; b < 4; ++b) {
-//       stress_energy->get(a, b) = 0.0;
-//     }
-//   }
-// }
-
 } // namespace ScalarTensor
