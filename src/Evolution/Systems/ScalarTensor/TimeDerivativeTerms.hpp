@@ -245,15 +245,13 @@ struct TimeDerivativeTerms {
         trace_spatial_christoffel, trace_extrinsic_curvature, gamma1_scalar,
         gamma2_scalar);
 
-    // Need add required tags
+    // Compute the (trace-reversed) stress energy tensor here
     trace_reversed_stress_energy(stress_energy,
-        /* Add scalar and scalar gradients */
         spacetime_metric,
-        /* Use temporals */
         shift_scalar, lapse_scalar);
+
     add_stress_energy_term_to_dt_pi(
         dt_pi,
-        /* Use temporals */
         *stress_energy, lapse_scalar);
   }
 };
