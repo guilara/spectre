@@ -5,15 +5,16 @@
 
 #include "Domain/BoundaryConditions/Periodic.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Factory.hpp"
-// Add Scalar headers
+#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/ScalarTensor/BoundaryConditions/BoundaryCondition.hpp"
+#include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Utilities/TMPL.hpp"
 
 namespace ScalarTensor::BoundaryConditions {
 
 namespace detail {
 
-template </* Add templated variables */
-          typename DerivedGhCondition, typename DerivedScalarCondition>
+template <typename DerivedGhCondition, typename DerivedScalarCondition>
 using ProductOfConditionsIfConsistent = tmpl::conditional_t<
     (DerivedGhCondition::bc_type ==
      evolution::BoundaryConditions::Type::DemandOutgoingCharSpeeds) xor
@@ -22,14 +23,11 @@ using ProductOfConditionsIfConsistent = tmpl::conditional_t<
     tmpl::list<>,
     ProductOfConditions<DerivedGhCondition, DerivedScalarCondition>>;
 
-template </* Add templated variables */
-          typename GhList, typename ScalarList>
-struct AllProductConditions {};
+template <typename GhList, typename ScalarList>
+struct AllProductConditions;
 
-template </* Add templated variables */
-          typename GhList, typename... ScalarConditions>
-struct AllProductConditions</* Add templated variables */
-                            GhList, tmpl::list<ScalarConditions...>> {
+template <typename GhList, typename... ScalarConditions>
+struct AllProductConditions<GhList, tmpl::list<ScalarConditions...>> {
   using type = tmpl::flatten<tmpl::list<tmpl::transform<
       GhList, tmpl::bind<ProductOfConditionsIfConsistent, tmpl::_1,
                          tmpl::pin<ScalarConditions>>>...>>;
