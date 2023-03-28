@@ -27,9 +27,6 @@
 #include "Utilities/TMPL.hpp"
 #include "Utilities/TaggedTuple.hpp"
 
-// Debug
-#include "Parallel/Printf.hpp"
-
 namespace ScalarTensor {
 namespace detail {
 // Wrap Scalar temporaries in this prefix to avoid data structure
