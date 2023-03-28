@@ -50,6 +50,7 @@ struct System {
   // in the executable.
   // Need to compute the updates of the missing variables either in
   // TimeDerivativeTerms or ComputeTag
+  // For traced quantities need to add the untraced tags too (?)
   using spacetime_variables_tag =
       ::Tags::Variables<scalar_system::spacetime_tag_list>;
 
