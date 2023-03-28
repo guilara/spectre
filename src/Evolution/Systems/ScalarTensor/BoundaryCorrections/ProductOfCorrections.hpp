@@ -12,6 +12,8 @@
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/BoundaryCorrections/BoundaryCorrection.hpp"
+#include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Formulation.hpp"
 #include "Options/Options.hpp"
@@ -159,6 +161,9 @@ class ProductOfCorrections final : public BoundaryCorrection {
       // GH volume quantities
       // Scalar volume quantities
   ) {
+    // Note: Check that CurvedScalarWave does not update GH variables
+    // to a different value. If it does, invert the order of application of the
+    // corrections first, so that the GH update is applied at last
     const double gh_correction_result =
         derived_gh_correction_.dg_package_data(
       // GH packaged variables
@@ -270,6 +275,9 @@ class ProductOfCorrections final : public BoundaryCorrection {
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext_scalar,
       // DG formulation
       const dg::Formulation dg_formulation) {
+    // Note: Check that CurvedScalarWave does not update GH variables
+    // to a different value. If it does, invert the order of application of the
+    // corrections first, so that the GH update is applied at last
     derived_gh_correction_.dg_boundary_terms(
         // gh_boundary_corrections...,
         boundary_correction_spacetime_metric,
