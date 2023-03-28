@@ -46,6 +46,10 @@ struct System {
 
   static constexpr bool is_in_flux_conservative_form = false;
 
+  // Note: Allocate memory for these using GrTagsForHydro directly
+  // in the executable.
+  // Need to compute the updates of the missing variables either in
+  // TimeDerivativeTerms or ComputeTag
   using spacetime_variables_tag =
       ::Tags::Variables<scalar_system::spacetime_tag_list>;
 
