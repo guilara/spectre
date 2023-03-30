@@ -36,6 +36,13 @@
 namespace ScalarTensor::BoundaryConditions {
 namespace detail {
 
+template <evolution::BoundaryConditions::Type GhBcType,
+          evolution::BoundaryConditions::Type ScalarBcType>
+struct UnionOfBcTypes {
+  static constexpr evolution::BoundaryConditions::Type bc_type =
+      evolution::BoundaryConditions::Type::Ghost;
+};
+
 // This defines evolution::BoundaryConditions::Type bc_type
 // for different templated variables
 // For now only Ghost type for exterior boundaries and DemandOutgoing for
@@ -173,11 +180,11 @@ class ProductOfConditions final : public BoundaryCondition {
 
   std::optional<std::string> dg_demand_outgoing_char_speeds(
       // GH arguments
-      const std::optional<tnsr::I<DataVector, Dim, Frame::Inertial>>&
+      const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
           face_mesh_velocity,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>&
+      const tnsr::i<DataVector, 3_st, Frame::Inertial>&
           outward_directed_normal_covector,
-      const tnsr::I<DataVector, Dim, Frame::Inertial>&
+      const tnsr::I<DataVector, 3_st, Frame::Inertial>&
           outward_directed_normal_vector,
 
       // Scalar arguments
@@ -189,7 +196,7 @@ class ProductOfConditions final : public BoundaryCondition {
       // GH
       const Scalar<DataVector>& gamma_1,
       const Scalar<DataVector>& lapse,
-      const tnsr::I<DataVector, Dim, Frame::Inertial>& shift
+      const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
 
       // Scalar
       const Scalar<DataVector>& gamma1_scalar
@@ -225,43 +232,43 @@ class ProductOfConditions final : public BoundaryCondition {
   // Boundary conditions for Dirichlet-Minkowski/Constant
   std::optional<std::string> dg_ghost(
       // GH evolved variables
-      const gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+      const gsl::not_null<tnsr::aa<DataVector, 3_st, Frame::Inertial>*>
           spacetime_metric,
-      const gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*> pi,
-      const gsl::not_null<tnsr::iaa<DataVector, Dim, Frame::Inertial>*> phi,
+      const gsl::not_null<tnsr::aa<DataVector, 3_st, Frame::Inertial>*> pi,
+      const gsl::not_null<tnsr::iaa<DataVector, 3_st, Frame::Inertial>*> phi,
       // Scalar evolved variables. Change names
       const gsl::not_null<Scalar<DataVector>*> psi_scalar,
       const gsl::not_null<Scalar<DataVector>*> pi_scalar,
-      const gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*>
+      const gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*>
           phi_scalar,
       // GH temporary variables
       const gsl::not_null<Scalar<DataVector>*> gamma1,
       const gsl::not_null<Scalar<DataVector>*> gamma2,
       const gsl::not_null<Scalar<DataVector>*> lapse,
-      const gsl::not_null<tnsr::I<DataVector, Dim, Frame::Inertial>*> shift,
+      const gsl::not_null<tnsr::I<DataVector, 3_st, Frame::Inertial>*> shift,
       // Scalar temporary variables. Change names
       // const gsl::not_null<Scalar<DataVector>*> lapse,
       // const gsl::not_null<tnsr::I<DataVector, Dim>*> shift,
       const gsl::not_null<Scalar<DataVector>*> gamma1_scalar,
       const gsl::not_null<Scalar<DataVector>*> gamma2_scalar,
       // Inverse metric
-      const gsl::not_null<tnsr::II<DataVector, Dim, Frame::Inertial>*>
+      const gsl::not_null<tnsr::II<DataVector, 3_st, Frame::Inertial>*>
           inv_spatial_metric,
       // Mesh variables
-      const std::optional<tnsr::I<DataVector, Dim, Frame::Inertial>>&
+      const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
           face_mesh_velocity,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>& normal_covector,
-      const tnsr::I<DataVector, Dim, Frame::Inertial>& normal_vector,
+      const tnsr::i<DataVector, 3_st, Frame::Inertial>& normal_covector,
+      const tnsr::I<DataVector, 3_st, Frame::Inertial>& normal_vector,
       // GH interior variables
       const Scalar<DataVector>& interior_gamma1,
       const Scalar<DataVector>& interior_gamma2,
       // Scalar interior variables
-      const tnsr::II<DataVector, Dim, Frame::Inertial>&
+      const tnsr::II<DataVector, 3_st, Frame::Inertial>&
           inverse_spatial_metric_interior,
       const Scalar<DataVector>& gamma1_interior_scalar,
       const Scalar<DataVector>& gamma2_interior_scalar,
       const Scalar<DataVector>& lapse_interior,
-      const tnsr::I<DataVector, Dim>& shift_interior) {
+      const tnsr::I<DataVector, 3_st>& shift_interior) {
     // Note: Check that CurvedScalarWave does not update GH variables
     // to a different value. If it does, invert the order of application of the
     // corrections first, so that the GH update is applied at last
@@ -293,7 +300,7 @@ class ProductOfConditions final : public BoundaryCondition {
         shift,
         gamma1_scalar,
         gamma2_scalar,
-        inverse_spatial_metric,
+        inv_spatial_metric,
         face_mesh_velocity,
         normal_covector,
         normal_vector,

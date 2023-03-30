@@ -11,6 +11,7 @@
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/BoundaryCondition.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/BoundaryCorrection.hpp"
+#include "Evolution/Systems/ScalarTensor/Characteristics.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -26,7 +27,7 @@ struct TimeDerivativeTerms;
 struct System {
   using boundary_conditions_base = BoundaryConditions::BoundaryCondition;
   using boundary_correction_base = BoundaryCorrections::BoundaryCorrection;
-  static constexpr bool has_primitive_and_conservative_vars = true;
+  static constexpr bool has_primitive_and_conservative_vars = false;
   static constexpr size_t volume_dim = 3;
 
   using gh_system = GeneralizedHarmonic::System<3_st>;
@@ -55,6 +56,9 @@ struct System {
       ::Tags::Variables<scalar_system::spacetime_tag_list>;
 
   using compute_volume_time_derivative_terms = TimeDerivativeTerms;
+
+  using compute_largest_characteristic_speed =
+      Tags::ComputeLargestCharacteristicSpeed<>;
 };
 
 } // namespace ScalarTensor

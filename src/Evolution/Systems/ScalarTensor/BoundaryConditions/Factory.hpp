@@ -57,7 +57,7 @@ using standard_boundary_conditions = tmpl::push_back<
                 standard_boundary_conditions<3_st>>,
         detail::remove_periodic_conditions_t<
             typename CurvedScalarWave::BoundaryConditions::
-                standard_boundary_conditions>>::type,
+                standard_boundary_conditions<3_st>>>::type,
     domain::BoundaryConditions::Periodic<BoundaryCondition>>;
 
 }  // namespace ScalarTensor::BoundaryConditions

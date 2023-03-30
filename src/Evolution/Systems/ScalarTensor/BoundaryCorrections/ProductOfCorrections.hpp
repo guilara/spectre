@@ -105,51 +105,51 @@ class ProductOfCorrections final : public BoundaryCorrection {
 
   double dg_package_data(
       // GH packaged fields
-      gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::aa<DataVector, 3_st, Frame::Inertial>*>
           packaged_char_speed_v_spacetime_metric,
-      gsl::not_null<tnsr::iaa<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::iaa<DataVector, 3_st, Frame::Inertial>*>
           packaged_char_speed_v_zero,
-      gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::aa<DataVector, 3_st, Frame::Inertial>*>
           packaged_char_speed_v_plus,
-      gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::aa<DataVector, 3_st, Frame::Inertial>*>
           packaged_char_speed_v_minus,
-      gsl::not_null<tnsr::iaa<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::iaa<DataVector, 3_st, Frame::Inertial>*>
           packaged_char_speed_n_times_v_plus,
-      gsl::not_null<tnsr::iaa<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::iaa<DataVector, 3_st, Frame::Inertial>*>
           packaged_char_speed_n_times_v_minus,
-      gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::aa<DataVector, 3_st, Frame::Inertial>*>
           packaged_char_speed_gamma2_v_spacetime_metric,
       gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*>
           packaged_char_speeds,
       // Scalar packaged fields
       gsl::not_null<Scalar<DataVector>*> packaged_v_psi_scalar,
-      gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*>
           packaged_v_zero_scalar,
       gsl::not_null<Scalar<DataVector>*> packaged_v_plus_scalar,
       gsl::not_null<Scalar<DataVector>*> packaged_v_minus_scalar,
       gsl::not_null<Scalar<DataVector>*> packaged_gamma2_scalar,
-      gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*>
           packaged_interface_unit_normal_scalar,
       gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*>
           packaged_char_speeds_scalar,
       // GH variables
-      const tnsr::aa<DataVector, Dim, Frame::Inertial>& spacetime_metric,
-      const tnsr::aa<DataVector, Dim, Frame::Inertial>& pi,
-      const tnsr::iaa<DataVector, Dim, Frame::Inertial>& phi,
+      const tnsr::aa<DataVector, 3_st, Frame::Inertial>& spacetime_metric,
+      const tnsr::aa<DataVector, 3_st, Frame::Inertial>& pi,
+      const tnsr::iaa<DataVector, 3_st, Frame::Inertial>& phi,
       // Scalar variables
       const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>& pi_scalar,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>& phi_scalar,
+      const tnsr::i<DataVector, 3_st, Frame::Inertial>& phi_scalar,
       // GH fluxes
       // Scalar fluxes
       // GH temporaries
       const Scalar<DataVector>& constraint_gamma1,
       const Scalar<DataVector>& constraint_gamma2,
       const Scalar<DataVector>& lapse,
-      const tnsr::I<DataVector, Dim, Frame::Inertial>& shift,
+      const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
       // Scalar temporaries (without repeating tags)
       // const Scalar<DataVector>& lapse,
       // const tnsr::I<DataVector, Dim, Frame::Inertial>& shift,
-      const tnsr::II<DataVector, Dim, Frame::Inertial>& inverse_spatial_metric,
+      const tnsr::II<DataVector, 3_st, Frame::Inertial>& inverse_spatial_metric,
       const Scalar<DataVector>& constraint_gamma1_scalar,
       const Scalar<DataVector>& constraint_gamma2_scalar,
       // Mesh variables
@@ -218,59 +218,59 @@ class ProductOfCorrections final : public BoundaryCorrection {
 
   void dg_boundary_terms(
       // GH boundary corrections
-      gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::aa<DataVector, 3_st, Frame::Inertial>*>
           boundary_correction_spacetime_metric,
-      gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::aa<DataVector, 3_st, Frame::Inertial>*>
           boundary_correction_pi,
-      gsl::not_null<tnsr::iaa<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::iaa<DataVector, 3_st, Frame::Inertial>*>
           boundary_correction_phi,
       // Scalar boundary corrections
       gsl::not_null<Scalar<DataVector>*> psi_boundary_correction_scalar,
       gsl::not_null<Scalar<DataVector>*> pi_boundary_correction_scalar,
-      gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*>
           phi_boundary_correction_scalar,
       // GH internal packages field tags
-      const tnsr::aa<DataVector, Dim, Frame::Inertial>&
+      const tnsr::aa<DataVector, 3_st, Frame::Inertial>&
           char_speed_v_spacetime_metric_int,
-      const tnsr::iaa<DataVector, Dim, Frame::Inertial>& char_speed_v_zero_int,
-      const tnsr::aa<DataVector, Dim, Frame::Inertial>& char_speed_v_plus_int,
-      const tnsr::aa<DataVector, Dim, Frame::Inertial>& char_speed_v_minus_int,
-      const tnsr::iaa<DataVector, Dim, Frame::Inertial>&
+      const tnsr::iaa<DataVector, 3_st, Frame::Inertial>& char_speed_v_zero_int,
+      const tnsr::aa<DataVector, 3_st, Frame::Inertial>& char_speed_v_plus_int,
+      const tnsr::aa<DataVector, 3_st, Frame::Inertial>& char_speed_v_minus_int,
+      const tnsr::iaa<DataVector, 3_st, Frame::Inertial>&
           char_speed_normal_times_v_plus_int,
-      const tnsr::iaa<DataVector, Dim, Frame::Inertial>&
+      const tnsr::iaa<DataVector, 3_st, Frame::Inertial>&
           char_speed_normal_times_v_minus_int,
-      const tnsr::aa<DataVector, Dim, Frame::Inertial>&
+      const tnsr::aa<DataVector, 3_st, Frame::Inertial>&
           char_speed_constraint_gamma2_v_spacetime_metric_int,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int,
       // Scalar internal packaged field tags
       const Scalar<DataVector>& v_psi_int_scalar,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>& v_zero_int_scalar,
+      const tnsr::i<DataVector, 3_st, Frame::Inertial>& v_zero_int_scalar,
       const Scalar<DataVector>& v_plus_int_scalar,
       const Scalar<DataVector>& v_minus_int_scalar,
       const Scalar<DataVector>& gamma2_int_scalar,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>&
+      const tnsr::i<DataVector, 3_st, Frame::Inertial>&
           interface_unit_normal_int_scalar,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int_scalar,
       // GH external packaged fields
-      const tnsr::aa<DataVector, Dim, Frame::Inertial>&
+      const tnsr::aa<DataVector, 3_st, Frame::Inertial>&
           char_speed_v_spacetime_metric_ext,
-      const tnsr::iaa<DataVector, Dim, Frame::Inertial>& char_speed_v_zero_ext,
-      const tnsr::aa<DataVector, Dim, Frame::Inertial>& char_speed_v_plus_ext,
-      const tnsr::aa<DataVector, Dim, Frame::Inertial>& char_speed_v_minus_ext,
-      const tnsr::iaa<DataVector, Dim, Frame::Inertial>&
+      const tnsr::iaa<DataVector, 3_st, Frame::Inertial>& char_speed_v_zero_ext,
+      const tnsr::aa<DataVector, 3_st, Frame::Inertial>& char_speed_v_plus_ext,
+      const tnsr::aa<DataVector, 3_st, Frame::Inertial>& char_speed_v_minus_ext,
+      const tnsr::iaa<DataVector, 3_st, Frame::Inertial>&
           char_speed_normal_times_v_plus_ext,
-      const tnsr::iaa<DataVector, Dim, Frame::Inertial>&
+      const tnsr::iaa<DataVector, 3_st, Frame::Inertial>&
           char_speed_normal_times_v_minus_ext,
-      const tnsr::aa<DataVector, Dim, Frame::Inertial>&
+      const tnsr::aa<DataVector, 3_st, Frame::Inertial>&
           char_speed_constraint_gamma2_v_spacetime_metric_ext,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext,
       // Scalar external packaged fields
       const Scalar<DataVector>& v_psi_ext_scalar,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>& v_zero_ext_scalar,
+      const tnsr::i<DataVector, 3_st, Frame::Inertial>& v_zero_ext_scalar,
       const Scalar<DataVector>& v_plus_ext_scalar,
       const Scalar<DataVector>& v_minus_ext_scalar,
       const Scalar<DataVector>& gamma2_ext_scalar,
-      const tnsr::i<DataVector, Dim, Frame::Inertial>&
+      const tnsr::i<DataVector, 3_st, Frame::Inertial>&
           interface_unit_normal_ext_scalar,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext_scalar,
       // DG formulation
