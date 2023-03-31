@@ -30,7 +30,9 @@ namespace ScalarTensor::Solutions {
 /*!
  * \brief Set the scalar variables to zero on Minkowski space.
  */
-class MinkowskiZeroScalar : public evolution::initial_data::InitialData,
+class MinkowskiZeroScalar : /* public evolution::initial_data::InitialData, */
+                            /* Why does it work with `virtual`? */
+                            public virtual evolution::initial_data::InitialData,
                             public AnalyticSolution,
                             public MarkAsAnalyticSolution {
  public:
