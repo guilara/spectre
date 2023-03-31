@@ -42,7 +42,7 @@ tuples::TaggedTuple<CurvedScalarWave::Tags::Psi>
 MinkowskiZeroScalar::variables(
     const tnsr::I<DataType, 3>& x, double /*t*/,
     tmpl::list<CurvedScalarWave::Tags::Psi> /*meta*/) const {
-  return {make_with_value<Scalar<DataType>>(x, 0.0)};
+  return {make_with_value<Scalar<DataType>>(x, amplitude_)};
 }
 
 template <typename DataType>
