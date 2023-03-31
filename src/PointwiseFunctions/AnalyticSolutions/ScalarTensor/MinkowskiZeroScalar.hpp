@@ -31,13 +31,21 @@ namespace ScalarTensor::Solutions {
  * \brief Set the scalar variables to zero on Minkowski space.
  */
 class MinkowskiZeroScalar : public evolution::initial_data::InitialData,
-                   public AnalyticSolution,
-                   public MarkAsAnalyticSolution {
+                            public AnalyticSolution,
+                            public MarkAsAnalyticSolution {
  public:
- // No option tags here.
 
+  /// The amplitude of the scalar field
+  struct Amplitude {
+    using type = double;
+    static constexpr Options::String help = {
+        "The constant pressure throughout the fluid."};
+  };
+
+  using options = tmpl::list<Amplitude>;
   static constexpr Options::String help = {
       "Zero scalar field in Minkowski space."};
+
   MinkowskiZeroScalar() = default;
   MinkowskiZeroScalar(const MinkowskiZeroScalar& /*rhs*/) = default;
   MinkowskiZeroScalar& operator=(const MinkowskiZeroScalar& /*rhs*/) = default;
@@ -45,7 +53,7 @@ class MinkowskiZeroScalar : public evolution::initial_data::InitialData,
   MinkowskiZeroScalar& operator=(MinkowskiZeroScalar&& /*rhs*/) = default;
   ~MinkowskiZeroScalar() override = default;
 
-//   MinkowskiZeroScalar(/* Option tags */);
+  MinkowskiZeroScalar(double amplitude);
 
   auto get_clone() const
       -> std::unique_ptr<evolution::initial_data::InitialData> override;
@@ -59,25 +67,19 @@ class MinkowskiZeroScalar : public evolution::initial_data::InitialData,
   /// @{
   /// Retrieve scalar variable at `(x, t)`
   template <typename DataType>
-  tuples::TaggedTuple<CurvedScalarWave::Tags::Psi> variables(
-      const tnsr::I<DataType, 3>& x, double /*t*/,
-      tmpl::list<CurvedScalarWave::Tags::Psi> /*meta*/) const {
-    return {make_with_value<Scalar<DataType>>(x, 0.0)};
-  }
+  auto variables(const tnsr::I<DataType, 3>& x, double t,
+                 tmpl::list<CurvedScalarWave::Tags::Psi> /*meta*/) const
+      -> tuples::TaggedTuple<CurvedScalarWave::Tags::Psi>;
 
   template <typename DataType>
-  tuples::TaggedTuple<CurvedScalarWave::Tags::Phi<3_st>> variables(
-      const tnsr::I<DataType, 3>& x, double /*t*/,
-      tmpl::list<CurvedScalarWave::Tags::Phi<3_st>> /*meta*/) const {
-    return {make_with_value<tnsr::i<DataType, 3>>(x, 0.0)};
-  }
+  auto variables(const tnsr::I<DataType, 3>& x, double t,
+                 tmpl::list<CurvedScalarWave::Tags::Phi<3_st>> /*meta*/) const
+      -> tuples::TaggedTuple<CurvedScalarWave::Tags::Phi<3_st>>;
 
   template <typename DataType>
-  tuples::TaggedTuple<CurvedScalarWave::Tags::Pi> variables(
-      const tnsr::I<DataType, 3>& x, double /*t*/,
-      tmpl::list<CurvedScalarWave::Tags::Pi> /*meta*/) const {
-    return {make_with_value<Scalar<DataType>>(x, 0.0)};
-  }
+  auto variables(const tnsr::I<DataType, 3>& x, double t,
+                 tmpl::list<CurvedScalarWave::Tags::Pi> /*meta*/) const
+      -> tuples::TaggedTuple<CurvedScalarWave::Tags::Pi>;
   /// @}
 
   /// Retrieve a collection of scalar variables at `(x, t)`
@@ -105,6 +107,7 @@ class MinkowskiZeroScalar : public evolution::initial_data::InitialData,
   friend bool operator==(const MinkowskiZeroScalar& lhs,
                          const MinkowskiZeroScalar& rhs);
 
+  double amplitude_ = std::numeric_limits<double>::signaling_NaN();
   gr::Solutions::Minkowski<3> background_spacetime_{};
 };
 

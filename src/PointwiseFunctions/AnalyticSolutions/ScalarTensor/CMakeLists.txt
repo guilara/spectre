@@ -26,5 +26,6 @@ target_link_libraries(
   ErrorHandling
   GeneralRelativitySolutions
   CurvedScalarWave
+  InitialDataUtilities
   Options
   )
