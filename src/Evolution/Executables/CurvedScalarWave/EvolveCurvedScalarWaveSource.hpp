@@ -218,14 +218,19 @@ struct EvolutionMetavars {
           ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
           ::Frame::Inertial>,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
-                                                   ::Frame::Inertial>>;
+                                                   ::Frame::Inertial>,
+      CurvedScalarWave::Tags::PsiSquaredCompute,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<
+          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
 
   using scalar_charge_surface_obs_tags = tmpl::list<
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
           ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
           ::Frame::Inertial>,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
-                                                   ::Frame::Inertial>>;
+                                                   ::Frame::Inertial>,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<
+          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
 
   struct SphericalSurface
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
