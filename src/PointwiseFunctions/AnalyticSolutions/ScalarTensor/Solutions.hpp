@@ -5,6 +5,7 @@
 
 #include <cstddef>
 
+#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Solutions.hpp"
 
 namespace ScalarTensor {
@@ -14,7 +15,12 @@ struct AnalyticSolution {
 
   template <typename DataType>
   using tags = tmpl::push_back<
-      typename gr::AnalyticSolution<3>::template tags<DataType>>;
+      typename gr::AnalyticSolution<3>::template tags<DataType>,
+      // Add scalar variables here
+      CurvedScalarWave::Tags::Psi,
+      CurvedScalarWave::Tags::Pi,
+      CurvedScalarWave::Tags::Phi<3_st>
+      >;
 };
 
 /*!
