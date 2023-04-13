@@ -5,8 +5,13 @@
 
 #include <cstddef>
 
+#include "DataStructures/DataBox/Tag.hpp"
+#include "DataStructures/DataVector.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/Gsl.hpp"
+#include "Utilities/TMPL.hpp"
 
 namespace GeneralizedHarmonic {
 /// @{
@@ -76,4 +81,35 @@ void trace_christoffel(
     const tnsr::aa<DataType, SpatialDim, Frame>& pi,
     const tnsr::iaa<DataType, SpatialDim, Frame>& phi);
 /// @}
+
+namespace Tags {
+template <size_t SpatialDim, typename Frame>
+struct TraceSpatialChristoffelSecondKindCompute
+    : gr::Tags::TraceSpatialChristoffelSecondKind<SpatialDim, Frame,
+                                                  DataVector>,
+      db::ComputeTag {
+  using argument_tags = tmpl::list<
+      gr::Tags::SpacetimeNormalOneForm<SpatialDim, Frame, DataVector>,
+      gr::Tags::SpacetimeNormalVector<SpatialDim, Frame, DataVector>,
+      gr::Tags::InverseSpatialMetric<SpatialDim, Frame, DataVector>,
+      gr::Tags::InverseSpacetimeMetric<SpatialDim, Frame, DataVector>,
+      Pi<SpatialDim, Frame>, Phi<SpatialDim, Frame>>;
+
+  using return_type = tnsr::I<DataVector, SpatialDim, Frame>;
+
+  static constexpr auto function = static_cast<void (*)(
+      gsl::not_null<tnsr::a<DataVector, SpatialDim, Frame>*>,
+      const tnsr::a<DataVector, SpatialDim, Frame>&,
+      const tnsr::A<DataVector, SpatialDim, Frame>&,
+      const tnsr::II<DataVector, SpatialDim, Frame>&,
+      const tnsr::AA<DataVector, SpatialDim, Frame>&,
+      const tnsr::aa<DataVector, SpatialDim, Frame>&,
+      const tnsr::iaa<DataVector, SpatialDim, Frame>&)>(
+      &trace_christoffel<SpatialDim, Frame, DataVector>);
+
+  using base = gr::Tags::TraceSpatialChristoffelSecondKind<SpatialDim, Frame,
+                                                           DataVector>;
+};
+} // namespace Tags
+
 }  // namespace GeneralizedHarmonic
