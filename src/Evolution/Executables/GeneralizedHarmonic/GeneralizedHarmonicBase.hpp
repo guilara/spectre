@@ -193,12 +193,90 @@ struct ObserverTags {
   using error_compute = Tags::ErrorsCompute<analytic_solution_fields>;
   using error_tags = db::wrap_tags_in<Tags::Error, analytic_solution_fields>;
 
+//   using observe_fields = tmpl::append<
+//       tmpl::push_back<
+//           analytic_solution_fields,
+//           GeneralizedHarmonic::Tags::GaugeH<volume_dim, Frame::Inertial>,
+//           GeneralizedHarmonic::Tags::SpacetimeDerivGaugeH<volume_dim,
+//                                                           Frame::Inertial>,
+//           gr::Tags::SpatialMetric<volume_dim, Frame::Inertial, DataVector>,
+//           gr::Tags::DetSpatialMetric<DataVector>,
+//           gr::Tags::InverseSpatialMetric<volume_dim, Frame::Inertial,
+//                                          DataVector>,
+//           gr::Tags::Shift<volume_dim, Frame::Inertial, DataVector>,
+//           gr::Tags::Lapse<DataVector>,
+//           gr::Tags::SqrtDetSpatialMetricCompute<volume_dim, Frame::Inertial,
+//                                                 DataVector>,
+//          gr::Tags::SpacetimeNormalOneFormCompute<volume_dim, Frame::Inertial,
+//                                                   DataVector>,
+//           gr::Tags::SpacetimeNormalVectorCompute<volume_dim, Frame::Inertial,
+//                                                  DataVector>,
+//          gr::Tags::InverseSpacetimeMetricCompute<volume_dim, Frame::Inertial,
+//                                                   DataVector>,
+
+//           GeneralizedHarmonic::Tags::GaugeConstraintCompute<volume_dim,
+//                                                             Frame::Inertial>,
+//           GeneralizedHarmonic::Tags::TwoIndexConstraintCompute<volume_dim,
+//                                                             Frame::Inertial>,
+//           GeneralizedHarmonic::Tags::ThreeIndexConstraintCompute<
+//               volume_dim, Frame::Inertial>,
+//           GeneralizedHarmonic::Tags::DerivSpatialMetricCompute<
+//               volume_dim, ::Frame::Inertial>,
+//           gr::Tags::SpatialChristoffelFirstKindCompute<
+//               volume_dim, ::Frame::Inertial, DataVector>,
+//           gr::Tags::SpatialChristoffelSecondKindCompute<
+//               volume_dim, ::Frame::Inertial, DataVector>,
+//           ::Tags::DerivTensorCompute<
+//               gr::Tags::SpatialChristoffelSecondKind<
+//                   volume_dim, ::Frame::Inertial, DataVector>,
+//            ::domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
+//                                               Frame::Inertial>>,
+//           gr::Tags::SpatialRicciCompute<volume_dim, ::Frame::Inertial,
+//                                         DataVector>,
+//           gr::Tags::SpatialRicciScalarCompute<volume_dim, ::Frame::Inertial,
+//                                               DataVector>,
+//           // following tags added to observe constraints
+//           ::Tags::PointwiseL2NormCompute<
+//               GeneralizedHarmonic::Tags::GaugeConstraint<volume_dim,
+//                                                          Frame::Inertial>>,
+//           ::Tags::PointwiseL2NormCompute<
+//               GeneralizedHarmonic::Tags::TwoIndexConstraint<volume_dim,
+//                                                            Frame::Inertial>>,
+//           ::Tags::PointwiseL2NormCompute<
+//               GeneralizedHarmonic::Tags::ThreeIndexConstraint<volume_dim,
+//                                                            Frame::Inertial>>,
+//           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
+//           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
+//       error_tags,
+//       // The 4-index constraint is only implemented in 3d
+//       tmpl::conditional_t<
+//           volume_dim == 3,
+//           tmpl::list<
+//               GeneralizedHarmonic::Tags::
+//                   FourIndexConstraintCompute<3, Frame::Inertial>,
+//            GeneralizedHarmonic::Tags::FConstraintCompute<3, Frame::Inertial>,
+//               ::Tags::PointwiseL2NormCompute<
+//                  GeneralizedHarmonic::Tags::FConstraint<3, Frame::Inertial>>,
+//               ::Tags::PointwiseL2NormCompute<
+//                   GeneralizedHarmonic::Tags::FourIndexConstraint<
+//                       3, Frame::Inertial>>,
+//               GeneralizedHarmonic::Tags::ConstraintEnergyCompute<
+//                   3, Frame::Inertial>,
+//               GeneralizedHarmonic::Tags::ExtrinsicCurvatureCompute<
+//                   3, Frame::Inertial>,
+//               ::Tags::DerivTensorCompute<
+//                   gr::Tags::ExtrinsicCurvature<3, Frame::Inertial>,
+//                   ::domain::Tags::InverseJacobian<
+//                       volume_dim, Frame::ElementLogical, Frame::Inertial>>,
+//               gr::Tags::WeylElectricCompute<3, Frame::Inertial, DataVector>,
+//               gr::Tags::Psi4RealCompute<Frame::Inertial>>,
+//           tmpl::list<>>>;
   using observe_fields = tmpl::append<
       tmpl::push_back<
           analytic_solution_fields,
-          GeneralizedHarmonic::Tags::GaugeH<volume_dim, Frame::Inertial>,
-          GeneralizedHarmonic::Tags::SpacetimeDerivGaugeH<volume_dim,
-                                                          Frame::Inertial>,
+        //   GeneralizedHarmonic::Tags::GaugeH<volume_dim, Frame::Inertial>,
+        //   GeneralizedHarmonic::Tags::SpacetimeDerivGaugeH<volume_dim,
+        //                                                   Frame::Inertial>,
           gr::Tags::SpatialMetric<volume_dim, Frame::Inertial, DataVector>,
           gr::Tags::DetSpatialMetric<DataVector>,
           gr::Tags::InverseSpatialMetric<volume_dim, Frame::Inertial,
@@ -252,24 +330,29 @@ struct ObserverTags {
       tmpl::conditional_t<
           volume_dim == 3,
           tmpl::list<
-              GeneralizedHarmonic::Tags::
-                  FourIndexConstraintCompute<3, Frame::Inertial>,
-              GeneralizedHarmonic::Tags::FConstraintCompute<3, Frame::Inertial>,
-              ::Tags::PointwiseL2NormCompute<
-                  GeneralizedHarmonic::Tags::FConstraint<3, Frame::Inertial>>,
-              ::Tags::PointwiseL2NormCompute<
-                  GeneralizedHarmonic::Tags::FourIndexConstraint<
-                      3, Frame::Inertial>>,
-              GeneralizedHarmonic::Tags::ConstraintEnergyCompute<
-                  3, Frame::Inertial>,
-              GeneralizedHarmonic::Tags::ExtrinsicCurvatureCompute<
-                  3, Frame::Inertial>,
-              ::Tags::DerivTensorCompute<
-                  gr::Tags::ExtrinsicCurvature<3, Frame::Inertial>,
-                  ::domain::Tags::InverseJacobian<
-                      volume_dim, Frame::ElementLogical, Frame::Inertial>>,
-              gr::Tags::WeylElectricCompute<3, Frame::Inertial, DataVector>,
-              gr::Tags::Psi4RealCompute<Frame::Inertial>>,
+            //   GeneralizedHarmonic::Tags::
+            //       FourIndexConstraintCompute<3, Frame::Inertial>,
+          //   GeneralizedHarmonic::Tags::FConstraintCompute<3, Frame::Inertial>
+            //   ,
+            //   ::Tags::PointwiseL2NormCompute<
+            //       GeneralizedHarmonic::Tags::FConstraint<3, Frame::Inertial>>
+                //   ,
+            //   ::Tags::PointwiseL2NormCompute<
+            //       GeneralizedHarmonic::Tags::FourIndexConstraint<
+            //           3, Frame::Inertial>>,
+            //   GeneralizedHarmonic::Tags::ConstraintEnergyCompute<
+            //       3, Frame::Inertial>,
+            //   GeneralizedHarmonic::Tags::ExtrinsicCurvatureCompute<
+            //       3, Frame::Inertial>
+            //       ,
+            //   ::Tags::DerivTensorCompute<
+            //       gr::Tags::ExtrinsicCurvature<3, Frame::Inertial>,
+            //       ::domain::Tags::InverseJacobian<
+            //           volume_dim, Frame::ElementLogical, Frame::Inertial>>
+                    //   ,
+            //   gr::Tags::WeylElectricCompute<3, Frame::Inertial, DataVector>,
+            //   gr::Tags::Psi4RealCompute<Frame::Inertial>
+              >,
           tmpl::list<>>>;
   using non_tensor_compute_tags = tmpl::list<
       ::Events::Tags::ObserverMeshCompute<volume_dim>,
@@ -375,25 +458,30 @@ struct GeneralizedHarmonicTemplateBase<
           volume_dim, system, AllStepChoosers, local_time_stepping>,
       tmpl::conditional_t<
           local_time_stepping,
-          tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<
-                         tmpl::list<evolution::dg::ApplyBoundaryCorrections<
-                             local_time_stepping, system, volume_dim, true>>>,
-                     evolution::dg::Actions::ApplyLtsBoundaryCorrections<
-                         system, volume_dim, false>>,
-          tmpl::list<
-              evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
-                  system, volume_dim, false>,
-              Actions::RecordTimeStepperData<system>,
-              evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<>>,
-              Actions::UpdateU<system>,
-              dg::Actions::Filter<
-                  Filters::Exponential<0>,
-                  tmpl::list<gr::Tags::SpacetimeMetric<
-                                 volume_dim, Frame::Inertial, DataVector>,
-                             GeneralizedHarmonic::Tags::Pi<volume_dim,
-                                                           Frame::Inertial>,
-                             GeneralizedHarmonic::Tags::Phi<
-                                 volume_dim, Frame::Inertial>>>>>>;
+          //   tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<
+          //                tmpl::list<evolution::dg::ApplyBoundaryCorrections<
+          //                      local_time_stepping, system, volume_dim,
+          //                      true>>>,
+          //              evolution::dg::Actions::ApplyLtsBoundaryCorrections<
+          //                  system, volume_dim, false>>,
+          tmpl::list<>,
+        //   tmpl::list<
+        //     evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
+        //           system, volume_dim, false>,
+        //       Actions::RecordTimeStepperData<system>,
+        //       evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<>>,
+        //       Actions::UpdateU<system>,
+        //       dg::Actions::Filter<
+        //           Filters::Exponential<0>,
+        //           tmpl::list<gr::Tags::SpacetimeMetric<
+        //                          volume_dim, Frame::Inertial, DataVector>,
+        //                      GeneralizedHarmonic::Tags::Pi<volume_dim,
+        //                                                    Frame::Inertial>,
+        //                      GeneralizedHarmonic::Tags::Phi<
+        //                          volume_dim, Frame::Inertial>>>>>
+          tmpl::list<>
+        >
+        >;
 
   using initialization_actions = tmpl::list<
       Initialization::Actions::InitializeItems<

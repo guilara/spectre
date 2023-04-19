@@ -62,15 +62,25 @@ struct EvolutionMetavars
               initialize_initial_data_dependent_quantities_actions>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeTimeStepperHistory,
-              SelfStart::self_start_procedure<step_actions, system>>,
+              SelfStart::self_start_procedure<
+            //   step_actions,
+              tmpl::list<>,
+              system>
+              >,
           Parallel::PhaseActions<Parallel::Phase::Register,
                                  tmpl::list<dg_registration_list,
-                                            Parallel::Actions::TerminatePhase>>,
+                                            Parallel::Actions::TerminatePhase>>
+                                            ,
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
-              tmpl::list<Actions::RunEventsAndTriggers, Actions::ChangeSlabSize,
-                         step_actions, Actions::AdvanceTime,
-                         PhaseControl::Actions::ExecutePhaseChange>>>>>;
+            //   tmpl::list<>
+              tmpl::list<Actions::RunEventsAndTriggers,
+                         Actions::ChangeSlabSize,
+                        //  step_actions,
+                         Actions::AdvanceTime,
+                         PhaseControl::Actions::ExecutePhaseChange>
+                         >
+                         >>>;
 
   template <typename ParallelComponent>
   struct registration_list {
