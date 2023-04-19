@@ -82,6 +82,9 @@ void trace_christoffel(
     const tnsr::iaa<DataType, SpatialDim, Frame>& phi);
 /// @}
 
+// We need the 'spatial' Christoffel trace from the GH variables,
+// not the 4-dim versions above. As in the
+// gr::Tag::TraceSpatialChristoffelSecondKind
 namespace Tags {
 template <size_t SpatialDim, typename Frame>
 struct TraceSpatialChristoffelSecondKindCompute
