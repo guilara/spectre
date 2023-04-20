@@ -42,20 +42,7 @@ struct EvolutionMetavars
                                  initialization_actions>,
           tmpl::conditional_t<
               UseNumericalInitialData,
-              tmpl::list<
-                  Parallel::PhaseActions<
-                      Parallel::Phase::RegisterWithElementDataReader,
-                      tmpl::list<
-                          importers::Actions::RegisterWithElementDataReader,
-                          Parallel::Actions::TerminatePhase>>,
-                  Parallel::PhaseActions<
-                      Parallel::Phase::ImportInitialData,
-                      tmpl::list<
-                          GeneralizedHarmonic::Actions::ReadNumericInitialData<
-                              evolution::OptionTags::NumericInitialData>,
-                          GeneralizedHarmonic::Actions::SetNumericInitialData<
-                              evolution::OptionTags::NumericInitialData>,
-                          Parallel::Actions::TerminatePhase>>>,
+              tmpl::list<>,
               tmpl::list<>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
@@ -93,7 +80,7 @@ struct EvolutionMetavars
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
       std::conditional_t<UseNumericalInitialData,
-                         importers::ElementDataReader<EvolutionMetavars>,
+                         tmpl::list<>,
                          tmpl::list<>>,
       gh_dg_element_array>>;
 
