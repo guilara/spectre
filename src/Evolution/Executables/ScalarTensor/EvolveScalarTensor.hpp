@@ -9,8 +9,8 @@
 #include "Domain/Creators/RegisterDerivedWithCharm.hpp"
 #include "Domain/Creators/TimeDependence/RegisterDerivedWithCharm.hpp"
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
-#include "Evolution/Executables/ScalarTensor/ScalarTensorBase.hpp"
-#include "Evolution/Systems/ScalarTensor/BoundaryCorrections/RegisterDerived.hpp"
+#include "Evolution/Executables/GeneralizedHarmonic/GeneralizedHarmonicBase.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/RegisterDerived.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/RegisterDerivedWithCharm.hpp"
 #include "Options/Options.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
@@ -21,17 +21,12 @@
 #include "Utilities/ErrorHandling/Error.hpp"
 #include "Utilities/ErrorHandling/FloatingPointExceptions.hpp"
 
-
-// template <size_t VolumeDim, bool UseNumericalInitialData>
-template <bool UseNumericalInitialData>
+template <size_t VolumeDim, bool UseNumericalInitialData>
 struct EvolutionMetavars
-    : public ScalarTensorTemplateBase<
-        //   EvolutionMetavars<VolumeDim, UseNumericalInitialData>> {
-        EvolutionMetavars<UseNumericalInitialData>> {
-//   using gh_base = ScalarTensorTemplateBase<
-//       EvolutionMetavars<VolumeDim, UseNumericalInitialData>>;
-  using gh_base = ScalarTensorTemplateBase<
-      EvolutionMetavars<UseNumericalInitialData>>;
+    : public GeneralizedHarmonicTemplateBase<
+          EvolutionMetavars<VolumeDim, UseNumericalInitialData>> {
+  using gh_base = GeneralizedHarmonicTemplateBase<
+      EvolutionMetavars<VolumeDim, UseNumericalInitialData>>;
   using typename gh_base::const_global_cache_tags;
   using typename gh_base::dg_registration_list;
   using typename gh_base::initialization_actions;
@@ -45,36 +40,24 @@ struct EvolutionMetavars
       tmpl::flatten<tmpl::list<
           Parallel::PhaseActions<Parallel::Phase::Initialization,
                                  initialization_actions>,
-          tmpl::conditional_t<
-              UseNumericalInitialData,
-              tmpl::list<
-                  Parallel::PhaseActions<
-                      Parallel::Phase::RegisterWithElementDataReader,
-                      tmpl::list<
-                          importers::Actions::RegisterWithElementDataReader,
-                          Parallel::Actions::TerminatePhase>>,
-                  Parallel::PhaseActions<
-                      Parallel::Phase::ImportInitialData,
-                      tmpl::list<
-                          GeneralizedHarmonic::Actions::ReadNumericInitialData<
-                              evolution::OptionTags::NumericInitialData>,
-                          GeneralizedHarmonic::Actions::SetNumericInitialData<
-                              evolution::OptionTags::NumericInitialData>,
-                          Parallel::Actions::TerminatePhase>>>,
-              tmpl::list<>>,
+          tmpl::conditional_t<UseNumericalInitialData, tmpl::list<>,
+                              tmpl::list<>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
               initialize_initial_data_dependent_quantities_actions>,
-          Parallel::PhaseActions<
-              Parallel::Phase::InitializeTimeStepperHistory,
-              SelfStart::self_start_procedure<step_actions, system>>,
+          Parallel::PhaseActions<Parallel::Phase::InitializeTimeStepperHistory,
+                                 SelfStart::self_start_procedure<
+                                     //   step_actions,
+                                     tmpl::list<>, system>>,
           Parallel::PhaseActions<Parallel::Phase::Register,
                                  tmpl::list<dg_registration_list,
                                             Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
+              //   tmpl::list<>
               tmpl::list<Actions::RunEventsAndTriggers, Actions::ChangeSlabSize,
-                         step_actions, Actions::AdvanceTime,
+                         //  step_actions,
+                         Actions::AdvanceTime,
                          PhaseControl::Actions::ExecutePhaseChange>>>>>;
 
   template <typename ParallelComponent>
@@ -87,14 +70,12 @@ struct EvolutionMetavars
   using component_list = tmpl::flatten<tmpl::list<
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
-      std::conditional_t<UseNumericalInitialData,
-                         importers::ElementDataReader<EvolutionMetavars>,
-                         tmpl::list<>>,
+      std::conditional_t<UseNumericalInitialData, tmpl::list<>, tmpl::list<>>,
       gh_dg_element_array>>;
 
   static constexpr Options::String help{
-        "Evolve the curved scalar wave system coupled to the Generalized "
-        "Harmonic formulation. \n"};
+      "Evolve the Einstein field equations using the Generalized Harmonic "
+      "formulation\n"};
 };
 
 static const std::vector<void (*)()> charm_init_node_funcs{
@@ -103,7 +84,7 @@ static const std::vector<void (*)()> charm_init_node_funcs{
     &disable_openblas_multithreading,
     &domain::creators::time_dependence::register_derived_with_charm,
     &domain::FunctionsOfTime::register_derived_with_charm,
-    &ScalarTensor::BoundaryCorrections::register_derived_with_charm,
+    &GeneralizedHarmonic::BoundaryCorrections::register_derived_with_charm,
     &domain::creators::register_derived_with_charm,
     &GeneralizedHarmonic::ConstraintDamping::register_derived_with_charm,
     &Parallel::register_factory_classes_with_charm<metavariables>};

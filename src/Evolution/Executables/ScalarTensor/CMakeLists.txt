@@ -1,56 +1,41 @@
 # Distributed under the MIT License.
 # See LICENSE.txt for details.
 
-function(add_scalartensor_executable INITIAL_DATA_NAME INITIAL_DATA LIBS_TO_LINK)
+function(add_scalar_tensor_executable_without_horizon
+    DIM LIBS_TO_LINK)
   add_spectre_parallel_executable(
-    "EvolveScalarTensor${INITIAL_DATA_NAME}"
+    "EvolveScalarTensor${DIM}D"
     EvolveScalarTensor
     Evolution/Executables/ScalarTensor
-    "EvolutionMetavars<${INITIAL_DATA}>"
+    "EvolutionMetavars<${DIM}, false>"
     "${LIBS_TO_LINK}"
     )
-endfunction(add_scalartensor_executable)
-
-# function(add_scalartensor_with_horizon_executable INITIAL_DATA_NAME INITIAL_DATA LIBS_TO_LINK)
-#   add_spectre_parallel_executable(
-#     "EvolveScalarTensor${INITIAL_DATA_NAME}"
-#     EvolveScalarTensorWithHorizon
-#     Evolution/Executables/ScalarTensor
-#     "EvolutionMetavars<${INITIAL_DATA}>"
-#     "${LIBS_TO_LINK}"
-#     )
-# endfunction(add_scalartensor_with_horizon_executable)
+endfunction(add_scalar_tensor_executable_without_horizon)
 
 set(LIBS_TO_LINK
   CoordinateMaps
-  CurvedScalarWave
   DiscontinuousGalerkin
+  Domain
   DomainCreators
   EventsAndDenseTriggers
   EventsAndTriggers
   Evolution
-  GeneralRelativitySolutions
+  GeneralRelativity
   GeneralizedHarmonic
-  ScalarTensor
   Informer
-  Limiters
+  Interpolation
   LinearOperators
   MathFunctions
   Observer
   Options
   Parallel
+  ParallelInterpolation
+  PhaseControl
   Time
   Utilities
   )
 
-add_scalartensor_executable(
-  Minksowski
-  GeneralizedHarmonic::Solutions::WrappedGr<gr::Solutions::Minkowski>
-  "${LIBS_TO_LINK}"
-  )
-
-# add_scalartensor_with_horizon_executable(
-#   BondiHoyleAccretion
-#   GeneralizedHarmonic::Solutions::WrappedGr<grmhd::AnalyticData::BondiHoyleAccretion>
-#   "${LIBS_TO_LINK}"
-#   )
+add_scalar_tensor_executable_without_horizon(
+  3
+  "${LIBS_TO_LINK};GeneralRelativitySolutions"
+)
