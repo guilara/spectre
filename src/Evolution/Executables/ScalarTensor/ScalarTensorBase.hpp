@@ -172,8 +172,10 @@ constexpr auto make_default_phase_order() {
   }
 }
 
-template <size_t volume_dim>
+template <size_t VolumeDim>
 struct ObserverTags {
+//   static constexpr size_t volume_dim = VolumeDim;
+  static constexpr size_t volume_dim = 3_st;
   using system = GeneralizedHarmonic::System<volume_dim>;
 
   using variables_tag = typename system::variables_tag;
@@ -216,8 +218,10 @@ struct ObserverTags {
                                      non_tensor_compute_tags>;
 };
 
-template <size_t volume_dim, bool LocalTimeStepping>
+template <size_t VolumeDim, bool LocalTimeStepping>
 struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
+//   static constexpr size_t volume_dim = VolumeDim;
+  static constexpr size_t volume_dim = 3_st;
   using system = GeneralizedHarmonic::System<volume_dim>;
 
   using factory_classes = tmpl::map<
@@ -260,9 +264,12 @@ template <template <size_t, bool> class EvolutionMetavarsDerived,
           size_t VolumeDim, bool UseNumericalInitialData>
 struct GeneralizedHarmonicTemplateBase<
     EvolutionMetavarsDerived<VolumeDim, UseNumericalInitialData>> {
+//   using derived_metavars =
+//       EvolutionMetavarsDerived<VolumeDim, UseNumericalInitialData>;
+//   static constexpr size_t volume_dim = VolumeDim;
   using derived_metavars =
-      EvolutionMetavarsDerived<VolumeDim, UseNumericalInitialData>;
-  static constexpr size_t volume_dim = VolumeDim;
+      EvolutionMetavarsDerived<3_st, UseNumericalInitialData>;
+  static constexpr size_t volume_dim = 3_st;
   using system = GeneralizedHarmonic::System<volume_dim>;
   static constexpr bool local_time_stepping = false;
 
@@ -300,8 +307,8 @@ struct GeneralizedHarmonicTemplateBase<
       detail::make_default_phase_order<UseNumericalInitialData>();
 
   using step_actions = tmpl::list<
-      evolution::dg::Actions::ComputeTimeDerivative<
-          volume_dim, system, AllStepChoosers, local_time_stepping>,
+    //   evolution::dg::Actions::ComputeTimeDerivative<
+    //       volume_dim, system, AllStepChoosers, local_time_stepping>,
       tmpl::conditional_t<
           local_time_stepping,
           //   tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<

@@ -24,9 +24,11 @@
 template <size_t VolumeDim, bool UseNumericalInitialData>
 struct EvolutionMetavars
     : public GeneralizedHarmonicTemplateBase<
-          EvolutionMetavars<VolumeDim, UseNumericalInitialData>> {
+          EvolutionMetavars<3_st, UseNumericalInitialData>> {
+//   using gh_base = GeneralizedHarmonicTemplateBase<
+//       EvolutionMetavars<VolumeDim, UseNumericalInitialData>>;
   using gh_base = GeneralizedHarmonicTemplateBase<
-      EvolutionMetavars<VolumeDim, UseNumericalInitialData>>;
+      EvolutionMetavars<3_st, UseNumericalInitialData>>;
   using typename gh_base::const_global_cache_tags;
   using typename gh_base::dg_registration_list;
   using typename gh_base::initialization_actions;
