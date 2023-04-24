@@ -45,6 +45,9 @@
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 //
+#include "Evolution/Systems/ScalarTensor/System.hpp"
+#include "Evolution/Systems/ScalarTensor/Tags.hpp"
+//
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 #include "Evolution/TypeTraits.hpp"
 #include "IO/Importers/Actions/RegisterWithElementDataReader.hpp"
@@ -278,6 +281,7 @@ struct ScalarTensorTemplateBase<
   static constexpr size_t volume_dim = 3_st;
   using system = GeneralizedHarmonic::System<volume_dim>;
 //   using system_scalar = CurvedScalarWave::System<volume_dim>;
+//   using system_combined = ScalarTensor::System<volume_dim>;
   static constexpr bool local_time_stepping = false;
 
   // NOLINTNEXTLINE(google-runtime-references)
