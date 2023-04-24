@@ -8,6 +8,9 @@
 #include "PointwiseFunctions/AnalyticData/GhGrMhd/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GhGrMhd/Factory.hpp"
+//
+#include "PointwiseFunctions/AnalyticSolutions/GhScalarTensor/Factory.hpp"
+//
 #include "PointwiseFunctions/AnalyticSolutions/GhRelativisticEuler/Factory.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -24,6 +27,9 @@ using solutions_including_matter = tmpl::append<
         tmpl::append<
             GeneralizedHarmonic::Solutions::RelativisticEuler::all_solutions,
             GeneralizedHarmonic::Solutions::grmhd::all_solutions,
-            GeneralizedHarmonic::AnalyticData::grmhd::all_analytic_data>,
+            GeneralizedHarmonic::AnalyticData::grmhd::all_analytic_data,
+            // This is needed for GeneralizedHarmonic::gauges::
+            // AnalyticChristoffel and maybe other gauge functions
+            GeneralizedHarmonic::Solutions::ScalarTensor::all_solutions>,
         tmpl::list<>>>;
 }  // namespace GeneralizedHarmonic
