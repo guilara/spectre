@@ -33,6 +33,12 @@ set(LIBS_TO_LINK
   PhaseControl
   Time
   Utilities
+  #
+  CurvedScalarWave
+  CurvedWaveEquationAnalyticData
+  ScalarTensor
+  ScalarTensorSolutions
+  GhScalarTensorSolutions
   )
 
 add_scalar_tensor_executable_without_horizon(

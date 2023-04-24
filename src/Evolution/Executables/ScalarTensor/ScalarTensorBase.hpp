@@ -104,6 +104,10 @@
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/SphericalKerrSchild.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
+//
+#include "PointwiseFunctions/AnalyticSolutions/GhScalarTensor/Factory.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
+//
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/ConstraintGammas.hpp"
@@ -188,9 +192,13 @@ struct ObserverTags {
   using variables_tag = typename system::variables_tag;
   using analytic_solution_fields = typename variables_tag::tags_list;
 
+//   using initial_data_list =
+//       GeneralizedHarmonic::Solutions::all_solutions<volume_dim>;
+//   using initial_data_list =
+//       tmpl::list<GeneralizedHarmonic::Solutions::WrappedGr<
+//           gr::Solutions::Minkowski<volume_dim>>>;
   using initial_data_list =
-      GeneralizedHarmonic::Solutions::all_solutions<volume_dim>;
-
+      GeneralizedHarmonic::Solutions::ScalarTensor::all_solutions;
   using analytic_compute = evolution::Tags::AnalyticSolutionsCompute<
       volume_dim, analytic_solution_fields, false, initial_data_list>;
   using deriv_compute = ::Tags::DerivCompute<
@@ -231,6 +239,13 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
   static constexpr size_t volume_dim = 3_st;
   using system = GeneralizedHarmonic::System<volume_dim>;
 
+//   using initial_data_list =
+//       GeneralizedHarmonic::Solutions::all_solutions<volume_dim>;
+//   using initial_data_list =
+//       tmpl::list<GeneralizedHarmonic::Solutions::WrappedGr<
+//           gr::Solutions::Minkowski<volume_dim>>>;
+  using initial_data_list =
+      GeneralizedHarmonic::Solutions::ScalarTensor::all_solutions;
   using factory_classes = tmpl::map<
       tmpl::pair<DenseTrigger, DenseTriggers::standard_dense_triggers>,
       tmpl::pair<DomainCreator<volume_dim>, domain_creators<volume_dim>>,
@@ -246,7 +261,9 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
       tmpl::pair<GeneralizedHarmonic::gauges::GaugeCondition,
                  GeneralizedHarmonic::gauges::all_gauges>,
       tmpl::pair<evolution::initial_data::InitialData,
-                 GeneralizedHarmonic::Solutions::all_solutions<volume_dim>>,
+                 //  GeneralizedHarmonic::Solutions::all_solutions<volume_dim>
+                 initial_data_list
+                 >,
       tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
       tmpl::pair<PhaseChange,
                  tmpl::list<PhaseControl::VisitAndReturn<
@@ -263,9 +280,7 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
                  TimeSequences::all_time_sequences<std::uint64_t>>,
       tmpl::pair<TimeStepper, TimeSteppers::time_steppers>,
       tmpl::pair<Trigger, tmpl::append<Triggers::logical_triggers,
-                                       Triggers::time_triggers>
-                                       >
-                                       >;
+                                       Triggers::time_triggers>>>;
 };
 }  // namespace detail
 
