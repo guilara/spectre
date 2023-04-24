@@ -254,9 +254,11 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
                  TimeSequences::all_time_sequences<double>>,
       tmpl::pair<TimeSequence<std::uint64_t>,
                  TimeSequences::all_time_sequences<std::uint64_t>>,
-      tmpl::pair<TimeStepper, TimeSteppers::time_steppers>,
+    //   tmpl::pair<TimeStepper, TimeSteppers::time_steppers>,
       tmpl::pair<Trigger, tmpl::append<Triggers::logical_triggers,
-                                       Triggers::time_triggers>>>;
+                                       Triggers::time_triggers>
+                                       >
+                                       >;
 };
 }  // namespace detail
 
@@ -336,9 +338,11 @@ struct GeneralizedHarmonicTemplateBase<
 
   using initialization_actions = tmpl::list<
       Initialization::Actions::InitializeItems<
-          Initialization::TimeStepping<derived_metavars, local_time_stepping>,
-          evolution::dg::Initialization::Domain<volume_dim>,
-          Initialization::TimeStepperHistory<derived_metavars>>,
+        // Initialization::TimeStepping<derived_metavars, local_time_stepping>,
+          evolution::dg::Initialization::Domain<volume_dim>
+        //   ,
+        //  Initialization::TimeStepperHistory<derived_metavars>
+          >,
       Initialization::Actions::NonconservativeSystem<system>,
       std::conditional_t<
           UseNumericalInitialData, tmpl::list<>,
