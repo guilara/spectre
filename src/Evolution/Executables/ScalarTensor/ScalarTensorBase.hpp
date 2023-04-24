@@ -48,7 +48,9 @@
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 //
+#include "Evolution/Systems/ScalarTensor/BoundaryCorrections/ProductOfCorrections.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
@@ -242,12 +244,13 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
 //   static constexpr size_t volume_dim = VolumeDim;
   static constexpr size_t volume_dim = 3_st;
   using system = GeneralizedHarmonic::System<volume_dim>;
+//   using system_scalar_tensor = ScalarTensor::System;
 
-//   using initial_data_list =
-//       GeneralizedHarmonic::Solutions::all_solutions<volume_dim>;
-//   using initial_data_list =
-//       tmpl::list<GeneralizedHarmonic::Solutions::WrappedGr<
-//           gr::Solutions::Minkowski<volume_dim>>>;
+  //   using initial_data_list =
+  //       GeneralizedHarmonic::Solutions::all_solutions<volume_dim>;
+  //   using initial_data_list =
+  //       tmpl::list<GeneralizedHarmonic::Solutions::WrappedGr<
+  //           gr::Solutions::Minkowski<volume_dim>>>;
   using initial_data_list =
       GeneralizedHarmonic::Solutions::ScalarTensor::all_solutions;
   using factory_classes = tmpl::map<
@@ -262,6 +265,11 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
                      volume_dim>,
                  GeneralizedHarmonic::BoundaryConditions::
                      standard_boundary_conditions<volume_dim>>,
+      //
+    //   tmpl::pair<ScalarTensor::BoundaryConditions::BoundaryCondition,
+    //              ScalarTensor::BoundaryConditions::
+    //                  standard_boundary_conditions>,
+      //
       tmpl::pair<GeneralizedHarmonic::gauges::GaugeCondition,
                  GeneralizedHarmonic::gauges::all_gauges>,
       tmpl::pair<evolution::initial_data::InitialData,

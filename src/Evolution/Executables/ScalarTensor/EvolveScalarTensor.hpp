@@ -14,6 +14,9 @@
 #include "Evolution/Executables/ScalarTensor/ScalarTensorBase.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/RegisterDerived.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/RegisterDerivedWithCharm.hpp"
+//
+#include "Evolution/Systems/ScalarTensor/BoundaryCorrections/RegisterDerived.hpp"
+//
 #include "Options/Options.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
 #include "Parallel/PhaseControl/PhaseControlTags.hpp"
