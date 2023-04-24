@@ -25,11 +25,11 @@
 
 template <size_t VolumeDim, bool UseNumericalInitialData>
 struct EvolutionMetavars
-    : public GeneralizedHarmonicTemplateBase<
+    : public ScalarTensorTemplateBase<
           EvolutionMetavars<3_st, UseNumericalInitialData>> {
 //   using gh_base = GeneralizedHarmonicTemplateBase<
 //       EvolutionMetavars<VolumeDim, UseNumericalInitialData>>;
-  using gh_base = GeneralizedHarmonicTemplateBase<
+  using gh_base = ScalarTensorTemplateBase<
       EvolutionMetavars<3_st, UseNumericalInitialData>>;
   using typename gh_base::const_global_cache_tags;
   using typename gh_base::dg_registration_list;
@@ -59,10 +59,17 @@ struct EvolutionMetavars
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
               //   tmpl::list<>
-              tmpl::list<Actions::RunEventsAndTriggers, Actions::ChangeSlabSize,
+              tmpl::list<
+                         Actions::RunEventsAndTriggers,
+                         Actions::ChangeSlabSize,
                          //  step_actions,
                          Actions::AdvanceTime,
-                         PhaseControl::Actions::ExecutePhaseChange>>>>>;
+                         PhaseControl::Actions::ExecutePhaseChange
+                         >
+                         >
+                         >
+                         >
+                         >;
 
   template <typename ParallelComponent>
   struct registration_list {

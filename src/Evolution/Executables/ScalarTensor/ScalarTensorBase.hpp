@@ -41,6 +41,10 @@
 #include "Evolution/Systems/GeneralizedHarmonic/GaugeSourceFunctions/Tags/GaugeCondition.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Initialize.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
+//
+#include "Evolution/Systems/CurvedScalarWave/System.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+//
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 #include "Evolution/TypeTraits.hpp"
 #include "IO/Importers/Actions/RegisterWithElementDataReader.hpp"
@@ -145,7 +149,7 @@ class CProxy_GlobalCache;
 /// \endcond
 
 template <typename EvolutionMetavarsDerived>
-struct GeneralizedHarmonicTemplateBase;
+struct ScalarTensorTemplateBase;
 
 namespace detail {
 template <bool UseNumericalInitialData>
@@ -264,7 +268,7 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
 
 template <template <size_t, bool> class EvolutionMetavarsDerived,
           size_t VolumeDim, bool UseNumericalInitialData>
-struct GeneralizedHarmonicTemplateBase<
+struct ScalarTensorTemplateBase<
     EvolutionMetavarsDerived<VolumeDim, UseNumericalInitialData>> {
 //   using derived_metavars =
 //       EvolutionMetavarsDerived<VolumeDim, UseNumericalInitialData>;
@@ -273,6 +277,7 @@ struct GeneralizedHarmonicTemplateBase<
       EvolutionMetavarsDerived<3_st, UseNumericalInitialData>;
   static constexpr size_t volume_dim = 3_st;
   using system = GeneralizedHarmonic::System<volume_dim>;
+//   using system_scalar = CurvedScalarWave::System<volume_dim>;
   static constexpr bool local_time_stepping = false;
 
   // NOLINTNEXTLINE(google-runtime-references)
@@ -344,6 +349,9 @@ struct GeneralizedHarmonicTemplateBase<
          Initialization::TimeStepperHistory<derived_metavars>
           >,
       Initialization::Actions::NonconservativeSystem<system>,
+      //
+    //   Initialization::Actions::NonconservativeSystem<system_scalar>,
+      //
       std::conditional_t<
           UseNumericalInitialData, tmpl::list<>,
           evolution::Initialization::Actions::SetVariables<
@@ -356,7 +364,7 @@ struct GeneralizedHarmonicTemplateBase<
       GeneralizedHarmonic::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
       Initialization::Actions::AddComputeTags<
           tmpl::push_back<StepChoosers::step_chooser_compute_tags<
-              GeneralizedHarmonicTemplateBase, local_time_stepping>>>,
+              ScalarTensorTemplateBase, local_time_stepping>>>,
       ::evolution::dg::Initialization::Mortars<volume_dim, system>,
       evolution::Actions::InitializeRunEventsAndDenseTriggers,
       Parallel::Actions::TerminatePhase>;
