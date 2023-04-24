@@ -29,17 +29,17 @@ struct EvolutionMetavars
           EvolutionMetavars<3_st, UseNumericalInitialData>> {
 //   using gh_base = GeneralizedHarmonicTemplateBase<
 //       EvolutionMetavars<VolumeDim, UseNumericalInitialData>>;
-  using gh_base = ScalarTensorTemplateBase<
+  using st_base = ScalarTensorTemplateBase<
       EvolutionMetavars<3_st, UseNumericalInitialData>>;
-  using typename gh_base::const_global_cache_tags;
-  using typename gh_base::dg_registration_list;
-  using typename gh_base::initialization_actions;
-  using typename gh_base::initialize_initial_data_dependent_quantities_actions;
-  using typename gh_base::observed_reduction_data_tags;
-  using typename gh_base::step_actions;
-  using typename gh_base::system;
+  using typename st_base::const_global_cache_tags;
+  using typename st_base::dg_registration_list;
+  using typename st_base::initialization_actions;
+  using typename st_base::initialize_initial_data_dependent_quantities_actions;
+  using typename st_base::observed_reduction_data_tags;
+  using typename st_base::step_actions;
+  using typename st_base::system;
 
-  using gh_dg_element_array = DgElementArray<
+  using st_dg_element_array = DgElementArray<
       EvolutionMetavars,
       tmpl::flatten<tmpl::list<
           Parallel::PhaseActions<Parallel::Phase::Initialization,
@@ -74,7 +74,7 @@ struct EvolutionMetavars
   template <typename ParallelComponent>
   struct registration_list {
     using type = std::conditional_t<
-        std::is_same_v<ParallelComponent, gh_dg_element_array>,
+        std::is_same_v<ParallelComponent, st_dg_element_array>,
         dg_registration_list, tmpl::list<>>;
   };
 
@@ -82,11 +82,11 @@ struct EvolutionMetavars
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
       std::conditional_t<UseNumericalInitialData, tmpl::list<>, tmpl::list<>>,
-      gh_dg_element_array>>;
+      st_dg_element_array>>;
 
   static constexpr Options::String help{
-      "Evolve the Einstein field equations using the Generalized Harmonic "
-      "formulation\n"};
+      "Evolve the Einstein field equations in GH gauge coupled to a scalar "
+      "field \n"};
 };
 
 static const std::vector<void (*)()> charm_init_node_funcs{

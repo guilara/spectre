@@ -41,14 +41,18 @@
 #include "Evolution/Systems/GeneralizedHarmonic/GaugeSourceFunctions/Tags/GaugeCondition.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Initialize.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 //
+#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 //
+#include "Evolution/Systems/ScalarTensor/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 //
-#include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 #include "Evolution/TypeTraits.hpp"
 #include "IO/Importers/Actions/RegisterWithElementDataReader.hpp"
 #include "IO/Importers/ElementDataReader.hpp"
@@ -141,8 +145,8 @@
 #include "Utilities/ProtocolHelpers.hpp"
 #include "Utilities/TMPL.hpp"
 
-/// \cond
-namespace Frame {
+    /// \cond
+    namespace Frame {
 // IWYU pragma: no_forward_declare MathFunction
 struct Inertial;
 }  // namespace Frame
