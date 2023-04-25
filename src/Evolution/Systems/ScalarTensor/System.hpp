@@ -58,7 +58,8 @@ struct System {
       ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3_st>,
                     Frame::Inertial>,
       ::Tags::deriv<gr::Tags::Shift<3_st, Frame::Inertial, DataVector>,
-                    tmpl::size_t<3_st>, Frame::Inertial>
+                    tmpl::size_t<3_st>, Frame::Inertial>,
+      gr::Tags::ExtrinsicCurvature<3_st, Frame::Inertial, DataVector>
       // Need to check compatibility of the following tags with WrappedGr
       /*,
       gr::Tags::TraceSpatialChristoffelSecondKind<3_st, Frame::Inertial,
