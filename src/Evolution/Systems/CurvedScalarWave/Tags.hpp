@@ -26,6 +26,7 @@ namespace CurvedScalarWave::Tags {
  */
 struct Psi : db::SimpleTag {
   using type = Scalar<DataVector>;
+  static std::string name() { return "Psi(CurvedScalarWave)"; }
 };
 
 /*!
@@ -45,6 +46,7 @@ struct Psi : db::SimpleTag {
  */
 struct Pi : db::SimpleTag {
   using type = Scalar<DataVector>;
+  static std::string name() { return "Pi(CurvedScalarWave)"; }
 };
 
 /*!
@@ -56,6 +58,7 @@ struct Pi : db::SimpleTag {
 template <size_t SpatialDim>
 struct Phi : db::SimpleTag {
   using type = tnsr::i<DataVector, SpatialDim>;
+  static std::string name() {return "Phi(CurvedScalarWave)";}
 };
 
 struct ConstraintGamma1 : db::SimpleTag {
