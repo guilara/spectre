@@ -39,5 +39,5 @@ target_link_libraries(
   Parallel
   )
 
-# add_subdirectory(BoundaryConditions)
-# add_subdirectory(BoundaryCorrections)
+add_subdirectory(BoundaryConditions)
+add_subdirectory(BoundaryCorrections)
