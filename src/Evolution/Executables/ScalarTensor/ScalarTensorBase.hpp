@@ -55,6 +55,8 @@
 #include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 //
+#include "Evolution/Initialization/GrTagsForHydro.hpp"
+//
 #include "Evolution/TypeTraits.hpp"
 #include "IO/Importers/Actions/RegisterWithElementDataReader.hpp"
 #include "IO/Importers/ElementDataReader.hpp"
@@ -346,10 +348,12 @@ struct ScalarTensorTemplateBase<
       observers::collect_reduction_data_tags<tmpl::push_back<
           tmpl::at<typename factory_creation::factory_classes, Event>>>;
 
-  using initialize_initial_data_dependent_quantities_actions =
-      tmpl::list<Actions::MutateApply<
-                     GeneralizedHarmonic::gauges::SetPiFromGauge<volume_dim>>,
-                 Parallel::Actions::TerminatePhase>;
+  using initialize_initial_data_dependent_quantities_actions = tmpl::list<
+      GeneralizedHarmonic::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
+      Actions::MutateApply<
+          GeneralizedHarmonic::gauges::SetPiFromGauge<volume_dim>>,
+      Initialization::Actions::GrTagsForHydro<system>,
+      Parallel::Actions::TerminatePhase>;
 
   // A tmpl::list of tags to be added to the GlobalCache by the
   // metavariables
@@ -417,7 +421,7 @@ struct ScalarTensorTemplateBase<
           domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
                                         Frame::Inertial>,
           typename system::gradient_variables>>,
-      GeneralizedHarmonic::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
+    // GeneralizedHarmonic::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
       Initialization::Actions::AddComputeTags<
           tmpl::push_back<StepChoosers::step_chooser_compute_tags<
               ScalarTensorTemplateBase, local_time_stepping>>>,
