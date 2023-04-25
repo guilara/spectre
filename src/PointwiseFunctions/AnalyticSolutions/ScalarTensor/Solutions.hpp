@@ -20,6 +20,13 @@ struct AnalyticSolution {
       CurvedScalarWave::Tags::Psi,
       CurvedScalarWave::Tags::Pi,
       CurvedScalarWave::Tags::Phi<3_st>
+      // We can add the gr tags required by CurvedScalarWave here
+      // or in the tags for each individual solution
+      // gr::Tags::DerivDetSpatialMetric<3_st, Frame, DataType>,
+      // gr::Tags::TraceExtrinsicCurvature<DataType>,
+      // gr::Tags::SpatialChristoffelFirstKind<3_st, Frame, DataType>,
+      // gr::Tags::SpatialChristoffelSecondKind<3_st, Frame, DataType>,
+      // gr::Tags::TraceSpatialChristoffelSecondKind<3_st, Frame, DataType>
       >;
 };
 

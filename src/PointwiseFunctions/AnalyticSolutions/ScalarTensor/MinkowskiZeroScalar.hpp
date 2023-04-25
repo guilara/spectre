@@ -66,6 +66,17 @@ class MinkowskiZeroScalar : /* public evolution::initial_data::InitialData, */
   WRAPPED_PUPable_decl_template(MinkowskiZeroScalar);
   /// \endcond
 
+  // The extra tags below can also be added as common to all scalar tensor
+  // solutions
+  template <typename DataType, typename Frame = Frame::Inertial>
+  using tags = tmpl::flatten<tmpl::list<
+      typename AnalyticSolution::template tags<DataType>,
+      gr::Tags::DerivDetSpatialMetric<3_st, Frame, DataType>,
+      gr::Tags::TraceExtrinsicCurvature<DataType>,
+      gr::Tags::SpatialChristoffelFirstKind<3_st, Frame, DataType>,
+      gr::Tags::SpatialChristoffelSecondKind<3_st, Frame, DataType>,
+      gr::Tags::TraceSpatialChristoffelSecondKind<3_st, Frame, DataType>>>;
+
   /// @{
   /// Retrieve scalar variable at `(x, t)`
   template <typename DataType>
