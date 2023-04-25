@@ -193,16 +193,17 @@ template <size_t VolumeDim>
 struct ObserverTags {
 //   static constexpr size_t volume_dim = VolumeDim;
   static constexpr size_t volume_dim = 3_st;
-  using system = GeneralizedHarmonic::System<volume_dim>;
-  using system_scalar_tensor = ScalarTensor::System;
+//   using system = GeneralizedHarmonic::System<volume_dim>;
+//   using system_scalar_tensor = ScalarTensor::System;
+  using system = ScalarTensor::System;
 
   using variables_tag = typename system::variables_tag;
-  using variables_tag_scalar_tensor =
-      typename system_scalar_tensor::variables_tag;
+//   using variables_tag_scalar_tensor =
+//       typename system_scalar_tensor::variables_tag;
 
   using analytic_solution_fields = typename variables_tag::tags_list;
-  using analytic_solution_fields_scalar_tensor =
-      typename variables_tag_scalar_tensor::tags_list;
+//   using analytic_solution_fields_scalar_tensor =
+//       typename variables_tag_scalar_tensor::tags_list;
 
   //   using initial_data_list =
   //       GeneralizedHarmonic::Solutions::all_solutions<volume_dim>;
@@ -213,28 +214,28 @@ struct ObserverTags {
       GeneralizedHarmonic::Solutions::ScalarTensor::all_solutions;
   using analytic_compute = evolution::Tags::AnalyticSolutionsCompute<
       volume_dim, analytic_solution_fields, false, initial_data_list>;
-  using analytic_compute_scalar_tensor =
-      evolution::Tags::AnalyticSolutionsCompute<
-          volume_dim, analytic_solution_fields_scalar_tensor, false,
-          initial_data_list>;
+//   using analytic_compute_scalar_tensor =
+//       evolution::Tags::AnalyticSolutionsCompute<
+//           volume_dim, analytic_solution_fields_scalar_tensor, false,
+//           initial_data_list>;
   using deriv_compute = ::Tags::DerivCompute<
       variables_tag,
       domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
                                     Frame::Inertial>,
       typename system::gradient_variables>;
-  using deriv_compute_scalar_tensor = ::Tags::DerivCompute<
-      variables_tag_scalar_tensor,
-      domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
-                                    Frame::Inertial>,
-      typename system_scalar_tensor::gradient_variables>;
+//   using deriv_compute_scalar_tensor = ::Tags::DerivCompute<
+//       variables_tag_scalar_tensor,
+//       domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
+//                                     Frame::Inertial>,
+//       typename system_scalar_tensor::gradient_variables>;
 
   using error_compute = Tags::ErrorsCompute<analytic_solution_fields>;
-  using error_compute_scalar_tensor =
-      Tags::ErrorsCompute<analytic_solution_fields_scalar_tensor>;
+//   using error_compute_scalar_tensor =
+//       Tags::ErrorsCompute<analytic_solution_fields_scalar_tensor>;
 
   using error_tags = db::wrap_tags_in<Tags::Error, analytic_solution_fields>;
-  using error_tags_scalar_tensor =
-      db::wrap_tags_in<Tags::Error, analytic_solution_fields_scalar_tensor>;
+//   using error_tags_scalar_tensor =
+//       db::wrap_tags_in<Tags::Error, analytic_solution_fields_scalar_tensor>;
 
   using observe_fields = tmpl::append<
       tmpl::push_back<analytic_solution_fields,
@@ -265,8 +266,9 @@ template <size_t VolumeDim, bool LocalTimeStepping>
 struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
 //   static constexpr size_t volume_dim = VolumeDim;
   static constexpr size_t volume_dim = 3_st;
-  using system = GeneralizedHarmonic::System<volume_dim>;
-  using system_scalar_tensor = ScalarTensor::System;
+//   using system = GeneralizedHarmonic::System<volume_dim>;
+//   using system_scalar_tensor = ScalarTensor::System;
+  using system = ScalarTensor::System;
 
   //   using initial_data_list =
   //       GeneralizedHarmonic::Solutions::all_solutions<volume_dim>;
@@ -283,14 +285,14 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
                                           typename detail::ObserverTags<
                                               volume_dim>::field_observations,
                                           Events::time_events<system>>>>,
-      tmpl::pair<GeneralizedHarmonic::BoundaryConditions::BoundaryCondition<
-                     volume_dim>,
-                 GeneralizedHarmonic::BoundaryConditions::
-                     standard_boundary_conditions<volume_dim>>,
+    //   tmpl::pair<GeneralizedHarmonic::BoundaryConditions::BoundaryCondition<
+    //                  volume_dim>,
+    //              GeneralizedHarmonic::BoundaryConditions::
+    //                  standard_boundary_conditions<volume_dim>>,
       //
-    //   tmpl::pair<ScalarTensor::BoundaryConditions::BoundaryCondition,
-    //              ScalarTensor::BoundaryConditions::
-    //                  standard_boundary_conditions>,
+      tmpl::pair<ScalarTensor::BoundaryConditions::BoundaryCondition,
+                 ScalarTensor::BoundaryConditions::
+                     standard_boundary_conditions>,
       //
       tmpl::pair<GeneralizedHarmonic::gauges::GaugeCondition,
                  GeneralizedHarmonic::gauges::all_gauges>,
@@ -328,9 +330,10 @@ struct ScalarTensorTemplateBase<
   using derived_metavars =
       EvolutionMetavarsDerived<3_st, UseNumericalInitialData>;
   static constexpr size_t volume_dim = 3_st;
-  using system = GeneralizedHarmonic::System<volume_dim>;
+//   using system = GeneralizedHarmonic::System<volume_dim>;
 //   using system_scalar = CurvedScalarWave::System<volume_dim>;
-//   using system_combined = ScalarTensor::System<volume_dim>;
+//   using system_combined = ScalarTensor::System;
+  using system = ScalarTensor::System;
   static constexpr bool local_time_stepping = false;
 
   // NOLINTNEXTLINE(google-runtime-references)
