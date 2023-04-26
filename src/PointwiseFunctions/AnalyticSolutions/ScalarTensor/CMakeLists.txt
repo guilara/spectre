@@ -8,7 +8,7 @@ add_spectre_library(${LIBRARY})
 spectre_target_sources(
   ${LIBRARY}
   PRIVATE
-  # KerrSchildScalar.cpp
+  KerrSchildScalar.cpp
   MinkowskiZeroScalar.cpp
   )
 
@@ -16,7 +16,7 @@ spectre_target_headers(
   ${LIBRARY}
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
-  # KerrSchildScalar.hpp
+  KerrSchildScalar.hpp
   MinkowskiZeroScalar.hpp
   Solutions.hpp
   )

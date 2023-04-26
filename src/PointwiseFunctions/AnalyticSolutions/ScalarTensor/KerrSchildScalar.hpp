@@ -120,6 +120,7 @@ class KerrSchildScalar : /* public evolution::initial_data::InitialData, */
                          const KerrSchildScalar& rhs);
 
   double amplitude_ = std::numeric_limits<double>::signaling_NaN();
+  // Add BH parameters
   gr::Solutions::KerrSchild background_spacetime_{};
 };
 
