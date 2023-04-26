@@ -46,6 +46,14 @@ add_scalar_tensor_executable_without_horizon(
   "${LIBS_TO_LINK};GeneralRelativitySolutions"
   )
 
+add_spectre_parallel_executable(
+  EvolveScalarTensorSingleBlackHole
+  EvolveScalarTensorSingleBlackHole
+  Evolution/Executables/ScalarTensor
+  "EvolutionMetavars<3, false>"
+  "${LIBS_TO_LINK};ApparentHorizons;GeneralRelativitySolutions"
+  )
+
 # add_scalartensor_with_horizon_executable(
 #   BondiHoyleAccretion
 #   GeneralizedHarmonic::Solutions::WrappedGr<grmhd::AnalyticData::BondiHoyleAccretion>
