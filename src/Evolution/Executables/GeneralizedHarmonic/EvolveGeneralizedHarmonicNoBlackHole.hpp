@@ -50,8 +50,8 @@ struct EvolutionMetavars
           Parallel::PhaseActions<
               Parallel::Phase::InitializeTimeStepperHistory,
               SelfStart::self_start_procedure<
-            //   step_actions,
-              tmpl::list<>,
+              step_actions,
+            //   tmpl::list<>,
               system>
               >,
           Parallel::PhaseActions<Parallel::Phase::Register,
