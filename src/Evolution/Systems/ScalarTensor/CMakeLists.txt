@@ -19,6 +19,7 @@ spectre_target_headers(
   # Constraints.hpp
   # System.hpp
   Characteristics.hpp
+  Initialize.hpp
   StressEnergy.hpp
   Tags.hpp
   TimeDerivativeTerms.hpp

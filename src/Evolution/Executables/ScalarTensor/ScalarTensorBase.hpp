@@ -53,6 +53,7 @@
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/ScalarTensor/Initialize.hpp"
 #include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 //
@@ -352,7 +353,8 @@ struct ScalarTensorTemplateBase<
 
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
       // I think these are variables than can be retrieved from ID
-      GeneralizedHarmonic::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
+    // GeneralizedHarmonic::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
+      ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
       Actions::MutateApply<
           GeneralizedHarmonic::gauges::SetPiFromGauge<volume_dim>>,
       Initialization::Actions::GrTagsForHydro<system>,

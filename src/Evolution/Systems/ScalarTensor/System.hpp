@@ -54,18 +54,19 @@ struct System {
   // For traced quantities need to add the untraced tags too (?)
 //   using spacetime_variables_tag =
 //       ::Tags::Variables<scalar_system::spacetime_tag_list>;
-  using spacetime_variables_tag = ::Tags::Variables<tmpl::list<
-      ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3_st>,
-                    Frame::Inertial>,
-      ::Tags::deriv<gr::Tags::Shift<3_st, Frame::Inertial, DataVector>,
-                    tmpl::size_t<3_st>, Frame::Inertial>,
-      gr::Tags::ExtrinsicCurvature<3_st, Frame::Inertial, DataVector>
-      // Need to check compatibility of the following tags with WrappedGr
-      ,
-      gr::Tags::TraceSpatialChristoffelSecondKind<3_st, Frame::Inertial,
-                                                  DataVector>,
-      gr::Tags::TraceExtrinsicCurvature<DataVector>/**/
-      >>;
+  // using spacetime_variables_tag = ::Tags::Variables<tmpl::list<
+  //     ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3_st>,
+  //                   Frame::Inertial>,
+  //     ::Tags::deriv<gr::Tags::Shift<3_st, Frame::Inertial, DataVector>,
+  //                   tmpl::size_t<3_st>, Frame::Inertial>,
+  //     gr::Tags::ExtrinsicCurvature<3_st, Frame::Inertial, DataVector>
+  //     // Need to check compatibility of the following tags with WrappedGr
+  //     ,
+  //     gr::Tags::TraceSpatialChristoffelSecondKind<3_st, Frame::Inertial,
+  //                                                 DataVector>,
+  //     gr::Tags::TraceExtrinsicCurvature<DataVector>/**/
+  //     >>;
+  using spacetime_variables_tag = ::Tags::Variables<tmpl::list<>>;
 
   using compute_volume_time_derivative_terms = TimeDerivativeTerms;
 
