@@ -65,6 +65,23 @@ struct InitializeGhAnd3Plus1Variables {
       gr::Tags::ShiftCompute<Dim, frame, DataVector>,
       gr::Tags::LapseCompute<Dim, frame, DataVector>,
 
+      // Test
+      gr::Tags::SpacetimeNormalVectorCompute<Dim, frame, DataVector>,
+
+      GeneralizedHarmonic::Tags::DerivLapseCompute<Dim, frame>,
+
+      gr::Tags::InverseSpacetimeMetricCompute<Dim, frame, DataVector>,
+      GeneralizedHarmonic::Tags::DerivShiftCompute<Dim, frame>,
+
+      GeneralizedHarmonic::Tags::DerivSpatialMetricCompute<Dim, frame>,
+
+      gr::Tags::SpatialChristoffelFirstKindCompute<Dim, frame, DataVector>,
+      gr::Tags::SpatialChristoffelSecondKindCompute<Dim, frame, DataVector>,
+      gr::Tags::TraceSpatialChristoffelSecondKindCompute<Dim, frame,
+                                                         DataVector>,
+      GeneralizedHarmonic::Tags::ExtrinsicCurvatureCompute<Dim, frame>,
+      GeneralizedHarmonic::Tags::TraceExtrinsicCurvatureCompute<Dim, frame>,
+
       // Compute constraint damping parameters.
       ConstraintDamping::Tags::ConstraintGamma0Compute<Dim, Frame::Grid>,
       ConstraintDamping::Tags::ConstraintGamma1Compute<Dim, Frame::Grid>,

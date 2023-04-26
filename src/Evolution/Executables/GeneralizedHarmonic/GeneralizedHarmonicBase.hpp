@@ -194,16 +194,14 @@ struct ObserverTags {
   using error_compute = Tags::ErrorsCompute<analytic_solution_fields>;
   using error_tags = db::wrap_tags_in<Tags::Error, analytic_solution_fields>;
   using observe_fields = tmpl::append<
-      tmpl::push_back<
-          analytic_solution_fields,
-          ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
-          ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
-    //   error_tags,
+      tmpl::push_back<analytic_solution_fields,
+                      ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
+                      ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>,
+                      //
+                      gr::Tags::TraceExtrinsicCurvature<DataVector>>,
+      //   error_tags,
       // The 4-index constraint is only implemented in 3d
-      tmpl::conditional_t<
-          volume_dim == 3,
-          tmpl::list<>,
-          tmpl::list<>>>;
+      tmpl::conditional_t<volume_dim == 3, tmpl::list<>, tmpl::list<>>>;
   using non_tensor_compute_tags = tmpl::list<
       ::Events::Tags::ObserverMeshCompute<volume_dim>,
       ::Events::Tags::ObserverCoordinatesCompute<volume_dim, Frame::Inertial>,
