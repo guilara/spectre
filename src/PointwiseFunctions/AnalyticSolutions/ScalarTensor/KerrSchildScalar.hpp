@@ -36,6 +36,12 @@ class KerrSchildScalar : /* public evolution::initial_data::InitialData, */
                             public AnalyticSolution,
                             public MarkAsAnalyticSolution {
  public:
+  /// The mass of the black hole.
+  struct Mass {
+    using type = double;
+    static constexpr Options::String help = {"Mass of the black hole."};
+    static type lower_bound() { return 0.0; }
+  };
   /// The amplitude of the scalar field
   struct Amplitude {
     using type = double;
@@ -43,7 +49,7 @@ class KerrSchildScalar : /* public evolution::initial_data::InitialData, */
         "Amplitude of the constant scalar field"};
   };
 
-  using options = tmpl::list<Amplitude>;
+  using options = tmpl::list<Mass, Amplitude>;
   static constexpr Options::String help = {
       "Zero scalar field in Minkowski space."};
 
@@ -54,7 +60,7 @@ class KerrSchildScalar : /* public evolution::initial_data::InitialData, */
   KerrSchildScalar& operator=(KerrSchildScalar&& /*rhs*/) = default;
   ~KerrSchildScalar() override = default;
 
-  KerrSchildScalar(double amplitude);
+  KerrSchildScalar(double mass, double amplitude);
 
   auto get_clone() const
       -> std::unique_ptr<evolution::initial_data::InitialData> override;
@@ -119,6 +125,7 @@ class KerrSchildScalar : /* public evolution::initial_data::InitialData, */
   friend bool operator==(const KerrSchildScalar& lhs,
                          const KerrSchildScalar& rhs);
 
+  double mass_ = std::numeric_limits<double>::signaling_NaN();
   double amplitude_ = std::numeric_limits<double>::signaling_NaN();
   // Add BH parameters
   gr::Solutions::KerrSchild background_spacetime_{};

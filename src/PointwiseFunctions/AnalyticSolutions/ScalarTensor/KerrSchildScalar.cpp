@@ -3,6 +3,7 @@
 
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 
@@ -19,8 +20,17 @@
 
 namespace ScalarTensor::Solutions {
 
-KerrSchildScalar::KerrSchildScalar(double amplitude) {
+KerrSchildScalar::KerrSchildScalar(double mass, double amplitude) {
+  mass_ = mass;
   amplitude_ = amplitude;
+  background_spacetime_ =
+      gr::Solutions::KerrSchild{
+              // BH mass
+              mass_,
+              // Dimensionless spin
+              std::array<double, 3>{{0.0, 0.0, 0.0}},
+              // Center
+              std::array<double, 3>{{0.0, 0.0, 0.0}}};
 }
 
 std::unique_ptr<evolution::initial_data::InitialData>
@@ -33,6 +43,7 @@ KerrSchildScalar::KerrSchildScalar(CkMigrateMessage* msg)
 
 void KerrSchildScalar::pup(PUP::er& p) {
   InitialData::pup(p);
+  p | mass_;
   p | amplitude_;
   p | background_spacetime_;
 }
