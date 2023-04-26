@@ -357,7 +357,7 @@ struct ScalarTensorTemplateBase<
       ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
       Actions::MutateApply<
           GeneralizedHarmonic::gauges::SetPiFromGauge<volume_dim>>,
-      Initialization::Actions::GrTagsForHydro<system>,
+      // Initialization::Actions::GrTagsForHydro<system>,
       Initialization::Actions::AddSimpleTags<
           CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
               volume_dim>>,

@@ -66,7 +66,7 @@ struct System {
   //                                                 DataVector>,
   //     gr::Tags::TraceExtrinsicCurvature<DataVector>/**/
   //     >>;
-  using spacetime_variables_tag = ::Tags::Variables<tmpl::list<>>;
+  // using spacetime_variables_tag = ::Tags::Variables<tmpl::list<>>;
 
   using compute_volume_time_derivative_terms = TimeDerivativeTerms;
 
