@@ -45,6 +45,7 @@
 //
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Initialize.hpp"
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 //
@@ -81,6 +82,7 @@
 #include "Parallel/Reduction.hpp"
 #include "Parallel/RegisterDerivedClassesWithCharm.hpp"
 #include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
+#include "ParallelAlgorithms/Actions/AddSimpleTags.hpp"
 #include "ParallelAlgorithms/Actions/InitializeItems.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
@@ -349,10 +351,14 @@ struct ScalarTensorTemplateBase<
           tmpl::at<typename factory_creation::factory_classes, Event>>>;
 
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
+      // I think these are variables than can be retrieved from ID
       GeneralizedHarmonic::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
       Actions::MutateApply<
           GeneralizedHarmonic::gauges::SetPiFromGauge<volume_dim>>,
       Initialization::Actions::GrTagsForHydro<system>,
+      Initialization::Actions::AddSimpleTags<
+          CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
+              volume_dim>>,
       Parallel::Actions::TerminatePhase>;
 
   // A tmpl::list of tags to be added to the GlobalCache by the
