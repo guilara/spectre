@@ -175,34 +175,25 @@ struct EvolutionMetavars
                                  initialization_actions>,
           tmpl::conditional_t<
               UseNumericalInitialData,
-              tmpl::list<
-                  Parallel::PhaseActions<
-                      Parallel::Phase::RegisterWithElementDataReader,
-                      tmpl::list<
-                          importers::Actions::RegisterWithElementDataReader,
-                          Parallel::Actions::TerminatePhase>>,
-                  Parallel::PhaseActions<
-                      Parallel::Phase::ImportInitialData,
-                      tmpl::list<
-                          GeneralizedHarmonic::Actions::ReadNumericInitialData<
-                              evolution::OptionTags::NumericInitialData>,
-                          GeneralizedHarmonic::Actions::SetNumericInitialData<
-                              evolution::OptionTags::NumericInitialData>,
-                          Parallel::Actions::TerminatePhase>>>,
+              tmpl::list<>,
               tmpl::list<>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
               initialize_initial_data_dependent_quantities_actions>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeTimeStepperHistory,
-              SelfStart::self_start_procedure<step_actions, system>>,
+              SelfStart::self_start_procedure<
+            //   step_actions,
+              tmpl::list<>,
+              system>>,
           Parallel::PhaseActions<Parallel::Phase::Register,
                                  tmpl::list<dg_registration_list,
                                             Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
               tmpl::list<Actions::RunEventsAndTriggers, Actions::ChangeSlabSize,
-                         step_actions, Actions::AdvanceTime,
+                        //  step_actions,
+                         Actions::AdvanceTime,
                          PhaseControl::Actions::ExecutePhaseChange>>>>>;
 
   template <typename ParallelComponent>
@@ -216,7 +207,8 @@ struct EvolutionMetavars
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
       std::conditional_t<UseNumericalInitialData,
-                         importers::ElementDataReader<EvolutionMetavars>,
+                         tmpl::list<>,
+                        //  importers::ElementDataReader<EvolutionMetavars>,
                          tmpl::list<>>,
       gh_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
       intrp::InterpolationTarget<EvolutionMetavars, AhA>,
