@@ -75,6 +75,9 @@ struct System {
 
   using compute_largest_characteristic_speed =
       Tags::ComputeLargestCharacteristicSpeed<>;
+
+  using inverse_spatial_metric_tag =
+      typename gh_system::inverse_spatial_metric_tag;
 };
 
 } // namespace ScalarTensor
