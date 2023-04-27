@@ -201,7 +201,7 @@ class ProductOfConditions final : public BoundaryCondition {
       // Scalar
       const Scalar<DataVector>& gamma1_scalar
     //,const Scalar<DataVector>& lapse, const tnsr::I<DataVector, Dim>& shift
-      ) {
+      ) const {
     // DemandOutgoingCharSpeeds condition is only valid if both boundary
     // conditions are DemandOutgoingCharSpeeds, so we directly apply both. A
     // static_assert elsewhere is triggered if only one boundary condition is
