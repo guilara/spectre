@@ -11,6 +11,9 @@
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/BoundaryCondition.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/BoundaryCorrection.hpp"
+//
+#include "Evolution/Systems/ScalarTensor/TimeDerivativeTerms.hpp"
+//
 #include "Evolution/Systems/ScalarTensor/Characteristics.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/TMPL.hpp"
@@ -21,7 +24,7 @@
  */
 namespace ScalarTensor {
 /// \cond
-struct TimeDerivativeTerms;
+// struct TimeDerivativeTerms;
 /// \endcond
 
 struct System {

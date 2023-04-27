@@ -21,6 +21,8 @@
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/TimeDerivative.hpp"
 //
+#include "Evolution/PassVariables.hpp"
+//
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/Literals.hpp"
@@ -54,7 +56,7 @@ struct ScalarTempTag : db::SimpleTag, db::PrefixTag {
  * system, which is the only explicit coupling required to back-react the effect
  * of the scalar on the spacetime solution.
  */
-struct TimeDerivativeTerms {
+struct TimeDerivativeTerms : public evolution::PassVariables {
   using gh_dt_tags = db::wrap_tags_in<
       ::Tags::dt,
       typename GeneralizedHarmonic::System<3_st>::variables_tag::tags_list>;
