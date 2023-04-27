@@ -274,7 +274,7 @@ class ProductOfCorrections final : public BoundaryCorrection {
           interface_unit_normal_ext_scalar,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext_scalar,
       // DG formulation
-      const dg::Formulation dg_formulation) {
+      const dg::Formulation dg_formulation) const {
     // Note: Check that CurvedScalarWave does not update GH variables
     // to a different value. If it does, invert the order of application of the
     // corrections first, so that the GH update is applied at last
