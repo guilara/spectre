@@ -73,6 +73,9 @@ using remove_periodic_conditions_t =
 //     domain::BoundaryConditions::Periodic<BoundaryCondition>>;
 
 // For now, we only support a subset of the available boundary conditions
+// We copy this list as in the factory of BCs for each system
+// but omit periodic boundary conditions
+/// Typelist of standard BoundaryConditions
 using subset_standard_boundary_conditions_gh = tmpl::list<
   // GeneralizedHarmonic::BoundaryConditions::ConstraintPreservingBjorhus<3_st>,
     GeneralizedHarmonic::BoundaryConditions::DemandOutgoingCharSpeeds<3_st>,
