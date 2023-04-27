@@ -149,7 +149,7 @@ class ProductOfCorrections final : public BoundaryCorrection {
       // Scalar temporaries (without repeating tags)
       // const Scalar<DataVector>& lapse,
       // const tnsr::I<DataVector, Dim, Frame::Inertial>& shift,
-      const tnsr::II<DataVector, 3_st, Frame::Inertial>& inverse_spatial_metric,
+
       const Scalar<DataVector>& constraint_gamma1_scalar,
       const Scalar<DataVector>& constraint_gamma2_scalar,
       // Mesh variables
@@ -160,7 +160,7 @@ class ProductOfCorrections final : public BoundaryCorrection {
       const std::optional<Scalar<DataVector>>& normal_dot_mesh_velocity
       // GH volume quantities
       // Scalar volume quantities
-  ) {
+  ) const {
     // Note: Check that CurvedScalarWave does not update GH variables
     // to a different value. If it does, invert the order of application of the
     // corrections first, so that the GH update is applied at last
@@ -204,7 +204,7 @@ class ProductOfCorrections final : public BoundaryCorrection {
       // Scalar temporaries
         lapse,
         shift,
-        inverse_spatial_metric,
+
         constraint_gamma1_scalar,
         constraint_gamma2_scalar,
       // Scalar mesh variables
