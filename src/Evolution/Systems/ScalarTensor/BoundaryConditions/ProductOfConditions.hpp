@@ -268,7 +268,7 @@ class ProductOfConditions final : public BoundaryCondition {
       const Scalar<DataVector>& gamma1_interior_scalar,
       const Scalar<DataVector>& gamma2_interior_scalar,
       const Scalar<DataVector>& lapse_interior,
-      const tnsr::I<DataVector, 3_st>& shift_interior) {
+      const tnsr::I<DataVector, 3_st>& shift_interior) const {
     // Note: Check that CurvedScalarWave does not update GH variables
     // to a different value. If it does, invert the order of application of the
     // corrections first, so that the GH update is applied at last
