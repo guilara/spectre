@@ -5,7 +5,19 @@
 
 #include "Domain/BoundaryConditions/Periodic.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Factory.hpp"
+//
+#include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Bjorhus.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/BoundaryCondition.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/DirichletAnalytic.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/DirichletMinkowski.hpp"
+//
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
+//
+#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/AnalyticConstant.hpp"
+#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/ConstraintPreservingSphericalRadiation.hpp"
+#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
+//
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/BoundaryCondition.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Utilities/TMPL.hpp"
@@ -50,14 +62,32 @@ using remove_periodic_conditions_t =
 // individual systems; for the remaining conditions, include a
 // `ProductOfConditions` for each pair with compatible `bc_type`s.
 /// Typelist of standard BoundaryConditions
-using standard_boundary_conditions = tmpl::push_back<
-    typename detail::AllProductConditions<
-        detail::remove_periodic_conditions_t<
-            typename GeneralizedHarmonic::BoundaryConditions::
-                standard_boundary_conditions<3_st>>,
-        detail::remove_periodic_conditions_t<
-            typename CurvedScalarWave::BoundaryConditions::
-                standard_boundary_conditions<3_st>>>::type,
-    domain::BoundaryConditions::Periodic<BoundaryCondition>>;
+// using standard_boundary_conditions = tmpl::push_back<
+//     typename detail::AllProductConditions<
+//         detail::remove_periodic_conditions_t<
+//             typename GeneralizedHarmonic::BoundaryConditions::
+//                 standard_boundary_conditions<3_st>>,
+//         detail::remove_periodic_conditions_t<
+//             typename CurvedScalarWave::BoundaryConditions::
+//                 standard_boundary_conditions<3_st>>>::type,
+//     domain::BoundaryConditions::Periodic<BoundaryCondition>>;
+
+// For now, we only support a subset of the available boundary conditions
+using subset_standard_boundary_conditions_gh = tmpl::list<
+  // GeneralizedHarmonic::BoundaryConditions::ConstraintPreservingBjorhus<3_st>,
+    GeneralizedHarmonic::BoundaryConditions::DemandOutgoingCharSpeeds<3_st>,
+    // GeneralizedHarmonic::BoundaryConditions::DirichletAnalytic<3_st>,
+    GeneralizedHarmonic::BoundaryConditions::DirichletMinkowski<3_st>>;
+
+using subset_standard_boundary_conditions_scalar = tmpl::list<
+    CurvedScalarWave::BoundaryConditions::AnalyticConstant<3_st>,
+    // CurvedScalarWave::BoundaryConditions::
+    //     ConstraintPreservingSphericalRadiation<3_st>,
+    CurvedScalarWave::BoundaryConditions::DemandOutgoingCharSpeeds<3_st>>;
+using standard_boundary_conditions =
+    tmpl::push_back<typename detail::AllProductConditions<
+                        subset_standard_boundary_conditions_gh,
+                        subset_standard_boundary_conditions_scalar>::type,
+                    domain::BoundaryConditions::Periodic<BoundaryCondition>>;
 
 }  // namespace ScalarTensor::BoundaryConditions
