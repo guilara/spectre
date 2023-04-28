@@ -56,7 +56,10 @@ struct ScalarTempTag : db::SimpleTag, db::PrefixTag {
  * system, which is the only explicit coupling required to back-react the effect
  * of the scalar on the spacetime solution.
  */
-struct TimeDerivativeTerms : public evolution::PassVariables {
+struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
+  // For now we do not package the arguments and temporaries in a Variables.
+  // For this reason, this struct is not base of evolution::PassVariables
+  // --see VolumeTermsImpl.tpp for details.
   using gh_dt_tags = db::wrap_tags_in<
       ::Tags::dt,
       typename GeneralizedHarmonic::System<3_st>::variables_tag::tags_list>;
