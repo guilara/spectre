@@ -48,14 +48,16 @@ class ProductOfCorrections final : public BoundaryCorrection {
       typename DerivedScalarCorrection::dg_package_data_volume_tags>;
 
   static std::string name() {
-    return "Product" + pretty_type::name<DerivedGhCorrection>() + "And" +
-           pretty_type::name<DerivedScalarCorrection>();
+    return "Product" + pretty_type::name<DerivedGhCorrection>() + "GH" + "And" +
+           pretty_type::name<DerivedScalarCorrection>() + "Scalar";
   }
 
   struct GhCorrection {
     using type = DerivedGhCorrection;
     static std::string name() {
-      return pretty_type::name<DerivedGhCorrection>();
+      // The boundary conditions for the different systems cannot have the same
+      // name, otherwise errors during option parsing will occur
+      return pretty_type::name<DerivedGhCorrection>() + "GH";
     }
     static constexpr Options::String help{
         "The Generalized Harmonic part of the product boundary condition"};
@@ -63,7 +65,9 @@ class ProductOfCorrections final : public BoundaryCorrection {
   struct ScalarCorrection {
     using type = DerivedScalarCorrection;
     static std::string name() {
-      return pretty_type::name<DerivedScalarCorrection>();
+      // The boundary conditions for the different systems cannot have the same
+      // name, otherwise errors during option parsing will occur
+      return pretty_type::name<DerivedScalarCorrection>() + "Scalar";
     }
     static constexpr Options::String help{
           "The Curved Scalar part of the product boundary condition"};
