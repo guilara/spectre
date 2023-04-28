@@ -9,7 +9,7 @@ spectre_target_sources(
   ${LIBRARY}
   PRIVATE
   StressEnergy.cpp
-  # VolumeTermsInstantiation.cpp
+  VolumeTermsInstantiation.cpp
   )
 
 spectre_target_headers(
