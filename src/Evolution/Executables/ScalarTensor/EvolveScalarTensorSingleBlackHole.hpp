@@ -199,7 +199,7 @@ struct EvolutionMetavars
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
               tmpl::list<Actions::RunEventsAndTriggers, Actions::ChangeSlabSize,
-                         //  step_actions,
+                         step_actions,
                          Actions::AdvanceTime,
                          PhaseControl::Actions::ExecutePhaseChange>>>>>;
 
