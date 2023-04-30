@@ -339,7 +339,8 @@ struct ScalarTensorTemplateBase<
 //   using system_scalar = CurvedScalarWave::System<volume_dim>;
 //   using system_combined = ScalarTensor::System;
   using system = ScalarTensor::System;
-  static constexpr bool local_time_stepping = false;
+  // static constexpr bool local_time_stepping = false;
+  static constexpr bool local_time_stepping = true;
 
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}
@@ -386,13 +387,16 @@ struct ScalarTensorTemplateBase<
           volume_dim, system, AllStepChoosers, local_time_stepping>,
       tmpl::conditional_t<
           local_time_stepping,
-          //   tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<
-          //                tmpl::list<evolution::dg::ApplyBoundaryCorrections<
-          //                      local_time_stepping, system, volume_dim,
-          //                      true>>>,
-          //              evolution::dg::Actions::ApplyLtsBoundaryCorrections<
-          //                  system, volume_dim, false>>,
-          tmpl::list<>,
+            tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<
+                         tmpl::list<evolution::dg::ApplyBoundaryCorrections<
+                               local_time_stepping, system, volume_dim,
+                               true>>>
+                               ,
+                       evolution::dg::Actions::ApplyLtsBoundaryCorrections<
+                           system, volume_dim, false>
+          >
+          // tmpl::list<>
+          ,
           tmpl::list<
             evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
                     system, volume_dim, false>
