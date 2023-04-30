@@ -393,21 +393,27 @@ struct ScalarTensorTemplateBase<
           //              evolution::dg::Actions::ApplyLtsBoundaryCorrections<
           //                  system, volume_dim, false>>,
           tmpl::list<>,
-          //   tmpl::list<
-          //   evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
-          //           system, volume_dim, false>,
-          //       Actions::RecordTimeStepperData<system>,
-          //       evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<>>,
-          //       Actions::UpdateU<system>,
-          //       dg::Actions::Filter<
-          //           Filters::Exponential<0>,
-          //           tmpl::list<gr::Tags::SpacetimeMetric<
-          //                          volume_dim, Frame::Inertial, DataVector>,
-          //                      GeneralizedHarmonic::Tags::Pi<volume_dim,
-          //                                                   Frame::Inertial>,
-          //                      GeneralizedHarmonic::Tags::Phi<
-          //                          volume_dim, Frame::Inertial>>>>>
-          tmpl::list<>>>;
+          tmpl::list<
+            evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
+                    system, volume_dim, false>
+                    ,
+                Actions::RecordTimeStepperData<system>
+                ,
+                evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<>>
+                ,
+                Actions::UpdateU<system>
+                ,
+                dg::Actions::Filter<
+                    Filters::Exponential<0>,
+                    tmpl::list<gr::Tags::SpacetimeMetric<
+                                   volume_dim, Frame::Inertial, DataVector>,
+                               GeneralizedHarmonic::Tags::Pi<volume_dim,
+                                                            Frame::Inertial>,
+                               GeneralizedHarmonic::Tags::Phi<
+                                   volume_dim, Frame::Inertial>>>
+          >
+          // tmpl::list<>
+          >>;
 
   using initialization_actions = tmpl::list<
       Initialization::Actions::InitializeItems<
