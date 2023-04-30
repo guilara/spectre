@@ -66,7 +66,7 @@ struct EvolutionMetavars
               tmpl::list<
                          Actions::RunEventsAndTriggers,
                          Actions::ChangeSlabSize,
-                         //  step_actions,
+                         step_actions,
                          Actions::AdvanceTime,
                          PhaseControl::Actions::ExecutePhaseChange
                          >
