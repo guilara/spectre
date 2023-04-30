@@ -339,8 +339,7 @@ struct ScalarTensorTemplateBase<
 //   using system_scalar = CurvedScalarWave::System<volume_dim>;
 //   using system_combined = ScalarTensor::System;
   using system = ScalarTensor::System;
-  // static constexpr bool local_time_stepping = false;
-  static constexpr bool local_time_stepping = true;
+  static constexpr bool local_time_stepping = false;
 
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}
