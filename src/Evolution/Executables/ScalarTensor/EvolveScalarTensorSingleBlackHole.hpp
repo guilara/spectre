@@ -132,7 +132,8 @@ struct EvolutionMetavars
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
 
-  using interpolation_target_tags = tmpl::list<AhA, ExcisionBoundaryA>;
+//   using interpolation_target_tags = tmpl::list<AhA, ExcisionBoundaryA>;
+  using interpolation_target_tags = tmpl::list<AhA>;
   using interpolator_source_vars_excision_boundary = tmpl::list<
       gr::Tags::SpacetimeMetric<volume_dim, Frame::Inertial>,
       GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma1>;
@@ -148,23 +149,35 @@ struct EvolutionMetavars
   // to be made the same. Otherwise a static assert is triggered.
   struct factory_creation
       : tt::ConformsTo<Options::protocols::FactoryCreation> {
+    // using factory_classes = Options::add_factory_classes<
+    //     typename st_base::factory_creation::factory_classes,
+    //     tmpl::pair<Event,
+    //                tmpl::list<intrp::Events::Interpolate<
+    //                               3, AhA, interpolator_source_vars>,
+    //                         intrp::Events::InterpolateWithoutInterpComponent<
+    //                               3, ExcisionBoundaryA, EvolutionMetavars,
+    //                               interpolator_source_vars>>>>;
     using factory_classes = Options::add_factory_classes<
         typename st_base::factory_creation::factory_classes,
         tmpl::pair<Event,
                    tmpl::list<intrp::Events::Interpolate<
-                                  3, AhA, interpolator_source_vars>,
-                              intrp::Events::InterpolateWithoutInterpComponent<
-                                  3, ExcisionBoundaryA, EvolutionMetavars,
-                                  interpolator_source_vars>>>>;
+                                  3, AhA, interpolator_source_vars>
+                                  >
+                                  >
+                                  >;
   };
 
   using typename st_base::const_global_cache_tags;
 
+//   using observed_reduction_data_tags =
+//       observers::collect_reduction_data_tags<tmpl::push_back<
+//           tmpl::at<typename factory_creation::factory_classes, Event>,
+//           typename AhA::post_horizon_find_callbacks,
+//           typename ExcisionBoundaryA::post_interpolation_callback>>;
   using observed_reduction_data_tags =
       observers::collect_reduction_data_tags<tmpl::push_back<
           tmpl::at<typename factory_creation::factory_classes, Event>,
-          typename AhA::post_horizon_find_callbacks,
-          typename ExcisionBoundaryA::post_interpolation_callback>>;
+          typename AhA::post_horizon_find_callbacks>>;
 
   using dg_registration_list =
       tmpl::push_back<typename st_base::dg_registration_list,
@@ -210,6 +223,15 @@ struct EvolutionMetavars
         dg_registration_list, tmpl::list<>>;
   };
 
+//   using component_list = tmpl::flatten<tmpl::list<
+//       observers::Observer<EvolutionMetavars>,
+//       observers::ObserverWriter<EvolutionMetavars>,
+//       std::conditional_t<UseNumericalInitialData, tmpl::list<>,
+//                          //  importers::ElementDataReader<EvolutionMetavars>,
+//                          tmpl::list<>>,
+//       st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
+//       intrp::InterpolationTarget<EvolutionMetavars, AhA>,
+//       intrp::InterpolationTarget<EvolutionMetavars, ExcisionBoundaryA>>>;
   using component_list = tmpl::flatten<tmpl::list<
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
@@ -217,8 +239,7 @@ struct EvolutionMetavars
                          //  importers::ElementDataReader<EvolutionMetavars>,
                          tmpl::list<>>,
       st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
-      intrp::InterpolationTarget<EvolutionMetavars, AhA>,
-      intrp::InterpolationTarget<EvolutionMetavars, ExcisionBoundaryA>>>;
+      intrp::InterpolationTarget<EvolutionMetavars, AhA>>>;
 };
 
 static const std::vector<void (*)()> charm_init_node_funcs{
