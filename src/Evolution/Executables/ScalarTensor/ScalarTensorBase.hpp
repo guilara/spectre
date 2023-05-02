@@ -43,6 +43,8 @@
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 //
+#include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
+//
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Initialize.hpp"
@@ -286,14 +288,17 @@ struct ObserverTags {
                                         DataVector>,
           gr::Tags::SpatialRicciScalarCompute<volume_dim, ::Frame::Inertial,
                                               DataVector>,
-          // Compute the constraints
+          // Compute the constraints of GH
           GeneralizedHarmonic::Tags::GaugeConstraintCompute<volume_dim,
                                                             Frame::Inertial>,
           GeneralizedHarmonic::Tags::TwoIndexConstraintCompute<volume_dim,
                                                                Frame::Inertial>,
           GeneralizedHarmonic::Tags::ThreeIndexConstraintCompute<
               volume_dim, Frame::Inertial>,
-          // Constraint Norms
+          // Compute the constraints of CSW
+          CurvedScalarWave::Tags::OneIndexConstraintCompute<volume_dim>,
+          CurvedScalarWave::Tags::TwoIndexConstraintCompute<volume_dim>,
+          // GH constraint norms
           ::Tags::PointwiseL2NormCompute<
               GeneralizedHarmonic::Tags::GaugeConstraint<volume_dim,
                                                          Frame::Inertial>>,
@@ -303,6 +308,17 @@ struct ObserverTags {
           ::Tags::PointwiseL2NormCompute<
               GeneralizedHarmonic::Tags::ThreeIndexConstraint<volume_dim,
                                                               Frame::Inertial>>,
+          // CSW constraint norms
+          ::Tags::PointwiseL2NormCompute<
+              CurvedScalarWave::Tags::OneIndexConstraint<volume_dim>>,
+          ::Tags::PointwiseL2NormCompute<
+              CurvedScalarWave::Tags::TwoIndexConstraint<volume_dim>>,
+          // Damping parameters
+          GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma0,
+          GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma1,
+          GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma2,
+          CurvedScalarWave::Tags::ConstraintGamma1,
+          CurvedScalarWave::Tags::ConstraintGamma2,
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
@@ -326,8 +342,7 @@ struct ObserverTags {
                   ::domain::Tags::InverseJacobian<
                       volume_dim, Frame::ElementLogical, Frame::Inertial>>,
               gr::Tags::WeylElectricCompute<3, Frame::Inertial, DataVector>,
-              gr::Tags::Psi4RealCompute<Frame::Inertial>
-              >,
+              gr::Tags::Psi4RealCompute<Frame::Inertial>>,
           tmpl::list<>>>;
   using non_tensor_compute_tags = tmpl::list<
       ::Events::Tags::ObserverMeshCompute<volume_dim>,
