@@ -88,6 +88,9 @@
 #include "ParallelAlgorithms/Actions/AddSimpleTags.hpp"
 #include "ParallelAlgorithms/Actions/InitializeItems.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
+//
+#include "ParallelAlgorithms/Actions/RandomizeVariables.hpp"
+//
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/ObserveTimeStep.hpp"
@@ -503,21 +506,25 @@ struct ScalarTensorTemplateBase<
           // tmpl::list<>
           >>;
 
+  // For labeling the yaml option for RandomizeVariables
+  struct RandomizeInitialGuess {};
+
   using initialization_actions = tmpl::list<
       Initialization::Actions::InitializeItems<
           Initialization::TimeStepping<derived_metavars, local_time_stepping>,
-          evolution::dg::Initialization::Domain<volume_dim>
-          ,
-         Initialization::TimeStepperHistory<derived_metavars>
-          >,
+          evolution::dg::Initialization::Domain<volume_dim>,
+          Initialization::TimeStepperHistory<derived_metavars>>,
       Initialization::Actions::NonconservativeSystem<system>,
       //
-    //   Initialization::Actions::NonconservativeSystem<system_scalar>,
+      //   Initialization::Actions::NonconservativeSystem<system_scalar>,
       //
       std::conditional_t<
           UseNumericalInitialData, tmpl::list<>,
           evolution::Initialization::Actions::SetVariables<
               domain::Tags::Coordinates<volume_dim, Frame::ElementLogical>>>,
+      // Random noise system::variables_tag
+    //   Actions::RandomizeVariables<typename system::variables_tag,
+    //                               RandomizeInitialGuess>,
       Initialization::Actions::AddComputeTags<::Tags::DerivCompute<
           typename system::variables_tag,
           domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
