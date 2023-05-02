@@ -4,6 +4,7 @@
 #pragma once
 
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveConstantScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
 #include "Utilities/TMPL.hpp"
@@ -16,6 +17,8 @@ using all_solutions =
     tmpl::list<GeneralizedHarmonic::Solutions::WrappedGr<
                    ::ScalarTensor::Solutions::MinkowskiZeroScalar>,
                GeneralizedHarmonic::Solutions::WrappedGr<
-                   ::ScalarTensor::Solutions::KerrSchildScalar>>;
+                   ::ScalarTensor::Solutions::KerrSchildScalar>,
+               GeneralizedHarmonic::Solutions::WrappedGr<
+                   ::ScalarTensor::Solutions::GaugeWaveConstantScalar>>;
 }  // namespace ScalarTensor
 }  // namespace GeneralizedHarmonic::Solutions

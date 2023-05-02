@@ -7,6 +7,7 @@
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Helpers/PointwiseFunctions/AnalyticSolutions/GeneralRelativity/CheckWrappedGrConsistency.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveConstantScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
 
@@ -25,4 +26,10 @@ SPECTRE_TEST_CASE(
       GeneralizedHarmonic::Solutions::WrappedGr<
           ScalarTensor::Solutions::KerrSchildScalar>{1.0, 2.0},
       ScalarTensor::Solutions::KerrSchildScalar{1.0, 2.0}, coords, time);
+
+  check_wrapped_gr_solution_consistency(
+      GeneralizedHarmonic::Solutions::WrappedGr<
+          ScalarTensor::Solutions::GaugeWaveConstantScalar>{0.5, 1.0, 1.0},
+      ScalarTensor::Solutions::GaugeWaveConstantScalar{0.5, 1.0, 1.0}, coords,
+      time);
 }
