@@ -7,6 +7,7 @@
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveConstantScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiScalarWave.hpp"
 #include "Utilities/TMPL.hpp"
 
 namespace GeneralizedHarmonic::Solutions {
@@ -19,6 +20,8 @@ using all_solutions =
                GeneralizedHarmonic::Solutions::WrappedGr<
                    ::ScalarTensor::Solutions::KerrSchildScalar>,
                GeneralizedHarmonic::Solutions::WrappedGr<
-                   ::ScalarTensor::Solutions::GaugeWaveConstantScalar>>;
+                   ::ScalarTensor::Solutions::GaugeWaveConstantScalar>,
+               GeneralizedHarmonic::Solutions::WrappedGr<
+                   ::ScalarTensor::Solutions::MinkowskiScalarWave>>;
 }  // namespace ScalarTensor
 }  // namespace GeneralizedHarmonic::Solutions

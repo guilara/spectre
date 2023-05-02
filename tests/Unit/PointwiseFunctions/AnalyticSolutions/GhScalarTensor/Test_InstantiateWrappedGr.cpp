@@ -10,6 +10,7 @@
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveConstantScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiScalarWave.hpp"
 
 SPECTRE_TEST_CASE(
     "Unit.PointwiseFunctions.AnalyticSolutions.GhScalarTensor.WrappedGr",
@@ -32,4 +33,9 @@ SPECTRE_TEST_CASE(
           ScalarTensor::Solutions::GaugeWaveConstantScalar>{0.5, 1.0, 1.0},
       ScalarTensor::Solutions::GaugeWaveConstantScalar{0.5, 1.0, 1.0}, coords,
       time);
+
+  check_wrapped_gr_solution_consistency(
+      GeneralizedHarmonic::Solutions::WrappedGr<
+          ScalarTensor::Solutions::MinkowskiScalarWave>{0.5, 1.0},
+      ScalarTensor::Solutions::MinkowskiScalarWave{0.5, 1.0}, coords, time);
 }

@@ -7,9 +7,11 @@
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveConstantScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiScalarWave.hpp"
 #include "Utilities/GenerateInstantiations.hpp"
 
 GENERATE_INSTANTIATIONS(WRAPPED_GR_INSTANTIATE,
                         (ScalarTensor::Solutions::MinkowskiZeroScalar,
                          ScalarTensor::Solutions::KerrSchildScalar,
-                         ScalarTensor::Solutions::GaugeWaveConstantScalar))
+                         ScalarTensor::Solutions::GaugeWaveConstantScalar,
+                         ScalarTensor::Solutions::MinkowskiScalarWave))
