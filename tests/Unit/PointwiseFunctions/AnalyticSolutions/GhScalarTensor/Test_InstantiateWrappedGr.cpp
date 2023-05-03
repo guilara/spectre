@@ -9,8 +9,11 @@
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveConstantScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
-#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiScalarWave.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
+#include "PointwiseFunctions/MathFunctions/MathFunction.hpp"
+#include "PointwiseFunctions/MathFunctions/Sinusoid.hpp"
+
 
 SPECTRE_TEST_CASE(
     "Unit.PointwiseFunctions.AnalyticSolutions.GhScalarTensor.WrappedGr",
@@ -36,6 +39,15 @@ SPECTRE_TEST_CASE(
 
   check_wrapped_gr_solution_consistency(
       GeneralizedHarmonic::Solutions::WrappedGr<
-          ScalarTensor::Solutions::MinkowskiScalarWave>{0.5, 1.0},
-      ScalarTensor::Solutions::MinkowskiScalarWave{0.5, 1.0}, coords, time);
+          ScalarTensor::Solutions::MinkowskiScalarWave>{
+          0.5, std::array<double, 3_st>{1.0, 0.0, 0.0},
+          std::array<double, 3_st>{0.0, 0.0, 0.0},
+          std::make_unique<MathFunctions::Sinusoid<1_st, Frame::Inertial>>(
+              1.0, 1.0, 0.0)},
+      ScalarTensor::Solutions::MinkowskiScalarWave{
+          0.5, std::array<double, 3_st>{1.0, 0.0, 0.0},
+          std::array<double, 3_st>{0.0, 0.0, 0.0},
+          std::make_unique<MathFunctions::Sinusoid<1_st, Frame::Inertial>>(
+              1.0, 1.0, 0.0)},
+      coords, time);
 }

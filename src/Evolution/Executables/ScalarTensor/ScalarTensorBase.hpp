@@ -133,6 +133,10 @@
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/Tags/InitialData.hpp"
+//
+#include "PointwiseFunctions/MathFunctions/Factory.hpp"
+#include "PointwiseFunctions/MathFunctions/MathFunction.hpp"
+//
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/ChangeSlabSize.hpp"
 #include "Time/Actions/RecordTimeStepperData.hpp"
@@ -388,21 +392,22 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
                                           typename detail::ObserverTags<
                                               volume_dim>::field_observations,
                                           Events::time_events<system>>>>,
-    //   tmpl::pair<GeneralizedHarmonic::BoundaryConditions::BoundaryCondition<
-    //                  volume_dim>,
-    //              GeneralizedHarmonic::BoundaryConditions::
-    //                  standard_boundary_conditions<volume_dim>>,
+      //  tmpl::pair<GeneralizedHarmonic::BoundaryConditions::BoundaryCondition<
+      //                  volume_dim>,
+      //              GeneralizedHarmonic::BoundaryConditions::
+      //                  standard_boundary_conditions<volume_dim>>,
       //
-      tmpl::pair<ScalarTensor::BoundaryConditions::BoundaryCondition,
-                 ScalarTensor::BoundaryConditions::
-                     standard_boundary_conditions>,
+      tmpl::pair<
+          ScalarTensor::BoundaryConditions::BoundaryCondition,
+          ScalarTensor::BoundaryConditions::standard_boundary_conditions>,
       //
       tmpl::pair<GeneralizedHarmonic::gauges::GaugeCondition,
                  GeneralizedHarmonic::gauges::all_gauges>,
       tmpl::pair<evolution::initial_data::InitialData,
                  //  GeneralizedHarmonic::Solutions::all_solutions<volume_dim>
-                 initial_data_list
-                 >,
+                 initial_data_list>,
+      tmpl::pair<MathFunction<1, Frame::Inertial>,
+                 MathFunctions::all_math_functions<1, Frame::Inertial>>,
       tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
       tmpl::pair<PhaseChange,
                  tmpl::list<PhaseControl::VisitAndReturn<

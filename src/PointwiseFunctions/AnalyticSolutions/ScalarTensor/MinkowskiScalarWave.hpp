@@ -15,6 +15,7 @@
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Minkowski.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/Solutions.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialData.hpp"
+#include "PointwiseFunctions/MathFunctions/MathFunction.hpp"
 #include "Utilities/TMPL.hpp"
 #include "Utilities/TaggedTuple.hpp"
 
@@ -42,25 +43,41 @@ class MinkowskiScalarWave : /* public evolution::initial_data::InitialData, */
     static constexpr Options::String help = {
         "The amplitude of the scalar wave."};
   };
-  /// The amplitude of the scalar field
-  struct Wavelength {
-    using type = double;
+  /// The wavevector of the scalar field
+  struct WaveVector {
+    using type = std::array<double, 3_st>;
     static constexpr Options::String help = {
-        "The wavelength of the scalar wave."};
+        "The direction of propagation of the wave."};
+  };
+  /// The center of the scalar field
+  struct Center {
+    using type = std::array<double, 3_st>;
+    static constexpr Options::String help = {
+        "The initial center of the profile of the wave."};
+  };
+  /// The functional profile of the scalar field
+  struct Profile {
+    using type = std::unique_ptr<MathFunction<1, Frame::Inertial>>;
+    static constexpr Options::String help = {"The profile of the wave."};
   };
 
-  using options = tmpl::list<Amplitude, Wavelength>;
+  using options = tmpl::list<Amplitude, WaveVector, Center, Profile>;
   static constexpr Options::String help = {
       "Zero scalar field in Minkowski space."};
 
   MinkowskiScalarWave() = default;
-  MinkowskiScalarWave(const MinkowskiScalarWave& /*rhs*/) = default;
-  MinkowskiScalarWave& operator=(const MinkowskiScalarWave& /*rhs*/) = default;
+//   MinkowskiScalarWave(const MinkowskiScalarWave& /*rhs*/) = default;
+  MinkowskiScalarWave(const MinkowskiScalarWave& /*rhs*/);
+//MinkowskiScalarWave& operator=(const MinkowskiScalarWave& /*rhs*/) = default;
+  MinkowskiScalarWave& operator=(const MinkowskiScalarWave& /*rhs*/);
   MinkowskiScalarWave(MinkowskiScalarWave&& /*rhs*/) = default;
   MinkowskiScalarWave& operator=(MinkowskiScalarWave&& /*rhs*/) = default;
   ~MinkowskiScalarWave() override = default;
 
-  MinkowskiScalarWave(double amplitude, double wavelength);
+  MinkowskiScalarWave(
+      double amplitude, std::array<double, 3_st> wave_vector,
+      std::array<double, 3_st> center,
+      std::unique_ptr<MathFunction<1, Frame::Inertial>> profile);
 
   auto get_clone() const
       -> std::unique_ptr<evolution::initial_data::InitialData> override;
@@ -125,8 +142,14 @@ class MinkowskiScalarWave : /* public evolution::initial_data::InitialData, */
   friend bool operator==(const MinkowskiScalarWave& lhs,
                          const MinkowskiScalarWave& rhs);
 
+  template <typename DataType>
+  DataType u(const tnsr::I<DataType, 3_st>& x, double t) const;
+
   double amplitude_ = std::numeric_limits<double>::signaling_NaN();
-  double wavelength_ = std::numeric_limits<double>::signaling_NaN();
+  std::array<double, 3_st> wave_vector_{};
+  std::array<double, 3_st> center_{};
+  double omega_{};
+  std::unique_ptr<MathFunction<1, Frame::Inertial>> profile_;
   gr::Solutions::Minkowski<3> background_spacetime_{};
 };
 
