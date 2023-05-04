@@ -528,8 +528,8 @@ struct ScalarTensorTemplateBase<
           evolution::Initialization::Actions::SetVariables<
               domain::Tags::Coordinates<volume_dim, Frame::ElementLogical>>>,
       // Random noise system::variables_tag
-    //   Actions::RandomizeVariables<typename system::variables_tag,
-    //                               RandomizeInitialGuess>,
+      Actions::RandomizeVariables<typename system::variables_tag,
+                                  RandomizeInitialGuess>,
       Initialization::Actions::AddComputeTags<::Tags::DerivCompute<
           typename system::variables_tag,
           domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
