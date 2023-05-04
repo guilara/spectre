@@ -81,6 +81,7 @@ MinkowskiScalarWave::variables(
   const auto du = profile_->first_deriv(u(x, t));
   for (size_t i = 0; i < 3_st; ++i) {
     result.get(i) = gsl::at(wave_vector_, i) * du;
+    result.get(i) *= 2.0 * M_PI;
   }
   return {result};
 }
@@ -90,6 +91,7 @@ tuples::TaggedTuple<CurvedScalarWave::Tags::Pi> MinkowskiScalarWave::variables(
     const tnsr::I<DataType, 3>& x, double t,
     tmpl::list<CurvedScalarWave::Tags::Pi> /*meta*/) const {
   auto result = Scalar<DataType>(-omega_ * profile_->first_deriv(u(x, t)));
+  result.get() *= 2.0 * M_PI;
   result.get() *= -1.0;
   return {result};
 }
@@ -101,6 +103,7 @@ DataType MinkowskiScalarWave::u(const tnsr::I<DataType, 3_st>& x,
   for (size_t d = 0; d < 3_st; ++d) {
     result += gsl::at(wave_vector_, d) * (x.get(d) - gsl::at(center_, d));
   }
+  result *= 2.0 * M_PI;
   return result;
 }
 
