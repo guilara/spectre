@@ -273,6 +273,10 @@ class ProductOfConditions final : public BoundaryCondition {
     // to a different value. If it does, invert the order of application of the
     // corrections first, so that the GH update is applied at last
 
+    // A temporal solution to using pack expansions (variadic arguments) is to
+    // use constexpr if statements checking for the different boundary
+    // conditions passed to dg_ghost and passing the right arguments to each
+
     // GeneralizedHarmonic::BoundaryConditions::DirichletMinkowski
     auto gh_string = derived_gh_condition_.dg_ghost(
         spacetime_metric,
