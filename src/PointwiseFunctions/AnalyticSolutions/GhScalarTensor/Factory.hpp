@@ -5,6 +5,7 @@
 
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveConstantScalar.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveScalarWave.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiScalarWave.hpp"
@@ -22,6 +23,8 @@ using all_solutions =
                GeneralizedHarmonic::Solutions::WrappedGr<
                    ::ScalarTensor::Solutions::GaugeWaveConstantScalar>,
                GeneralizedHarmonic::Solutions::WrappedGr<
-                   ::ScalarTensor::Solutions::MinkowskiScalarWave>>;
+                   ::ScalarTensor::Solutions::MinkowskiScalarWave>,
+               GeneralizedHarmonic::Solutions::WrappedGr<
+                   ::ScalarTensor::Solutions::GaugeWaveScalarWave>>;
 }  // namespace ScalarTensor
 }  // namespace GeneralizedHarmonic::Solutions
