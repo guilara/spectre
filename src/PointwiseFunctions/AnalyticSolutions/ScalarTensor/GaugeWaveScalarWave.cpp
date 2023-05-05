@@ -32,7 +32,10 @@ GaugeWaveScalarWave::GaugeWaveScalarWave(
       wave_vector_(std::move(wave_vector)),
       center_(std::move(center)),
       omega_(magnitude(wave_vector_)),
-      profile_(std::move(profile)) {}
+      profile_(std::move(profile)),
+      background_spacetime_(gr::Solutions::GaugeWave<3_st>{
+                                                    amplitude_gauge_wave_,
+                                                    wavelength_gauge_wave_}) {}
 
 GaugeWaveScalarWave::GaugeWaveScalarWave(const GaugeWaveScalarWave& other)
     : evolution::initial_data::InitialData(other),
@@ -42,7 +45,8 @@ GaugeWaveScalarWave::GaugeWaveScalarWave(const GaugeWaveScalarWave& other)
       wave_vector_(other.wave_vector_),
       center_(other.center_),
       omega_(magnitude(wave_vector_)),
-      profile_(other.profile_->get_clone()) {}
+      profile_(other.profile_->get_clone()),
+      background_spacetime_(other.background_spacetime_) {}
 
 GaugeWaveScalarWave& GaugeWaveScalarWave::operator=(
     const GaugeWaveScalarWave& other) {
@@ -53,6 +57,7 @@ GaugeWaveScalarWave& GaugeWaveScalarWave::operator=(
   center_ = other.center_;
   omega_ = magnitude(wave_vector_);
   profile_ = other.profile_->get_clone();
+  background_spacetime_ = background_spacetime_;
   return *this;
 }
 
