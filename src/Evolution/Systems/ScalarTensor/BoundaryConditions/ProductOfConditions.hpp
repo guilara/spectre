@@ -230,7 +230,9 @@ class ProductOfConditions final : public BoundaryCondition {
 
   // A temporal solution to using pack expansions (variadic arguments) is to
   // use constexpr if statements checking for the different boundary
-  // conditions passed to dg_ghost and passing the right arguments to each
+  // conditions passed to dg_ghost and passing the right arguments to each.
+  // Update: Seems that I cannot make conditional the definition of a class
+  // member function
 
   // Boundary conditions for Dirichlet-Minkowski/Constant
   std::optional<std::string> dg_ghost(
