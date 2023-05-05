@@ -62,6 +62,7 @@ void MinkowskiScalarWave::pup(PUP::er& p) {
   p | wave_vector_;
   p | center_;
   p | profile_;
+  p | omega_;
   p | background_spacetime_;
 }
 
