@@ -228,11 +228,7 @@ class ProductOfConditions final : public BoundaryCondition {
     return gh_string.value() + ";" + scalar_string.value();
   }
 
-  // A temporal solution to using pack expansions (variadic arguments) is to
-  // use constexpr if statements checking for the different boundary
-  // conditions passed to dg_ghost and passing the right arguments to each.
-  // Update: Seems that I cannot make conditional the definition of a class
-  // member function
+  // We overload dg_ghost for the different analytic boundary conditions
 
   // Boundary conditions for Dirichlet-Analytic/Constant
   std::optional<std::string> dg_ghost(
@@ -327,7 +323,6 @@ class ProductOfConditions final : public BoundaryCondition {
     return gh_string.value() + ";" + scalar_string.value();
   }
 
-/*
   // Boundary conditions for Dirichlet-Minkowski/Constant
   std::optional<std::string> dg_ghost(
       // GH evolved variables
@@ -416,7 +411,6 @@ class ProductOfConditions final : public BoundaryCondition {
     }
     return gh_string.value() + ";" + scalar_string.value();
   }
-*/
 
  private:
   DerivedGhCondition derived_gh_condition_;
