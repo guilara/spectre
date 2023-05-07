@@ -79,8 +79,10 @@ using remove_periodic_conditions_t =
 using subset_standard_boundary_conditions_gh = tmpl::list<
   // GeneralizedHarmonic::BoundaryConditions::ConstraintPreservingBjorhus<3_st>,
     GeneralizedHarmonic::BoundaryConditions::DemandOutgoingCharSpeeds<3_st>,
-    // GeneralizedHarmonic::BoundaryConditions::DirichletAnalytic<3_st>,
-    GeneralizedHarmonic::BoundaryConditions::DirichletMinkowski<3_st>>;
+    GeneralizedHarmonic::BoundaryConditions::DirichletAnalytic<3_st>
+    // ,
+    // GeneralizedHarmonic::BoundaryConditions::DirichletMinkowski<3_st>
+    >;
 
 using subset_standard_boundary_conditions_scalar = tmpl::list<
     CurvedScalarWave::BoundaryConditions::AnalyticConstant<3_st>,
