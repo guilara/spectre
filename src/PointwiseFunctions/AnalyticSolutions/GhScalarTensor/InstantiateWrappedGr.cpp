@@ -4,10 +4,16 @@
 #include "DataStructures/DataBox/Prefixes.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.tpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveConstantScalar.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveScalarWave.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiScalarWave.hpp"
 #include "Utilities/GenerateInstantiations.hpp"
 
 GENERATE_INSTANTIATIONS(WRAPPED_GR_INSTANTIATE,
                         (ScalarTensor::Solutions::MinkowskiZeroScalar,
-                         ScalarTensor::Solutions::KerrSchildScalar))
+                         ScalarTensor::Solutions::KerrSchildScalar,
+                         ScalarTensor::Solutions::GaugeWaveConstantScalar,
+                         ScalarTensor::Solutions::MinkowskiScalarWave,
+                         ScalarTensor::Solutions::GaugeWaveScalarWave))

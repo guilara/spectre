@@ -133,6 +133,10 @@
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/Tags/InitialData.hpp"
+//
+#include "PointwiseFunctions/MathFunctions/Factory.hpp"
+#include "PointwiseFunctions/MathFunctions/MathFunction.hpp"
+//
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/ChangeSlabSize.hpp"
 #include "Time/Actions/RecordTimeStepperData.hpp"
@@ -401,8 +405,9 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
                  GeneralizedHarmonic::gauges::all_gauges>,
       tmpl::pair<evolution::initial_data::InitialData,
                  //  GeneralizedHarmonic::Solutions::all_solutions<volume_dim>
-                 initial_data_list
-                 >,
+                 initial_data_list>,
+      tmpl::pair<MathFunction<1, Frame::Inertial>,
+                 MathFunctions::all_math_functions<1, Frame::Inertial>>,
       tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
       tmpl::pair<PhaseChange,
                  tmpl::list<PhaseControl::VisitAndReturn<
@@ -523,8 +528,8 @@ struct ScalarTensorTemplateBase<
           evolution::Initialization::Actions::SetVariables<
               domain::Tags::Coordinates<volume_dim, Frame::ElementLogical>>>,
       // Random noise system::variables_tag
-    //   Actions::RandomizeVariables<typename system::variables_tag,
-    //                               RandomizeInitialGuess>,
+      Actions::RandomizeVariables<typename system::variables_tag,
+                                  RandomizeInitialGuess>,
       Initialization::Actions::AddComputeTags<::Tags::DerivCompute<
           typename system::variables_tag,
           domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,

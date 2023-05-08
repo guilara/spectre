@@ -8,7 +8,10 @@ add_spectre_library(${LIBRARY})
 spectre_target_sources(
   ${LIBRARY}
   PRIVATE
+  GaugeWaveConstantScalar.cpp
+  GaugeWaveScalarWave.cpp
   KerrSchildScalar.cpp
+  MinkowskiScalarWave.cpp
   MinkowskiZeroScalar.cpp
   )
 
@@ -16,7 +19,10 @@ spectre_target_headers(
   ${LIBRARY}
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
+  GaugeWaveConstantScalar.hpp
+  GaugeWaveScalarWave.hpp
   KerrSchildScalar.hpp
+  MinkowskiScalarWave.hpp
   MinkowskiZeroScalar.hpp
   Solutions.hpp
   )
