@@ -61,7 +61,8 @@ template <size_t Dim>
 template <typename T>
 Scalar<T> PlaneWave<Dim>::dpsi_dt(const tnsr::I<T, Dim>& x,
                                   const double t) const {
-  return Scalar<T>(-omega_ * profile_->first_deriv(u(x, t)));
+  // return Scalar<T>(-omega_ * profile_->first_deriv(u(x, t)));
+  return Scalar<T>((2.0 * M_PI) * (-omega_) * profile_->first_deriv(u(x, t)));
 }
 
 template <size_t Dim>
@@ -72,6 +73,7 @@ tnsr::i<T, Dim> PlaneWave<Dim>::dpsi_dx(const tnsr::I<T, Dim>& x,
   const auto du = profile_->first_deriv(u(x, t));
   for (size_t i = 0; i < Dim; ++i) {
     result.get(i) = gsl::at(wave_vector_, i) * du;
+    result.get(i) *= 2.0 * M_PI;
   }
   return result;
 }
@@ -80,7 +82,8 @@ template <size_t Dim>
 template <typename T>
 Scalar<T> PlaneWave<Dim>::d2psi_dt2(const tnsr::I<T, Dim>& x,
                                     const double t) const {
-  return Scalar<T>(square(omega_) * profile_->second_deriv(u(x, t)));
+  return Scalar<T>(square(2.0 * M_PI) * square(omega_) *
+                   profile_->second_deriv(u(x, t)));
 }
 
 template <size_t Dim>
@@ -91,6 +94,7 @@ tnsr::i<T, Dim> PlaneWave<Dim>::d2psi_dtdx(const tnsr::I<T, Dim>& x,
   const auto d2u = profile_->second_deriv(u(x, t));
   for (size_t i = 0; i < Dim; ++i) {
     result.get(i) = -omega_ * gsl::at(wave_vector_, i) * d2u;
+    result.get(i) *= square(2.0 * M_PI);
   }
   return result;
 }
@@ -105,6 +109,7 @@ tnsr::ii<T, Dim> PlaneWave<Dim>::d2psi_dxdx(const tnsr::I<T, Dim>& x,
     for (size_t j = i; j < Dim; ++j) {
       result.get(i, j) =
           gsl::at(wave_vector_, i) * gsl::at(wave_vector_, j) * d2u;
+      result.get(i, j) *= square(2.0 * M_PI);
     }
   }
   return result;
@@ -162,6 +167,7 @@ T PlaneWave<Dim>::u(const tnsr::I<T, Dim>& x, const double t) const {
   for (size_t d = 0; d < Dim; ++d) {
     result += gsl::at(wave_vector_, d) * (x.get(d) - gsl::at(center_, d));
   }
+  result *= 2.0 * M_PI;
   return result;
 }
 

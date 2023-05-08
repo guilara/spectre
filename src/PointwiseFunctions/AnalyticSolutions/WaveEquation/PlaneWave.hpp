@@ -44,7 +44,7 @@ namespace ScalarWave::Solutions {
 /*!
  * \brief A plane wave solution to the Euclidean wave equation
  *
- * The solution is given by \f$\Psi(\vec{x},t) = F(u(\vec{x},t))\f$
+ * The solution is given by \f$\Psi(\vec{x},t) = F(2 \pi u(\vec{x},t))\f$
  * where the profile \f$F\f$ of the plane wave is an arbitrary one-dimensional
  * function of \f$u = \vec{k} \cdot (\vec{x} - \vec{x_o}) - \omega t\f$
  * with the wave vector \f$\vec{k}\f$, the frequency \f$\omega = ||\vec{k}||\f$
