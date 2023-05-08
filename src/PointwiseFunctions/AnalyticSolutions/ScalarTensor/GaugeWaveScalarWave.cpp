@@ -57,7 +57,7 @@ GaugeWaveScalarWave& GaugeWaveScalarWave::operator=(
   center_ = other.center_;
   omega_ = magnitude(wave_vector_);
   profile_ = other.profile_->get_clone();
-  background_spacetime_ = background_spacetime_;
+  background_spacetime_ = other.background_spacetime_;
   return *this;
 }
 
