@@ -133,7 +133,8 @@ struct EvolutionMetavars {
 
   using system = CurvedScalarWave::System<Dim>;
   using temporal_id = Tags::TimeStepId;
-  static constexpr bool local_time_stepping = true;
+//   static constexpr bool local_time_stepping = true;
+  static constexpr bool local_time_stepping = false;
 
   using analytic_solution_fields = typename system::variables_tag::tags_list;
   using deriv_compute = ::Tags::DerivCompute<
