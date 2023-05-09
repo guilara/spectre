@@ -10,6 +10,7 @@
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveConstantScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/GaugeWaveScalarWave.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSphericalHarmonic.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiScalarWave.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
 #include "PointwiseFunctions/MathFunctions/MathFunction.hpp"
@@ -64,5 +65,13 @@ SPECTRE_TEST_CASE(
           std::array<double, 3_st>{0.0, 0.0, 0.0},
           std::make_unique<MathFunctions::Sinusoid<1_st, Frame::Inertial>>(
               1.0, 1.0, 0.0)},
+      coords, time);
+
+  check_wrapped_gr_solution_consistency(
+      GeneralizedHarmonic::Solutions::WrappedGr<
+          ScalarTensor::Solutions::KerrSphericalHarmonic>{
+          1.0, 2.0, 1.0, 1.0, std::pair<size_t, int>{1, 0}},
+      ScalarTensor::Solutions::KerrSphericalHarmonic{
+          1.0, 2.0, 1.0, 1.0, std::pair<size_t, int>{1, 0}},
       coords, time);
 }

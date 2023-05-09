@@ -11,6 +11,7 @@ spectre_target_sources(
   GaugeWaveConstantScalar.cpp
   GaugeWaveScalarWave.cpp
   KerrSchildScalar.cpp
+  KerrSphericalHarmonic.cpp
   MinkowskiScalarWave.cpp
   MinkowskiZeroScalar.cpp
   )
@@ -22,6 +23,7 @@ spectre_target_headers(
   GaugeWaveConstantScalar.hpp
   GaugeWaveScalarWave.hpp
   KerrSchildScalar.hpp
+  KerrSphericalHarmonic.hpp
   MinkowskiScalarWave.hpp
   MinkowskiZeroScalar.hpp
   Solutions.hpp
