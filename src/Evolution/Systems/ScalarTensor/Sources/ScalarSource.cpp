@@ -15,6 +15,14 @@ void add_scalar_source_to_dt_pi_scalar(gsl::not_null<Scalar<DataVector>*> dt_pi,
   dt_pi->get() += get(lapse) * scalar_source.get();
 }
 
+void compute_scalar_source(
+    const gsl::not_null<Scalar<DataVector>*> scalar_source,
+    const Scalar<DataVector>& psi, const double mass_psi) {
+  // Make sure it has the same size
+  *scalar_source = make_with_value<Scalar<DataVector>>(psi, 0.);
+  scalar_source->get() = square(mass_psi) * psi.get();
+}
+
 void compute_scalar_curvature_source(
     const gsl::not_null<Scalar<DataVector>*> scalar_source,
     const Scalar<DataVector>& weyl_electric_scalar,
