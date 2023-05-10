@@ -14,6 +14,10 @@
 
 namespace ScalarTensor::Sources {
 
+void add_scalar_source_to_dt_pi_scalar(gsl::not_null<Scalar<DataVector>*> dt_pi,
+                                const Scalar<DataVector>& scalar_source,
+                                const Scalar<DataVector>& lapse);
+
 namespace Tags{
 
 }  // namespace Tags
