@@ -19,6 +19,7 @@ void add_stress_energy_term_to_dt_pi(
   for (size_t a = 0; a < 4; ++a) {
     for (size_t b = a; b < 4; ++b) {
       dt_pi->get(a, b) -=
+          0.0 * // We turn off the backreaction
           16.0 * M_PI * get(lapse) * trace_reversed_stress_energy.get(a, b);
     }
   }
@@ -27,13 +28,19 @@ void add_stress_energy_term_to_dt_pi(
 void trace_reversed_stress_energy(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> stress_energy,
     /* Add scalar variables and scalar gradients */
+    const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3> phi_scalar,
     const tnsr::aa<DataVector, 3, Frame::Inertial>& spacetime_metric,
-    const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
+    // const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
     const Scalar<DataVector>& lapse) {
-// We set it to zero for now
-  for (size_t a = 0; a < 4; ++a) {
-    for (size_t b = a; b < 4; ++b) {
-      stress_energy->get(a, b) = 0.0;
+  get<0, 0>(*stress_energy) = square(lapse.get() * pi_scalar.get());
+  for (size_t i = 1; i < 4; ++i) {
+    stress_energy->get(0, i) = - lapse.get();
+    stress_energy->get(0, i) *= pi_scalar.get() * phi_scalar.get(i);
+  }
+  for (size_t i = 1; i < 4; ++i) {
+    for (size_t j = i; j < 4; ++j) {
+      stress_energy->get(i, j) = phi_scalar.get(i) * phi_scalar.get(j);
     }
   }
 }
