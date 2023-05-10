@@ -5,17 +5,17 @@ set(LIBRARY ScalarTensorSources)
 
 add_spectre_library(${LIBRARY})
 
-# spectre_target_sources(
-#   ${LIBRARY}
-#   PRIVATE
-# #   SourceTerm.cpp
-#   )
-
+spectre_target_sources(
+  ${LIBRARY}
+  PRIVATE
+  ScalarSource.cpp
+  )
+ourceTerm
 spectre_target_headers(
   ${LIBRARY}
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
-#   SourceTerm.hpp
+  ScalarSource.hpp
   Tags.hpp
   )
 
