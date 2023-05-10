@@ -56,7 +56,7 @@ void trace_reversed_stress_energy(
     gsl::not_null<tnsr::aa<DataVector, 3>*> stress_energy,
     /* Add scalar and scalar gradients */
     const Scalar<DataVector>& pi_scalar,
-    const tnsr::i<DataVector, 3> phi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
     const tnsr::aa<DataVector, 3, Frame::Inertial>& spacetime_metric,
     // const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
     const Scalar<DataVector>& lapse);

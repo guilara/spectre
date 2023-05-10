@@ -29,18 +29,18 @@ void trace_reversed_stress_energy(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> stress_energy,
     /* Add scalar variables and scalar gradients */
     const Scalar<DataVector>& pi_scalar,
-    const tnsr::i<DataVector, 3> phi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
     const tnsr::aa<DataVector, 3, Frame::Inertial>& spacetime_metric,
     // const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
     const Scalar<DataVector>& lapse) {
   get<0, 0>(*stress_energy) = square(lapse.get() * pi_scalar.get());
-  for (size_t i = 1; i < 4; ++i) {
-    stress_energy->get(0, i) = - lapse.get();
-    stress_energy->get(0, i) *= pi_scalar.get() * phi_scalar.get(i);
+  for (size_t i = 0; i < 3; ++i) {
+    stress_energy->get(0, i + 1) = - lapse.get();
+    stress_energy->get(0, i + 1) *= pi_scalar.get() * phi_scalar.get(i);
   }
-  for (size_t i = 1; i < 4; ++i) {
-    for (size_t j = i; j < 4; ++j) {
-      stress_energy->get(i, j) = phi_scalar.get(i) * phi_scalar.get(j);
+  for (size_t i = 0; i < 3; ++i) {
+    for (size_t j = i; j < 3; ++j) {
+      stress_energy->get(i + 1, j + 1) = phi_scalar.get(i) * phi_scalar.get(j);
     }
   }
 }
