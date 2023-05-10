@@ -50,7 +50,7 @@ namespace Tags{
  */
 struct ScalarSourceCompute : ScalarSource, db::ComputeTag {
   using argument_tags = tmpl::list<CurvedScalarWave::Tags::Psi,
-                                   CurvedScalarWave::Sources::Tags::ScalarMass>;
+                                   ScalarTensor::Sources::Tags::ScalarMass>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(const gsl::not_null<return_type*> result,
                                     const Scalar<DataVector>&,

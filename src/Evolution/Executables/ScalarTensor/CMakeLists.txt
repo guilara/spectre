@@ -38,6 +38,7 @@ set(LIBS_TO_LINK
   CurvedWaveEquationAnalyticData
   ScalarTensor
   ScalarTensorSolutions
+  ScalarTensorSources
   GhScalarTensorSolutions
   )
 
