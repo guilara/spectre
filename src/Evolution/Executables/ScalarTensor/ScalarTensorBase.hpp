@@ -48,6 +48,7 @@
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Initialize.hpp"
+#include "Evolution/Systems/CurvedScalarWave/PsiSquared.hpp"
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 //
@@ -363,6 +364,48 @@ struct ObserverTags {
   using field_observations =
       dg::Events::field_observations<volume_dim, Tags::Time, observe_fields,
                                      non_tensor_compute_tags>;
+
+  // We collect here all the tags needed for interpolation in all surfaces
+  using scalar_charge_vars_to_interpolate_to_target =
+      tmpl::list<gr::Tags::SpatialMetric<volume_dim,
+                 ::Frame::Inertial, DataVector>,
+                 gr::Tags::InverseSpatialMetric<volume_dim, ::Frame::Inertial>,
+                 CurvedScalarWave::Tags::Phi<volume_dim>,
+                 CurvedScalarWave::Tags::Psi>;
+
+using scalar_charge_compute_items_on_target = tmpl::list<
+      StrahlkorperTags::ThetaPhiCompute<::Frame::Inertial>,
+      StrahlkorperTags::RadiusCompute<::Frame::Inertial>,
+      StrahlkorperTags::RhatCompute<::Frame::Inertial>,
+      StrahlkorperTags::InvJacobianCompute<::Frame::Inertial>,
+      StrahlkorperTags::JacobianCompute<::Frame::Inertial>,
+      StrahlkorperTags::DxRadiusCompute<::Frame::Inertial>,
+      StrahlkorperTags::NormalOneFormCompute<::Frame::Inertial>,
+      StrahlkorperTags::OneOverOneFormMagnitudeCompute<volume_dim,
+                                                       ::Frame::Inertial,
+                                                       DataVector>,
+      StrahlkorperTags::UnitNormalOneFormCompute<::Frame::Inertial>,
+      StrahlkorperTags::UnitNormalVectorCompute<::Frame::Inertial>,
+      StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
+    //   ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrandCompute<
+    //       ::Frame::Inertial>,
+    //   StrahlkorperGr::Tags::SurfaceIntegralCompute<
+    //       ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
+    //       ::Frame::Inertial>,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
+                                                   ::Frame::Inertial>,
+      CurvedScalarWave::Tags::PsiSquaredCompute,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<
+          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
+
+  using scalar_charge_surface_obs_tags = tmpl::list<
+    //   StrahlkorperGr::Tags::SurfaceIntegralCompute<
+    //       ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
+    //       ::Frame::Inertial>,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
+                                                   ::Frame::Inertial>,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<
+          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
 };
 
 template <size_t VolumeDim, bool LocalTimeStepping>

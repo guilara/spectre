@@ -132,8 +132,31 @@ struct EvolutionMetavars
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
 
+  struct SphericalSurface
+      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    using temporal_id = ::Tags::Time;
+
+    // Note: These need to be the same as in `interpolator_source_vars`.
+    // For now, all interpolator targets in this executable need the same
+    // tags here
+    using vars_to_interpolate_to_target =
+        detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
+    // Most of these tags are required to compute the unit normal
+    using compute_items_on_target =
+            detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<SphericalSurface, ::Frame::Inertial>;
+    using post_interpolation_callback =
+        intrp::callbacks::ObserveTimeSeriesOnSurface<
+                     detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
+                     SphericalSurface>;
+    template <typename metavariables>
+    using interpolating_component = typename metavariables::st_dg_element_array;
+  };
+
 //   using interpolation_target_tags = tmpl::list<AhA, ExcisionBoundaryA>;
-  using interpolation_target_tags = tmpl::list<AhA>;
+//   using interpolation_target_tags = tmpl::list<AhA>;
+  using interpolation_target_tags = tmpl::list<AhA, SphericalSurface>;
   using interpolator_source_vars_excision_boundary = tmpl::list<
       gr::Tags::SpacetimeMetric<volume_dim, Frame::Inertial>,
       GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma1>;
@@ -141,9 +164,12 @@ struct EvolutionMetavars
       tmpl::append<interpolator_source_vars_excision_boundary,
                    ::ah::source_vars<volume_dim>>>;
 
-  // The interpolator_source_vars need to be the same in both the Interpolate
-  // event and the InterpolateWithoutInterpComponent event.  The Interpolate
-  // event interpolates to the horizon, and the
+  using scalar_charge_interpolator_source_vars =
+      detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
+
+  // The interpolator_source_vars need to be the same in both the
+  // Interpolate event and the InterpolateWithoutInterpComponent event.  The
+  // Interpolate event interpolates to the horizon, and the
   // InterpolateWithoutInterpComponent event interpolates to the excision
   // boundary. Every Target gets the same interpolator_source_vars, so they need
   // to be made the same. Otherwise a static assert is triggered.
@@ -161,10 +187,10 @@ struct EvolutionMetavars
         typename st_base::factory_creation::factory_classes,
         tmpl::pair<Event,
                    tmpl::list<intrp::Events::Interpolate<
-                                  3, AhA, interpolator_source_vars>
-                                  >
-                                  >
-                                  >;
+                                  3, AhA, interpolator_source_vars>,
+                              intrp::Events::InterpolateWithoutInterpComponent<
+                                  3, SphericalSurface, EvolutionMetavars,
+                                  scalar_charge_interpolator_source_vars>>>>;
   };
 
   using typename st_base::const_global_cache_tags;
@@ -239,7 +265,8 @@ struct EvolutionMetavars
                          //  importers::ElementDataReader<EvolutionMetavars>,
                          tmpl::list<>>,
       st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
-      intrp::InterpolationTarget<EvolutionMetavars, AhA>>>;
+      intrp::InterpolationTarget<EvolutionMetavars, AhA>,
+      intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface>>>;
 };
 
 static const std::vector<void (*)()> charm_init_node_funcs{
