@@ -10,7 +10,7 @@ spectre_target_sources(
   PRIVATE
   ScalarSource.cpp
   )
-ourceTerm
+
 spectre_target_headers(
   ${LIBRARY}
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
