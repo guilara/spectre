@@ -72,5 +72,8 @@ template void volume_terms<::ScalarTensor::TimeDerivativeTerms>(
     const tnsr::I<DataVector, 3_st>& trace_spatial_christoffel,
     const Scalar<DataVector>& trace_extrinsic_curvature,
     const Scalar<DataVector>& gamma1_scalar,
-    const Scalar<DataVector>& gamma2_scalar);
+    const Scalar<DataVector>& gamma2_scalar,
+    // Scalar Tensor Extra Argument tags (Sources)
+    const Scalar<DataVector>& scalar_source
+    );
 }  // namespace evolution::dg::Actions::detail

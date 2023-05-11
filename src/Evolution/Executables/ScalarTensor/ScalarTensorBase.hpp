@@ -328,7 +328,8 @@ struct ObserverTags {
           CurvedScalarWave::Tags::ConstraintGamma2,
           // Sources
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
-          ScalarTensor::Sources::Tags::ScalarSourceCompute,
+        //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
+          ScalarTensor::Sources::Tags::ScalarSource,
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,

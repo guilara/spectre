@@ -19,6 +19,7 @@
 #include "Evolution/Systems/GeneralizedHarmonic/Constraints.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "Parallel/AlgorithmExecution.hpp"
 #include "Parallel/GlobalCache.hpp"
@@ -93,7 +94,8 @@ struct InitializeScalarTensorAnd3Plus1Variables {
       GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma1Compute<
           Dim, Frame::Grid>,
       GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma2Compute<
-          Dim, Frame::Grid>>;
+          Dim, Frame::Grid>,
+      ScalarTensor::Sources::Tags::ScalarSourceCompute>;
 
   using const_global_cache_tags = tmpl::list<
       GeneralizedHarmonic::ConstraintDamping::Tags::DampingFunctionGamma0<

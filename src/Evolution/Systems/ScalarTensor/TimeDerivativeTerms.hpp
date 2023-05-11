@@ -15,6 +15,7 @@
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/TimeDerivative.hpp"
 // Add scalar time derivatives, stress-energy tensor, etc.
+#include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
 #include "Evolution/Systems/ScalarTensor/StressEnergy.hpp"
 #include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
@@ -80,7 +81,10 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
   using scalar_temp_tags =
       typename CurvedScalarWave::TimeDerivative<3_st>::temporary_tags;
   using scalar_extra_temp_tags =
-      tmpl::list<ScalarTensor::Tags::TraceReversedStressEnergy>;
+      tmpl::list<ScalarTensor::Tags::TraceReversedStressEnergy
+                //  ,
+                //  ScalarTensor::Sources::Tags::ScalarSource
+                 >;
   using scalar_gradient_tags =
       typename CurvedScalarWave::System<3_st>::gradients_tags;
   using gradient_tags = tmpl::append<gh_gradient_tags, scalar_gradient_tags>;
@@ -90,7 +94,9 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
   using temporary_tags =
         tmpl::remove_duplicates<tmpl::append<gh_temp_tags,
         scalar_temp_tags, scalar_extra_temp_tags>>;
-  using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags>;
+//   using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags>;
+  using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags,
+                        tmpl::list<ScalarTensor::Sources::Tags::ScalarSource>>;
   //...
   static void apply(
       // GH dt variables
@@ -151,6 +157,7 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       // Extra temporal tags
       // Avoid compute tags for deriv of lapse and shift by adding them here
       gsl::not_null<tnsr::aa<DataVector, 3_st>*> stress_energy,
+    //   gsl::not_null<Scalar<DataVector>*> scalar_source,
 
       // GH argument variables
       // GH spatial derivatives
@@ -189,7 +196,8 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       const tnsr::I<DataVector, 3_st>& trace_spatial_christoffel,
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1_scalar,
-      const Scalar<DataVector>& gamma2_scalar) {
+      const Scalar<DataVector>& gamma2_scalar,
+      const Scalar<DataVector>& scalar_source) {
     // Note: Check that CurvedScalarWave does not update GH variables
     // to a different value. If it does, invert the order of application of the
     // corrections first, so that the GH update is applied at last
@@ -260,6 +268,22 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
     add_stress_energy_term_to_dt_pi(
         dt_pi,
         *stress_energy, lapse_scalar);
+
+    // Since we do not want to pass all the arguments required to compute the
+    // sources to TimeDerivativeTerms, we actually need to compute the scalar
+    // source with a compute tag. For more complicated stress energy tensors
+    // the same observation might apply.
+    //
+    // Note: Arguments are wrong here
+    // Sources::compute_scalar_source(
+    //     scalar_source,
+    //     /*psi_scalar*/ /*Use pi for now*/ pi_scalar,
+    //     /*mass_psi*/ 0.5);
+
+    Sources::add_scalar_source_to_dt_pi_scalar(
+        dt_pi_scalar,
+        scalar_source, // Taken from a compute tag
+        lapse_scalar);
   }
 };
 } // namespace ScalarTensor
