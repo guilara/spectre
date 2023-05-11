@@ -363,6 +363,8 @@ struct ObserverTags {
                     DataVector>, tmpl::size_t<volume_dim>, Frame::Inertial>,
             //   gr::Tags::WeylElectricCompute<3, Frame::Inertial, DataVector>,
             gr::Tags::WeylElectric<3, Frame::Inertial, DataVector>,
+            gr::Tags::WeylElectricScalar<DataVector>,
+            gr::Tags::WeylMagneticScalar<DataVector>,
               gr::Tags::Psi4RealCompute<Frame::Inertial>>,
           tmpl::list<>>>;
   using non_tensor_compute_tags = tmpl::list<
