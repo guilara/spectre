@@ -57,6 +57,30 @@ struct ScalarSourceCompute : ScalarSource, db::ComputeTag {
                                     const double) = &compute_scalar_source;
   using base = ScalarSource;
 };
+
+/*!
+ * \brief Compute tag for the scalar source given by the background curvature.
+ *
+ * \details Call compute_scalar_curvature_source. Needs that WeylElectric is in
+ * data box.
+ */
+template <size_t SpatialDim, typename Frame, typename DataType>
+struct ScalarCurvatureSourceCompute : ScalarSource, db::ComputeTag {
+using argument_tags =
+    tmpl::list<gr::Tags::WeylElectricScalarCompute<SpatialDim, Frame, DataType>,
+               gr::Tags::WeylMagneticScalarCompute<Frame, DataType>,
+               CurvedScalarWave::Tags::Psi,
+               ScalarTensor::Sources::Tags::ScalarFirstCouplingParameter,
+               ScalarTensor::Sources::Tags::ScalarSecondCouplingParameter,
+               ScalarTensor::Sources::Tags::ScalarMass>;
+using return_type = Scalar<DataVector>;
+static constexpr void (*function)(
+    const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+    const Scalar<DataVector>&, const Scalar<DataVector>&, const double,
+    const double, const double) = &compute_scalar_curvature_source;
+using base = ScalarSource;
+};
+
 }  // namespace Tags
 
 }  // namespace ScalarTensor::Sources

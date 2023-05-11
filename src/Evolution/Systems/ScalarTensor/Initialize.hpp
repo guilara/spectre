@@ -101,7 +101,9 @@ struct InitializeScalarTensorAnd3Plus1Variables {
           Dim, Frame::Grid>,
       GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma2Compute<
           Dim, Frame::Grid>,
-      ScalarTensor::Sources::Tags::ScalarSourceCompute,
+    //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
+      ScalarTensor::Sources::Tags::ScalarCurvatureSourceCompute<
+                                                        Dim, frame, DataVector>,
 
       // Extra tags for curvatures
       ::Tags::DerivTensorCompute<

@@ -533,7 +533,9 @@ struct ScalarTensorTemplateBase<
       GeneralizedHarmonic::ConstraintDamping::Tags::DampingFunctionGamma2<
           volume_dim, Frame::Grid>,
       // Source parameters
-      ScalarTensor::Sources::Tags::ScalarMass>;
+      ScalarTensor::Sources::Tags::ScalarMass,
+      ScalarTensor::Sources::Tags::ScalarFirstCouplingParameter,
+      ScalarTensor::Sources::Tags::ScalarSecondCouplingParameter>;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
