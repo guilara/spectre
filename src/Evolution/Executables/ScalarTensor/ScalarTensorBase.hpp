@@ -57,6 +57,9 @@
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/Initialize.hpp"
+#include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
+#include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/StressEnergy.hpp"
 #include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 //
@@ -323,6 +326,9 @@ struct ObserverTags {
           GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma2,
           CurvedScalarWave::Tags::ConstraintGamma1,
           CurvedScalarWave::Tags::ConstraintGamma2,
+          // Sources
+          ScalarTensor::Tags::TraceReversedStressEnergyCompute,
+          ScalarTensor::Sources::Tags::ScalarSourceCompute,
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
@@ -514,7 +520,9 @@ struct ScalarTensorTemplateBase<
       GeneralizedHarmonic::ConstraintDamping::Tags::DampingFunctionGamma1<
           volume_dim, Frame::Grid>,
       GeneralizedHarmonic::ConstraintDamping::Tags::DampingFunctionGamma2<
-          volume_dim, Frame::Grid>>;
+          volume_dim, Frame::Grid>,
+      // Source parameters
+      ScalarTensor::Sources::Tags::ScalarMass>;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
