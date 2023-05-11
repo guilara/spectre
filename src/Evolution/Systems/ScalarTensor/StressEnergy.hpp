@@ -76,8 +76,7 @@ namespace Tags {
 struct TraceReversedStressEnergyCompute : TraceReversedStressEnergy,
                                           db::ComputeTag {
   using argument_tags =
-      tmpl::list<CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
-                 CurvedScalarWave::Tags::Phi<3_st>,
+      tmpl::list<CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3_st>,
                  gr::Tags::SpacetimeMetric<3_st, ::Frame::Inertial, DataVector>,
                  gr::Tags::Lapse<DataVector>>;
   using return_type = Scalar<DataVector>;
