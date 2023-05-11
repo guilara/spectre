@@ -265,8 +265,9 @@ struct ObserverTags {
                                          DataVector>,
           gr::Tags::Shift<volume_dim, Frame::Inertial, DataVector>,
           gr::Tags::Lapse<DataVector>,
-          gr::Tags::SqrtDetSpatialMetricCompute<volume_dim, Frame::Inertial,
-                                                DataVector>,
+        //   gr::Tags::SqrtDetSpatialMetricCompute<volume_dim, Frame::Inertial,
+        //                                         DataVector>,
+          gr::Tags::SqrtDetSpatialMetric<DataVector>,
           gr::Tags::SpacetimeNormalOneFormCompute<volume_dim, Frame::Inertial,
                                                   DataVector>,
           gr::Tags::SpacetimeNormalVector<volume_dim, Frame::Inertial,
@@ -286,15 +287,21 @@ struct ObserverTags {
           gr::Tags::ExtrinsicCurvature<volume_dim, Frame::Inertial, DataVector>,
           gr::Tags::TraceExtrinsicCurvature<DataVector>,
           // More 3 plus 1 variables
-          ::Tags::DerivTensorCompute<
-              gr::Tags::SpatialChristoffelSecondKind<
-                  volume_dim, ::Frame::Inertial, DataVector>,
-              ::domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
-                                              Frame::Inertial>>,
-          gr::Tags::SpatialRicciCompute<volume_dim, ::Frame::Inertial,
-                                        DataVector>,
-          gr::Tags::SpatialRicciScalarCompute<volume_dim, ::Frame::Inertial,
-                                              DataVector>,
+        //   ::Tags::DerivTensorCompute<
+        //       gr::Tags::SpatialChristoffelSecondKind<
+        //           volume_dim, ::Frame::Inertial, DataVector>,
+        //    ::domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
+        //                                       Frame::Inertial>>,
+          ::Tags::deriv<
+                gr::Tags::SpatialChristoffelSecondKind<
+                        volume_dim, ::Frame::Inertial, DataVector>,
+                tmpl::size_t<volume_dim>, Frame::Inertial>,
+        //   gr::Tags::SpatialRicciCompute<volume_dim, ::Frame::Inertial,
+        //                                 DataVector>,
+          gr::Tags::SpatialRicci<volume_dim, ::Frame::Inertial, DataVector>,
+        //   gr::Tags::SpatialRicciScalarCompute<volume_dim, ::Frame::Inertial,
+        //                                       DataVector>,
+          gr::Tags::SpatialRicciScalar<DataVector>,
           // Compute the constraints of GH
           GeneralizedHarmonic::Tags::GaugeConstraintCompute<volume_dim,
                                                             Frame::Inertial>,
@@ -348,11 +355,14 @@ struct ObserverTags {
                       3, Frame::Inertial>>,
               GeneralizedHarmonic::Tags::ConstraintEnergyCompute<
                   3, Frame::Inertial>,
-              ::Tags::DerivTensorCompute<
-                  gr::Tags::ExtrinsicCurvature<3, Frame::Inertial>,
-                  ::domain::Tags::InverseJacobian<
-                      volume_dim, Frame::ElementLogical, Frame::Inertial>>,
-              gr::Tags::WeylElectricCompute<3, Frame::Inertial, DataVector>,
+            //   ::Tags::DerivTensorCompute<
+            //       gr::Tags::ExtrinsicCurvature<3, Frame::Inertial>,
+            //       ::domain::Tags::InverseJacobian<
+            //           volume_dim, Frame::ElementLogical, Frame::Inertial>>,
+        ::Tags::deriv<gr::Tags::ExtrinsicCurvature<volume_dim, Frame::Inertial,
+                    DataVector>, tmpl::size_t<volume_dim>, Frame::Inertial>,
+            //   gr::Tags::WeylElectricCompute<3, Frame::Inertial, DataVector>,
+            gr::Tags::WeylElectric<3, Frame::Inertial, DataVector>,
               gr::Tags::Psi4RealCompute<Frame::Inertial>>,
           tmpl::list<>>>;
   using non_tensor_compute_tags = tmpl::list<

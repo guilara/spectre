@@ -21,6 +21,9 @@
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
+//
+#include "NumericalAlgorithms/LinearOperators/PartialDerivatives.hpp"
+//
 #include "Parallel/AlgorithmExecution.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "PointwiseFunctions/AnalyticData/Tags.hpp"
@@ -29,6 +32,9 @@
 #include "PointwiseFunctions/GeneralRelativity/DerivativesOfSpacetimeMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/SpacetimeNormalVector.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Ricci.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/ConstraintGammas.hpp"
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/DerivSpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/ExtrinsicCurvature.hpp"
@@ -95,7 +101,30 @@ struct InitializeScalarTensorAnd3Plus1Variables {
           Dim, Frame::Grid>,
       GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma2Compute<
           Dim, Frame::Grid>,
-      ScalarTensor::Sources::Tags::ScalarSourceCompute>;
+      ScalarTensor::Sources::Tags::ScalarSourceCompute,
+
+      // Extra tags for curvatures
+      ::Tags::DerivTensorCompute<
+              gr::Tags::ExtrinsicCurvature<Dim, Frame::Inertial,
+                                           DataVector>,
+              ::domain::Tags::InverseJacobian<
+                  Dim, ::Frame::ElementLogical, ::Frame::Inertial>>,
+      ::Tags::DerivTensorCompute<
+              gr::Tags::SpatialChristoffelSecondKind<
+                  Dim, ::Frame::Inertial, DataVector>,
+              ::domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
+                                              Frame::Inertial>>,
+
+       gr::Tags::SpatialRicciCompute<Dim, frame, DataVector>,
+       gr::Tags::SpatialRicciScalarCompute<Dim, frame, DataVector>,
+
+       gr::Tags::WeylElectricCompute<Dim, frame, DataVector>,
+       gr::Tags::WeylElectricScalarCompute<Dim, frame, DataVector>,
+
+       gr::Tags::SqrtDetSpatialMetricCompute<Dim, frame, DataVector>,
+       gr::Tags::WeylMagneticCompute<frame, DataVector>,
+       gr::Tags::WeylMagneticScalarCompute<frame, DataVector>
+      >;
 
   using const_global_cache_tags = tmpl::list<
       GeneralizedHarmonic::ConstraintDamping::Tags::DampingFunctionGamma0<
