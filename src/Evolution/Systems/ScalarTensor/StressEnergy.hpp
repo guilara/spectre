@@ -5,6 +5,9 @@
 
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/Tags.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/Gsl.hpp"
 
 namespace ScalarTensor {
@@ -62,5 +65,30 @@ void trace_reversed_stress_energy(
     const Scalar<DataVector>& lapse);
 // void trace_reversed_stress_energy(
 //     gsl::not_null<tnsr::aa<DataVector, 3>*> stress_energy);
+
+namespace Tags {
+
+/*!
+ * \brief Compute tag for the trace reversed stress energy tensor.
+ *
+ * \details Call trace_reversed_stress_energy.
+ */
+struct TraceReversedStressEnergyCompute : TraceReversedStressEnergy,
+                                          db::ComputeTag {
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
+                 CurvedScalarWave::Tags::Phi<3_st>,
+                 gr::Tags::SpacetimeMetric<3_st, ::Frame::Inertial, DataVector>,
+                 gr::Tags::Lapse<DataVector>>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::aa<DataVector, 3>*> result,
+      /* Add scalar and scalar gradients */
+      const Scalar<DataVector>&, const tnsr::i<DataVector, 3>&,
+      const tnsr::aa<DataVector, 3, Frame::Inertial>&,
+      const Scalar<DataVector>&) = &trace_reversed_stress_energy;
+  using base = TraceReversedStressEnergy;
+};
+}  // namespace Tags
 
 } // namespace ScalarTensor
