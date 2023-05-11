@@ -137,6 +137,9 @@
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/Tags/InitialData.hpp"
+//
+#include "PointwiseFunctions/ScalarTensor/ScalarCharge.hpp"
+//
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/ChangeSlabSize.hpp"
 #include "Time/Actions/RecordTimeStepperData.hpp"
@@ -406,11 +409,11 @@ using scalar_charge_compute_items_on_target = tmpl::list<
       StrahlkorperTags::UnitNormalOneFormCompute<::Frame::Inertial>,
       StrahlkorperTags::UnitNormalVectorCompute<::Frame::Inertial>,
       StrahlkorperGr::Tags::AreaElementCompute<::Frame::Inertial>,
-    //   ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrandCompute<
-    //       ::Frame::Inertial>,
-    //   StrahlkorperGr::Tags::SurfaceIntegralCompute<
-    //       ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
-    //       ::Frame::Inertial>,
+      ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrandCompute<
+          ::Frame::Inertial>,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<
+          ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
+          ::Frame::Inertial>,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
                                                    ::Frame::Inertial>,
       CurvedScalarWave::Tags::PsiSquaredCompute,
@@ -418,9 +421,9 @@ using scalar_charge_compute_items_on_target = tmpl::list<
           CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
 
   using scalar_charge_surface_obs_tags = tmpl::list<
-    //   StrahlkorperGr::Tags::SurfaceIntegralCompute<
-    //       ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
-    //       ::Frame::Inertial>,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<
+          ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
+          ::Frame::Inertial>,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
                                                    ::Frame::Inertial>,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
