@@ -154,9 +154,122 @@ struct EvolutionMetavars
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
 
+  struct SphericalSurface2
+      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    using temporal_id = ::Tags::Time;
+
+    // Note: These need to be the same as in `interpolator_source_vars`.
+    // For now, all interpolator targets in this executable need the same
+    // tags here
+    using vars_to_interpolate_to_target =
+        detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
+    // Most of these tags are required to compute the unit normal
+    using compute_items_on_target =
+            detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<SphericalSurface2, ::Frame::Inertial>;
+    using post_interpolation_callback =
+        intrp::callbacks::ObserveTimeSeriesOnSurface<
+                     detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
+                     SphericalSurface2>;
+    template <typename metavariables>
+    using interpolating_component = typename metavariables::st_dg_element_array;
+  };
+
+  struct SphericalSurface3
+      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    using temporal_id = ::Tags::Time;
+
+    // Note: These need to be the same as in `interpolator_source_vars`.
+    // For now, all interpolator targets in this executable need the same
+    // tags here
+    using vars_to_interpolate_to_target =
+        detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
+    // Most of these tags are required to compute the unit normal
+    using compute_items_on_target =
+            detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<SphericalSurface3, ::Frame::Inertial>;
+    using post_interpolation_callback =
+        intrp::callbacks::ObserveTimeSeriesOnSurface<
+                     detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
+                     SphericalSurface3>;
+    template <typename metavariables>
+    using interpolating_component = typename metavariables::st_dg_element_array;
+  };
+
+  struct SphericalSurface4
+      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    using temporal_id = ::Tags::Time;
+
+    // Note: These need to be the same as in `interpolator_source_vars`.
+    // For now, all interpolator targets in this executable need the same
+    // tags here
+    using vars_to_interpolate_to_target =
+        detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
+    // Most of these tags are required to compute the unit normal
+    using compute_items_on_target =
+            detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<SphericalSurface4, ::Frame::Inertial>;
+    using post_interpolation_callback =
+        intrp::callbacks::ObserveTimeSeriesOnSurface<
+                     detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
+                     SphericalSurface4>;
+    template <typename metavariables>
+    using interpolating_component = typename metavariables::st_dg_element_array;
+  };
+
+  struct SphericalSurface5
+      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    using temporal_id = ::Tags::Time;
+
+    // Note: These need to be the same as in `interpolator_source_vars`.
+    // For now, all interpolator targets in this executable need the same
+    // tags here
+    using vars_to_interpolate_to_target =
+        detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
+    // Most of these tags are required to compute the unit normal
+    using compute_items_on_target =
+            detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<SphericalSurface5, ::Frame::Inertial>;
+    using post_interpolation_callback =
+        intrp::callbacks::ObserveTimeSeriesOnSurface<
+                     detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
+                     SphericalSurface5>;
+    template <typename metavariables>
+    using interpolating_component = typename metavariables::st_dg_element_array;
+  };
+
+  struct SphericalSurface6
+      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    using temporal_id = ::Tags::Time;
+
+    // Note: These need to be the same as in `interpolator_source_vars`.
+    // For now, all interpolator targets in this executable need the same
+    // tags here
+    using vars_to_interpolate_to_target =
+        detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
+    // Most of these tags are required to compute the unit normal
+    using compute_items_on_target =
+            detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<SphericalSurface6, ::Frame::Inertial>;
+    using post_interpolation_callback =
+        intrp::callbacks::ObserveTimeSeriesOnSurface<
+                     detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
+                     SphericalSurface6>;
+    template <typename metavariables>
+    using interpolating_component = typename metavariables::st_dg_element_array;
+  };
+
 //   using interpolation_target_tags = tmpl::list<AhA, ExcisionBoundaryA>;
 //   using interpolation_target_tags = tmpl::list<AhA>;
-  using interpolation_target_tags = tmpl::list<AhA, SphericalSurface>;
+  using interpolation_target_tags = tmpl::list<AhA, SphericalSurface,
+                                    SphericalSurface2, SphericalSurface3,
+                                    SphericalSurface4, SphericalSurface5,
+                                    SphericalSurface6>;
   using interpolator_source_vars_excision_boundary = tmpl::list<
       gr::Tags::SpacetimeMetric<volume_dim, Frame::Inertial>,
       GeneralizedHarmonic::ConstraintDamping::Tags::ConstraintGamma1>;
@@ -190,6 +303,21 @@ struct EvolutionMetavars
                                   3, AhA, interpolator_source_vars>,
                               intrp::Events::InterpolateWithoutInterpComponent<
                                   3, SphericalSurface, EvolutionMetavars,
+                                  scalar_charge_interpolator_source_vars>,
+                              intrp::Events::InterpolateWithoutInterpComponent<
+                                  3, SphericalSurface2, EvolutionMetavars,
+                                  scalar_charge_interpolator_source_vars>,
+                              intrp::Events::InterpolateWithoutInterpComponent<
+                                  3, SphericalSurface3, EvolutionMetavars,
+                                  scalar_charge_interpolator_source_vars>,
+                              intrp::Events::InterpolateWithoutInterpComponent<
+                                  3, SphericalSurface4, EvolutionMetavars,
+                                  scalar_charge_interpolator_source_vars>,
+                              intrp::Events::InterpolateWithoutInterpComponent<
+                                  3, SphericalSurface5, EvolutionMetavars,
+                                  scalar_charge_interpolator_source_vars>,
+                              intrp::Events::InterpolateWithoutInterpComponent<
+                                  3, SphericalSurface6, EvolutionMetavars,
                                   scalar_charge_interpolator_source_vars>>>>;
   };
 
@@ -266,7 +394,12 @@ struct EvolutionMetavars
                          tmpl::list<>>,
       st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
       intrp::InterpolationTarget<EvolutionMetavars, AhA>,
-      intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface>>>;
+      intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface>,
+      intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface2>,
+      intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface3>,
+      intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface4>,
+      intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface5>,
+      intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface6>>>;
 };
 
 static const std::vector<void (*)()> charm_init_node_funcs{
