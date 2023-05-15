@@ -272,6 +272,18 @@ void UpwindPenalty<Dim>::dg_boundary_terms(
       }
     }
   }
+
+  // Cowling
+    for (size_t a = 0; a < Dim + 1; ++a) {
+    for (size_t b = a; b < Dim + 1; ++b) {
+      boundary_correction_spacetime_metric->get(a, b) = 0.0;
+      boundary_correction_pi->get(a, b) = 0.0;
+      for (size_t d = 0; d < Dim; ++d) {
+        boundary_correction_phi->get(d, a, b) = 0.0;
+      }
+    }
+  }
+
 }
 
 template <size_t Dim>
