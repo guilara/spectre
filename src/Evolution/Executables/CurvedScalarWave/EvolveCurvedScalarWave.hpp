@@ -149,6 +149,13 @@ struct EvolutionMetavars {
                        typename deriv_compute::type::tags_list>,
           CurvedScalarWave::Tags::OneIndexConstraintCompute<volume_dim>,
           CurvedScalarWave::Tags::TwoIndexConstraintCompute<volume_dim>,
+          //
+          gr::Tags::Shift<volume_dim, Frame::Inertial, DataVector>,
+          gr::Tags::Lapse<DataVector>,
+          gr::Tags::TraceExtrinsicCurvature<DataVector>,
+          gr::Tags::TraceSpatialChristoffelSecondKind<
+              volume_dim, Frame::Inertial, DataVector>,
+          //
           ::Tags::PointwiseL2NormCompute<
               CurvedScalarWave::Tags::OneIndexConstraint<volume_dim>>,
           ::Tags::PointwiseL2NormCompute<
