@@ -343,6 +343,25 @@ void TimeDerivative<Dim>::apply(
       }
     }
   }
+
+  // Cowling
+    // Equation for dt_spacetime_metric and dt_pi
+  for (size_t mu = 0; mu < Dim + 1; ++mu) {
+    for (size_t nu = mu; nu < Dim + 1; ++nu) {
+      dt_spacetime_metric->get(mu, nu) = 0.0;
+      dt_pi->get(mu, nu) = 0.0;
+    }
+  }
+
+    // Equation for dt_phi
+  for (size_t i = 0; i < Dim; ++i) {
+    for (size_t mu = 0; mu < Dim + 1; ++mu) {
+      for (size_t nu = mu; nu < Dim + 1; ++nu) {
+        dt_phi->get(i, mu, nu) = 0.0;
+      }
+    }
+  }
+
 }
 }  // namespace GeneralizedHarmonic
 
