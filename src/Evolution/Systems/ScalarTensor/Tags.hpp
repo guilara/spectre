@@ -5,3 +5,9 @@
 /// Defines DataBox tags for scalar tensor system
 
 #pragma once
+
+namespace ScalarTensor {
+namespace Tags {
+
+} // namespace Tags
+} // namespace ScalarTensor
