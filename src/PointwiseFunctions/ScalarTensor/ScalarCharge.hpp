@@ -48,7 +48,7 @@ void scalar_charge_integrand(
     const Scalar<DataVector>& area_element);
 /// @}
 
-}  // namespace ScalarTensor
+} // namespace ScalarTensor
 
 namespace ScalarTensor::StrahlkorperScalar::Tags {
 
@@ -72,4 +72,4 @@ struct ScalarChargeIntegrandCompute : ScalarChargeIntegrand, db::ComputeTag {
   using return_type = Scalar<DataVector>;
 };
 
-}  // namespace ScalarTensor::StrahlkorperScalar::Tags
+}  // namespace ScalarTensor::StrahlkorperTags

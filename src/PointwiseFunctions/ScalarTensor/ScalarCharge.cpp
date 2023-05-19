@@ -29,12 +29,12 @@ void ScalarTensor::scalar_charge_integrand(
 }
 
 #define FRAME(data) BOOST_PP_TUPLE_ELEM(0, data)
-#define INSTANTIATE(_, data)                                         \
-  template void ScalarTensor::scalar_charge_integrand<FRAME(data)>(  \
-      const gsl::not_null<Scalar<DataVector>*> result,               \
-      const tnsr::i<DataVector, 3, FRAME(data)>& phi,                \
-      const tnsr::I<DataVector, 3, FRAME(data)>& unit_normal_vector, \
-      const Scalar<DataVector>& area_element);
+#define INSTANTIATE(_, data)                                                   \
+  template void ScalarTensor::scalar_charge_integrand<FRAME(data)>(            \
+    const gsl::not_null<Scalar<DataVector>*> result,                           \
+    const tnsr::i<DataVector, 3, FRAME(data)>& phi,                            \
+    const tnsr::I<DataVector, 3, FRAME(data)>& unit_normal_vector,             \
+    const Scalar<DataVector>& area_element);
 GENERATE_INSTANTIATIONS(INSTANTIATE, (Frame::Inertial))
 #undef INSTANTIATE
 #undef FRAME
