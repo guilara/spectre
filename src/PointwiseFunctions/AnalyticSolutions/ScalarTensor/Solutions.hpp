@@ -17,7 +17,8 @@ struct AnalyticSolution {
   using tags = tmpl::push_back<
       typename gr::AnalyticSolution<3>::template tags<DataType>,
       // Add scalar variables here
-      CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
+      CurvedScalarWave::Tags::Psi,
+      CurvedScalarWave::Tags::Pi,
       CurvedScalarWave::Tags::Phi<3_st>
       // We can add the gr tags required by CurvedScalarWave here
       // or in the tags for each individual solution
