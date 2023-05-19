@@ -33,6 +33,7 @@ target_link_libraries(
   DomainBoundaryConditions
   GeneralRelativity
   GeneralizedHarmonic
+  Serialization
   Utilities
   CurvedScalarWave
   INTERFACE
