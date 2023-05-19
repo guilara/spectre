@@ -26,6 +26,7 @@ namespace CurvedScalarWave::Tags {
  */
 struct Psi : db::SimpleTag {
   using type = Scalar<DataVector>;
+  static std::string name() { return "Psi(CurvedScalarWave)"; }
 };
 
 /*!
@@ -45,6 +46,7 @@ struct Psi : db::SimpleTag {
  */
 struct Pi : db::SimpleTag {
   using type = Scalar<DataVector>;
+  static std::string name() { return "Pi(CurvedScalarWave)"; }
 };
 
 /*!
@@ -56,14 +58,17 @@ struct Pi : db::SimpleTag {
 template <size_t SpatialDim>
 struct Phi : db::SimpleTag {
   using type = tnsr::i<DataVector, SpatialDim>;
+  static std::string name() { return "Phi(CurvedScalarWave)"; }
 };
 
 struct ConstraintGamma1 : db::SimpleTag {
   using type = Scalar<DataVector>;
+  static std::string name() { return "ConstraintGamma1(CurvedScalarWave)"; }
 };
 
 struct ConstraintGamma2 : db::SimpleTag {
   using type = Scalar<DataVector>;
+  static std::string name() { return "ConstraintGamma2(CurvedScalarWave)"; }
 };
 
 /*!
@@ -76,6 +81,7 @@ struct ConstraintGamma2 : db::SimpleTag {
 template <size_t SpatialDim>
 struct OneIndexConstraint : db::SimpleTag {
   using type = tnsr::i<DataVector, SpatialDim, Frame::Inertial>;
+  static std::string name() { return "OneIndexConstraint(CurvedScalarWave)"; }
 };
 /*!
  * \brief Tag for the two-index constraint of the scalar wave
@@ -87,6 +93,7 @@ struct OneIndexConstraint : db::SimpleTag {
 template <size_t SpatialDim>
 struct TwoIndexConstraint : db::SimpleTag {
   using type = tnsr::ij<DataVector, SpatialDim, Frame::Inertial>;
+  static std::string name() { return "TwoIndexConstraint(CurvedScalarWave)"; }
 };
 
 /// @{
