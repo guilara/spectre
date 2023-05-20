@@ -154,7 +154,7 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       const tnsr::aa<DataVector, 3_st>& pi,
       const tnsr::iaa<DataVector, 3_st>& phi, const Scalar<DataVector>& gamma0,
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
-      const GeneralizedHarmonic::gauges::GaugeCondition& gauge_condition,
+      const gh::gauges::GaugeCondition& gauge_condition,
       const Mesh<3_st>& mesh, double time,
       const tnsr::I<DataVector, 3_st, Frame::Inertial>& inertial_coords,
       const InverseJacobian<DataVector, 3_st, Frame::ElementLogical,
@@ -212,7 +212,7 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
         // upper_spatial_metric, // inverse_spatial_metric above
         // trace_spatial_christoffel, // trace_christoffel above
         // trace_extrinsic_curvature
-    // GeneralizedHarmonic::extrinsic_curvature(
+    // gh::extrinsic_curvature(
     //     extrinsic_curvature, *normal_spacetime_vector, *pi, *phi);
 
     // Call TimeDerivativeTerms for scalar
