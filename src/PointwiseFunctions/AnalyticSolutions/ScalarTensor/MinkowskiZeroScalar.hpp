@@ -71,11 +71,11 @@ class MinkowskiZeroScalar : /* public evolution::initial_data::InitialData, */
   template <typename DataType, typename Frame = Frame::Inertial>
   using tags = tmpl::flatten<tmpl::list<
       typename AnalyticSolution::template tags<DataType>,
-      gr::Tags::DerivDetSpatialMetric<DataType, Dim, Frame>,
+      gr::Tags::DerivDetSpatialMetric<DataType, 3_st, Frame>,
       gr::Tags::TraceExtrinsicCurvature<DataType>,
-      gr::Tags::SpatialChristoffelFirstKind<DataType, Dim, Frame>,
-      gr::Tags::SpatialChristoffelSecondKind<DataType, Dim, Frame>,
-      gr::Tags::TraceSpatialChristoffelSecondKind<DataType, Dim, Frame>>>;
+      gr::Tags::SpatialChristoffelFirstKind<DataType, 3_st, Frame>,
+      gr::Tags::SpatialChristoffelSecondKind<DataType, 3_st, Frame>,
+      gr::Tags::TraceSpatialChristoffelSecondKind<DataType, 3_st, Frame>>>;
 
   /// @{
   /// Retrieve scalar variable at `(x, t)`

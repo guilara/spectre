@@ -60,10 +60,10 @@ class AnalyticConstant final : public BoundaryCondition<Dim> {
 
   using dg_interior_evolved_variables_tags = tmpl::list<>;
   using dg_interior_temporary_tags = tmpl::list<
-      gr::Tags::InverseSpatialMetric<Dim, Frame::Inertial, DataVector>,
+      gr::Tags::InverseSpatialMetric<DataVector, Dim, Frame::Inertial>,
       Tags::ConstraintGamma1, Tags::ConstraintGamma2,
       gr::Tags::Lapse<DataVector>,
-      gr::Tags::Shift<Dim, Frame::Inertial, DataVector>>;
+      gr::Tags::Shift<DataVector, Dim, Frame::Inertial>>;
   using dg_interior_dt_vars_tags = tmpl::list<>;
   using dg_interior_deriv_vars_tags = tmpl::list<>;
   using dg_gridless_tags = tmpl::list<>;
