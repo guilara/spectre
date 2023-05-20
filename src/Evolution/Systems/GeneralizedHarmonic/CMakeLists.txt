@@ -44,6 +44,9 @@ target_link_libraries(
   GeneralRelativitySolutions
   GhGrMhdAnalyticData
   GhGrMhdSolutions
+  #
+  GhScalarTensorSolutions
+  #
   GhRelativisticEulerSolutions
   IO
   Importers
