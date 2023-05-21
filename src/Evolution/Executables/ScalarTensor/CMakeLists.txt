@@ -57,6 +57,14 @@ add_spectre_parallel_executable(
   "${LIBS_TO_LINK};ApparentHorizons;ControlSystem;GeneralRelativitySolutions"
   )
 
+add_spectre_parallel_executable(
+  "EvolveScalarTensorBinaryBlackHole"
+  EvolveScalarTensorBinaryBlackHole
+  Evolution/Executables/ScalarTensor
+  "EvolutionMetavars"
+  "${LIBS_TO_LINK};Cce;ControlSystem;GeneralRelativitySolutions;Importers"
+)
+
 # add_scalartensor_with_horizon_executable(
 #   BondiHoyleAccretion
 #   GeneralizedHarmonic::Solutions::WrappedGr<grmhd::AnalyticData::BondiHoyleAccretion>
