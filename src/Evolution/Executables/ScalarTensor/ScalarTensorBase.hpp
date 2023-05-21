@@ -277,9 +277,9 @@ struct ObserverTags {
           gr::Tags::SqrtDetSpatialMetric<DataVector>,
           gr::Tags::SpacetimeNormalOneFormCompute<DataVector, volume_dim,
                                                   Frame::Inertial>,
-          gr::Tags::SpacetimeNormalVectorCompute<DataVector, volume_dim,
+          gr::Tags::SpacetimeNormalVector<DataVector, volume_dim,
                                                  Frame::Inertial>,
-          gr::Tags::InverseSpacetimeMetricCompute<DataVector, volume_dim,
+          gr::Tags::InverseSpacetimeMetric<DataVector, volume_dim,
                                                   Frame::Inertial>,
           ::Tags::deriv<
               gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
