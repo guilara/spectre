@@ -74,6 +74,7 @@
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/ProductOfCorrections.hpp"
+#include "Evolution/Systems/ScalarTensor/BoundaryCorrections/RegisterDerived.hpp"
 #include "Evolution/Systems/ScalarTensor/Initialize.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
@@ -309,7 +310,7 @@ struct EvolutionMetavars {
                  gh::Tags::Pi<DataVector, volume_dim>,
                  gh::Tags::Phi<DataVector, volume_dim>>;
 
-  using observe_fields = tmpl::list<>;
+  using observe_fields = system::gh_system::variables_tag::tags_list;
 
   using non_tensor_compute_tags = tmpl::list<
       ::Events::Tags::ObserverMeshCompute<volume_dim>,
@@ -355,12 +356,13 @@ struct EvolutionMetavars {
         tmpl::pair<
             // gh::BoundaryConditions::BoundaryCondition<volume_dim>,
             ScalarTensor::BoundaryConditions::BoundaryCondition,
-            tmpl::list<
+            // tmpl::list<
             // gh::BoundaryConditions::ConstraintPreservingBjorhus<volume_dim>,
                 // gh::BoundaryConditions::DirichletMinkowski<volume_dim>,
                 // gh::BoundaryConditions::DemandOutgoingCharSpeeds<volume_dim>
                 ScalarTensor::BoundaryConditions::standard_boundary_conditions
-                >>,
+                // >
+                >,
         tmpl::pair<
             gh::gauges::GaugeCondition,
             tmpl::list<gh::gauges::DampedHarmonic, gh::gauges::Harmonic>>,
@@ -446,7 +448,8 @@ struct EvolutionMetavars {
           ::domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
                                           Frame::Inertial>,
           typename system::gradient_variables>>,
-      gh::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
+    //   gh::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
+      ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
       Initialization::Actions::AddComputeTags<
           tmpl::push_back<StepChoosers::step_chooser_compute_tags<
               EvolutionMetavars, local_time_stepping>>>,
