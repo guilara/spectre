@@ -137,7 +137,7 @@ struct EvolutionMetavars
                                              ::Frame::Grid>;
     // run_callbacks
     template <typename metavariables>
-    using interpolating_component = typename metavariables::gh_dg_element_array;
+    using interpolating_component = typename metavariables::st_dg_element_array;
   };
 
   struct SphericalSurface
@@ -295,7 +295,7 @@ struct EvolutionMetavars
 
   using interpolation_target_tags = tmpl::push_back<
       control_system::metafunctions::interpolation_target_tags<control_systems>,
-      AhA, /*ExcisionBoundaryA*/
+      AhA, ExcisionBoundaryA,
                                     SphericalSurface,
                                     SphericalSurface2, SphericalSurface3,
                                     SphericalSurface4, SphericalSurface5,
@@ -327,9 +327,9 @@ struct EvolutionMetavars
                    tmpl::flatten<
                    tmpl::list<intrp::Events::Interpolate<
                                   3, AhA, interpolator_source_vars>,
-                        //   intrp::Events::InterpolateWithoutInterpComponent<
-                        //       3, ExcisionBoundaryA, EvolutionMetavars,
-                        //       interpolator_source_vars>,
+                          intrp::Events::InterpolateWithoutInterpComponent<
+                              3, ExcisionBoundaryA, EvolutionMetavars,
+                              interpolator_source_vars>,
                               intrp::Events::InterpolateWithoutInterpComponent<
                                   3, SphericalSurface, EvolutionMetavars,
                                   scalar_charge_interpolator_source_vars>,
