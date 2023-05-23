@@ -551,7 +551,13 @@ struct ScalarTensorTemplateBase<
                          evolution::dg::ApplyBoundaryCorrections<
                              local_time_stepping, system, volume_dim, true>>>,
                      evolution::dg::Actions::ApplyLtsBoundaryCorrections<
-                         system, volume_dim, false>>
+                         system, volume_dim, false>,
+              // We allow for separate filtering of the system variables
+              dg::Actions::Filter<Filters::Exponential<0>,
+                                  system::gh_system::variables_tag::tags_list>,
+              dg::Actions::Filter<
+                  Filters::Exponential<1>,
+                  system::scalar_system::variables_tag::tags_list>>
           // tmpl::list<>
           ,
           tmpl::list<
