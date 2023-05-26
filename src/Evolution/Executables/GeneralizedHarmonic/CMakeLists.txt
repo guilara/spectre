@@ -60,7 +60,7 @@ add_spectre_parallel_executable(
   EvolveGeneralizedHarmonicSingleBlackHole
   Evolution/Executables/GeneralizedHarmonic
   "EvolutionMetavars<3, true>"
-  "${LIBS_TO_LINK};ApparentHorizons;GeneralRelativitySolutions;Importers"
+  "${LIBS_TO_LINK};ApparentHorizons;ControlSystem;GeneralRelativitySolutions;Importers"
   )
 
 add_generalized_harmonic_executable_without_horizon(
