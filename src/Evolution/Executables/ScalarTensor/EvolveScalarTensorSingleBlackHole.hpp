@@ -403,8 +403,10 @@ struct EvolutionMetavars
                              tmpl::list<
                                         gh::Actions::ReadNumericInitialData,
                                         gh::Actions::SetNumericInitialData,
-                               // Replace with ScalarTensor routines when they
-                               // are added to ScalarTensor::Actions
+                // Replace with ScalarTensor routines when they
+                // are added to ScalarTensor::Actions
+                // or initialize these variables with a hack of
+                // CurvedScalarWave::Initialization::InitializeEvolvedVariables
                                // ScalarTensor::Actions::ReadNumericInitialData,
                                 // ScalarTensor::Actions::SetNumericInitialData,
                                         Parallel::Actions::TerminatePhase>>>,
