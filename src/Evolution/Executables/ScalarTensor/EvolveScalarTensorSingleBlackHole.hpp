@@ -403,6 +403,9 @@ struct EvolutionMetavars
                              tmpl::list<
                                         gh::Actions::ReadNumericInitialData,
                                         gh::Actions::SetNumericInitialData,
+             // Initialization::Actions::AddSimpleTags<
+             //        ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
+                // ScalarTensor::Actions::InitializeEvolvedScalarVariables,
                 // Replace with ScalarTensor routines when they
                 // are added to ScalarTensor::Actions
                 // or initialize these variables with a hack of

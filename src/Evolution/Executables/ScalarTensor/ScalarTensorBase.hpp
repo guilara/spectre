@@ -598,7 +598,10 @@ struct ScalarTensorTemplateBase<
       //   Initialization::Actions::NonconservativeSystem<system_scalar>,
       //
       std::conditional_t<
-          UseNumericalInitialData, tmpl::list<>,
+          UseNumericalInitialData,
+        //   tmpl::list<>,
+        Initialization::Actions::AddSimpleTags<
+                       ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
           evolution::Initialization::Actions::SetVariables<
               domain::Tags::Coordinates<volume_dim, Frame::ElementLogical>>>,
       // Random noise system::variables_tag

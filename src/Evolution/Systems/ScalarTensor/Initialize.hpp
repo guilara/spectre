@@ -15,11 +15,13 @@
 #include "DataStructures/Tensor/EagerMath/Norms.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Domain/Tags.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Constraints.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
+#include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 //
 #include "NumericalAlgorithms/LinearOperators/PartialDerivatives.hpp"
@@ -139,4 +141,43 @@ struct InitializeScalarTensorAnd3Plus1Variables {
     return {Parallel::AlgorithmExecution::Continue, std::nullopt};
   }
 };
+
+// template <size_t Dim>
+struct InitializeEvolvedScalarVariables {
+ // using flat_variables_tag = typename ScalarWave::System<3_st>::variables_tag;
+  // using curved_variables_tag =
+  //     typename CurvedScalarWave::System<3_st>::variables_tag;
+  using curved_variables_tag =
+      typename ScalarTensor::System::variables_tag;
+  using return_tags = tmpl::list<curved_variables_tag>;
+  using argument_tags =
+      tmpl::list<
+      // ::Tags::Time, domain::Tags::Coordinates<3_st, Frame::Inertial>,
+      //           //  ::Tags::AnalyticSolutionOrData,
+      //            gr::Tags::Lapse<DataVector>,
+      //            gr::Tags::Shift<DataVector, 3_st>
+                 >;
+  // template <typename AnalyticSolutionOrData>
+  static void apply(
+      const gsl::not_null<typename curved_variables_tag::type*> evolved_vars
+      // ,
+      // const double initial_time,
+      // const tnsr::I<DataVector, 3_st>& inertial_coords,
+      // // const AnalyticSolutionOrData& solution_or_data,
+      // [[maybe_unused]] const Scalar<DataVector>& lapse,
+      // [[maybe_unused]] const tnsr::I<DataVector, 3_st>& shift
+      ) {
+
+    // Set variables to zero for now
+    // Ideally we would like to
+      get(get<CurvedScalarWave::Tags::Psi>(*evolved_vars)) = 0.0;
+      auto& scalar_phi =
+                  get<CurvedScalarWave::Tags::Phi<3_st>>(*evolved_vars);
+      for (size_t i = 0; i < 3_st; i++) {
+        scalar_phi.get(i) = 0.0;
+      }
+      get(get<CurvedScalarWave::Tags::Pi>(*evolved_vars)) = 0.0;
+    }
+  };
+
 }  // namespace ScalarTensor::Actions
