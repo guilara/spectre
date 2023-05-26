@@ -29,6 +29,9 @@
 #include "Evolution/Executables/ScalarTensor/ScalarTensorBase.hpp"
 //
 #include "Evolution/Systems/GeneralizedHarmonic/Actions/NumericInitialData.hpp"
+//
+#include "Evolution/Systems/ScalarTensor/Actions/NumericInitialData.hpp"
+//
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/RegisterDerived.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/RegisterDerivedWithCharm.hpp"
 //
@@ -388,7 +391,21 @@ struct EvolutionMetavars
       tmpl::flatten<tmpl::list<
           Parallel::PhaseActions<Parallel::Phase::Initialization,
                                  initialization_actions>,
-          tmpl::conditional_t<UseNumericalInitialData, tmpl::list<>,
+          tmpl::conditional_t<UseNumericalInitialData,
+                            //   tmpl::list<>,
+                            tmpl::list<Parallel::PhaseActions<
+                             Parallel::Phase::RegisterWithElementDataReader,
+                             tmpl::list<importers::Actions::
+                                            RegisterWithElementDataReader,
+                                        Parallel::Actions::TerminatePhase>>,
+                         Parallel::PhaseActions<
+                             Parallel::Phase::ImportInitialData,
+                             tmpl::list<
+                                        gh::Actions::ReadNumericInitialData,
+                                        gh::Actions::SetNumericInitialData,
+                               // ScalarTensor::Actions::ReadNumericInitialData,
+                                // ScalarTensor::Actions::SetNumericInitialData,
+                                        Parallel::Actions::TerminatePhase>>>,
                               tmpl::list<>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
@@ -428,8 +445,9 @@ struct EvolutionMetavars
   using component_list = tmpl::flatten<tmpl::list<
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
-      std::conditional_t<UseNumericalInitialData, tmpl::list<>,
-                         //  importers::ElementDataReader<EvolutionMetavars>,
+      std::conditional_t<UseNumericalInitialData,
+                        //  tmpl::list<>,
+                         importers::ElementDataReader<EvolutionMetavars>,
                          tmpl::list<>>,
       st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
       control_system::control_components<EvolutionMetavars, control_systems>,

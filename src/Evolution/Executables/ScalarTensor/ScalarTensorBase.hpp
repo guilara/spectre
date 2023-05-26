@@ -187,8 +187,8 @@ struct ScalarTensorTemplateBase;
 namespace detail {
 template <bool UseNumericalInitialData>
 constexpr auto make_default_phase_order() {
-  //   if constexpr (UseNumericalInitialData) {
-  if constexpr (false) {
+    if constexpr (UseNumericalInitialData) {
+//   if constexpr (false) {
     // Register needs to be before InitializeTimeStepperHistory so that CCE is
     // properly registered when the self-start happens
     return std::array{Parallel::Phase::Initialization,
@@ -426,7 +426,9 @@ struct ObserverTags {
           CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
 };
 
-template <size_t VolumeDim, bool LocalTimeStepping>
+// template <size_t VolumeDim, bool LocalTimeStepping>
+template <size_t VolumeDim, bool LocalTimeStepping,
+          bool UseNumericalInitialData>
 struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
   //   static constexpr size_t volume_dim = VolumeDim;
   static constexpr size_t volume_dim = 3_st;
@@ -460,7 +462,11 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
       tmpl::pair<gh::gauges::GaugeCondition, gh::gauges::all_gauges>,
       tmpl::pair<evolution::initial_data::InitialData,
                  //  gh::Solutions::all_solutions<volume_dim>
-                 initial_data_list>,
+                //  initial_data_list
+                 tmpl::conditional_t<UseNumericalInitialData,
+                                     tmpl::list<gh::NumericInitialData>,
+                                     initial_data_list>
+                 >,
       tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
       //   tmpl::pair<PhaseChange,
       //              tmpl::list<PhaseControl::VisitAndReturn<
@@ -501,8 +507,11 @@ struct ScalarTensorTemplateBase<
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}
 
+//   using factory_creation =
+//       detail::FactoryCreation<volume_dim, local_time_stepping>;
   using factory_creation =
-      detail::FactoryCreation<volume_dim, local_time_stepping>;
+      detail::FactoryCreation<volume_dim, local_time_stepping,
+                              UseNumericalInitialData>;
 
   using observed_reduction_data_tags =
       observers::collect_reduction_data_tags<tmpl::push_back<
