@@ -154,17 +154,18 @@ struct InitializeEvolvedScalarVariables {
       tmpl::list<
       // ::Tags::Time, domain::Tags::Coordinates<3_st, Frame::Inertial>,
       //           //  ::Tags::AnalyticSolutionOrData,
-      //            gr::Tags::Lapse<DataVector>,
+                 gr::Tags::Lapse<DataVector>
+                //  ,
       //            gr::Tags::Shift<DataVector, 3_st>
                  >;
   // template <typename AnalyticSolutionOrData>
   static void apply(
-      const gsl::not_null<typename curved_variables_tag::type*> evolved_vars
-      // ,
+      const gsl::not_null<typename curved_variables_tag::type*> evolved_vars,
       // const double initial_time,
       // const tnsr::I<DataVector, 3_st>& inertial_coords,
       // // const AnalyticSolutionOrData& solution_or_data,
-      // [[maybe_unused]] const Scalar<DataVector>& lapse,
+      [[maybe_unused]] const Scalar<DataVector>& lapse
+      // ,
       // [[maybe_unused]] const tnsr::I<DataVector, 3_st>& shift
       ) {
 
@@ -176,7 +177,8 @@ struct InitializeEvolvedScalarVariables {
       for (size_t i = 0; i < 3_st; i++) {
         scalar_phi.get(i) = 0.0;
       }
-      get(get<CurvedScalarWave::Tags::Pi>(*evolved_vars)) = 0.0;
+      get(get<CurvedScalarWave::Tags::Pi>(*evolved_vars)) =
+                  - 1.0e-10 * (get(lapse) - 1.0);
     }
   };
 
