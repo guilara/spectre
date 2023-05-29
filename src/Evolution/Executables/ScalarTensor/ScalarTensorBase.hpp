@@ -522,6 +522,9 @@ struct ScalarTensorTemplateBase<
       // gh::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
       ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
       tmpl::conditional_t<UseNumericalInitialData,
+      // Until we read numerical data for the scalar
+      // we set them to some analytical profile given some numerical data
+      // for the metric quantities
               Initialization::Actions::AddSimpleTags<
                     ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
               tmpl::list<>>,
@@ -604,8 +607,6 @@ struct ScalarTensorTemplateBase<
       std::conditional_t<
           UseNumericalInitialData,
           tmpl::list<>,
-        // Initialization::Actions::AddSimpleTags<
-     //                ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
           evolution::Initialization::Actions::SetVariables<
               domain::Tags::Coordinates<volume_dim, Frame::ElementLogical>>>,
       // Random noise system::variables_tag
