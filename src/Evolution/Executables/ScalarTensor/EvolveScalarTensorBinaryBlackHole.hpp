@@ -313,7 +313,7 @@ struct EvolutionMetavars {
 //   using observe_fields = system::gh_system::variables_tag::tags_list;
   using observe_fields = tmpl::append<
       tmpl::push_back<
-          system::gh_system::variables_tag::tags_list,
+          system::variables_tag::tags_list,
           // (These gauge tags need subsequent tags to compile [why?])
           gh::Tags::GaugeH<DataVector, volume_dim, Frame::Inertial>,
           gh::Tags::SpacetimeDerivGaugeH<DataVector, volume_dim,
@@ -565,8 +565,8 @@ struct EvolutionMetavars {
       // Until we read numerical data for the scalar
       // we set them to some analytical profile given some numerical data
       // for the metric quantities
-      Initialization::Actions::AddSimpleTags<
-                    ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
+    //   Initialization::Actions::AddSimpleTags<
+    //                 ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
       Initialization::Actions::AddComputeTags<
           tmpl::push_back<StepChoosers::step_chooser_compute_tags<
               EvolutionMetavars, local_time_stepping>>>,
