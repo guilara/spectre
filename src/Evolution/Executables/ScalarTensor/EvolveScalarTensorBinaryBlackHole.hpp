@@ -310,7 +310,119 @@ struct EvolutionMetavars {
                  gh::Tags::Pi<DataVector, volume_dim>,
                  gh::Tags::Phi<DataVector, volume_dim>>;
 
-  using observe_fields = system::gh_system::variables_tag::tags_list;
+//   using observe_fields = system::gh_system::variables_tag::tags_list;
+  using observe_fields = tmpl::append<
+      tmpl::push_back<
+          system::gh_system::variables_tag::tags_list,
+          // (These gauge tags need subsequent tags to compile [why?])
+          gh::Tags::GaugeH<DataVector, volume_dim, Frame::Inertial>,
+          gh::Tags::SpacetimeDerivGaugeH<DataVector, volume_dim,
+                                         Frame::Inertial>,
+          // 3 plus 1 Tags and derivatives
+          gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
+          gr::Tags::DetSpatialMetric<DataVector>,
+          gr::Tags::InverseSpatialMetric<DataVector, volume_dim,
+                                         Frame::Inertial>,
+          gr::Tags::Shift<DataVector, volume_dim, Frame::Inertial>,
+          gr::Tags::Lapse<DataVector>,
+          //   gr::Tags::SqrtDetSpatialMetricCompute<volume_dim,
+          //   Frame::Inertial,
+          //                                         DataVector>,
+          gr::Tags::SqrtDetSpatialMetric<DataVector>,
+          gr::Tags::SpacetimeNormalOneFormCompute<DataVector, volume_dim,
+                                                  Frame::Inertial>,
+          gr::Tags::SpacetimeNormalVector<DataVector, volume_dim,
+                                                 Frame::Inertial>,
+          gr::Tags::InverseSpacetimeMetric<DataVector, volume_dim,
+                                                  Frame::Inertial>,
+          ::Tags::deriv<
+              gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
+              tmpl::size_t<volume_dim>, Frame::Inertial>,
+          gr::Tags::SpatialChristoffelFirstKind<DataVector, volume_dim,
+                                                Frame::Inertial>,
+          gr::Tags::SpatialChristoffelSecondKind<DataVector, volume_dim,
+                                                 Frame::Inertial>,
+          // 3 plus 1 variables used by CSW
+          gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, volume_dim,
+                                                      Frame::Inertial>,
+          gr::Tags::ExtrinsicCurvature<DataVector, volume_dim, Frame::Inertial>,
+          gr::Tags::TraceExtrinsicCurvature<DataVector>,
+          // More 3 plus 1 variables
+          //   ::Tags::DerivTensorCompute<
+          //       gr::Tags::SpatialChristoffelSecondKind<
+          //           volume_dim, ::Frame::Inertial, DataVector>,
+          //    ::domain::Tags::InverseJacobian<volume_dim,
+          //    Frame::ElementLogical,
+          //                                       Frame::Inertial>>,
+          ::Tags::deriv<gr::Tags::SpatialChristoffelSecondKind<
+                            DataVector, volume_dim, Frame::Inertial>,
+                        tmpl::size_t<volume_dim>, Frame::Inertial>,
+          //   gr::Tags::SpatialRicciCompute<volume_dim, ::Frame::Inertial,
+          //                                 DataVector>,
+          gr::Tags::SpatialRicci<DataVector, volume_dim, Frame::Inertial>,
+          //   gr::Tags::SpatialRicciScalarCompute<volume_dim,
+          //   ::Frame::Inertial,
+          //                                       DataVector>,
+          gr::Tags::SpatialRicciScalar<DataVector>,
+          // Compute the constraints of GH
+          gh::Tags::GaugeConstraintCompute<volume_dim, Frame::Inertial>,
+          gh::Tags::TwoIndexConstraintCompute<volume_dim, Frame::Inertial>,
+          gh::Tags::ThreeIndexConstraintCompute<volume_dim, Frame::Inertial>,
+          // Compute the constraints of CSW
+          CurvedScalarWave::Tags::OneIndexConstraintCompute<volume_dim>,
+          CurvedScalarWave::Tags::TwoIndexConstraintCompute<volume_dim>,
+          // GH constraint norms
+          ::Tags::PointwiseL2NormCompute<gh::Tags::GaugeConstraint<
+              DataVector, volume_dim, Frame::Inertial>>,
+          ::Tags::PointwiseL2NormCompute<gh::Tags::TwoIndexConstraint<
+              DataVector, volume_dim, Frame::Inertial>>,
+          ::Tags::PointwiseL2NormCompute<gh::Tags::ThreeIndexConstraint<
+              DataVector, volume_dim, Frame::Inertial>>,
+          // CSW constraint norms
+          ::Tags::PointwiseL2NormCompute<
+              CurvedScalarWave::Tags::OneIndexConstraint<volume_dim>>,
+          ::Tags::PointwiseL2NormCompute<
+              CurvedScalarWave::Tags::TwoIndexConstraint<volume_dim>>,
+          // Damping parameters
+          gh::ConstraintDamping::Tags::ConstraintGamma0,
+          gh::ConstraintDamping::Tags::ConstraintGamma1,
+          gh::ConstraintDamping::Tags::ConstraintGamma2,
+          CurvedScalarWave::Tags::ConstraintGamma1,
+          CurvedScalarWave::Tags::ConstraintGamma2,
+          // Sources
+          ScalarTensor::Tags::TraceReversedStressEnergyCompute,
+          //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
+          ScalarTensor::Sources::Tags::ScalarSource,
+          // Coordinates
+          ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
+          ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
+    //   error_tags,
+      // The 4-index constraint is only implemented in 3d
+      tmpl::conditional_t<
+          volume_dim == 3,
+          tmpl::list<
+              gh::Tags::FourIndexConstraintCompute<3, Frame::Inertial>,
+              gh::Tags::FConstraintCompute<3, Frame::Inertial>,
+              ::Tags::PointwiseL2NormCompute<gh::Tags::FConstraint<
+                  DataVector, volume_dim, Frame::Inertial>>,
+              ::Tags::PointwiseL2NormCompute<gh::Tags::FourIndexConstraint<
+                  DataVector, volume_dim, Frame::Inertial>>,
+              gh::Tags::ConstraintEnergyCompute<3, Frame::Inertial>,
+              //   ::Tags::DerivTensorCompute<
+              //       gr::Tags::ExtrinsicCurvature<3, Frame::Inertial>,
+              //       ::domain::Tags::InverseJacobian<
+              //           volume_dim, Frame::ElementLogical,
+              //           Frame::Inertial>>,
+              ::Tags::deriv<gr::Tags::ExtrinsicCurvature<DataVector, volume_dim,
+                                                         Frame::Inertial>,
+                            tmpl::size_t<volume_dim>, Frame::Inertial>,
+              //   gr::Tags::WeylElectricCompute<3, Frame::Inertial,
+              //   DataVector>,
+              gr::Tags::WeylElectric<DataVector, 3, Frame::Inertial>,
+              gr::Tags::WeylElectricScalar<DataVector>,
+              gr::Tags::WeylMagneticScalar<DataVector>,
+              gr::Tags::Psi4RealCompute<Frame::Inertial>>,
+          tmpl::list<>>>;
 
   using non_tensor_compute_tags = tmpl::list<
       ::Events::Tags::ObserverMeshCompute<volume_dim>,
