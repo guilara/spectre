@@ -171,14 +171,14 @@ struct InitializeEvolvedScalarVariables {
 
     // Set variables to zero for now
     // Ideally we would like to
-      get(get<CurvedScalarWave::Tags::Psi>(*evolved_vars)) = 0.0;
+      get(get<CurvedScalarWave::Tags::Psi>(*evolved_vars)) = 0.0 * get(lapse);
       auto& scalar_phi =
                   get<CurvedScalarWave::Tags::Phi<3_st>>(*evolved_vars);
       for (size_t i = 0; i < 3_st; i++) {
-        scalar_phi.get(i) = 0.0;
+        scalar_phi.get(i) = 0.0 * get(lapse);
       }
       get(get<CurvedScalarWave::Tags::Pi>(*evolved_vars)) =
-                  - 1.0e-10 * (get(lapse) - 1.0);
+                  - 1.0e-3 * (get(lapse) - 1.0);
     }
   };
 
