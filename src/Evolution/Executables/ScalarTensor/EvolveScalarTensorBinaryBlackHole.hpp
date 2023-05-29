@@ -565,8 +565,8 @@ struct EvolutionMetavars {
       // Until we read numerical data for the scalar
       // we set them to some analytical profile given some numerical data
       // for the metric quantities
-    //   Initialization::Actions::AddSimpleTags<
-    //                 ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
+      Initialization::Actions::AddSimpleTags<
+                    ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
       Initialization::Actions::AddComputeTags<
           tmpl::push_back<StepChoosers::step_chooser_compute_tags<
               EvolutionMetavars, local_time_stepping>>>,
