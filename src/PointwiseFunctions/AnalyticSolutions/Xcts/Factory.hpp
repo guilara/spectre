@@ -30,6 +30,9 @@ using all_analytic_solutions =
                // easily measure the difference between the approximate
                // (analytic) solution and the numerical solution.
                WrappedGrMhd<grmhd::AnalyticData::CcsnCollapse>,
-               WrappedGrMhd<grmhd::AnalyticData::MagnetizedTovStar>>;
+               WrappedGrMhd<grmhd::AnalyticData::MagnetizedTovStar>
+               // Down here we write the scalar analytic data with
+               // WrappedGrScalarTensor<>
+               >;
 }  // namespace Solutions
 }  // namespace Xcts

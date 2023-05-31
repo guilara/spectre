@@ -380,4 +380,12 @@ inline bool operator!=(const WrappedGr<GrSolution, HasMhd>& lhs,
 template <typename GrMhdSolution>
 using WrappedGrMhd = WrappedGr<GrMhdSolution, true>;
 
+// We want to extend the wrapper in the same way as for hydro
+// I a flag is enabled 'HasScalar = true', then it computes the
+// stress-energy projections accordingly. Also, it set the
+// background metric quantities to the corresponding system:
+// e.g. scalar wave + flat space, scalar wave + BH, etc.
+template <typename ScalarWaveSolution>
+using WrappedGrScalarTensor = WrappedGr<ScalarWaveSolution, false /*, true*/>;
+
 }  // namespace Xcts::Solutions
