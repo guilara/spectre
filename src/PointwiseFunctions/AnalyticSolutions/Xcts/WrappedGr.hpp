@@ -367,7 +367,7 @@ class WrappedGr<GrSolution, HasMhd, HasScalar, tmpl::list<GrSolutionOptions...>>
     return {get_var(RequestedTags{})...};
   }
 
-  friend bool operator==(const WrappedGr<GrSolution, HasMhd, HasScalar, >& lhs,
+  friend bool operator==(const WrappedGr<GrSolution, HasMhd, HasScalar>& lhs,
                          const WrappedGr<GrSolution, HasMhd, HasScalar>& rhs) {
     return lhs.gr_solution_ == rhs.gr_solution_;
   }
