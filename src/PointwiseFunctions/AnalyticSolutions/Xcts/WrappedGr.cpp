@@ -33,16 +33,16 @@
 namespace Xcts::Solutions {
 namespace detail {
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::ii<DataType, Dim>*> spatial_metric,
     const gsl::not_null<Cache*> /*cache*/,
     gr::Tags::SpatialMetric<DataType, Dim> /*meta*/) const {
   *spatial_metric = get<gr::Tags::SpatialMetric<DataType, Dim>>(gr_solution);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::II<DataType, Dim>*> inv_spatial_metric,
     const gsl::not_null<Cache*> /*cache*/,
     gr::Tags::InverseSpatialMetric<DataType, Dim> /*meta*/) const {
@@ -50,8 +50,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
       get<gr::Tags::InverseSpatialMetric<DataType, Dim>>(gr_solution);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::ijj<DataType, Dim>*> deriv_spatial_metric,
     const gsl::not_null<Cache*> /*cache*/,
     ::Tags::deriv<gr::Tags::SpatialMetric<DataType, Dim>, tmpl::size_t<Dim>,
@@ -61,8 +61,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
                         tmpl::size_t<Dim>, Frame::Inertial>>(gr_solution);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::ii<DataType, Dim>*> conformal_metric,
     const gsl::not_null<Cache*> cache,
     Xcts::Tags::ConformalMetric<DataType, Dim, Frame::Inertial> /*meta*/)
@@ -77,8 +77,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   }
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::II<DataType, Dim>*> inv_conformal_metric,
     const gsl::not_null<Cache*> cache,
     Xcts::Tags::InverseConformalMetric<DataType, Dim, Frame::Inertial> /*meta*/)
@@ -94,8 +94,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   }
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::ijj<DataType, Dim>*> deriv_conformal_metric,
     const gsl::not_null<Cache*> cache,
     ::Tags::deriv<Xcts::Tags::ConformalMetric<DataType, Dim, Frame::Inertial>,
@@ -122,8 +122,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   }
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<Scalar<DataType>*> trace_extrinsic_curvature,
     const gsl::not_null<Cache*> /*cache*/,
     gr::Tags::TraceExtrinsicCurvature<DataType> /*meta*/) const {
@@ -134,24 +134,24 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   trace(trace_extrinsic_curvature, extrinsic_curvature, inv_spatial_metric);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<Scalar<DataType>*> dt_trace_extrinsic_curvature,
     const gsl::not_null<Cache*> /*cache*/,
     ::Tags::dt<gr::Tags::TraceExtrinsicCurvature<DataType>> /*meta*/) const {
   get(*dt_trace_extrinsic_curvature) = 0.;
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<Scalar<DataType>*> conformal_factor,
     const gsl::not_null<Cache*> /*cache*/,
     Xcts::Tags::ConformalFactor<DataType> /*meta*/) const {
   get(*conformal_factor) = 1.;
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::i<DataType, Dim>*> conformal_factor_gradient,
     const gsl::not_null<Cache*> /*cache*/,
     ::Tags::deriv<Xcts::Tags::ConformalFactor<DataType>, tmpl::size_t<Dim>,
@@ -160,16 +160,16 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
             conformal_factor_gradient->end(), 0.);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<Scalar<DataType>*> lapse,
     const gsl::not_null<Cache*> /*cache*/,
     gr::Tags::Lapse<DataType> /*meta*/) const {
   *lapse = get<gr::Tags::Lapse<DataType>>(gr_solution);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<Scalar<DataType>*> lapse_times_conformal_factor,
     const gsl::not_null<Cache*> cache,
     Xcts::Tags::LapseTimesConformalFactor<DataType> /*meta*/) const {
@@ -180,8 +180,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   get(*lapse_times_conformal_factor) *= get(conformal_factor);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::i<DataType, Dim>*>
         lapse_times_conformal_factor_gradient,
     const gsl::not_null<Cache*> cache,
@@ -203,8 +203,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   }
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::I<DataType, Dim>*> shift_background,
     const gsl::not_null<Cache*> /*cache*/,
     Xcts::Tags::ShiftBackground<DataType, Dim, Frame::Inertial> /*meta*/)
@@ -212,8 +212,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   std::fill(shift_background->begin(), shift_background->end(), 0.);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::II<DataType, Dim, Frame::Inertial>*>
         longitudinal_shift_background_minus_dt_conformal_metric,
     const gsl::not_null<Cache*> /*cache*/,
@@ -223,16 +223,16 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
             longitudinal_shift_background_minus_dt_conformal_metric->end(), 0.);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::I<DataType, Dim>*> shift_excess,
     const gsl::not_null<Cache*> /*cache*/,
     Xcts::Tags::ShiftExcess<DataType, Dim, Frame::Inertial> /*meta*/) const {
   *shift_excess = get<gr::Tags::Shift<DataType, Dim>>(gr_solution);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::ii<DataType, Dim>*> shift_strain,
     const gsl::not_null<Cache*> cache,
     Xcts::Tags::ShiftStrain<DataType, Dim, Frame::Inertial> /*meta*/) const {
@@ -254,8 +254,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
                      shift);
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::ii<DataType, 3>*> extrinsic_curvature,
     const gsl::not_null<Cache*> /*cache*/,
     gr::Tags::ExtrinsicCurvature<DataType, 3> /*meta*/) const {
@@ -268,8 +268,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=noreturn"
 #endif  // defined(__GNUC__) && !defined(__clang__)
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     [[maybe_unused]] const gsl::not_null<Scalar<DataType>*>
         magnetic_field_dot_spatial_velocity,
     const gsl::not_null<Cache*> /*cache*/,
@@ -293,8 +293,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   }
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     [[maybe_unused]] const gsl::not_null<Scalar<DataType>*>
         comoving_magnetic_field_squared,
     [[maybe_unused]] const gsl::not_null<Cache*> cache,
@@ -326,8 +326,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
 #pragma GCC diagnostic pop
 #endif  // defined(__GNUC__) && !defined(__clang__)
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<Scalar<DataType>*> energy_density,
     [[maybe_unused]] const gsl::not_null<Cache*> cache,
     gr::Tags::Conformal<gr::Tags::EnergyDensity<DataType>, 0> /*meta*/) const {
@@ -352,8 +352,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   }
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<Scalar<DataType>*> stress_trace,
     [[maybe_unused]] const gsl::not_null<Cache*> cache,
     gr::Tags::Conformal<gr::Tags::StressTrace<DataType>, 0> /*meta*/) const {
@@ -386,8 +386,8 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   }
 }
 
-template <typename DataType, bool HasMhd>
-void WrappedGrVariables<DataType, HasMhd>::operator()(
+template <typename DataType, bool HasMhd, bool HasScalar>
+void WrappedGrVariables<DataType, HasMhd, HasScalar>::operator()(
     const gsl::not_null<tnsr::I<DataType, Dim>*> momentum_density,
     [[maybe_unused]] const gsl::not_null<Cache*> cache,
     gr::Tags::Conformal<gr::Tags::MomentumDensity<DataType, Dim>, 0> /*meta*/)
@@ -418,40 +418,41 @@ void WrappedGrVariables<DataType, HasMhd>::operator()(
   }
 }
 
-template class WrappedGrVariables<double, false>;
-template class WrappedGrVariables<DataVector, false>;
-template class WrappedGrVariables<double, true>;
-template class WrappedGrVariables<DataVector, true>;
+template class WrappedGrVariables<double, false, false>;
+template class WrappedGrVariables<DataVector, false, false>;
+template class WrappedGrVariables<double, true, false>;
+template class WrappedGrVariables<DataVector, true, false>;
 
 }  // namespace detail
 
-template <typename GrSolution, bool HasMhd, typename... GrSolutionOptions>
-PUP::able::PUP_ID
-    WrappedGr<GrSolution, HasMhd, tmpl::list<GrSolutionOptions...>>::my_PUP_ID =
-        0;  // NOLINT
+template <typename GrSolution, bool HasMhd, bool HasScalar,
+          typename... GrSolutionOptions>
+PUP::able::PUP_ID WrappedGr<GrSolution, HasMhd, HasScalar,
+                            tmpl::list<GrSolutionOptions...>>::my_PUP_ID =
+    0;  // NOLINT
 
 }  // namespace Xcts::Solutions
 
 // Instantiate implementations for common variables
 template class Xcts::Solutions::CommonVariables<
-    double,
-    typename Xcts::Solutions::detail::WrappedGrVariables<double, false>::Cache>;
+    double, typename Xcts::Solutions::detail::WrappedGrVariables<double, false,
+                                                                 false>::Cache>;
 template class Xcts::Solutions::CommonVariables<
     DataVector, typename Xcts::Solutions::detail::WrappedGrVariables<
-                    DataVector, false>::Cache>;
+                    DataVector, false, false>::Cache>;
 template class Xcts::AnalyticData::CommonVariables<
-    double,
-    typename Xcts::Solutions::detail::WrappedGrVariables<double, false>::Cache>;
+    double, typename Xcts::Solutions::detail::WrappedGrVariables<double, false,
+                                                                 false>::Cache>;
 template class Xcts::AnalyticData::CommonVariables<
     DataVector, typename Xcts::Solutions::detail::WrappedGrVariables<
-                    DataVector, false>::Cache>;
+                    DataVector, false, false>::Cache>;
 
 #define STYPE(data) BOOST_PP_TUPLE_ELEM(0, data)
 
 #define INSTANTIATE_GR(_, data) \
-  template class Xcts::Solutions::WrappedGr<STYPE(data), false>;
+  template class Xcts::Solutions::WrappedGr<STYPE(data), false, false>;
 #define INSTANTIATE_GRMHD(_, data) \
-  template class Xcts::Solutions::WrappedGr<STYPE(data), true>;
+  template class Xcts::Solutions::WrappedGr<STYPE(data), true, false>;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_GR, (gr::Solutions::KerrSchild,
                                          gr::Solutions::SphericalKerrSchild,

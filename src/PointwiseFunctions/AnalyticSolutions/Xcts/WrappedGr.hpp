@@ -55,7 +55,7 @@ using WrappedGrVariablesCache =
         gr::Tags::Conformal<gr::Tags::StressTrace<DataType>, 0>,
         gr::Tags::Conformal<gr::Tags::MomentumDensity<DataType, 3>, 0>>>;
 
-template <typename DataType, bool HasMhd>
+template <typename DataType, bool HasMhd, bool HasScalar>
 struct WrappedGrVariables
     : CommonVariables<DataType, WrappedGrVariablesCache<DataType>> {
   static constexpr size_t Dim = 3;
@@ -248,13 +248,16 @@ struct WrappedGrVariables
  * \tparam GrSolution Any solution to the Einstein constraint equations
  * \tparam HasMhd Enable to compute matter source terms. Disable to set matter
  * source terms to zero.
+ * \tparam HasScalar Enable to compute scalar source terms. Disable to set
+ * scalar source terms to zero.
  */
-template <typename GrSolution, bool HasMhd = false,
+template <typename GrSolution, bool HasMhd = false, bool HasScalar = false,
           typename GrSolutionOptions = typename GrSolution::options>
 class WrappedGr;
 
-template <typename GrSolution, bool HasMhd, typename... GrSolutionOptions>
-class WrappedGr<GrSolution, HasMhd, tmpl::list<GrSolutionOptions...>>
+template <typename GrSolution, bool HasMhd, bool HasScalar,
+          typename... GrSolutionOptions>
+class WrappedGr<GrSolution, HasMhd, HasScalar, tmpl::list<GrSolutionOptions...>>
     : public elliptic::analytic_data::AnalyticSolution {
  public:
   static constexpr size_t Dim = 3;
@@ -338,7 +341,8 @@ class WrappedGr<GrSolution, HasMhd, tmpl::list<GrSolutionOptions...>>
         hydro_solution = gr_solution_.variables(x, hydro_tags<DataType>{});
       }
     }
-    using VarsComputer = detail::WrappedGrVariables<DataType, HasMhd>;
+    using VarsComputer =
+        detail::WrappedGrVariables<DataType, HasMhd, HasScalar>;
     const size_t num_points = get_size(*x.begin());
     typename VarsComputer::Cache cache{num_points};
     VarsComputer computer{mesh, inv_jacobian, x, gr_solution, hydro_solution};
@@ -363,22 +367,23 @@ class WrappedGr<GrSolution, HasMhd, tmpl::list<GrSolutionOptions...>>
     return {get_var(RequestedTags{})...};
   }
 
-  friend bool operator==(const WrappedGr<GrSolution, HasMhd>& lhs,
-                         const WrappedGr<GrSolution, HasMhd>& rhs) {
+  friend bool operator==(const WrappedGr<GrSolution, HasMhd, HasScalar, >& lhs,
+                         const WrappedGr<GrSolution, HasMhd, HasScalar>& rhs) {
     return lhs.gr_solution_ == rhs.gr_solution_;
   }
 
   GrSolution gr_solution_;
 };
 
-template <typename GrSolution, bool HasMhd>
-inline bool operator!=(const WrappedGr<GrSolution, HasMhd>& lhs,
-                       const WrappedGr<GrSolution, HasMhd>& rhs) {
+template <typename GrSolution, bool HasMhd, bool HasScalar>
+inline bool operator!=(
+    const WrappedGr<GrSolution, HasMhd, bool HasScalar>& lhs,
+    const WrappedGr<GrSolution, HasMhd, bool HasScalar>& rhs) {
   return not(lhs == rhs);
 }
 
 template <typename GrMhdSolution>
-using WrappedGrMhd = WrappedGr<GrMhdSolution, true>;
+using WrappedGrMhd = WrappedGr<GrMhdSolution, true, false>;
 
 // We want to extend the wrapper in the same way as for hydro
 // I a flag is enabled 'HasScalar = true', then it computes the
@@ -386,6 +391,6 @@ using WrappedGrMhd = WrappedGr<GrMhdSolution, true>;
 // background metric quantities to the corresponding system:
 // e.g. scalar wave + flat space, scalar wave + BH, etc.
 template <typename ScalarWaveSolution>
-using WrappedGrScalarTensor = WrappedGr<ScalarWaveSolution, false /*, true*/>;
+using WrappedGrScalarTensor = WrappedGr<ScalarWaveSolution, false, true>;
 
 }  // namespace Xcts::Solutions
