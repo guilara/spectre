@@ -377,8 +377,8 @@ class WrappedGr<GrSolution, HasMhd, HasScalar, tmpl::list<GrSolutionOptions...>>
 
 template <typename GrSolution, bool HasMhd, bool HasScalar>
 inline bool operator!=(
-    const WrappedGr<GrSolution, HasMhd, bool HasScalar>& lhs,
-    const WrappedGr<GrSolution, HasMhd, bool HasScalar>& rhs) {
+    const WrappedGr<GrSolution, HasMhd, HasScalar>& lhs,
+    const WrappedGr<GrSolution, HasMhd, HasScalar>& rhs) {
   return not(lhs == rhs);
 }
 
