@@ -22,7 +22,8 @@ namespace Tags {
  */
 template <size_t SpatialDim, typename Frame, typename DataType>
 struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
-  using argument_tags = tmpl::list<>;
+  using argument_tags =
+      tmpl::list<fe::ScalarDriver::Psi, fe::ScalarDriver::TargetPsi>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
