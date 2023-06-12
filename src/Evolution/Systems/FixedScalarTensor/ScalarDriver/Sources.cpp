@@ -9,7 +9,15 @@ void add_scalar_driver_source_to_dt_pi_scalar(
     gsl::not_null<Scalar<DataVector>*> dt_pi,
     const Scalar<DataVector>& scalar_driver_source,
     const Scalar<DataVector>& lapse) {
-  dt_pi->get() += get(lapse) * scalar_source.get();
+  dt_pi->get() += get(lapse) * scalar_driver_source.get();
+}
+
+void add_scalar_driver_friction_term_to_dt_pi_scalar(
+    gsl::not_null<Scalar<DataVector>*> dt_pi,
+    const Scalar<DataVector>& scalar_driver_pi, const Scalar<DataVector>& lapse,
+    const double scalar_tau_parameter, const double scalar_sigma_parameter) {
+  dt_pi->get() +=
+      (scalar_tau_parameter / scalar_sigma_parameter) * scalar_driver_pi.get();
 }
 
 void compute_scalar_driver_source(

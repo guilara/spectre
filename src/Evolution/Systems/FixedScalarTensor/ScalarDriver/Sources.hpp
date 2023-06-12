@@ -14,6 +14,11 @@ void add_scalar_driver_source_to_dt_pi_scalar(
     const Scalar<DataVector>& scalar_driver_source,
     const Scalar<DataVector>& lapse);
 
+void add_scalar_driver_friction_term_to_dt_pi_scalar(
+    gsl::not_null<Scalar<DataVector>*> dt_pi,
+    const Scalar<DataVector>& scalar_driver_pi, const Scalar<DataVector>& lapse,
+    const double scalar_tau_parameter, const double scalar_sigma_parameter);
+
 void compute_scalar_driver_source(const gsl::not_null<return_type*> result,
                                   const Scalar<DataVector>& psi,
                                   const Scalar<DataVector>& target_psi);
