@@ -59,7 +59,17 @@ struct TimeDerivative {
       const tnsr::II<DataVector, Dim>& upper_spatial_metric,
       const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
       const Scalar<DataVector>& trace_extrinsic_curvature,
-      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2);
+      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
+    // Use the definition from the CurvedScalarWave system
+    CurvedScalarWave::TimeDerivative<Dim>::apply(
+        dt_psi, dt_pi, dt_phi,
+
+        result_lapse, result_shift, result_inverse_spatial_metric,
+        result_gamma1, result_gamma2,
+
+        d_pi, pi, lapse, shift, deriv_lapse, deriv_shift, upper_spatial_metric,
+        trace_spatial_christoffel, trace_extrinsic_curvature, gamma1, gamma2);
+  }
 };
 
 }  // namespace fe::ScalarDriver
