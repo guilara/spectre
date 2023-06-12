@@ -4,57 +4,35 @@
 #pragma once
 
 #include "DataStructures/DataBox/Tag.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "Options/Options.hpp"
 
 namespace fe::ScalarDriver::Sources {
+
+void compute_scalar_driver_source(const gsl::not_null<return_type*> result,
+                                  const Scalar<DataVector>&,
+                                  const Scalar<DataVector>&,
+                                  const Scalar<DataVector>&, const double,
+                                  const double, const double);
+
 namespace Tags {
 
-struct ScalarDriverSource : db::SimpleTag {
-  using type = Scalar<DataVector>;
+/*!
+ * \brief Compute tag for the scalar driver source.
+ *
+ * \details Call compute_scalar_driver_source.
+ */
+template <size_t SpatialDim, typename Frame, typename DataType>
+struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
+  using argument_tags = tmpl::list<>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+      const Scalar<DataVector>&, const Scalar<DataVector>&, const double,
+      const double, const double) = &compute_scalar_driver_source;
+  using base = ScalarSource;
 };
 
 }  // namespace Tags
 
-namespace OptionTags {
-/*!
- * \brief Scalar sigma parameter.
- */
-struct ScalarSigmaParameter {
-  static std::string name() { return "ScalarSigmaParameter"; }
-  using type = double;
-  static constexpr Options::String help{
-      "Sigma parameter for the scalar diver in code units"};
-};
-
-/*!
- * \brief Scalar tau parameter.
- */
-struct ScalarTauParameter {
-  static std::string name() { return "ScalarTauParameter"; }
-  using type = double;
-  static constexpr Options::String help{
-      "Tau parameter for the scalar driver in code units"};
-};
-}  // namespace OptionTags
-
-namespace Tags {
-struct ScalarSigmaParameter : db::SimpleTag {
-  using type = double;
-  using option_tags = tmpl::list<OptionTags::ScalarSigmaParameter>;
-  static constexpr bool pass_metavariables = false;
-  static double create_from_options(const double scalar_sigma_parameter) {
-    return scalar_sigma_parameter;
-  }
-};
-
-struct ScalarTauParameter : db::SimpleTag {
-  using type = double;
-  using option_tags = tmpl::list<OptionTags::ScalarTauParameter>;
-  static constexpr bool pass_metavariables = false;
-  static double create_from_options(const double scalar_tau_parameter) {
-    return scalar_tau_parameter;
-  }
-};
-
-}  // namespace Tags
 }  // namespace fe::ScalarDriver::Sources

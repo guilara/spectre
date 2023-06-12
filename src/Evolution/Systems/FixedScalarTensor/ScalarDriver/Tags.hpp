@@ -129,4 +129,51 @@ struct EvolvedFieldsFromCharacteristicFields : db::SimpleTag {
   using type = Variables<tmpl::list<Psi, Pi, Phi<Dim>>>;
 };
 
+struct ScalarDriverSource : db::SimpleTag {
+  using type = Scalar<DataVector>;
+};
+
+}  // namespace fe::ScalarDriver::Tags
+
+namespace fe::ScalarDriver::OptionTags {
+/*!
+ * \brief Scalar sigma parameter.
+ */
+struct ScalarSigmaParameter {
+  static std::string name() { return "ScalarSigmaParameter"; }
+  using type = double;
+  static constexpr Options::String help{
+      "Sigma parameter for the scalar diver in code units"};
+};
+
+/*!
+ * \brief Scalar tau parameter.
+ */
+struct ScalarTauParameter {
+  static std::string name() { return "ScalarTauParameter"; }
+  using type = double;
+  static constexpr Options::String help{
+      "Tau parameter for the scalar driver in code units"};
+};
+}  // namespace fe::ScalarDriver::OptionTags
+
+namespace fe::ScalarDriver::Tags {
+struct ScalarSigmaParameter : db::SimpleTag {
+  using type = double;
+  using option_tags = tmpl::list<OptionTags::ScalarSigmaParameter>;
+  static constexpr bool pass_metavariables = false;
+  static double create_from_options(const double scalar_sigma_parameter) {
+    return scalar_sigma_parameter;
+  }
+};
+
+struct ScalarTauParameter : db::SimpleTag {
+  using type = double;
+  using option_tags = tmpl::list<OptionTags::ScalarTauParameter>;
+  static constexpr bool pass_metavariables = false;
+  static double create_from_options(const double scalar_tau_parameter) {
+    return scalar_tau_parameter;
+  }
+};
+
 }  // namespace fe::ScalarDriver::Tags
