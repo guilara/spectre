@@ -9,6 +9,11 @@
 
 namespace fe::ScalarDriver::Sources {
 
+void add_scalar_driver_source_to_dt_pi_scalar(
+    gsl::not_null<Scalar<DataVector>*> dt_pi,
+    const Scalar<DataVector>& scalar_driver_source,
+    const Scalar<DataVector>& lapse);
+
 void compute_scalar_driver_source(const gsl::not_null<return_type*> result,
                                   const Scalar<DataVector>& psi,
                                   const Scalar<DataVector>& target_psi);
