@@ -19,7 +19,7 @@ namespace fe::ScalarDriver::Tags {
  */
 struct Psi : db::SimpleTag {
   using type = Scalar<DataVector>;
-  static std::string name() { return "Psi(CurvedScalarWave)"; }
+  static std::string name() { return "Psi(ScalarDriver)"; }
 };
 
 /*!
@@ -158,6 +158,15 @@ struct ScalarTauParameter {
 }  // namespace fe::ScalarDriver::OptionTags
 
 namespace fe::ScalarDriver::Tags {
+
+/*!
+ * \brief The target for the scalar driver field.
+ */
+struct TargetPsi : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "TargetPsi(ScalarDriver)"; }
+};
+
 struct ScalarSigmaParameter : db::SimpleTag {
   using type = double;
   using option_tags = tmpl::list<OptionTags::ScalarSigmaParameter>;
