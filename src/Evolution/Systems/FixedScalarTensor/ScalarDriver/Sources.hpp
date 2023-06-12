@@ -23,6 +23,8 @@ void compute_scalar_driver_source(const gsl::not_null<return_type*> result,
                                   const Scalar<DataVector>& psi,
                                   const Scalar<DataVector>& target_psi);
 
+void compute_target_psi(const gsl::not_null<return_type*> result);
+
 namespace Tags {
 
 /*!
@@ -38,6 +40,21 @@ struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
   static constexpr void (*function)(
       const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
       const Scalar<DataVector>&) = &compute_scalar_driver_source;
+  using base = ScalarSource;
+};
+
+/*!
+ * \brief Compute tag for the scalar driver source.
+ *
+ * \details Call compute_scalar_driver_source.
+ */
+template <size_t SpatialDim, typename Frame, typename DataType>
+struct TargetPsiCompute : TargetPsi, db::ComputeTag {
+  using argument_tags = tmpl::list<fe::ScalarDriver::Psi>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(const gsl::not_null<return_type*> result,
+                                    const Scalar<DataVector>&) =
+      &compute_target_psi;
   using base = ScalarSource;
 };
 

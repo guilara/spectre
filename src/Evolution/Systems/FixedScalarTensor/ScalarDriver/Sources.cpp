@@ -28,4 +28,11 @@ void compute_scalar_driver_source(
   scalar_driver_source->get() = psi.get() - target_psi.get();
 }
 
+void compute_target_psi(const gsl::not_null<return_type*> target_psi,
+    const Scalar<DataVector>& psi) {
+  // Make sure it has the same size
+  *target_psi = make_with_value<Scalar<DataVector>>(psi, 0.);
+  target_psi->get() = psi.get();
+}
+
 }  // namespace fe::ScalarDriver::Sources
