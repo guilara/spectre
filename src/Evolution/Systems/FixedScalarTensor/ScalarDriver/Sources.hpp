@@ -10,10 +10,8 @@
 namespace fe::ScalarDriver::Sources {
 
 void compute_scalar_driver_source(const gsl::not_null<return_type*> result,
-                                  const Scalar<DataVector>&,
-                                  const Scalar<DataVector>&,
-                                  const Scalar<DataVector>&, const double,
-                                  const double, const double);
+                                  const Scalar<DataVector>& psi,
+                                  const Scalar<DataVector>& target_psi);
 
 namespace Tags {
 
@@ -28,8 +26,7 @@ struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
-      const Scalar<DataVector>&, const Scalar<DataVector>&, const double,
-      const double, const double) = &compute_scalar_driver_source;
+      const Scalar<DataVector>&) = &compute_scalar_driver_source;
   using base = ScalarSource;
 };
 
