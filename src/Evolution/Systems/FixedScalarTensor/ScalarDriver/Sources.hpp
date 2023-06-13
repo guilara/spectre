@@ -33,7 +33,7 @@ namespace Tags {
  *
  * \details Call compute_scalar_driver_source.
  */
-template <size_t SpatialDim, typename Frame, typename DataType>
+template <typename Frame, typename DataType>
 struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
   using argument_tags =
       tmpl::list<fe::ScalarDriver::Psi, fe::ScalarDriver::TargetPsi>;
@@ -49,7 +49,7 @@ struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
  *
  * \details Call compute_scalar_driver_source.
  */
-template <size_t SpatialDim, typename Frame, typename DataType>
+template <typename Frame, typename DataType>
 struct TargetPsiCompute : TargetPsi, db::ComputeTag {
   using argument_tags = tmpl::list<fe::ScalarDriver::Psi>;
   using return_type = Scalar<DataVector>;
