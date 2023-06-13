@@ -59,7 +59,9 @@ struct TimeDerivative {
       const tnsr::II<DataVector, Dim>& upper_spatial_metric,
       const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
       const Scalar<DataVector>& trace_extrinsic_curvature,
-      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
+      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
+      const Scalar<DataVector>& scalar_driver_source,
+      const double scalar_tau_parameter, const double scalar_sigma_parameter) {
     // Use the definition from the CurvedScalarWave system
     CurvedScalarWave::TimeDerivative<Dim>::apply(
         dt_psi, dt_pi, dt_phi,
@@ -74,12 +76,10 @@ struct TimeDerivative {
     // Make sure all variables called here are in the arguments of apply
     // and in the DataBox
     //
-    // add_scalar_driver_friction_term_to_dt_pi_scalar(dt_pi, scalar_driver_pi,
-    //                                                 lapse,
-    //                                                 scalar_tau_parameter,
-    //                                                 scalar_sigma_parameter);
-    // add_scalar_driver_source_to_dt_pi_scalar(dt_pi, scalar_driver_source,
-    //                                          lapse);
+    add_scalar_driver_friction_term_to_dt_pi_scalar(
+        dt_pi, pi, lapse, scalar_tau_parameter, scalar_sigma_parameter);
+    add_scalar_driver_source_to_dt_pi_scalar(dt_pi, scalar_driver_source,
+                                             lapse);
   }
 };
 
