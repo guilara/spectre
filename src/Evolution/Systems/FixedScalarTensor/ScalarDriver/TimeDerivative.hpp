@@ -36,7 +36,10 @@ struct TimeDerivative {
                  gr::Tags::InverseSpatialMetric<DataVector, Dim>,
                  gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, Dim>,
                  gr::Tags::TraceExtrinsicCurvature<DataVector>,
-                 Tags::ConstraintGamma1, Tags::ConstraintGamma2>;
+                 Tags::ConstraintGamma1, Tags::ConstraintGamma2,
+                 fe::ScalarDriver::Tags::ScalarDriverSource,
+                 fe::ScalarDriver::Tags::ScalarTauParameter,
+                 fe::ScalarDriver::Tags::ScalarSigmaParameter>;
 
   static void apply(
       gsl::not_null<Scalar<DataVector>*> dt_psi,
@@ -76,7 +79,7 @@ struct TimeDerivative {
     // Make sure all variables called here are in the arguments of apply
     // and in the DataBox
     add_scalar_driver_friction_term_to_dt_pi_scalar(
-        dt_pi, pi, lapse, scalar_tau_parameter, scalar_sigma_parameter);
+        dt_pi, pi, lapse, shift, scalar_tau_parameter, scalar_sigma_parameter);
     add_scalar_driver_source_to_dt_pi_scalar(dt_pi, scalar_driver_source,
                                              lapse);
   }
