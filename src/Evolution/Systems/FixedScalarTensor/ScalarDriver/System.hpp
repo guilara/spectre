@@ -26,8 +26,8 @@ struct System {
   static constexpr size_t volume_dim = 3_st;
   static constexpr bool is_euclidean = false;
 
-  //   using boundary_conditions_base = BoundaryConditions::BoundaryCondition;
-  //   using boundary_correction_base = BoundaryCorrections::BoundaryCorrection;
+//   using boundary_conditions_base = BoundaryConditions::BoundaryCondition;
+  using boundary_correction_base = BoundaryCorrections::BoundaryCorrection;
 
   using variables_tag =
       ::Tags::Variables<tmpl::list<Tags::Psi, Tags::Pi, Tags::Phi<3_st>>>;
@@ -42,8 +42,8 @@ struct System {
 
   using compute_volume_time_derivative_terms = TimeDerivative;
 
-  //   using compute_largest_characteristic_speed =
-  //       Tags::ComputeLargestCharacteristicSpeed;
+//   using compute_largest_characteristic_speed =
+//       Tags::ComputeLargestCharacteristicSpeed;
 
   using inverse_spatial_metric_tag =
       gr::Tags::InverseSpatialMetric<DataVector, 3_st>;
