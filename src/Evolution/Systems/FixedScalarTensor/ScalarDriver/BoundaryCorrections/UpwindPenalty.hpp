@@ -12,6 +12,7 @@
 #include "Evolution/Systems/CurvedScalarWave/Characteristics.hpp"
 //
 #include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/BoundaryCorrection.hpp"
+#include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/UpwindPenalty.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Formulation.hpp"
 #include "Options/Options.hpp"
