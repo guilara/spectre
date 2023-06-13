@@ -21,20 +21,19 @@ class Tensor;
 
 namespace fe::ScalarDriver {
 
-template <size_t Dim>
 struct TimeDerivative {
  public:
-  using temporary_tags = CurvedScalarWave::TimeDerivative::temporary_tags;
+  using temporary_tags = CurvedScalarWave::TimeDerivative<3_st>::temporary_tags;
 
   using argument_tags =
-      tmpl::list<Tags::Pi, Tags::Phi<Dim>, gr::Tags::Lapse<DataVector>,
-                 gr::Tags::Shift<DataVector, Dim>,
-                 ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<Dim>,
+      tmpl::list<Tags::Pi, Tags::Phi<3_st>, gr::Tags::Lapse<DataVector>,
+                 gr::Tags::Shift<DataVector, 3_st>,
+                 ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3_st>,
                                Frame::Inertial>,
-                 ::Tags::deriv<gr::Tags::Shift<DataVector, Dim>,
-                               tmpl::size_t<Dim>, Frame::Inertial>,
-                 gr::Tags::InverseSpatialMetric<DataVector, Dim>,
-                 gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, Dim>,
+                 ::Tags::deriv<gr::Tags::Shift<DataVector, 3_st>,
+                               tmpl::size_t<3_st>, Frame::Inertial>,
+                 gr::Tags::InverseSpatialMetric<DataVector, 3_st>,
+                 gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, 3_st>,
                  gr::Tags::TraceExtrinsicCurvature<DataVector>,
                  Tags::ConstraintGamma1, Tags::ConstraintGamma2,
                  fe::ScalarDriver::Tags::ScalarDriverSource,
@@ -44,29 +43,29 @@ struct TimeDerivative {
   static void apply(
       gsl::not_null<Scalar<DataVector>*> dt_psi,
       gsl::not_null<Scalar<DataVector>*> dt_pi,
-      gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> dt_phi,
+      gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*> dt_phi,
 
       gsl::not_null<Scalar<DataVector>*> result_lapse,
-      gsl::not_null<tnsr::I<DataVector, Dim>*> result_shift,
-      gsl::not_null<tnsr::II<DataVector, Dim>*> result_inverse_spatial_metric,
+      gsl::not_null<tnsr::I<DataVector, 3_st>*> result_shift,
+      gsl::not_null<tnsr::II<DataVector, 3_st>*> result_inverse_spatial_metric,
       gsl::not_null<Scalar<DataVector>*> result_gamma1,
       gsl::not_null<Scalar<DataVector>*> result_gamma2,
 
-      const tnsr::i<DataVector, Dim>& d_psi,
-      const tnsr::i<DataVector, Dim>& d_pi,
-      const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& pi,
-      const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
-      const tnsr::I<DataVector, Dim>& shift,
-      const tnsr::i<DataVector, Dim>& deriv_lapse,
-      const tnsr::iJ<DataVector, Dim>& deriv_shift,
-      const tnsr::II<DataVector, Dim>& upper_spatial_metric,
-      const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
+      const tnsr::i<DataVector, 3_st>& d_psi,
+      const tnsr::i<DataVector, 3_st>& d_pi,
+      const tnsr::ij<DataVector, 3_st>& d_phi, const Scalar<DataVector>& pi,
+      const tnsr::i<DataVector, 3_st>& phi, const Scalar<DataVector>& lapse,
+      const tnsr::I<DataVector, 3_st>& shift,
+      const tnsr::i<DataVector, 3_st>& deriv_lapse,
+      const tnsr::iJ<DataVector, 3_st>& deriv_shift,
+      const tnsr::II<DataVector, 3_st>& upper_spatial_metric,
+      const tnsr::I<DataVector, 3_st>& trace_spatial_christoffel,
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
       const Scalar<DataVector>& scalar_driver_source,
       const double scalar_tau_parameter, const double scalar_sigma_parameter) {
     // Use the definition from the CurvedScalarWave system
-    CurvedScalarWave::TimeDerivative<Dim>::apply(
+    CurvedScalarWave::TimeDerivative<3_st>::apply(
         dt_psi, dt_pi, dt_phi,
 
         result_lapse, result_shift, result_inverse_spatial_metric,
