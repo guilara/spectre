@@ -75,7 +75,6 @@ struct TimeDerivative {
     // Add extra terms to the Klein-Gordon equation
     // Make sure all variables called here are in the arguments of apply
     // and in the DataBox
-    //
     add_scalar_driver_friction_term_to_dt_pi_scalar(
         dt_pi, pi, lapse, scalar_tau_parameter, scalar_sigma_parameter);
     add_scalar_driver_source_to_dt_pi_scalar(dt_pi, scalar_driver_source,
