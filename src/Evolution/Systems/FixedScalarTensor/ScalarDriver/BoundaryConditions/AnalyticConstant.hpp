@@ -30,7 +30,7 @@ struct Coordinates;
 namespace fe::ScalarDriver::BoundaryConditions {
 /// A `BoundaryCondition` that imposes the scalar to be the zero at the
 /// outer boundary.
-class AnalyticConstant final : public BoundaryCondition<3_st> {
+class AnalyticConstant final : public BoundaryCondition {
  public:
   using options = tmpl::list<>;
   static constexpr Options::String help{
