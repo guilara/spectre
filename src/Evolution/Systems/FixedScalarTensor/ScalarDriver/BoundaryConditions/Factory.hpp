@@ -12,7 +12,6 @@
 
 namespace fe::ScalarDriver::BoundaryConditions {
 /// Typelist of standard BoundaryConditions
-template <size_t Dim>
 using standard_boundary_conditions =
     tmpl::list<DemandOutgoingCharSpeeds,
                domain::BoundaryConditions::Periodic<BoundaryCondition>>;
