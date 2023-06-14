@@ -26,7 +26,7 @@ struct System {
   static constexpr size_t volume_dim = 3_st;
   static constexpr bool is_euclidean = false;
 
-//   using boundary_conditions_base = BoundaryConditions::BoundaryCondition;
+  using boundary_conditions_base = BoundaryConditions::BoundaryCondition;
   using boundary_correction_base = BoundaryCorrections::BoundaryCorrection;
 
   using variables_tag =
