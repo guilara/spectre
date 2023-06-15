@@ -48,9 +48,8 @@ struct Pi : db::SimpleTag {
  * \details If \f$\Psi\f$ is the scalar field then we define
  * \f$\Phi_{i} = \partial_i \Psi\f$
  */
-template <size_t SpatialDim>
 struct Phi : db::SimpleTag {
-  using type = tnsr::i<DataVector, SpatialDim>;
+  using type = tnsr::i<DataVector, 3_st>;
   static std::string name() { return "Phi(ScalarDriver)"; }
 };
 
@@ -71,9 +70,8 @@ struct ConstraintGamma2 : db::SimpleTag {
  * For details on how this is defined and computed, see
  * `OneIndexConstraintCompute`.
  */
-template <size_t SpatialDim>
 struct OneIndexConstraint : db::SimpleTag {
-  using type = tnsr::i<DataVector, SpatialDim, Frame::Inertial>;
+  using type = tnsr::i<DataVector, 3_st, Frame::Inertial>;
   static std::string name() { return "OneIndexConstraint(ScalarDriver)"; }
 };
 /*!
@@ -83,9 +81,8 @@ struct OneIndexConstraint : db::SimpleTag {
  * For details on how this is defined and computed, see
  * `TwoIndexConstraintCompute`.
  */
-template <size_t SpatialDim>
 struct TwoIndexConstraint : db::SimpleTag {
-  using type = tnsr::ij<DataVector, SpatialDim, Frame::Inertial>;
+  using type = tnsr::ij<DataVector, 3_st, Frame::Inertial>;
   static std::string name() { return "TwoIndexConstraint(ScalarDriver)"; }
 };
 
@@ -98,9 +95,9 @@ struct TwoIndexConstraint : db::SimpleTag {
 struct VPsi : db::SimpleTag {
   using type = Scalar<DataVector>;
 };
-template <size_t Dim>
+template <size_t 3_st>
 struct VZero : db::SimpleTag {
-  using type = tnsr::i<DataVector, Dim, Frame::Inertial>;
+  using type = tnsr::i<DataVector, 3_st, Frame::Inertial>;
 };
 struct VPlus : db::SimpleTag {
   using type = Scalar<DataVector>;
@@ -110,7 +107,7 @@ struct VMinus : db::SimpleTag {
 };
 /// @}
 
-template <size_t Dim>
+template <size_t 3_st>
 struct CharacteristicSpeeds : db::SimpleTag {
   using type = std::array<DataVector, 4>;
 };
@@ -119,14 +116,14 @@ struct LargestCharacteristicSpeed : db::SimpleTag {
   using type = double;
 };
 
-template <size_t Dim>
+template <size_t 3_st>
 struct CharacteristicFields : db::SimpleTag {
-  using type = Variables<tmpl::list<VPsi, VZero<Dim>, VPlus, VMinus>>;
+  using type = Variables<tmpl::list<VPsi, VZero<3_st>, VPlus, VMinus>>;
 };
 
-template <size_t Dim>
+template <size_t 3_st>
 struct EvolvedFieldsFromCharacteristicFields : db::SimpleTag {
-  using type = Variables<tmpl::list<Psi, Pi, Phi<Dim>>>;
+  using type = Variables<tmpl::list<Psi, Pi, Phi<3_st>>>;
 };
 
 struct ScalarDriverSource : db::SimpleTag {
