@@ -69,9 +69,9 @@ void characteristic_fields(
       unit_normal_vector);
 }
 
-struct CharacteristicFieldsCompute : Tags::CharacteristicFields<3_st>,
+struct CharacteristicFieldsCompute : Tags::CharacteristicFields,
                                      db::ComputeTag {
-  using base = Tags::CharacteristicFields<3_st>;
+  using base = Tags::CharacteristicFields;
   using return_type = typename base::type;
   using argument_tags = tmpl::list<
       Tags::ConstraintGamma2, gr::Tags::InverseSpatialMetric<DataVector, 3_st>,
@@ -123,7 +123,7 @@ void evolved_fields_from_characteristic_fields(
 struct EvolvedFieldsFromCharacteristicFieldsCompute
     : Tags::EvolvedFieldsFromCharacteristicFields,
       db::ComputeTag {
-  using base = Tags::EvolvedFieldsFromCharacteristicFields<3_st>;
+  using base = Tags::EvolvedFieldsFromCharacteristicFields;
   using return_type = typename base::type;
   using argument_tags = tmpl::list<
       Tags::ConstraintGamma2, Tags::VPsi, Tags::VZero<3_st>, Tags::VPlus,
