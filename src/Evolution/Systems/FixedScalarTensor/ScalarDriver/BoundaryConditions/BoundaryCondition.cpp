@@ -9,10 +9,10 @@
 #include "Utilities/GenerateInstantiations.hpp"
 
 namespace fe::ScalarDriver::BoundaryConditions {
-BoundaryCondition<3_st>::BoundaryCondition(CkMigrateMessage* const msg)
+BoundaryCondition::BoundaryCondition(CkMigrateMessage* const msg)
     : domain::BoundaryConditions::BoundaryCondition(msg) {}
 
-void BoundaryCondition<3_st>::pup(PUP::er& p) {
+void BoundaryCondition::pup(PUP::er& p) {
   domain::BoundaryConditions::BoundaryCondition::pup(p);
 }
 
