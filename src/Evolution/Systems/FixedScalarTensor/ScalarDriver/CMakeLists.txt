@@ -32,7 +32,7 @@ target_link_libraries(
   GeneralRelativity
   Serialization
   Utilities
-#   CurvedScalarWave
+  CurvedScalarWave
   )
 
 add_subdirectory(BoundaryConditions)
