@@ -95,7 +95,7 @@ struct TwoIndexConstraint : db::SimpleTag {
 struct VPsi : db::SimpleTag {
   using type = Scalar<DataVector>;
 };
-template <size_t 3_st>
+
 struct VZero : db::SimpleTag {
   using type = tnsr::i<DataVector, 3_st, Frame::Inertial>;
 };
@@ -107,7 +107,6 @@ struct VMinus : db::SimpleTag {
 };
 /// @}
 
-template <size_t 3_st>
 struct CharacteristicSpeeds : db::SimpleTag {
   using type = std::array<DataVector, 4>;
 };
@@ -116,12 +115,10 @@ struct LargestCharacteristicSpeed : db::SimpleTag {
   using type = double;
 };
 
-template <size_t 3_st>
 struct CharacteristicFields : db::SimpleTag {
   using type = Variables<tmpl::list<VPsi, VZero<3_st>, VPlus, VMinus>>;
 };
 
-template <size_t 3_st>
 struct EvolvedFieldsFromCharacteristicFields : db::SimpleTag {
   using type = Variables<tmpl::list<Psi, Pi, Phi<3_st>>>;
 };
