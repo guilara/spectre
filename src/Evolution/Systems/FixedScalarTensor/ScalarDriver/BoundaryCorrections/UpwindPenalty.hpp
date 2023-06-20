@@ -98,7 +98,9 @@ class UpwindPenalty final : public BoundaryCorrection {
           mesh_velocity,
       const std::optional<Scalar<DataVector>>& normal_dot_mesh_velocity) const {
     // Use the CurvedScalarWave routines
-    CurvedScalarWave::BoundaryCorrections::UpwindPenalty<3_st>::dg_package_data(
+    CurvedScalarWave::BoundaryCorrections::UpwindPenalty<3_st>
+        boundary_correction_for_scalar;
+    boundary_correction_for_scalar.dg_package_data(
         packaged_v_psi, packaged_v_zero, packaged_v_plus, packaged_v_minus,
         packaged_gamma2, packaged_interface_unit_normal, packaged_char_speeds,
 
@@ -135,8 +137,9 @@ class UpwindPenalty final : public BoundaryCorrection {
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext,
       dg::Formulation dg_formulation) const {
     // Use the CurvedScalarWave routines
-    CurvedScalarWave::BoundaryCorrections::UpwindPenalty<
-        3_st>::dg_boundary_terms(psi_boundary_correction,
+    CurvedScalarWave::BoundaryCorrections::UpwindPenalty<3_st>
+        boundary_correction_for_scalar;
+    boundary_correction_for_scalar.dg_boundary_terms(psi_boundary_correction,
                                  pi_boundary_correction,
                                  phi_boundary_correction,
 
