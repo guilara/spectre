@@ -1,7 +1,7 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Evolution/Systems/FixedScalarTensor/ScalarTensor/BoundaryConditions/BoundaryCondition.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/BoundaryCondition.hpp"
 
 #include <pup.h>
 
