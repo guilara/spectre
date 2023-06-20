@@ -48,8 +48,9 @@ struct Pi : db::SimpleTag {
  * \details If \f$\Psi\f$ is the scalar field then we define
  * \f$\Phi_{i} = \partial_i \Psi\f$
  */
+template<size_t Dim>
 struct Phi : db::SimpleTag {
-  using type = tnsr::i<DataVector, 3_st>;
+  using type = tnsr::i<DataVector, Dim>;
   static std::string name() { return "Phi(ScalarDriver)"; }
 };
 
@@ -96,8 +97,9 @@ struct VPsi : db::SimpleTag {
   using type = Scalar<DataVector>;
 };
 
+template<size_t Dim>
 struct VZero : db::SimpleTag {
-  using type = tnsr::i<DataVector, 3_st, Frame::Inertial>;
+  using type = tnsr::i<DataVector, Dim, Frame::Inertial>;
 };
 struct VPlus : db::SimpleTag {
   using type = Scalar<DataVector>;

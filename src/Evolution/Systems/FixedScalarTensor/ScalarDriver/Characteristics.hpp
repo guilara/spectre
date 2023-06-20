@@ -148,15 +148,15 @@ struct ComputeLargestCharacteristicSpeed : LargestCharacteristicSpeed,
                                            db::ComputeTag {
   using argument_tags =
       tmpl::list<Tags::ConstraintGamma1, gr::Tags::Lapse<DataVector>,
-                 gr::Tags::Shift<DataVector, SpatialDim>,
-                 gr::Tags::SpatialMetric<DataVector, SpatialDim>>;
+                 gr::Tags::Shift<DataVector, 3_st>,
+                 gr::Tags::SpatialMetric<DataVector, 3_st>>;
   using return_type = double;
   using base = LargestCharacteristicSpeed;
   static void function(
       const gsl::not_null<double*> max_speed, const Scalar<DataVector>& gamma_1,
       const Scalar<DataVector>& lapse,
-      const tnsr::I<DataVector, SpatialDim, Frame::Inertial>& shift,
-      const tnsr::ii<DataVector, SpatialDim, Frame::Inertial>& spatial_metric) {
+      const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
+      const tnsr::ii<DataVector, 3_st, Frame::Inertial>& spatial_metric) {
     // Use the methods of CurvedScalarWave
     CurvedScalarWave::ComputeLargestCharacteristicSpeed<3_st>::function(
         max_speed, gamma_1, lapse, shift, spatial_metric);

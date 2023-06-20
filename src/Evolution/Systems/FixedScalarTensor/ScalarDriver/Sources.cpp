@@ -21,15 +21,15 @@ void add_scalar_driver_friction_term_to_dt_pi_scalar(
 }
 
 void compute_scalar_driver_source(
-    const gsl::not_null<return_type*> scalar_driver_source,
+    const gsl::not_null<Scalar<DataVector>*> scalar_driver_source,
     const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi) {
   // Make sure it has the same size
   *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
   scalar_driver_source->get() = psi.get() - target_psi.get();
 }
 
-void compute_target_psi(const gsl::not_null<return_type*> target_psi,
-    const Scalar<DataVector>& psi) {
+void compute_target_psi(const gsl::not_null<Scalar<DataVector>*> target_psi,
+                        const Scalar<DataVector>& psi) {
   // Make sure it has the same size
   *target_psi = make_with_value<Scalar<DataVector>>(psi, 0.);
   target_psi->get() = psi.get();

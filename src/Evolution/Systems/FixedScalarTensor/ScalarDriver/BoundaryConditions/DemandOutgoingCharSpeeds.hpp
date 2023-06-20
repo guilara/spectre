@@ -63,18 +63,18 @@ class DemandOutgoingCharSpeeds final : public BoundaryCondition {
   using dg_interior_evolved_variables_tags = tmpl::list<>;
   using dg_interior_temporary_tags =
       tmpl::list<Tags::ConstraintGamma1, gr::Tags::Lapse<DataVector>,
-                 gr::Tags::Shift<DataVector, Dim>>;
+                 gr::Tags::Shift<DataVector, 3_st>>;
   using dg_interior_dt_vars_tags = tmpl::list<>;
   using dg_interior_deriv_vars_tags = tmpl::list<>;
   using dg_gridless_tags = tmpl::list<>;
 
   std::optional<std::string> dg_demand_outgoing_char_speeds(
-      const std::optional<tnsr::I<DataVector, Dim, Frame::Inertial>>&
+      const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
           face_mesh_velocity,
-      const tnsr::i<DataVector, Dim>& normal_covector,
-      const tnsr::I<DataVector, Dim>& normal_vector,
+      const tnsr::i<DataVector, 3_st>& normal_covector,
+      const tnsr::I<DataVector, 3_st>& normal_vector,
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& lapse,
-      const tnsr::I<DataVector, Dim>& shift) const {
+      const tnsr::I<DataVector, 3_st>& shift) const {
     // Use the boundary condition from CurvedScalarWave
     CurvedScalarWave::fe::ScalarDriver::BoundaryConditions::
         DemandOutgoingCharSpeeds<3_st>::dg_demand_outgoing_char_speeds(

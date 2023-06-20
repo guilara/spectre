@@ -60,10 +60,10 @@ class AnalyticConstant final : public BoundaryCondition {
 
   using dg_interior_evolved_variables_tags = tmpl::list<>;
   using dg_interior_temporary_tags = tmpl::list<
-      gr::Tags::InverseSpatialMetric<DataVector, Dim, Frame::Inertial>,
+      gr::Tags::InverseSpatialMetric<DataVector, 3_st, Frame::Inertial>,
       Tags::ConstraintGamma1, Tags::ConstraintGamma2,
       gr::Tags::Lapse<DataVector>,
-      gr::Tags::Shift<DataVector, Dim, Frame::Inertial>>;
+      gr::Tags::Shift<DataVector, 3_st, Frame::Inertial>>;
   using dg_interior_dt_vars_tags = tmpl::list<>;
   using dg_interior_deriv_vars_tags = tmpl::list<>;
   using dg_gridless_tags = tmpl::list<>;
@@ -71,27 +71,27 @@ class AnalyticConstant final : public BoundaryCondition {
   std::optional<std::string> dg_ghost(
       const gsl::not_null<Scalar<DataVector>*> psi,
       const gsl::not_null<Scalar<DataVector>*> pi,
-      const gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> phi,
+      const gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*> phi,
       const gsl::not_null<Scalar<DataVector>*> lapse,
-      const gsl::not_null<tnsr::I<DataVector, Dim>*> shift,
+      const gsl::not_null<tnsr::I<DataVector, 3_st>*> shift,
       const gsl::not_null<Scalar<DataVector>*> gamma1,
       const gsl::not_null<Scalar<DataVector>*> gamma2,
-      const gsl::not_null<tnsr::II<DataVector, Dim, Frame::Inertial>*>
+      const gsl::not_null<tnsr::II<DataVector, 3_st, Frame::Inertial>*>
           inverse_spatial_metric,
-      const std::optional<tnsr::I<DataVector, Dim, Frame::Inertial>>&
+      const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
           face_mesh_velocity,
-      const tnsr::i<DataVector, Dim>& normal_covector,
-      const tnsr::I<DataVector, Dim>& normal_vector,
+      const tnsr::i<DataVector, 3_st>& normal_covector,
+      const tnsr::I<DataVector, 3_st>& normal_vector,
       //   const Scalar<DataVector>& psi_interior,
       //   const Scalar<DataVector>& pi_interior,
-      //   const tnsr::i<DataVector, Dim>& phi_interior,
-      const tnsr::II<DataVector, Dim, Frame::Inertial>&
+      //   const tnsr::i<DataVector, 3_st>& phi_interior,
+      const tnsr::II<DataVector, 3_st, Frame::Inertial>&
           inverse_spatial_metric_interior,
       const Scalar<DataVector>& gamma1_interior,
       const Scalar<DataVector>& gamma2_interior,
       const Scalar<DataVector>& lapse_interior,
-      const tnsr::I<DataVector, Dim>& shift_interior) const {
-        // Use the boundary condition from CurvedScalarWave
+      const tnsr::I<DataVector, 3_st>& shift_interior) const {
+    // Use the boundary condition from CurvedScalarWave
     CurvedScalarWave::BoundaryConditions::AnalyticConstant<3_st>::dg_ghost(
         psi, pi, phi, lapse, shift, gamma1, gamma2, inverse_spatial_metric,
 
