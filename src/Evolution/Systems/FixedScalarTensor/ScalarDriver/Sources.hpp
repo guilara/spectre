@@ -8,6 +8,7 @@
 //
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
@@ -35,7 +36,9 @@ void compute_scalar_driver_source(
 
 void compute_target_psi(const gsl::not_null<Scalar<DataVector>*> result);
 
-namespace Tags {
+}  // namespace fe::ScalarDriver::Sources
+
+namespace fe::ScalarDriver::Tags {
 
 /*!
  * \brief Compute tag for the scalar driver source.
@@ -45,12 +48,14 @@ namespace Tags {
 template <typename Frame, typename DataType>
 struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
   using argument_tags =
-      tmpl::list<fe::ScalarDriver::Psi, fe::ScalarDriver::TargetPsi>;
+      tmpl::list<fe::ScalarDriver::Tags::Psi,
+                 fe::ScalarDriver::Tags::TargetPsi>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
-      const Scalar<DataVector>&) = &compute_scalar_driver_source;
-  using base = ScalarSource;
+      const Scalar<DataVector>&) =
+        &fe::ScalarDriver::Sources::compute_scalar_driver_source;
+  using base = ScalarDriverSource;
 };
 
 /*!
@@ -73,12 +78,12 @@ struct TargetPsiCompute : TargetPsi, db::ComputeTag {
   //   result,
   //                                     const Scalar<DataVector>&) =
   //       &compute_target_psi;
-  static constexpr void (*function)(const gsl::not_null<return_type*> result,
-                                    const Scalar<DataVector>&) =
+  static constexpr void (*function)(
+      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+      const Scalar<DataVector>&, const Scalar<DataVector>&, const double,
+      const double, const double) =
       &ScalarTensor::Sources::compute_scalar_curvature_source;
-  using base = ScalarSource;
+  using base = ScalarDriverSource;
 };
 
-}  // namespace Tags
-
-}  // namespace fe::ScalarDriver::Sources
+}  // namespace fe::ScalarDriver::Tags
