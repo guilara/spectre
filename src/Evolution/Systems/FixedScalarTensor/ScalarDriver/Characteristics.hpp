@@ -26,13 +26,14 @@ struct CharacteristicSpeedsCompute : Tags::CharacteristicSpeeds,
       gr::Tags::Shift<DataVector, 3_st>,
       ::Tags::Normalized<domain::Tags::UnnormalizedFaceNormal<3_st>>>;
 
-  static constexpr void function(
+  static void function(
       gsl::not_null<return_type*> result, const Scalar<DataVector>& gamma_1,
       const Scalar<DataVector>& lapse,
       const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
-      const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form) {
+      const tnsr::i<DataVector, 3_st, Frame::Inertial>&
+          unit_normal_one_form) {
     CurvedScalarWave::characteristic_speeds<3_st>(result, gamma_1, lapse, shift,
-                                                  unit_normal_one_form);
+                                      unit_normal_one_form);
   }
 };
 
@@ -63,12 +64,7 @@ void characteristic_fields(
     const Scalar<DataVector>& pi,
     const tnsr::i<DataVector, 3_st, Frame::Inertial>& phi,
     const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form,
-    const tnsr::I<DataVector, 3_st, Frame::Inertial>& unit_normal_vector) {
-  // Use the methods from CurvedScalarWave
-  CurvedScalarWave::characteristic_fields<3_st>(
-      v_psi, v_zero, v_plus, v_minus, psi, pi, phi, unit_normal_one_form,
-      unit_normal_vector);
-}
+    const tnsr::I<DataVector, 3_st, Frame::Inertial>& unit_normal_vector);
 
 struct CharacteristicFieldsCompute : Tags::CharacteristicFields,
                                      db::ComputeTag {
@@ -79,7 +75,7 @@ struct CharacteristicFieldsCompute : Tags::CharacteristicFields,
       Tags::Psi, Tags::Pi, Tags::Phi<3_st>,
       ::Tags::Normalized<domain::Tags::UnnormalizedFaceNormal<3_st>>>;
 
-  static constexpr void function(
+  static void function(
       gsl::not_null<return_type*> result, const Scalar<DataVector>& gamma_2,
       const tnsr::II<DataVector, 3_st, Frame::Inertial>& inverse_spatial_metric,
       const Scalar<DataVector>& psi, const Scalar<DataVector>& pi,
@@ -87,7 +83,7 @@ struct CharacteristicFieldsCompute : Tags::CharacteristicFields,
       const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form) {
     const auto unit_normal_vector = tenex::evaluate<ti::I>(
         inverse_spatial_metric(ti::I, ti::J) * unit_normal_one_form(ti::j));
-    characteristic_fields<3_st>(result, gamma_2, psi, pi, phi,
+    characteristic_fields(result, gamma_2, psi, pi, phi,
                                 unit_normal_one_form, unit_normal_vector);
   }
 };
@@ -114,12 +110,7 @@ void evolved_fields_from_characteristic_fields(
     const Scalar<DataVector>& gamma_2, const Scalar<DataVector>& v_psi,
     const tnsr::i<DataVector, 3_st, Frame::Inertial>& v_zero,
     const Scalar<DataVector>& v_plus, const Scalar<DataVector>& v_minus,
-    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form) {
-  // Use the CurvedScalarWave methods
-  CurvedScalarWave::evolved_fields_from_characteristic_fields(
-      psi, pi, phi, gamma_2, v_psi, v_zero, v_plus, v_minus,
-      unit_normal_one_form);
-}
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form);
 
 struct EvolvedFieldsFromCharacteristicFieldsCompute
     : Tags::EvolvedFieldsFromCharacteristicFields,
@@ -131,7 +122,7 @@ struct EvolvedFieldsFromCharacteristicFieldsCompute
       Tags::VMinus,
       ::Tags::Normalized<domain::Tags::UnnormalizedFaceNormal<3_st>>>;
 
-  static constexpr void function(
+  static void function(
       gsl::not_null<return_type*> result, const Scalar<DataVector>& gamma_2,
       const Scalar<DataVector>& v_psi,
       const tnsr::i<DataVector, 3_st, Frame::Inertial>& v_zero,
@@ -158,7 +149,7 @@ struct ComputeLargestCharacteristicSpeed : LargestCharacteristicSpeed,
       const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
       const tnsr::ii<DataVector, 3_st, Frame::Inertial>& spatial_metric) {
     // Use the methods of CurvedScalarWave
-    CurvedScalarWave::ComputeLargestCharacteristicSpeed<3_st>::function(
+    CurvedScalarWave::Tags::ComputeLargestCharacteristicSpeed<3_st>::function(
         max_speed, gamma_1, lapse, shift, spatial_metric);
   }
 };
