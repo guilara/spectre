@@ -92,7 +92,9 @@ class AnalyticConstant final : public BoundaryCondition {
       const Scalar<DataVector>& lapse_interior,
       const tnsr::I<DataVector, 3_st>& shift_interior) const {
     // Use the boundary condition from CurvedScalarWave
-    CurvedScalarWave::BoundaryConditions::AnalyticConstant<3_st>::dg_ghost(
+    CurvedScalarWave::BoundaryConditions::AnalyticConstant<3_st>
+        csw_analytic_constant;
+    csw_analytic_constant.dg_ghost(
         psi, pi, phi, lapse, shift, gamma1, gamma2, inverse_spatial_metric,
 
         face_mesh_velocity, normal_covector, normal_vector,
