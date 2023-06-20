@@ -11,6 +11,13 @@
 
 #include "DataStructures/DataBox/Tag.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
+#include "Options/Options.hpp"
+
+/// \cond
+class DataVector;
+template <class>
+class Variables;
+/// \endcond
 
 namespace fe::ScalarDriver::Tags {
 
