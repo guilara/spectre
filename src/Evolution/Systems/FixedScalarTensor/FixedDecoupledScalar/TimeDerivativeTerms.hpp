@@ -3,6 +3,27 @@
 
 #pragma once
 
+#include <cstddef>
+#include <utility>
+
+#include "DataStructures/DataBox/PrefixHelpers.hpp"
+#include "DataStructures/DataBox/Prefixes.hpp"
+#include "DataStructures/DataVector.hpp"
+#include "DataStructures/TaggedContainers.hpp"
+#include "DataStructures/Tensor/Tensor.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Sources/ScalarSource.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/System.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/System.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/TimeDerivative.hpp"
+#include "Evolution/Systems/ScalarTensor/System.hpp"
+#include "Evolution/Systems/ScalarTensor/TimeDerivative.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
+#include "Utilities/Gsl.hpp"
+#include "Utilities/Literals.hpp"
+#include "Utilities/TMPL.hpp"
+#include "Utilities/TaggedTuple.hpp"
+
 namespace fe::DecoupledScalar {
 /*!
  * \brief Compute the RHS terms and flux values for the fixed system.
