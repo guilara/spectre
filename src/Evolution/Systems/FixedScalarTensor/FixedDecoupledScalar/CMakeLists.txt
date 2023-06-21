@@ -9,6 +9,7 @@ spectre_target_sources(
   ${LIBRARY}
   PRIVATE
   Diagnostics.cpp
+  VolumeTermsInstantiation.cpp
   )
 
 spectre_target_headers(
