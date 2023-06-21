@@ -18,7 +18,7 @@ spectre_target_headers(
   Diagnostics.hpp
   System.hpp
   Tags.hpp
-  TimeDerivative.hpp
+  TimeDerivativeTerms.hpp
   )
 
 target_link_libraries(
