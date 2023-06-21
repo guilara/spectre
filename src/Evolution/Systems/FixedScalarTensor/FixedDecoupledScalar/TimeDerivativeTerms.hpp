@@ -41,7 +41,7 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
   //   using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags>;
   using argument_tags =
       tmpl::append<gh_arg_tags, scalar_arg_tags, tmpl::list<>>;
-  //...
+
   static void apply(
       // GH dt variables
       gsl::not_null<tnsr::aa<DataVector, 3_st>*> dt_spacetime_metric,
@@ -94,30 +94,32 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       gsl::not_null<tnsr::a<DataVector, 3_st>*> normal_spacetime_one_form,
       gsl::not_null<tnsr::abb<DataVector, 3_st>*> da_spacetime_metric,
       // Scalar temporal variables
-      // These are duplicates
-      //   gsl::not_null<Scalar<DataVector>*> result_lapse,
-      //   gsl::not_null<tnsr::I<DataVector, 3_st>*> result_shift,
-      //   gsl::not_null<tnsr::II<DataVector, 3_st>*>
-      //   result_inverse_spatial_metric,
-      //
+
       gsl::not_null<Scalar<DataVector>*> result_gamma1_scalar,
       gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar,
 
       // Extra temporal tags
       // Avoid compute tags for deriv of lapse and shift by adding them here
       gsl::not_null<tnsr::aa<DataVector, 3_st>*> stress_energy,
-      //   gsl::not_null<Scalar<DataVector>*> scalar_source,
+
+      // Scalar driver temporal variables
+      gsl::not_null<Scalar<DataVector>*> result_gamma1_scalar_driver,
+      gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar_driver,
 
       // GH argument variables
       // GH spatial derivatives
       const tnsr::iaa<DataVector, 3_st>& d_spacetime_metric,
       const tnsr::iaa<DataVector, 3_st>& d_pi,
       const tnsr::ijaa<DataVector, 3_st>& d_phi,
-      // scalar spatial derivatives
+      // Scalar spatial derivatives
       const tnsr::i<DataVector, 3_st>& d_psi_scalar,
       const tnsr::i<DataVector, 3_st>& d_pi_scalar,
       const tnsr::ij<DataVector, 3_st>& d_phi_scalar,
-      //
+      // Scalar Driver spatial derivatives
+      const tnsr::i<DataVector, 3_st>& d_psi_scalar_driver,
+      const tnsr::i<DataVector, 3_st>& d_pi_scalar_driver,
+      const tnsr::ij<DataVector, 3_st>& d_phi_scalar_driver,
+
       const tnsr::aa<DataVector, 3_st>& spacetime_metric,
       const tnsr::aa<DataVector, 3_st>& pi,
       const tnsr::iaa<DataVector, 3_st>& phi, const Scalar<DataVector>& gamma0,
@@ -130,15 +132,12 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
           mesh_velocity,
       // Scalar argument variables
-      //   const tnsr::i<DataVector, 3_st>& d_psi_scalar,
-      //   const tnsr::i<DataVector, 3_st>& d_pi_scalar,
-      //   const tnsr::ij<DataVector, 3_st>& d_phi_scalar,
       const Scalar<DataVector>& pi_scalar,
       const tnsr::i<DataVector, 3_st>& phi_scalar,
       // These appear with the same name as temporals for the other system
       const Scalar<DataVector>& lapse_scalar,
       const tnsr::I<DataVector, 3_st>& shift_scalar,
-      //
+
       const tnsr::i<DataVector, 3_st>& deriv_lapse,
       const tnsr::iJ<DataVector, 3_st>& deriv_shift,
       const tnsr::II<DataVector, 3_st>& upper_spatial_metric,
@@ -146,7 +145,15 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1_scalar,
       const Scalar<DataVector>& gamma2_scalar,
-      const Scalar<DataVector>& scalar_source) {
+      const Scalar<DataVector>& scalar_source
+
+      // Scalar driver argument variables
+      const Scalar<DataVector>& pi_scalar_driver,
+      const tnsr::i<DataVector, 3_st>& phi_scalar_driver,
+      // Note: we omit the repeated ::gr argument variables for the driver
+      // system
+      const Scalar<DataVector>& gamma1_scalar_driver,
+      const Scalar<DataVector>& gamma2_scalar_driver) {
     // Note: Check that CurvedScalarWave does not update GH variables
     // to a different value. If it does, invert the order of application of the
     // corrections first, so that the GH update is applied at last
@@ -198,7 +205,7 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
 
         // Scalar temporal variables
         lapse, shift, inverse_spatial_metric,
-        //
+
         result_gamma1_scalar_driver, result_gamma2_scalar_driver,
 
         // Scalar argument variables
