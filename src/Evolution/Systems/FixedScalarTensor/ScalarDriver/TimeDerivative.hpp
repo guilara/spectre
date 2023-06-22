@@ -71,8 +71,9 @@ struct TimeDerivative {
         result_lapse, result_shift, result_inverse_spatial_metric,
         result_gamma1, result_gamma2,
 
-        d_pi, pi, lapse, shift, deriv_lapse, deriv_shift, upper_spatial_metric,
-        trace_spatial_christoffel, trace_extrinsic_curvature, gamma1, gamma2);
+        d_psi, d_pi, d_phi, pi, phi, lapse, shift, deriv_lapse, deriv_shift,
+        upper_spatial_metric, trace_spatial_christoffel,
+        trace_extrinsic_curvature, gamma1, gamma2);
 
     // Add extra terms to the Klein-Gordon equation
     // Make sure all variables called here are in the arguments of apply
