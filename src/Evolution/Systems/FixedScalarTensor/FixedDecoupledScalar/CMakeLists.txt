@@ -31,6 +31,7 @@ target_link_libraries(
   DomainBoundaryConditions
   GeneralRelativity
   GeneralizedHarmonic
+  ScalarDriver
   ScalarTensor
   ScalarTensorSources
   Serialization
