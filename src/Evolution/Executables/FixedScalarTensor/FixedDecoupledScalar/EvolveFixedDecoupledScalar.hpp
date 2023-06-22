@@ -26,9 +26,9 @@
 
 template <size_t VolumeDim, bool UseNumericalInitialData>
 struct EvolutionMetavars
-    : public FixedScalarTensorBase<
+    : public FixedScalarTensorTemplateBase<
           EvolutionMetavars<3_st, UseNumericalInitialData>> {
-  using st_base = FixedScalarTensorBase<
+  using st_base = FixedScalarTensorTemplateBase<
       EvolutionMetavars<3_st, UseNumericalInitialData>>;
   using typename st_base::const_global_cache_tags;
   using typename st_base::dg_registration_list;
