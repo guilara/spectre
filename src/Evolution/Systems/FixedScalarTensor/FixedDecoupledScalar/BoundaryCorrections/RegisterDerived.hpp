@@ -3,6 +3,6 @@
 
 #pragma once
 
-namespace fe::DecoupledScalar {
+namespace fe::DecoupledScalar::BoundaryCorrections {
 void register_derived_with_charm();
-}  // namespace fe::DecoupledScalar
+}  // namespace fe::DecoupledScalar::BoundaryCorrections
