@@ -7,7 +7,7 @@
 
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Evolution/Systems/CurvedScalarWave/TimeDerivative.hpp"
-#include "Evolution/Systems/FixedScalarTensor/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "NumericalAlgorithms/LinearOperators/PartialDerivatives.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/Gsl.hpp"
