@@ -17,6 +17,7 @@ spectre_target_headers(
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
   Characteristics.hpp
+  Constraints.hpp
   Initialize.hpp
   Sources.hpp
   System.hpp
