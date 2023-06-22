@@ -143,7 +143,7 @@ namespace fe::ScalarDriver::OptionTags {
  * \brief Scalar sigma parameter.
  */
 struct ScalarSigmaParameter {
-  static std::string name() { return "ScalarSigmaParameter"; }
+  static std::string name() { return "ScalarDriverSigmaParameter"; }
   using type = double;
   static constexpr Options::String help{
       "Sigma parameter for the scalar diver in code units"};
@@ -153,7 +153,7 @@ struct ScalarSigmaParameter {
  * \brief Scalar tau parameter.
  */
 struct ScalarTauParameter {
-  static std::string name() { return "ScalarTauParameter"; }
+  static std::string name() { return "ScalarDriverTauParameter"; }
   using type = double;
   static constexpr Options::String help{
       "Tau parameter for the scalar driver in code units"};
