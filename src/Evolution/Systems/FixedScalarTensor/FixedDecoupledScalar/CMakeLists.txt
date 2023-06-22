@@ -1,7 +1,7 @@
 # Distributed under the MIT License.
 # See LICENSE.txt for details.
 
-set(LIBRARY ScalarDriver)
+set(LIBRARY FixedDecoupledScalar)
 
 add_spectre_library(${LIBRARY})
 
@@ -16,6 +16,7 @@ spectre_target_headers(
   ${LIBRARY}
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
+  Characteristics.hpp
   Diagnostics.hpp
   System.hpp
   Tags.hpp
@@ -26,14 +27,18 @@ target_link_libraries(
   ${LIBRARY}
   PUBLIC
   DataStructures
-  Domain
-  ErrorHandling
+  DiscontinuousGalerkin
+  DomainBoundaryConditions
   GeneralRelativity
+  GeneralizedHarmonic
+  ScalarTensor
+  ScalarTensorSources
   Serialization
   Utilities
   CurvedScalarWave
-  ScalarTensor
-  ScalarTensorSources
+  INTERFACE
+  Options
+  Parallel
   )
 
 add_subdirectory(BoundaryConditions)
