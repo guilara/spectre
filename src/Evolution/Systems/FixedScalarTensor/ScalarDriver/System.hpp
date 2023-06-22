@@ -7,11 +7,11 @@
 
 #include "DataStructures/Tensor/EagerMath/Magnitude.hpp"
 #include "DataStructures/VariablesTag.hpp"
-#include "Evolution/Systems/FixedScalarTensor/BoundaryConditions/BoundaryCondition.hpp"
-#include "Evolution/Systems/FixedScalarTensor/BoundaryCorrections/BoundaryCorrection.hpp"
-#include "Evolution/Systems/FixedScalarTensor/Characteristics.hpp"
-#include "Evolution/Systems/FixedScalarTensor/Tags.hpp"
-#include "Evolution/Systems/FixedScalarTensor/TimeDerivative.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/BoundaryCondition.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryCorrections/BoundaryCorrection.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Characteristics.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/TimeDerivative.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/TMPL.hpp"
 
