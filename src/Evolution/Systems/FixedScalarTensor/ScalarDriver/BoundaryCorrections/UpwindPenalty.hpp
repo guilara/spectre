@@ -102,7 +102,7 @@ class UpwindPenalty final : public BoundaryCorrection {
     // Use the CurvedScalarWave routines
     CurvedScalarWave::BoundaryCorrections::UpwindPenalty<3_st>
         boundary_correction_for_scalar;
-    boundary_correction_for_scalar.dg_package_data(
+    return boundary_correction_for_scalar.dg_package_data(
         packaged_v_psi, packaged_v_zero, packaged_v_plus, packaged_v_minus,
         packaged_gamma2, packaged_interface_unit_normal, packaged_char_speeds,
 
