@@ -7,7 +7,7 @@
 #include <memory>
 #include <pup.h>
 
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/BoundaryCorrection.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryCorrections/BoundaryCorrection.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/BoundaryCorrection.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/Serialization/CharmPupable.hpp"
