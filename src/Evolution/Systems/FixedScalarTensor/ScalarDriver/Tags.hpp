@@ -170,6 +170,8 @@ struct TargetPsi : db::SimpleTag {
   static std::string name() { return "TargetPsi(ScalarDriver)"; }
 };
 
+// We should updgrade these to be scalars so that we can prescribe space
+// dependence
 struct ScalarSigmaParameter : db::SimpleTag {
   using type = double;
   using option_tags = tmpl::list<OptionTags::ScalarSigmaParameter>;
