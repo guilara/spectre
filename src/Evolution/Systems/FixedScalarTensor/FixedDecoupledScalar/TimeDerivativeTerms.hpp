@@ -173,7 +173,9 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       // Note: we omit the repeated ::gr argument variables for the driver
       // system
       const Scalar<DataVector>& gamma1_scalar_driver,
-      const Scalar<DataVector>& gamma2_scalar_driver) {
+      const Scalar<DataVector>& gamma2_scalar_driver,
+      const Scalar<DataVector>& scalar_driver_source,
+      const double scalar_tau_parameter, const double scalar_sigma_parameter) {
     // Note: Check that CurvedScalarWave does not update GH variables
     // to a different value. If it does, invert the order of application of the
     // corrections first, so that the GH update is applied at last
@@ -236,7 +238,8 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
 
         deriv_lapse, deriv_shift, upper_spatial_metric,
         trace_spatial_christoffel, trace_extrinsic_curvature,
-        gamma1_scalar_driver, gamma2_scalar_driver);
+        gamma1_scalar_driver, gamma2_scalar_driver, scalar_driver_source,
+        scalar_tau_parameter, scalar_sigma_parameter);
   }
 };
 
