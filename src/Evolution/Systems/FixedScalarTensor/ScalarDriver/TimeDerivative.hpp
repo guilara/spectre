@@ -24,7 +24,10 @@ namespace fe::ScalarDriver {
 
 struct TimeDerivative {
  public:
-  using temporary_tags = CurvedScalarWave::TimeDerivative<3_st>::temporary_tags;
+  using temporary_tags =
+      tmpl::list<gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3_st>,
+                 gr::Tags::InverseSpatialMetric<DataVector, 3_st>,
+                 Tags::ConstraintGamma1, Tags::ConstraintGamma2>;
 
   using argument_tags =
       tmpl::list<Tags::Pi, Tags::Phi<3_st>, gr::Tags::Lapse<DataVector>,
