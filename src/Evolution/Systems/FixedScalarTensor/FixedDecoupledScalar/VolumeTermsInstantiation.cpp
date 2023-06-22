@@ -80,5 +80,7 @@ template void volume_terms<::fe::DecoupledScalar::TimeDerivativeTerms>(
     const tnsr::i<DataVector, 3_st>& phi_scalar_driver,
 
     const Scalar<DataVector>& gamma1_scalar_driver,
-    const Scalar<DataVector>& gamma2_scalar_driver);
+    const Scalar<DataVector>& gamma2_scalar_driver,
+    const Scalar<DataVector>& scalar_driver_source
+    /* Add missing driver parameters */);
 }  // namespace evolution::dg::Actions::detail

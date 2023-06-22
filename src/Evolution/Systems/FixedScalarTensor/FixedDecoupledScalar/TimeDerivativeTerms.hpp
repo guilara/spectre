@@ -59,8 +59,8 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
   using temporary_tags = tmpl::remove_duplicates<
       tmpl::append<gh_temp_tags, scalar_temp_tags, scalar_extra_temp_tags>>;
   //   using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags>;
-  using argument_tags =
-      tmpl::append<gh_arg_tags, scalar_arg_tags, tmpl::list<>>;
+  using argument_tags = tmpl::remove_duplicates<
+      tmpl::append<gh_arg_tags, scalar_arg_tags, tmpl::list<>>>;
 
   static void apply(
       // GH dt variables
