@@ -5,6 +5,7 @@ spectre_target_sources(
   ${LIBRARY}
   PRIVATE
   RegisterDerived.cpp
+  UpwindPenalty.cpp
   )
 
 spectre_target_headers(
