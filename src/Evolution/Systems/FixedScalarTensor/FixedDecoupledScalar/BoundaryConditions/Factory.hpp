@@ -6,17 +6,12 @@
 #include "Domain/BoundaryConditions/Periodic.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/Factory.hpp"
 //
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/Bjorhus.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/BoundaryCondition.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/DirichletAnalytic.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/DirichletMinkowski.hpp"
 //
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 //
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/AnalyticConstant.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/ConstraintPreservingSphericalRadiation.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
 //
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/BoundaryCondition.hpp"

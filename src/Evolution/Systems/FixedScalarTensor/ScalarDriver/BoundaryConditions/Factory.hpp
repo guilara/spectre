@@ -6,7 +6,6 @@
 #include <cstddef>
 
 #include "Domain/BoundaryConditions/Periodic.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/ConstraintPreservingSphericalRadiation.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/AnalyticConstant.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
 #include "Utilities/TMPL.hpp"
