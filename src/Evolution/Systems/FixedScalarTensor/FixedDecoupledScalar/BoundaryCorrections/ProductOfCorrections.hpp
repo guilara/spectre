@@ -36,17 +36,17 @@ template <typename DerivedGhCorrection, typename DerivedScalarCorrection>
 class ProductOfCorrections final : public BoundaryCorrection {
  public:
   // Need to remove duplicates in the following unions of tags
-  using dg_package_field_tags =
+  using dg_package_field_tags = tmpl::remove_duplicates<
       tmpl::append<typename DerivedGhCorrection::dg_package_field_tags,
-                   typename DerivedScalarCorrection::dg_package_field_tags>;
+                   typename DerivedScalarCorrection::dg_package_field_tags>>;
 
   using dg_package_data_temporary_tags = tmpl::remove_duplicates<tmpl::append<
       typename DerivedGhCorrection::dg_package_data_temporary_tags,
       typename DerivedScalarCorrection::dg_package_data_temporary_tags>>;
 
-  using dg_package_data_volume_tags = tmpl::append<
+  using dg_package_data_volume_tags = tmpl::remove_duplicates<tmpl::append<
       typename DerivedGhCorrection::dg_package_data_volume_tags,
-      typename DerivedScalarCorrection::dg_package_data_volume_tags>;
+      typename DerivedScalarCorrection::dg_package_data_volume_tags>>;
 
   static std::string name() {
     return "Product" + pretty_type::name<DerivedGhCorrection>() +
@@ -145,8 +145,8 @@ class ProductOfCorrections final : public BoundaryCorrection {
       gsl::not_null<Scalar<DataVector>*> packaged_v_plus_scalar_driver,
       gsl::not_null<Scalar<DataVector>*> packaged_v_minus_scalar_driver,
       gsl::not_null<Scalar<DataVector>*> packaged_gamma2_scalar_driver,
-      gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*>
-          packaged_interface_unit_normal_scalar_driver,
+    //   gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*>
+    //       packaged_interface_unit_normal_scalar_driver,
       gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*>
           packaged_char_speeds_scalar_driver,
       // GH variables
@@ -221,8 +221,8 @@ class ProductOfCorrections final : public BoundaryCorrection {
             packaged_v_psi_scalar_driver, packaged_v_zero_scalar_driver,
             packaged_v_plus_scalar_driver, packaged_v_minus_scalar_driver,
             packaged_gamma2_scalar_driver,
-            packaged_interface_unit_normal_scalar_driver,
-            // packaged_interface_unit_normal_scalar,
+            // packaged_interface_unit_normal_scalar_driver,
+            packaged_interface_unit_normal_scalar,
 
             packaged_char_speeds_scalar_driver,
             // Scalar variables
@@ -277,15 +277,15 @@ class ProductOfCorrections final : public BoundaryCorrection {
       const tnsr::i<DataVector, 3_st, Frame::Inertial>&
           interface_unit_normal_int_scalar,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int_scalar,
-      // Scalar internal packaged field tags
+      // Scalar driver internal packaged field tags
       const Scalar<DataVector>& v_psi_int_scalar_driver,
       const tnsr::i<DataVector, 3_st, Frame::Inertial>&
           v_zero_int_scalar_driver,
       const Scalar<DataVector>& v_plus_int_scalar_driver,
       const Scalar<DataVector>& v_minus_int_scalar_driver,
       const Scalar<DataVector>& gamma2_int_scalar_driver,
-      const tnsr::i<DataVector, 3_st, Frame::Inertial>&
-          interface_unit_normal_int_scalar_driver,
+      //   const tnsr::i<DataVector, 3_st, Frame::Inertial>&
+      //       interface_unit_normal_int_scalar_driver,
       const tnsr::a<DataVector, 3, Frame::Inertial>&
           char_speeds_int_scalar_driver,
       // GH external packaged fields
@@ -310,15 +310,15 @@ class ProductOfCorrections final : public BoundaryCorrection {
       const tnsr::i<DataVector, 3_st, Frame::Inertial>&
           interface_unit_normal_ext_scalar,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext_scalar,
-      // Scalar external packaged fields
+      // Scalar driver external packaged fields
       const Scalar<DataVector>& v_psi_ext_scalar_driver,
       const tnsr::i<DataVector, 3_st, Frame::Inertial>&
           v_zero_ext_scalar_driver,
       const Scalar<DataVector>& v_plus_ext_scalar_driver,
       const Scalar<DataVector>& v_minus_ext_scalar_driver,
       const Scalar<DataVector>& gamma2_ext_scalar_driver,
-      const tnsr::i<DataVector, 3_st, Frame::Inertial>&
-          interface_unit_normal_ext_scalar_driver,
+      //   const tnsr::i<DataVector, 3_st, Frame::Inertial>&
+      //       interface_unit_normal_ext_scalar_driver,
       const tnsr::a<DataVector, 3, Frame::Inertial>&
           char_speeds_ext_scalar_driver,
       // DG formulation
@@ -363,13 +363,13 @@ class ProductOfCorrections final : public BoundaryCorrection {
         // scalar_internal_packaged_fields...,
         v_psi_int_scalar_driver, v_zero_int_scalar_driver,
         v_plus_int_scalar_driver, v_minus_int_scalar_driver,
-        gamma2_int_scalar_driver, interface_unit_normal_int_scalar_driver,
+        gamma2_int_scalar_driver, interface_unit_normal_int_scalar,
         char_speeds_int_scalar_driver,
 
         // scalar_external_packaged_fields...,
         v_psi_ext_scalar_driver, v_zero_ext_scalar_driver,
         v_plus_ext_scalar_driver, v_minus_ext_scalar_driver,
-        gamma2_ext_scalar_driver, interface_unit_normal_ext_scalar_driver,
+        gamma2_ext_scalar_driver, interface_unit_normal_ext_scalar,
         char_speeds_ext_scalar_driver,
 
         dg_formulation);
