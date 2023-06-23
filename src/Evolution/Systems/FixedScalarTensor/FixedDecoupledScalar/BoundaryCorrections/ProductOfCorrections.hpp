@@ -35,6 +35,7 @@ namespace fe::DecoupledScalar::BoundaryCorrections {
 template <typename DerivedGhCorrection, typename DerivedScalarCorrection>
 class ProductOfCorrections final : public BoundaryCorrection {
  public:
+  // Need to remove duplicates in the following unions of tags
   using dg_package_field_tags =
       tmpl::append<typename DerivedGhCorrection::dg_package_field_tags,
                    typename DerivedScalarCorrection::dg_package_field_tags>;
