@@ -6,6 +6,7 @@
 #include <cstddef>
 
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/Solutions.hpp"
 
 namespace fe::DecoupledScalar {

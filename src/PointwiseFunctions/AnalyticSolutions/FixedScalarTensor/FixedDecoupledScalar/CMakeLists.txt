@@ -10,6 +10,7 @@ spectre_target_sources(
   PRIVATE
   MinkowskiZeroScalar.cpp
   KerrSchildScalar.cpp
+  KerrSphericalHarmonic.cpp
   )
 
 spectre_target_headers(
@@ -18,6 +19,7 @@ spectre_target_headers(
   HEADERS
   MinkowskiZeroScalar.hpp
   KerrSchildScalar.hpp
+  KerrSphericalHarmonic.hpp
   Solutions.hpp
   )
 
