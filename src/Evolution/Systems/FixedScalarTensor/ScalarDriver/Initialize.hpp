@@ -17,7 +17,7 @@
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "PointwiseFunctions/AnalyticData/Tags.hpp"
 
-namespace fe::DecoupledScalar::Initialization {
+namespace fe::ScalarDriver::Initialization {
 /// \ingroup InitializationGroup
 /// \brief Mutator meant to be used with
 /// `Initialization::Actions::AddSimpleTags` to initialize the constraint
@@ -45,4 +45,4 @@ struct InitializeConstraintDampingGammas {
   }
 };
 
-}  // namespace fe::DecoupledScalar::Initialization
+}  // namespace fe::ScalarDriver::Initialization

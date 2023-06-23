@@ -68,6 +68,7 @@
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/ProductOfCorrections.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Initialize.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Tags.hpp"
 //
@@ -550,9 +551,10 @@ struct FixedScalarTensorTemplateBase<
       // Initialization::Actions::GrTagsForHydro<system>,
       Initialization::Actions::AddSimpleTags<
           CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
-              volume_dim>,
-          fe::DecoupledScalar::Initialization::
-              InitializeConstraintDampingGammas<volume_dim>>,
+              volume_dim>>,
+      Initialization::Actions::AddSimpleTags<
+          fe::ScalarDriver::Initialization::InitializeConstraintDampingGammas<
+              volume_dim>>,
       Parallel::Actions::TerminatePhase>;
 
   // A tmpl::list of tags to be added to the GlobalCache by the
