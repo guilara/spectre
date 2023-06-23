@@ -25,6 +25,7 @@
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 //
 #include "NumericalAlgorithms/LinearOperators/PartialDerivatives.hpp"
@@ -128,7 +129,8 @@ struct InitializeScalarTensorAnd3Plus1Variables {
       gr::Tags::WeylMagneticScalarCompute<DataVector, Dim, frame>,
 
       // Tags for the scalar driver
-      fe::ScalarDriver::Tags::ScalarDriverSource>;
+      fe::ScalarDriver::Tags::TargetPsiCompute<frame, DataVector>,
+      fe::ScalarDriver::Tags::ScalarDriverSourceCompute<frame, DataVector>>;
 
   using const_global_cache_tags = tmpl::list<
       gh::ConstraintDamping::Tags::DampingFunctionGamma0<Dim, Frame::Grid>,
