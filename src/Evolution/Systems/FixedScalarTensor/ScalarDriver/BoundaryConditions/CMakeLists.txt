@@ -4,6 +4,7 @@
 spectre_target_sources(
   ${LIBRARY}
   PRIVATE
+  AnalyticConstant.cpp
   BoundaryCondition.cpp
 )
 
