@@ -68,9 +68,14 @@
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/ProductOfCorrections.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Sources.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Tags.hpp"
+//
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/System.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 //
 #include "Evolution/Initialization/GrTagsForHydro.hpp"
 //
@@ -137,6 +142,9 @@
 //
 #include "PointwiseFunctions/AnalyticSolutions/GhScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
+//
+#include "PointwiseFunctions/AnalyticSolutions/FixedScalarTensor/FixedDecoupledScalar/MinkowskiZeroScalar.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/GhFixedScalarTensor/GhFixedDecoupledScalar/Factory.hpp"
 //
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"

@@ -88,7 +88,7 @@ static const std::vector<void (*)()> charm_init_node_funcs{
     &domain::creators::time_dependence::register_derived_with_charm,
     &domain::FunctionsOfTime::register_derived_with_charm,
     // &ScalarTensor::BoundaryCorrections::register_derived_with_charm,
-    &fe::FixedDecoupledScalar::BoundaryCorrections::register_derived_with_charm,
+    &fe::DecoupledScalar::BoundaryCorrections::register_derived_with_charm,
     &domain::creators::register_derived_with_charm,
     &gh::ConstraintDamping::register_derived_with_charm,
     &register_factory_classes_with_charm<metavariables>};
