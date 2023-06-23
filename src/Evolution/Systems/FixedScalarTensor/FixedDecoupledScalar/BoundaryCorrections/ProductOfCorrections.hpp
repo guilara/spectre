@@ -220,8 +220,8 @@ class ProductOfCorrections final : public BoundaryCorrection {
             packaged_v_psi_scalar_driver, packaged_v_zero_scalar_driver,
             packaged_v_plus_scalar_driver, packaged_v_minus_scalar_driver,
             packaged_gamma2_scalar_driver,
-            // packaged_interface_unit_normal_scalar_driver,
-            packaged_interface_unit_normal_scalar,
+            packaged_interface_unit_normal_scalar_driver,
+            // packaged_interface_unit_normal_scalar,
 
             packaged_char_speeds_scalar_driver,
             // Scalar variables
