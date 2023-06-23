@@ -125,7 +125,10 @@ struct InitializeScalarTensorAnd3Plus1Variables {
 
       gr::Tags::SqrtDetSpatialMetricCompute<DataVector, Dim, frame>,
       gr::Tags::WeylMagneticCompute<DataVector, Dim, frame>,
-      gr::Tags::WeylMagneticScalarCompute<DataVector, Dim, frame>>;
+      gr::Tags::WeylMagneticScalarCompute<DataVector, Dim, frame>,
+
+      // Tags for the scalar driver
+      fe::ScalarDriver::Tags::ScalarDriverSource>;
 
   using const_global_cache_tags = tmpl::list<
       gh::ConstraintDamping::Tags::DampingFunctionGamma0<Dim, Frame::Grid>,

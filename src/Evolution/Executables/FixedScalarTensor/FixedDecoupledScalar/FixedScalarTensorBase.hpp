@@ -538,7 +538,7 @@ struct FixedScalarTensorTemplateBase<
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
       // I think these are variables than can be retrieved from ID
       // gh::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
-      ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
+      fe::DecoupledScalar::Actions::InitializeScalarTensorAnd3Plus1Variables,
       tmpl::conditional_t<
           UseNumericalInitialData,
           // Until we read numerical data for the scalar
