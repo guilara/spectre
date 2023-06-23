@@ -6,6 +6,7 @@ spectre_target_sources(
   PRIVATE
   AnalyticConstant.cpp
   BoundaryCondition.cpp
+  DemandOutgoingCharSpeeds.cpp
 )
 
 spectre_target_headers(

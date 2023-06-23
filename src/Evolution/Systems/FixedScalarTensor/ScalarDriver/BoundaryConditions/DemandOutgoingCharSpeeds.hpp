@@ -14,6 +14,7 @@
 #include "Domain/FaceNormal.hpp"
 #include "Evolution/BoundaryConditions/Type.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/BoundaryCondition.hpp"
+#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/BoundaryCondition.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
