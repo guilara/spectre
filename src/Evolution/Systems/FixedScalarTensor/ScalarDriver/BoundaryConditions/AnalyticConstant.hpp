@@ -94,13 +94,17 @@ class AnalyticConstant final : public BoundaryCondition {
     // Use the boundary condition from CurvedScalarWave
     CurvedScalarWave::BoundaryConditions::AnalyticConstant<3_st>
         csw_analytic_constant;
-    csw_analytic_constant.dg_ghost(
+    auto fe_string = csw_analytic_constant.dg_ghost(
         psi, pi, phi, lapse, shift, gamma1, gamma2, inverse_spatial_metric,
 
         face_mesh_velocity, normal_covector, normal_vector,
 
         inverse_spatial_metric_interior, gamma1_interior, gamma2_interior,
         lapse_interior, shift_interior);
+    if (not fe_string.has_value()) {
+      return fe_string;
+    }
+    return std::nullopt;
   }
 };
 }  // namespace fe::ScalarDriver::BoundaryConditions

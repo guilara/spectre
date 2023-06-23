@@ -67,11 +67,9 @@ using remove_periodic_conditions_t =
 // We write here the product of boundary conditions as in the Scalar Tensor
 // system
 using subset_standard_boundary_conditions_gh =
-    ScalarTensor::BoundaryConditions::detail::AllProductConditions<
-        ScalarTensor::BoundaryConditions::
-            subset_standard_boundary_conditions_gh,
-        ScalarTensor::BoundaryConditions::
-            subset_standard_boundary_conditions_scalar>;
+    detail::remove_periodic_conditions_t<
+        typename ScalarTensor::BoundaryConditions::
+            standard_boundary_conditions>;
 
 using subset_standard_boundary_conditions_scalar =
     tmpl::list<fe::ScalarDriver::BoundaryConditions::AnalyticConstant,
