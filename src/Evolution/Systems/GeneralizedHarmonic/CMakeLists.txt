@@ -46,6 +46,7 @@ target_link_libraries(
   GhGrMhdSolutions
   #
   GhScalarTensorSolutions
+  GhFixedDecoupledScalarSolutions
   #
   GhRelativisticEulerSolutions
   IO
