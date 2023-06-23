@@ -52,3 +52,11 @@ add_scalar_tensor_executable_without_horizon(
   3
   "${LIBS_TO_LINK};GeneralRelativitySolutions"
   )
+
+add_spectre_parallel_executable(
+  EvolveFixedDecoupledScalarSingleBlackHole
+  EvolveFixedDecoupledScalarSingleBlackHole
+  Evolution/Executables/FixedScalarTensor/FixedDecoupledScalar
+  "EvolutionMetavars<3, false>"
+  "${LIBS_TO_LINK};ApparentHorizons;ControlSystem;GeneralRelativitySolutions"
+  )
