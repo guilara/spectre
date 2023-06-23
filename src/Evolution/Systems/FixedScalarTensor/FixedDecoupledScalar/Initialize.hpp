@@ -189,10 +189,10 @@ struct InitializeEvolvedScalarVariables {
     // Set variables to zero for now
     // Ideally we would like to
       get(get<fe::ScalarDriver::Tags::Psi>(*evolved_vars)) = 0.0 * get(lapse);
-      auto& scalar_phi =
+      auto& scalar_phi_driver =
                   get<fe::ScalarDriver::Tags::Phi<3_st>>(*evolved_vars);
       for (size_t i = 0; i < 3_st; i++) {
-        scalar_phi.get(i) = 0.0 * get(lapse);
+        scalar_phi_driver.get(i) = 0.0 * get(lapse);
       }
       get(get<fe::ScalarDriver::Tags::Pi>(*evolved_vars)) =
                   - 1.0e-3 * (get(lapse) - 1.0);
