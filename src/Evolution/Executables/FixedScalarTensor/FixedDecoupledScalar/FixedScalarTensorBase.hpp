@@ -358,6 +358,9 @@ struct ObserverTags {
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
           ScalarTensor::Sources::Tags::ScalarSource,
+          // Driver quantities
+          fe::ScalarDriver::Tags::TargetPsi,
+          fe::ScalarDriver::Tags::ScalarDriverSource,
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
