@@ -74,6 +74,7 @@
 //
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Constraints.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Initialize.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/System.hpp"
@@ -297,9 +298,9 @@ struct ObserverTags {
           gr::Tags::SpacetimeNormalOneFormCompute<DataVector, volume_dim,
                                                   Frame::Inertial>,
           gr::Tags::SpacetimeNormalVector<DataVector, volume_dim,
-                                                 Frame::Inertial>,
+                                          Frame::Inertial>,
           gr::Tags::InverseSpacetimeMetric<DataVector, volume_dim,
-                                                  Frame::Inertial>,
+                                           Frame::Inertial>,
           ::Tags::deriv<
               gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
               tmpl::size_t<volume_dim>, Frame::Inertial>,
@@ -361,6 +362,14 @@ struct ObserverTags {
           // Driver quantities
           fe::ScalarDriver::Tags::TargetPsi,
           fe::ScalarDriver::Tags::ScalarDriverSource,
+          // Compute the constraints of CSW
+          fe::ScalarDriver::Tags::OneIndexConstraintCompute,
+          fe::ScalarDriver::Tags::TwoIndexConstraintCompute,
+          // Driver constraint norms
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarDriver::Tags::OneIndexConstraint>,
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarDriver::Tags::TwoIndexConstraint>,
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
@@ -590,17 +599,22 @@ struct FixedScalarTensorTemplateBase<
           volume_dim, system, AllStepChoosers, local_time_stepping>,
       tmpl::conditional_t<
           local_time_stepping,
-          tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
-                         ::domain::CheckFunctionsOfTimeAreReadyPostprocessor,
-                         evolution::dg::ApplyBoundaryCorrections<
-                             local_time_stepping, system, volume_dim, true>>>,
-                     evolution::dg::Actions::ApplyLtsBoundaryCorrections<
-                         system, volume_dim, false>,
+          tmpl::list<
+              evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
+                  ::domain::CheckFunctionsOfTimeAreReadyPostprocessor,
+                  evolution::dg::ApplyBoundaryCorrections<
+                      local_time_stepping, system, volume_dim, true>>>,
+              evolution::dg::Actions::ApplyLtsBoundaryCorrections<
+                  system, volume_dim, false>,
               // We allow for separate filtering of the system variables
-              dg::Actions::Filter<Filters::Exponential<0>,
-                                  system::gh_system::variables_tag::tags_list>,
+              dg::Actions::Filter<
+                  Filters::Exponential<0>,
+                  system::gh_system::gh_system::variables_tag::tags_list>,
               dg::Actions::Filter<
                   Filters::Exponential<1>,
+                  system::gh_system::scalar_system::variables_tag::tags_list>,
+              dg::Actions::Filter<
+                  Filters::Exponential<2>,
                   system::scalar_system::variables_tag::tags_list>>
           // tmpl::list<>
           ,
@@ -611,10 +625,14 @@ struct FixedScalarTensorTemplateBase<
               evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<>>,
               Actions::UpdateU<system>,
               // We allow for separate filtering of the system variables
-              dg::Actions::Filter<Filters::Exponential<0>,
-                                  system::gh_system::variables_tag::tags_list>,
+              dg::Actions::Filter<
+                  Filters::Exponential<0>,
+                  system::gh_system::gh_system::variables_tag::tags_list>,
               dg::Actions::Filter<
                   Filters::Exponential<1>,
+                  system::gh_system::scalar_system::variables_tag::tags_list>,
+              dg::Actions::Filter<
+                  Filters::Exponential<2>,
                   system::scalar_system::variables_tag::tags_list>>
           // tmpl::list<>
           >>;
