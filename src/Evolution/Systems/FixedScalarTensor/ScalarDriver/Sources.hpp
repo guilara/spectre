@@ -30,11 +30,12 @@ void add_scalar_driver_friction_term_to_dt_pi_scalar(
     const tnsr::I<DataVector, 3_st>& shift, const double scalar_tau_parameter,
     const double scalar_sigma_parameter);
 
-void compute_scalar_driver_source(
-    const gsl::not_null<Scalar<DataVector>*> result,
-    const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi);
+void compute_scalar_driver_source(gsl::not_null<Scalar<DataVector>*> result,
+                                  const Scalar<DataVector>& psi,
+                                  const Scalar<DataVector>& target_psi);
 
-void compute_target_psi(const gsl::not_null<Scalar<DataVector>*> result);
+void compute_target_psi(gsl::not_null<Scalar<DataVector>*> target_psi,
+                        const Scalar<DataVector>& psi);
 
 }  // namespace fe::ScalarDriver::Sources
 
