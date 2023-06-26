@@ -26,7 +26,8 @@ void compute_scalar_driver_source(
     const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi) {
   // Make sure it has the same size
   *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
-  scalar_driver_source->get() = - (psi.get() - target_psi.get());
+  // scalar_driver_source->get() = - (psi.get() - target_psi.get());
+    scalar_driver_source->get() = target_psi.get();
 }
 
 void compute_target_psi(const gsl::not_null<Scalar<DataVector>*> target_psi,
