@@ -32,7 +32,9 @@ void add_scalar_driver_friction_term_to_dt_pi_scalar(
 
 void compute_scalar_driver_source(gsl::not_null<Scalar<DataVector>*> result,
                                   const Scalar<DataVector>& psi,
-                                  const Scalar<DataVector>& target_psi);
+                                  const Scalar<DataVector>& target_psi,
+                                  const double scalar_tau_parameter,
+                                  const double scalar_sigma_parameter);
 
 void compute_target_psi(gsl::not_null<Scalar<DataVector>*> target_psi,
                         const Scalar<DataVector>& psi);
@@ -49,13 +51,14 @@ namespace fe::ScalarDriver::Tags {
 template <typename Frame, typename DataType>
 struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
   using argument_tags =
-      tmpl::list<fe::ScalarDriver::Tags::Psi,
-                 fe::ScalarDriver::Tags::TargetPsi>;
+      tmpl::list<fe::ScalarDriver::Tags::Psi, fe::ScalarDriver::Tags::TargetPsi,
+                 fe::ScalarDriver::Tags::ScalarTauParameter,
+                 fe::ScalarDriver::Tags::ScalarSigmaParameter>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
-      const Scalar<DataVector>&) =
-        &fe::ScalarDriver::Sources::compute_scalar_driver_source;
+      const Scalar<DataVector>&, const double,
+      const double) = &fe::ScalarDriver::Sources::compute_scalar_driver_source;
   using base = ScalarDriverSource;
 };
 
