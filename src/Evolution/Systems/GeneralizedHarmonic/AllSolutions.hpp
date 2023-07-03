@@ -8,6 +8,10 @@
 #include "PointwiseFunctions/AnalyticData/GhGrMhd/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GhGrMhd/Factory.hpp"
+//
+#include "PointwiseFunctions/AnalyticSolutions/GhScalarTensor/Factory.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/GhFixedScalarTensor/GhFixedDecoupledScalar/Factory.hpp"
+//
 #include "PointwiseFunctions/AnalyticSolutions/GhRelativisticEuler/Factory.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -23,6 +27,10 @@ using solutions_including_matter = tmpl::append<
         Dim == 3,
         tmpl::append<gh::Solutions::RelativisticEuler::all_solutions,
                      gh::Solutions::grmhd::all_solutions,
-                     gh::AnalyticData::grmhd::all_analytic_data>,
+                     gh::AnalyticData::grmhd::all_analytic_data,
+            // This is needed for GeneralizedHarmonic::gauges::
+            // AnalyticChristoffel and maybe other gauge functions
+            gh::Solutions::ScalarTensor::all_solutions,
+            gh::Solutions::fe::DecoupledScalar::all_solutions>,
         tmpl::list<>>>;
 }  // namespace gh
