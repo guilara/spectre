@@ -16,7 +16,7 @@
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/BoundaryCorrection.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Formulation.hpp"
-#include "Options/Options.hpp"
+#include "Options/String.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/PrettyType.hpp"
 #include "Utilities/Serialization/CharmPupable.hpp"

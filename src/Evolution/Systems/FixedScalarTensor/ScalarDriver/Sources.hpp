@@ -15,7 +15,7 @@
 #include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
 #include "Utilities/Gsl.hpp"
 //
-#include "Options/Options.hpp"
+#include "Options/String.hpp"
 
 namespace fe::ScalarDriver::Sources {
 
