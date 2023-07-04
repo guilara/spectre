@@ -28,7 +28,7 @@
 // "Evolution/Executables/GeneralizedHarmonic/GeneralizedHarmonicBase.hpp"
 #include "Evolution/Executables/ScalarTensor/ScalarTensorBase.hpp"
 //
-#include "Evolution/Systems/GeneralizedHarmonic/Actions/NumericInitialData.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/Actions/SetInitialData.hpp"
 //
 #include "Evolution/Systems/ScalarTensor/Actions/NumericInitialData.hpp"
 //
@@ -38,7 +38,7 @@
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/RegisterDerived.hpp"
 //
 #include "Options/FactoryHelpers.hpp"
-#include "Options/Options.hpp"
+#include "Options/String.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
 #include "Parallel/PhaseControl/ExecutePhaseChange.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/CleanUpInterpolator.hpp"
@@ -401,8 +401,8 @@ struct EvolutionMetavars
                          Parallel::PhaseActions<
                              Parallel::Phase::ImportInitialData,
                              tmpl::list<
-                                        gh::Actions::ReadNumericInitialData,
-                                        gh::Actions::SetNumericInitialData,
+                                        gh::Actions::SetInitialData,
+                                        gh::Actions::ReceiveNumericInitialData,
              // Initialization::Actions::AddSimpleTags<
              //        ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
                 // ScalarTensor::Actions::InitializeEvolvedScalarVariables,
