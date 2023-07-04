@@ -38,8 +38,9 @@
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/RegisterDerived.hpp"
 //
 #include "Options/FactoryHelpers.hpp"
-#include "Options/String.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
+#include "Options/String.hpp"
+#include "Parallel/MemoryMonitor/MemoryMonitor.hpp"
 #include "Parallel/PhaseControl/ExecutePhaseChange.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/CleanUpInterpolator.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/ElementInitInterpPoints.hpp"
@@ -70,6 +71,7 @@
 #include "Utilities/Blas.hpp"
 #include "Utilities/ErrorHandling/Error.hpp"
 #include "Utilities/ErrorHandling/FloatingPointExceptions.hpp"
+#include "Utilities/ErrorHandling/SegfaultHandler.hpp"
 #include "Utilities/ProtocolHelpers.hpp"
 #include "Utilities/Serialization/RegisterDerivedClassesWithCharm.hpp"
 
@@ -452,22 +454,23 @@ struct EvolutionMetavars
   using component_list = tmpl::flatten<tmpl::list<
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
+      mem_monitor::MemoryMonitor<EvolutionMetavars>,
       std::conditional_t<UseNumericalInitialData,
-                        //  tmpl::list<>,
+                         //  tmpl::list<>,
                          importers::ElementDataReader<EvolutionMetavars>,
                          tmpl::list<>>,
       st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
       control_system::control_components<EvolutionMetavars, control_systems>,
-            tmpl::transform<interpolation_target_tags,
+      tmpl::transform<interpolation_target_tags,
                       tmpl::bind<intrp::InterpolationTarget,
                                  tmpl::pin<EvolutionMetavars>, tmpl::_1>>
-    //   intrp::InterpolationTarget<EvolutionMetavars, AhA>,
-    //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface>,
-    //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface2>,
-    //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface3>,
-    //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface4>,
-    //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface5>,
-    //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface6>
+      //   intrp::InterpolationTarget<EvolutionMetavars, AhA>,
+      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface>,
+      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface2>,
+      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface3>,
+      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface4>,
+      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface5>,
+      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface6>
       >>;
 };
 
@@ -483,4 +486,4 @@ static const std::vector<void (*)()> charm_init_node_funcs{
     &register_factory_classes_with_charm<metavariables>};
 
 static const std::vector<void (*)()> charm_init_proc_funcs{
-    &enable_floating_point_exceptions};
+    &enable_floating_point_exceptions, &enable_segfault_handler};

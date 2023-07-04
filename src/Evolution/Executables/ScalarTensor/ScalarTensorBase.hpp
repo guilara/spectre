@@ -96,8 +96,10 @@
 //
 #include "ParallelAlgorithms/Actions/RandomizeVariables.hpp"
 //
+#include "ParallelAlgorithms/Actions/MemoryMonitor/ContributeMemoryData.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
+#include "ParallelAlgorithms/Events/MonitorMemory.hpp"
 #include "ParallelAlgorithms/Events/ObserveTimeStep.hpp"
 #include "ParallelAlgorithms/Events/Tags.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Actions/RunEventsAndTriggers.hpp"
@@ -445,11 +447,13 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
   using factory_classes = tmpl::map<
       tmpl::pair<DenseTrigger, DenseTriggers::standard_dense_triggers>,
       tmpl::pair<DomainCreator<volume_dim>, domain_creators<volume_dim>>,
-      tmpl::pair<Event,
-                 tmpl::flatten<tmpl::list<Events::Completion,
-                                          typename detail::ObserverTags<
-                                              volume_dim>::field_observations,
-                                          Events::time_events<system>>>>,
+      tmpl::pair<
+          Event,
+          tmpl::flatten<tmpl::list<
+              Events::Completion,
+              Events::MonitorMemory<volume_dim, ::Tags::Time>,
+              typename detail::ObserverTags<volume_dim>::field_observations,
+              Events::time_events<system>>>>,
       //   tmpl::pair<gh::BoundaryConditions::BoundaryCondition<
       //                  volume_dim>,
       //              gh::BoundaryConditions::
@@ -462,11 +466,10 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
       tmpl::pair<gh::gauges::GaugeCondition, gh::gauges::all_gauges>,
       tmpl::pair<evolution::initial_data::InitialData,
                  //  gh::Solutions::all_solutions<volume_dim>
-                //  initial_data_list
+                 //  initial_data_list
                  tmpl::conditional_t<UseNumericalInitialData,
                                      tmpl::list<gh::NumericInitialData>,
-                                     initial_data_list>
-                 >,
+                                     initial_data_list>>,
       tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
       //   tmpl::pair<PhaseChange,
       //              tmpl::list<PhaseControl::VisitAndReturn<
