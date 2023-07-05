@@ -17,8 +17,8 @@ void add_scalar_driver_friction_term_to_dt_pi_scalar(
     const Scalar<DataVector>& scalar_driver_pi, const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, 3_st>& shift, const double scalar_tau_parameter,
     const double scalar_sigma_parameter) {
-  dt_pi->get() +=
-      (scalar_tau_parameter / scalar_sigma_parameter) * scalar_driver_pi.get();
+  dt_pi->get() += -1.0 * (scalar_tau_parameter / scalar_sigma_parameter) *
+                  square(lapse.get()) * scalar_driver_pi.get();
 }
 
 void compute_scalar_driver_source(
@@ -26,7 +26,6 @@ void compute_scalar_driver_source(
     const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi) {
   // Make sure it has the same size
   *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
-  // scalar_driver_source->get() = - (psi.get() - target_psi.get());
     scalar_driver_source->get() = target_psi.get();
 }
 
