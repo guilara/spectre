@@ -462,8 +462,12 @@ struct ObserverTags {
           ::Frame::Inertial>,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
                                                    ::Frame::Inertial>,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<fe::ScalarDriver::Tags::Psi,
+                                                   ::Frame::Inertial>,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
-          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
+          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<
+          fe::ScalarDriver::Tags::PsiSquared, ::Frame::Inertial>>;
 };
 
 // template <size_t VolumeDim, bool LocalTimeStepping>
