@@ -85,8 +85,8 @@ struct TimeDerivative {
     Sources::add_scalar_driver_friction_term_to_dt_pi_scalar(
         dt_pi, pi, lapse, shift, scalar_tau_parameter, scalar_sigma_parameter);
 
-    // Sources::add_scalar_driver_source_to_dt_pi_scalar(
-    //     dt_pi, scalar_driver_source, lapse);
+    Sources::add_scalar_driver_source_to_dt_pi_scalar(
+        dt_pi, scalar_driver_source, lapse);
   }
 };
 
