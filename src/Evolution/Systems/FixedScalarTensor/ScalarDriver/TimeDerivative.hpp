@@ -112,6 +112,9 @@ struct TimeDerivative {
 
     // Sources::add_scalar_driver_source_to_dt_pi_scalar(
     //     dt_pi, scalar_driver_source, lapse);
+
+    Sources::add_scalar_driver_source_to_dt_psi_scalar_for_exponential_driver(
+        dt_psi, scalar_driver_source);
   }
 };
 
