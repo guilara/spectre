@@ -18,6 +18,7 @@ namespace fe::ScalarDriver::Tags {
  */
 struct PsiSquared : db::SimpleTag {
   using type = Scalar<DataVector>;
+  static std::string name() { return "PsiSquared(ScalarDriver)"; }
 };
 
 /*!

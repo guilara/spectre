@@ -76,6 +76,7 @@
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Constraints.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Initialize.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/PsiSquared.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
@@ -423,7 +424,8 @@ struct ObserverTags {
   using scalar_charge_vars_to_interpolate_to_target = tmpl::list<
       gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
       gr::Tags::InverseSpatialMetric<DataVector, volume_dim, Frame::Inertial>,
-      CurvedScalarWave::Tags::Phi<volume_dim>, CurvedScalarWave::Tags::Psi>;
+      CurvedScalarWave::Tags::Phi<volume_dim>, CurvedScalarWave::Tags::Psi,
+      fe::ScalarDriver::Tags::Psi>;
 
   using scalar_charge_compute_items_on_target = tmpl::list<
       StrahlkorperTags::ThetaPhiCompute<::Frame::Inertial>,
@@ -445,9 +447,14 @@ struct ObserverTags {
           ::Frame::Inertial>,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
                                                    ::Frame::Inertial>,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<fe::ScalarDriver::Tags::Psi,
+                                                   ::Frame::Inertial>,
       CurvedScalarWave::Tags::PsiSquaredCompute,
+      fe::ScalarDriver::Tags::PsiSquaredCompute,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
-          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
+          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>,
+      StrahlkorperGr::Tags::SurfaceIntegralCompute<
+          fe::ScalarDriver::Tags::PsiSquared, ::Frame::Inertial>>;
 
   using scalar_charge_surface_obs_tags = tmpl::list<
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
