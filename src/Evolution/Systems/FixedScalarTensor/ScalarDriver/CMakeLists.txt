@@ -19,6 +19,7 @@ spectre_target_headers(
   Characteristics.hpp
   Constraints.hpp
   Initialize.hpp
+  PsiSquared.hpp
   Sources.hpp
   System.hpp
   Tags.hpp
