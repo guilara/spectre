@@ -51,8 +51,10 @@ void compute_scalar_driver_source_for_exponential_driver(
     const double scalar_tau_parameter, const double scalar_sigma_parameter) {
   // Make sure it has the same size
   *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
+  // scalar_driver_source->get() =
+  //     (-1.0 / scalar_tau_parameter) * (psi.get() - target_psi.get());
   scalar_driver_source->get() =
-      (-1.0 / scalar_tau_parameter) * (psi.get() - target_psi.get());
+      (-1.0 / scalar_tau_parameter) * psi.get();
 }
 
 }  // namespace fe::ScalarDriver::Sources
