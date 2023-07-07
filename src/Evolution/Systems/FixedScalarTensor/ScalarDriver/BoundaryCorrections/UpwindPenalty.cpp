@@ -100,7 +100,6 @@ void UpwindPenalty::dg_boundary_terms(
   // gamma2 is equal to the external gamma2. For Gauss quadrature this will not
   // be exactly true due to interpolation error but that should not matter.
 
-  // Psi stays the same for the advection driver
   get(*psi_boundary_correction) =
       -step_function(get<0>(char_speeds_ext)) * get<0>(char_speeds_ext) *
           get(v_psi_ext) -
