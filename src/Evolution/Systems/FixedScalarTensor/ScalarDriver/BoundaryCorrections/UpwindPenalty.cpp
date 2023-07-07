@@ -52,13 +52,18 @@ double UpwindPenalty::dg_package_data(
     const std::optional<Scalar<DataVector>>& normal_dot_mesh_velocity) const {
   *packaged_gamma2 = constraint_gamma2;
   *packaged_interface_unit_normal = interface_unit_normal;
-  CurvedScalarWave::characteristic_fields(
-      packaged_v_psi, packaged_v_zero, packaged_v_plus, packaged_v_minus,
-      constraint_gamma2, psi, pi, phi, interface_unit_normal,
-      interface_unit_normal_vector);
-  CurvedScalarWave::characteristic_speeds(packaged_char_speeds,
-                                          constraint_gamma1, lapse, shift,
-                                          interface_unit_normal);
+  //   CurvedScalarWave::characteristic_fields(
+  //       packaged_v_psi, packaged_v_zero, packaged_v_plus, packaged_v_minus,
+  //       constraint_gamma2, psi, pi, phi, interface_unit_normal,
+  //       interface_unit_normal_vector);
+  //   CurvedScalarWave::characteristic_speeds(packaged_char_speeds,
+  //                                           constraint_gamma1, lapse, shift,
+  //                                           interface_unit_normal);
+  characteristic_fields(packaged_v_psi, packaged_v_zero, packaged_v_plus,
+                        packaged_v_minus, constraint_gamma2, psi, pi, phi,
+                        interface_unit_normal, interface_unit_normal_vector);
+  characteristic_speeds(packaged_char_speeds, constraint_gamma1, lapse, shift,
+                        interface_unit_normal);
   if (normal_dot_mesh_velocity.has_value()) {
     get<0>(*packaged_char_speeds) -= get(*normal_dot_mesh_velocity);
     get<1>(*packaged_char_speeds) -= get(*normal_dot_mesh_velocity);
@@ -94,33 +99,51 @@ void UpwindPenalty::dg_boundary_terms(
   // exactly negative the internal unit normal vector and that the internal
   // gamma2 is equal to the external gamma2. For Gauss quadrature this will not
   // be exactly true due to interpolation error but that should not matter.
-  get(*psi_boundary_correction) = -step_function(get<0>(char_speeds_ext)) *
-                                      get<0>(char_speeds_ext) * get(v_psi_ext) -
-                                  step_function(-get<0>(char_speeds_int)) *
-                                      get<0>(char_speeds_int) * get(v_psi_int);
 
-  auto& temp_1 = get<3 - 1>(*phi_boundary_correction);
-  temp_1 = -step_function(get<2>(char_speeds_ext)) * get<2>(char_speeds_ext) *
-               get(v_plus_ext) -
-           step_function(-get<3>(char_speeds_int)) * get<3>(char_speeds_int) *
-               get(v_minus_int);
+  // Psi stays the same for the advection driver
+  get(*psi_boundary_correction) =
+      -step_function(get<0>(char_speeds_ext)) * get<0>(char_speeds_ext) *
+          get(v_psi_ext) -
+      step_function(-get<0>(char_speeds_int)) * get<0>(char_speeds_int) *
+          get(v_psi_int) -
+      get(gamma2_int) * (-step_function(get<2>(char_speeds_ext)) *
+                             get<2>(char_speeds_ext) * get(v_plus_ext) -
+                         step_function(-get<2>(char_speeds_int)) *
+                             get<2>(char_speeds_int) * get(v_plus_int));
+
+  //   auto& temp_1 = get<3 - 1>(*phi_boundary_correction);
+  //   temp_1 = -step_function(get<2>(char_speeds_ext)) *
+  //   get<2>(char_speeds_ext) *
+  //                get(v_plus_ext) -
+  //            step_function(-get<3>(char_speeds_int)) *
+  //            get<3>(char_speeds_int) *
+  //                get(v_minus_int);
 
   // in 2+ dimensions the calculation is done without any memory allocations
-  DataVector temp_2{};
-  if constexpr (3 > 1) {
-    temp_2.set_data_ref(make_not_null(&get<3 - 2>(*phi_boundary_correction)));
-  }
-  temp_2 = step_function(-get<2>(char_speeds_int)) * get<2>(char_speeds_int) *
-               get(v_plus_int) +
-           step_function(get<3>(char_speeds_ext)) * get<3>(char_speeds_ext) *
-               get(v_minus_ext);
-  get(*pi_boundary_correction) =
-      0.5 * (temp_1 - temp_2) + get(gamma2_int) * get(*psi_boundary_correction);
+  //   DataVector temp_2{};
+  //   if constexpr (3 > 1) {
+  //     temp_2.set_data_ref(make_not_null(&get<3 -
+  //     2>(*phi_boundary_correction)));
+  //   }
+  //   temp_2 = step_function(-get<2>(char_speeds_int)) *
+  //   get<2>(char_speeds_int) *
+  //                get(v_plus_int) +
+  //            step_function(get<3>(char_speeds_ext)) * get<3>(char_speeds_ext)
+  //            *
+  //                get(v_minus_ext);
+  get(*pi_boundary_correction) = -step_function(get<2>(char_speeds_ext)) *
+                                     get<2>(char_speeds_ext) * get(v_plus_ext) -
+                                 step_function(-get<2>(char_speeds_int)) *
+                                     get<2>(char_speeds_int) * get(v_plus_int);
 
-  temp_1 = -0.5 * (temp_1 + temp_2);
+  //   temp_1 = -0.5 * (temp_1 + temp_2);
   for (size_t i = 0; i < 3; ++i) {
     phi_boundary_correction->get(i) =
-        temp_1 * interface_unit_normal_int.get(i) -
+        (-step_function(get<3>(char_speeds_ext)) * get<3>(char_speeds_ext) *
+             get(v_minus_ext) -
+         step_function(-get<3>(char_speeds_int)) * get<3>(char_speeds_int) *
+             get(v_minus_int)) *
+            interface_unit_normal_int.get(i) -
         step_function(get<1>(char_speeds_ext)) * get<1>(char_speeds_ext) *
             v_zero_ext.get(i) -
         step_function(-get<1>(char_speeds_int)) * get<1>(char_speeds_int) *

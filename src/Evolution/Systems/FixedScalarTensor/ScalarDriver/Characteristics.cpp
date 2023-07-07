@@ -18,6 +18,45 @@
 
 namespace fe::ScalarDriver {
 
+void characteristic_speeds(
+    const gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*> char_speeds,
+    const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form) {
+  destructive_resize_components(char_speeds, get(gamma_1).size());
+  const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
+  get<0>(*char_speeds) = -(1. + get(gamma_1)) * shift_dot_normal;  // v(VPsi)
+  get<1>(*char_speeds) = -shift_dot_normal;                        // v(VZero)
+  get<2>(*char_speeds) = -shift_dot_normal;                        // v(VPlus)
+  get<3>(*char_speeds) = -shift_dot_normal;                        // v(VMinus)
+}
+
+void characteristic_speeds(
+    const gsl::not_null<std::array<DataVector, 4>*> char_speeds,
+    const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form) {
+  const size_t size = get(gamma_1).size();
+  for (auto& char_speed : *char_speeds) {
+    char_speed.destructive_resize(size);
+  }
+  const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
+  (*char_speeds)[0] = -(1. + get(gamma_1)) * shift_dot_normal;  // v(VPsi)
+  (*char_speeds)[1] = -shift_dot_normal;                        // v(VZero)
+  (*char_speeds)[2] = -shift_dot_normal;                        // v(VPlus)
+  (*char_speeds)[3] = -shift_dot_normal;                        // v(VMinus)
+}
+
+std::array<DataVector, 4> characteristic_speeds(
+    const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form) {
+  std::array<DataVector, 4> char_speeds{};
+  characteristic_speeds(make_not_null(&char_speeds), gamma_1, lapse, shift,
+                        unit_normal_one_form);
+  return char_speeds;
+}
+
 void characteristic_fields(
     const gsl::not_null<Variables<tmpl::list<
         Tags::VPsi, Tags::VZero<3_st>, Tags::VPlus, Tags::VMinus>>*>
@@ -39,12 +78,10 @@ void characteristic_fields(
         unit_normal_one_form.get(i) * get(get<Tags::VMinus>(*char_fields));
   }
   // Eq.(33) of Holst+ (2004) for VPsi
-  get<Tags::VPsi>(*char_fields) = psi;
+  get(get<Tags::VPsi>(*char_fields)) = get(psi) + get(gamma_2) * get(pi);
   // Eq.(35) of Holst+ (2004) for VPlus and VMinus
-  get(get<Tags::VPlus>(*char_fields)) =
-      get(pi) + get(get<Tags::VMinus>(*char_fields)) - get(gamma_2) * get(psi);
-  get(get<Tags::VMinus>(*char_fields)) =
-      get(pi) - get(get<Tags::VMinus>(*char_fields)) - get(gamma_2) * get(psi);
+  get(get<Tags::VPlus>(*char_fields)) = get(pi);
+  get(get<Tags::VMinus>(*char_fields)) = get(get<Tags::VMinus>(*char_fields));
 }
 
 Variables<
@@ -90,10 +127,10 @@ void characteristic_fields(
     v_zero->get(i) = phi.get(i) - unit_normal_one_form.get(i) * get(*v_minus);
   }
   // Eq.(33) of Holst+ (2004) for VPsi
-  *v_psi = psi;
+  get(*v_psi) = get(psi) + get(gamma_2) * get(pi);
   // Eq.(35) of Holst+ (2004) for VPlus and VMinus
-  get(*v_plus) = get(pi) + get(*v_minus) - get(gamma_2) * get(psi);
-  get(*v_minus) = get(pi) - get(*v_minus) - get(gamma_2) * get(psi);
+  get(*v_plus) = get(pi);
+  get(*v_minus) = get(*v_minus);
 }
 
 void evolved_fields_from_characteristic_fields(
@@ -110,13 +147,11 @@ void evolved_fields_from_characteristic_fields(
   destructive_resize_components(pi, size);
   destructive_resize_components(phi, size);
   // Eq.(36) of Holst+ (2005) for Psi
-  *psi = v_psi;
+  psi->get() = -get(gamma_2) * get(v_plus) + get(v_psi);
   // Eq.(37) - (38) of Holst+ (2004) for Pi and Phi
-  pi->get() = 0.5 * (get(v_plus) + get(v_minus)) + get(gamma_2) * get(v_psi);
+  pi->get() = get(v_plus);
   for (size_t i = 0; i < 3_st; ++i) {
-    phi->get(i) =
-        0.5 * (get(v_plus) - get(v_minus)) * unit_normal_one_form.get(i) +
-        v_zero.get(i);
+    phi->get(i) = get(v_minus) * unit_normal_one_form.get(i) + v_zero.get(i);
   }
 }
 
@@ -131,15 +166,14 @@ void evolved_fields_from_characteristic_fields(
         unit_normal_one_form) {
   evolved_fields->initialize(get_size(get(gamma_2)));
   // Eq.(36) of Holst+ (2005) for Psi
-  get<Tags::Psi>(*evolved_fields) = v_psi;
+  get<Tags::Psi>(*evolved_fields).get() =
+      -get(gamma_2) * get(v_plus) + get(v_psi);
 
   // Eq.(37) - (38) of Holst+ (2004) for Pi and Phi
-  get<Tags::Pi>(*evolved_fields).get() =
-      0.5 * (get(v_plus) + get(v_minus)) + get(gamma_2) * get(v_psi);
+  get<Tags::Pi>(*evolved_fields).get() = get(v_plus);
   for (size_t i = 0; i < 3_st; ++i) {
     get<Tags::Phi<3_st>>(*evolved_fields).get(i) =
-        0.5 * (get(v_plus) - get(v_minus)) * unit_normal_one_form.get(i) +
-        v_zero.get(i);
+        get(v_minus) * unit_normal_one_form.get(i) + v_zero.get(i);
   }
 }
 

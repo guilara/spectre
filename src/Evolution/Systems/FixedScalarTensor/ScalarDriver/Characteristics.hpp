@@ -17,6 +17,23 @@
 
 namespace fe::ScalarDriver {
 
+void characteristic_speeds(
+    const gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*> char_speeds,
+    const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form);
+
+void characteristic_speeds(
+    const gsl::not_null<std::array<DataVector, 4>*> char_speeds,
+    const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form);
+
+std::array<DataVector, 4> characteristic_speeds(
+    const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form);
+
 struct CharacteristicSpeedsCompute : Tags::CharacteristicSpeeds,
                                      db::ComputeTag {
   using base = Tags::CharacteristicSpeeds;
