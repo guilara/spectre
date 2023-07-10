@@ -91,19 +91,16 @@ struct TimeDerivative {
     *result_gamma1 = gamma1;
     *result_gamma2 = gamma2;
 
-    tenex::evaluate(dt_psi,
-                    -lapse() * pi() + shift(ti::I) * d_psi(ti::i) +
-                        gamma1() * shift(ti::J) * (d_psi(ti::j) - phi(ti::j)));
+    // Psi equation
+    tenex::evaluate(dt_psi, -lapse() * pi() + shift(ti::I) * d_psi(ti::i));
 
-    tenex::evaluate(
-        dt_pi, shift(ti::I) * d_pi(ti::i) + gamma1() * gamma2() * shift(ti::I) *
-                                                (d_psi(ti::i) - phi(ti::i)));
+    // Pi equation
+    tenex::evaluate(dt_pi, shift(ti::I) * d_pi(ti::i));
 
-    tenex::evaluate<ti::i>(
-        dt_phi, -lapse() * d_pi(ti::i) + shift(ti::J) * d_phi(ti::j, ti::i) +
-                    gamma2() * lapse() * (d_psi(ti::i) - phi(ti::i)) -
-                    pi() * deriv_lapse(ti::i) +
-                    phi(ti::j) * deriv_shift(ti::i, ti::J));
+    // Phi equation. Not needed so set to zero.
+    for (size_t index = 0; index < 3_st; ++index) {
+      dt_phi->get(index) = 0.0 * get(lapse) * phi.get(index);
+    }
 
     // Add extra terms to the Klein-Gordon equation
     // Make sure all variables called here are in the arguments of apply
