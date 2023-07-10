@@ -100,53 +100,28 @@ void UpwindPenalty::dg_boundary_terms(
   // gamma2 is equal to the external gamma2. For Gauss quadrature this will not
   // be exactly true due to interpolation error but that should not matter.
 
-  get(*psi_boundary_correction) =
-      -step_function(get<0>(char_speeds_ext)) * get<0>(char_speeds_ext) *
-          get(v_psi_ext) -
-      step_function(-get<0>(char_speeds_int)) * get<0>(char_speeds_int) *
-          get(v_psi_int) -
-      get(gamma2_int) * (-step_function(get<2>(char_speeds_ext)) *
-                             get<2>(char_speeds_ext) * get(v_plus_ext) -
-                         step_function(-get<2>(char_speeds_int)) *
-                             get<2>(char_speeds_int) * get(v_plus_int));
+  // The boundary corrections for Psi and Pi are those of the simple
+  // advection equation
+  get(*psi_boundary_correction) = -step_function(get<0>(char_speeds_ext)) *
+                                      get<0>(char_speeds_ext) * get(v_psi_ext) -
+                                  step_function(-get<0>(char_speeds_int)) *
+                                      get<0>(char_speeds_int) * get(v_psi_int);
 
-  //   auto& temp_1 = get<3 - 1>(*phi_boundary_correction);
-  //   temp_1 = -step_function(get<2>(char_speeds_ext)) *
-  //   get<2>(char_speeds_ext) *
-  //                get(v_plus_ext) -
-  //            step_function(-get<3>(char_speeds_int)) *
-  //            get<3>(char_speeds_int) *
-  //                get(v_minus_int);
-
-  // in 2+ dimensions the calculation is done without any memory allocations
-  //   DataVector temp_2{};
-  //   if constexpr (3 > 1) {
-  //     temp_2.set_data_ref(make_not_null(&get<3 -
-  //     2>(*phi_boundary_correction)));
-  //   }
-  //   temp_2 = step_function(-get<2>(char_speeds_int)) *
-  //   get<2>(char_speeds_int) *
-  //                get(v_plus_int) +
-  //            step_function(get<3>(char_speeds_ext)) * get<3>(char_speeds_ext)
-  //            *
-  //                get(v_minus_ext);
   get(*pi_boundary_correction) = -step_function(get<2>(char_speeds_ext)) *
                                      get<2>(char_speeds_ext) * get(v_plus_ext) -
                                  step_function(-get<2>(char_speeds_int)) *
                                      get<2>(char_speeds_int) * get(v_plus_int);
 
-  //   temp_1 = -0.5 * (temp_1 + temp_2);
+  // We set the boundary correction of Phi to zero as we are not using this
+  // field
   for (size_t i = 0; i < 3; ++i) {
     phi_boundary_correction->get(i) =
+        0.0 *
         (-step_function(get<3>(char_speeds_ext)) * get<3>(char_speeds_ext) *
              get(v_minus_ext) -
          step_function(-get<3>(char_speeds_int)) * get<3>(char_speeds_int) *
              get(v_minus_int)) *
-            interface_unit_normal_int.get(i) -
-        step_function(get<1>(char_speeds_ext)) * get<1>(char_speeds_ext) *
-            v_zero_ext.get(i) -
-        step_function(-get<1>(char_speeds_int)) * get<1>(char_speeds_int) *
-            v_zero_int.get(i);
+        interface_unit_normal_int.get(i);
   }
 }
 

@@ -73,15 +73,14 @@ void characteristic_fields(
               unit_normal_vector, phi);
   // Eq.(34) of Holst+ (2004) for VZero
   for (size_t i = 0; i < 3_st; ++i) {
-    get<Tags::VZero<3_st>>(*char_fields).get(i) =
-        phi.get(i) -
-        unit_normal_one_form.get(i) * get(get<Tags::VMinus>(*char_fields));
+    get<Tags::VZero<3_st>>(*char_fields).get(i) = 0.0 * phi.get(i);
   }
   // Eq.(33) of Holst+ (2004) for VPsi
-  get(get<Tags::VPsi>(*char_fields)) = get(psi) + get(gamma_2) * get(pi);
+  get(get<Tags::VPsi>(*char_fields)) = get(psi);
   // Eq.(35) of Holst+ (2004) for VPlus and VMinus
   get(get<Tags::VPlus>(*char_fields)) = get(pi);
-  get(get<Tags::VMinus>(*char_fields)) = get(get<Tags::VMinus>(*char_fields));
+  get(get<Tags::VMinus>(*char_fields)) =
+      0.0 * get(get<Tags::VMinus>(*char_fields));
 }
 
 Variables<
@@ -124,13 +123,13 @@ void characteristic_fields(
   dot_product(v_minus, unit_normal_vector, phi);
   // Eq.(34) of Holst+ (2004) for VZero
   for (size_t i = 0; i < 3_st; ++i) {
-    v_zero->get(i) = phi.get(i) - unit_normal_one_form.get(i) * get(*v_minus);
+    v_zero->get(i) = 0.0 * phi.get(i);
   }
   // Eq.(33) of Holst+ (2004) for VPsi
-  get(*v_psi) = get(psi) + get(gamma_2) * get(pi);
+  get(*v_psi) = get(psi);
   // Eq.(35) of Holst+ (2004) for VPlus and VMinus
   get(*v_plus) = get(pi);
-  get(*v_minus) = get(*v_minus);
+  get(*v_minus) = 0.0 * get(*v_minus);
 }
 
 void evolved_fields_from_characteristic_fields(
@@ -147,11 +146,11 @@ void evolved_fields_from_characteristic_fields(
   destructive_resize_components(pi, size);
   destructive_resize_components(phi, size);
   // Eq.(36) of Holst+ (2005) for Psi
-  psi->get() = -get(gamma_2) * get(v_plus) + get(v_psi);
+  psi->get() = get(v_psi);
   // Eq.(37) - (38) of Holst+ (2004) for Pi and Phi
   pi->get() = get(v_plus);
   for (size_t i = 0; i < 3_st; ++i) {
-    phi->get(i) = get(v_minus) * unit_normal_one_form.get(i) + v_zero.get(i);
+    phi->get(i) = get(v_minus) * unit_normal_one_form.get(i);
   }
 }
 
@@ -166,14 +165,13 @@ void evolved_fields_from_characteristic_fields(
         unit_normal_one_form) {
   evolved_fields->initialize(get_size(get(gamma_2)));
   // Eq.(36) of Holst+ (2005) for Psi
-  get<Tags::Psi>(*evolved_fields).get() =
-      -get(gamma_2) * get(v_plus) + get(v_psi);
+  get<Tags::Psi>(*evolved_fields).get() = get(v_psi);
 
   // Eq.(37) - (38) of Holst+ (2004) for Pi and Phi
   get<Tags::Pi>(*evolved_fields).get() = get(v_plus);
   for (size_t i = 0; i < 3_st; ++i) {
     get<Tags::Phi<3_st>>(*evolved_fields).get(i) =
-        get(v_minus) * unit_normal_one_form.get(i) + v_zero.get(i);
+        get(v_minus) * unit_normal_one_form.get(i);
   }
 }
 
