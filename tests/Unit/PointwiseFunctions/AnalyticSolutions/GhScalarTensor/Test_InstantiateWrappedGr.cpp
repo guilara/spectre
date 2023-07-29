@@ -16,10 +16,10 @@ SPECTRE_TEST_CASE(
   const tnsr::I<DataVector, 3, Frame::Inertial> coords{DataVector{3.0, 4.0}};
 
   check_wrapped_gr_solution_consistency(
-      GeneralizedHarmonic::Solutions::WrappedGr<
-          ScalarTensor::AnalyticSolutions::KerrSphericalHarmonic>{
+      gh::Solutions::WrappedGr<
+          ScalarTensor::Solutions::KerrSphericalHarmonic>{
           1.0, 2.0, 1.0, 1.0, std::pair<size_t, int>{1, 0}},
-      ScalarTensor::AnalyticSolutions::KerrSphericalHarmonic{
+      ScalarTensor::Solutions::KerrSphericalHarmonic{
           1.0, 2.0, 1.0, 1.0, std::pair<size_t, int>{1, 0}},
       coords, time);
 }
