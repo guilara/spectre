@@ -307,21 +307,24 @@ SPECTRE_TEST_CASE("Unit.ScalarTensor.BoundaryConditions.ProductOfConditions",
                 // Scalar wave parameters
                 2.0, 1.0, 1.0, std::pair<size_t, int>{1, 0}))};
     const CurvedScalarWave::BoundaryConditions::AnalyticConstant<3_st>
-        scalar_condition{};
+        scalar_condition{// Amplitude
+                         0.0};
     const auto product_boundary_condition = TestHelpers::test_creation<
         std::unique_ptr<ScalarTensor::BoundaryConditions::BoundaryCondition>,
         Metavariables>(
         // CHANGE PARAMETERS
-        "ProductDirichletAnalyticAndDirichletAnalytic:\n"
+        "ProductDirichletAnalyticGHAndAnalyticConstantScalar:\n"
         "  GeneralizedHarmonicDirichletAnalytic:\n"
         "    AnalyticPrescription:\n"
-        "      BondiMichel:\n"
+        "      KerrSphericalHarmonic:\n"
         "        Mass: 1.0\n"
-        "        SonicRadius: 4.0\n"
-        "        SonicDensity: 0.1\n"
-        "        PolytropicExponent: 2.0\n"
-        "        MagFieldStrength: 0.01\n"
-        "  ValenciaDirichletAnalytic:\n");
+        "        Spin: [0.1, -0.2, 0.3]\n"
+        "        Amplitude: 4.0\n"
+        "        Radius: 1.0\n"
+        "        Width: 1.0\n"
+        "        Mode: [1, 0]\n"
+        "  ScalarAnalyticConstant:\n"
+        "    Amplitude: 0.0\n");
     const auto gridless_box =
         db::create<db::AddSimpleTags<::Tags::Time, DummyAnalyticSolutionTag>>(
             0.5, gh::Solutions::WrappedGr<
@@ -359,9 +362,9 @@ SPECTRE_TEST_CASE("Unit.ScalarTensor.BoundaryConditions.ProductOfConditions",
             CurvedScalarWave::BoundaryConditions::DemandOutgoingCharSpeeds<
                 3_st>>>(
         // CHANGE PARAMETERS
-        "ProductDemandOutgoingCharSpeedsAndDemandOutgoingCharSpeeds:\n"
+        "ProductDemandOutgoingCharSpeedsGHAndDemandOutgoingCharSpeedsScalar:\n"
         "  GeneralizedHarmonicDemandOutgoingCharSpeeds:\n"
-        "  ValenciaDemandOutgoingCharSpeeds:");
+        "  ScalarDemandOutgoingCharSpeeds:");
     const auto gridless_box = db::create<db::AddSimpleTags<>>();
     auto serialized_and_deserialized_condition = serialize_and_deserialize(
         *dynamic_cast<ScalarTensor::BoundaryConditions::ProductOfConditions<
