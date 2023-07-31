@@ -145,8 +145,10 @@ void test_boundary_condition_combination(
                  evolution::dg::Tags::NormalCovector<3_st>,
                  evolution::dg::Actions::detail::NormalVector<3_st>>,
       typename DerivedScalarCondition::dg_interior_evolved_variables_tags,
-      typename DerivedScalarCondition::dg_interior_primitive_variables_tags,
-      typename DerivedScalarCondition::dg_interior_primitive_variables_tags,
+      //   typename
+      //   DerivedScalarCondition::dg_interior_primitive_variables_tags,
+      //   typename
+      //   DerivedScalarCondition::dg_interior_primitive_variables_tags,
       typename DerivedScalarCondition::dg_interior_temporary_tags,
       evolution::dg::Actions::detail::get_dt_vars_from_boundary_condition<
           DerivedScalarCondition>,
@@ -157,7 +159,8 @@ void test_boundary_condition_combination(
                  evolution::dg::Tags::NormalCovector<3_st>,
                  evolution::dg::Actions::detail::NormalVector<3_st>>,
       typename product_condition_type::dg_interior_evolved_variables_tags,
-      typename product_condition_type::dg_interior_primitive_variables_tags,
+      //   typename
+      //   product_condition_type::dg_interior_primitive_variables_tags,
       typename product_condition_type::dg_interior_temporary_tags,
       typename product_condition_type::dg_interior_dt_vars_tags,
       typename product_condition_type::dg_interior_deriv_vars_tags>;
@@ -313,7 +316,7 @@ SPECTRE_TEST_CASE("Unit.ScalarTensor.BoundaryConditions.ProductOfConditions",
         std::unique_ptr<ScalarTensor::BoundaryConditions::BoundaryCondition>,
         Metavariables>(
         // CHANGE PARAMETERS
-        "ProductDirichletAnalyticGHAndAnalyticConstantScalar:\n"
+        "ProductDirichletAnalyticAndAnalyticConstant:\n"
         "  GeneralizedHarmonicDirichletAnalytic:\n"
         "    AnalyticPrescription:\n"
         "      KerrSphericalHarmonic:\n"
@@ -362,7 +365,7 @@ SPECTRE_TEST_CASE("Unit.ScalarTensor.BoundaryConditions.ProductOfConditions",
             CurvedScalarWave::BoundaryConditions::DemandOutgoingCharSpeeds<
                 3_st>>>(
         // CHANGE PARAMETERS
-        "ProductDemandOutgoingCharSpeedsGHAndDemandOutgoingCharSpeedsScalar:\n"
+        "ProductDemandOutgoingCharSpeedsAndDemandOutgoingCharSpeeds:\n"
         "  GeneralizedHarmonicDemandOutgoingCharSpeeds:\n"
         "  ScalarDemandOutgoingCharSpeeds:");
     const auto gridless_box = db::create<db::AddSimpleTags<>>();
