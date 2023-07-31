@@ -300,10 +300,12 @@ SPECTRE_TEST_CASE("Unit.ScalarTensor.BoundaryConditions.ProductOfConditions",
 
     const gh::BoundaryConditions::DirichletAnalytic<3_st> gh_condition{
         std::unique_ptr<evolution::initial_data::InitialData>(
-            std::make_unique<
-                gh::Solutions::WrappedGr<ScalarTensor::KerrSphericalHarmonic>>(
-                // CHANGE PARAMETERS
-                1.0, 4.0, 0.1, 2.0, 0.01))};
+            std::make_unique<gh::Solutions::WrappedGr<
+                ScalarTensor::AnalyticData::KerrSphericalHarmonic>>(
+                // Black Hole parameters
+                1.0, std::array<double, 3>{{0.1, -0.2, 0.3}},
+                // Scalar wave parameters
+                2.0, 1.0, 1.0, std::pair<size_t, int>{1, 0}))};
     const CurvedScalarWave::BoundaryConditions::AnalyticConstant<3_st>
         scalar_condition{};
     const auto product_boundary_condition = TestHelpers::test_creation<
@@ -324,8 +326,10 @@ SPECTRE_TEST_CASE("Unit.ScalarTensor.BoundaryConditions.ProductOfConditions",
         db::create<db::AddSimpleTags<::Tags::Time, DummyAnalyticSolutionTag>>(
             0.5, gh::Solutions::WrappedGr<
                      ScalarTensor::AnalyticData::KerrSphericalHarmonic>{
-                     // CHANGE PARAMETERS
-                     1.0, 4.0, 0.1, 2.0, 0.01});
+                     // Black Hole parameters
+                     1.0, std::array<double, 3>{{0.1, -0.2, 0.3}},
+                     // Scalar wave parameters
+                     2.0, 1.0, 1.0, std::pair<size_t, int>{1, 0}});
     auto serialized_and_deserialized_condition = serialize_and_deserialize(
         *dynamic_cast<ScalarTensor::BoundaryConditions::ProductOfConditions<
             gh::BoundaryConditions::DirichletAnalytic<3_st>,
