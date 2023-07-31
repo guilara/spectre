@@ -145,10 +145,6 @@ void test_boundary_condition_combination(
                  evolution::dg::Tags::NormalCovector<3_st>,
                  evolution::dg::Actions::detail::NormalVector<3_st>>,
       typename DerivedScalarCondition::dg_interior_evolved_variables_tags,
-      //   typename
-      //   DerivedScalarCondition::dg_interior_primitive_variables_tags,
-      //   typename
-      //   DerivedScalarCondition::dg_interior_primitive_variables_tags,
       typename DerivedScalarCondition::dg_interior_temporary_tags,
       evolution::dg::Actions::detail::get_dt_vars_from_boundary_condition<
           DerivedScalarCondition>,
@@ -159,8 +155,6 @@ void test_boundary_condition_combination(
                  evolution::dg::Tags::NormalCovector<3_st>,
                  evolution::dg::Actions::detail::NormalVector<3_st>>,
       typename product_condition_type::dg_interior_evolved_variables_tags,
-      //   typename
-      //   product_condition_type::dg_interior_primitive_variables_tags,
       typename product_condition_type::dg_interior_temporary_tags,
       typename product_condition_type::dg_interior_dt_vars_tags,
       typename product_condition_type::dg_interior_deriv_vars_tags>;
@@ -315,7 +309,6 @@ SPECTRE_TEST_CASE("Unit.ScalarTensor.BoundaryConditions.ProductOfConditions",
     const auto product_boundary_condition = TestHelpers::test_creation<
         std::unique_ptr<ScalarTensor::BoundaryConditions::BoundaryCondition>,
         Metavariables>(
-        // CHANGE PARAMETERS
         "ProductDirichletAnalyticAndAnalyticConstant:\n"
         "  GeneralizedHarmonicDirichletAnalytic:\n"
         "    AnalyticPrescription:\n"
@@ -364,7 +357,6 @@ SPECTRE_TEST_CASE("Unit.ScalarTensor.BoundaryConditions.ProductOfConditions",
             gh::BoundaryConditions::DemandOutgoingCharSpeeds<3_st>,
             CurvedScalarWave::BoundaryConditions::DemandOutgoingCharSpeeds<
                 3_st>>>(
-        // CHANGE PARAMETERS
         "ProductDemandOutgoingCharSpeedsAndDemandOutgoingCharSpeeds:\n"
         "  GeneralizedHarmonicDemandOutgoingCharSpeeds:\n"
         "  ScalarDemandOutgoingCharSpeeds:");
