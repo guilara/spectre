@@ -31,16 +31,27 @@ struct System {
   using gh_system = gh::System<3_st>;
   using scalar_system = CurvedScalarWave::System<3_st>;
 
+  using wrapped_scalar_variables = ::Tags::Variables<
+      db::wrap_tags_in<ScalarTensor::Tags::CSW,
+                       typename scalar_system::variables_tag::tags_list>>;
+
+  //   using variables_tag = ::Tags::Variables<
+  //       tmpl::append<typename gh_system::variables_tag::tags_list,
+  //                    typename scalar_system::variables_tag::tags_list>>;
   using variables_tag = ::Tags::Variables<
       tmpl::append<typename gh_system::variables_tag::tags_list,
-                   typename scalar_system::variables_tag::tags_list>>;
+                   typename wrapped_scalar_variables::tags_list>>;
 
   using flux_variables = tmpl::append<typename gh_system::flux_variables,
                                       typename scalar_system::flux_variables>;
 
+  //   using gradient_variables =
+  //       tmpl::append<typename gh_system::gradient_variables,
+  //                    typename scalar_system::gradient_variables>;
   using gradient_variables =
       tmpl::append<typename gh_system::gradient_variables,
-                   typename scalar_system::gradient_variables>;
+                   typename wrapped_scalar_variables::tags_list>;
+
   using gradients_tags = gradient_variables;
 
   static constexpr bool is_in_flux_conservative_form = false;

@@ -30,7 +30,9 @@ using solutions_including_matter = tmpl::append<
                      gh::AnalyticData::grmhd::all_analytic_data,
             // This is needed for GeneralizedHarmonic::gauges::
             // AnalyticChristoffel and maybe other gauge functions
-            gh::Solutions::ScalarTensor::all_solutions,
-            gh::Solutions::fe::DecoupledScalar::all_solutions>,
+            gh::Solutions::ScalarTensor::all_solutions
+            // ,
+            // gh::Solutions::fe::DecoupledScalar::all_solutions
+            >,
         tmpl::list<>>>;
 }  // namespace gh

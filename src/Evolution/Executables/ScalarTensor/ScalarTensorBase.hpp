@@ -144,6 +144,7 @@
 //
 #include "PointwiseFunctions/ScalarTensor/ScalarCharge.hpp"
 //
+// #include "DataStructures/DataBox/PrefixHelpers.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/ChangeSlabSize.hpp"
 #include "Time/Actions/RecordTimeStepperData.hpp"
@@ -232,7 +233,9 @@ struct ObserverTags {
   //   using initial_data_list =
   //       tmpl::list<gh::Solutions::WrappedGr<
   //           gr::Solutions::Minkowski<volume_dim>>>;
-  using initial_data_list = gh::Solutions::ScalarTensor::all_solutions;
+  //   using initial_data_list = gh::Solutions::ScalarTensor::all_solutions;
+  using initial_data_list = tmpl::list<
+      gh::Solutions::WrappedGr<::ScalarTensor::Solutions::MinkowskiZeroScalar>>;
   using analytic_compute = evolution::Tags::AnalyticSolutionsCompute<
       volume_dim, analytic_solution_fields, false, initial_data_list>;
   //   using analytic_compute_scalar_tensor =
@@ -262,6 +265,7 @@ struct ObserverTags {
   using observe_fields = tmpl::append<
       tmpl::push_back<
           analytic_solution_fields,
+          //   tmpl::list<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Pi>>,
           // (These gauge tags need subsequent tags to compile [why?])
           gh::Tags::GaugeH<DataVector, volume_dim, Frame::Inertial>,
           gh::Tags::SpacetimeDerivGaugeH<DataVector, volume_dim,
@@ -280,9 +284,9 @@ struct ObserverTags {
           gr::Tags::SpacetimeNormalOneFormCompute<DataVector, volume_dim,
                                                   Frame::Inertial>,
           gr::Tags::SpacetimeNormalVector<DataVector, volume_dim,
-                                                 Frame::Inertial>,
+                                          Frame::Inertial>,
           gr::Tags::InverseSpacetimeMetric<DataVector, volume_dim,
-                                                  Frame::Inertial>,
+                                           Frame::Inertial>,
           ::Tags::deriv<
               gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
               tmpl::size_t<volume_dim>, Frame::Inertial>,
@@ -389,10 +393,16 @@ struct ObserverTags {
                                      non_tensor_compute_tags>;
 
   // We collect here all the tags needed for interpolation in all surfaces
+  //   using scalar_charge_vars_to_interpolate_to_target = tmpl::list<
+  //       gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
+  //       gr::Tags::InverseSpatialMetric<DataVector, volume_dim,
+  //       Frame::Inertial>, CurvedScalarWave::Tags::Phi<volume_dim>,
+  //       CurvedScalarWave::Tags::Psi>;
   using scalar_charge_vars_to_interpolate_to_target = tmpl::list<
       gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
       gr::Tags::InverseSpatialMetric<DataVector, volume_dim, Frame::Inertial>,
-      CurvedScalarWave::Tags::Phi<volume_dim>, CurvedScalarWave::Tags::Psi>;
+      ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Phi<volume_dim>>,
+      ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>>;
 
   using scalar_charge_compute_items_on_target = tmpl::list<
       StrahlkorperTags::ThetaPhiCompute<::Frame::Inertial>,
@@ -412,20 +422,32 @@ struct ObserverTags {
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
           ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
           ::Frame::Inertial>,
-      StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
-                                                   ::Frame::Inertial>,
-      CurvedScalarWave::Tags::PsiSquaredCompute,
+      // StrahlkorperGr::Tags::SurfaceIntegralCompute<
+      //   CurvedScalarWave::Tags::Psi,
+      //                                                ::Frame::Inertial>,
+      //   CurvedScalarWave::Tags::PsiSquaredCompute,
+      //   StrahlkorperGr::Tags::SurfaceIntegralCompute<
+      //       CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
-          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
+          ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>,
+          ::Frame::Inertial>>;
 
+  //   using scalar_charge_surface_obs_tags = tmpl::list<
+  //       StrahlkorperGr::Tags::SurfaceIntegralCompute<
+  //           ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
+  //           ::Frame::Inertial>,
+  //       StrahlkorperGr::Tags::SurfaceIntegralCompute<
+  //   CurvedScalarWave::Tags::Psi,
+  //                                                    ::Frame::Inertial>,
+  //       StrahlkorperGr::Tags::SurfaceIntegralCompute<
+  //           CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
   using scalar_charge_surface_obs_tags = tmpl::list<
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
           ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
           ::Frame::Inertial>,
-      StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
-                                                   ::Frame::Inertial>,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
-          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
+          ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>,
+          ::Frame::Inertial>>;
 };
 
 // template <size_t VolumeDim, bool LocalTimeStepping>
