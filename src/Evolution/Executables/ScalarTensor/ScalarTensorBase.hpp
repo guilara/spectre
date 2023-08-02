@@ -95,7 +95,8 @@
 #include "ParallelAlgorithms/Events/MonitorMemory.hpp"
 #include "ParallelAlgorithms/Events/ObserveTimeStep.hpp"
 #include "ParallelAlgorithms/Events/Tags.hpp"
-#include "ParallelAlgorithms/EventsAndTriggers/Actions/RunEventsAndTriggers.hpp"
+// #include "ParallelAlgorithms/EventsAndTriggers/Actions/
+// RunEventsAndTriggers.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Completion.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Event.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/EventsAndTriggers.hpp"
@@ -119,9 +120,9 @@
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrSchild.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/SphericalKerrSchild.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
-#include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GhScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/ConstraintGammas.hpp"
@@ -145,7 +146,7 @@
 #include "Time/StepChoosers/PreventRapidIncrease.hpp"
 #include "Time/StepChoosers/StepChooser.hpp"
 #include "Time/StepChoosers/StepToTimes.hpp"
-#include "Time/Tags.hpp"
+#include "Time/Tags/Time.hpp"
 #include "Time/TimeSequence.hpp"
 #include "Time/TimeSteppers/Factory.hpp"
 #include "Time/TimeSteppers/LtsTimeStepper.hpp"
@@ -322,8 +323,12 @@ struct ObserverTags {
       analytic_compute, error_compute,
       gh::gauges::Tags::GaugeAndDerivativeCompute<volume_dim>>;
 
+  //   using field_observations =
+  //       dg::Events::field_observations<volume_dim, Tags::Time,
+  //       observe_fields,
+  //                                      non_tensor_compute_tags>;
   using field_observations =
-      dg::Events::field_observations<volume_dim, Tags::Time, observe_fields,
+      dg::Events::field_observations<volume_dim, observe_fields,
                                      non_tensor_compute_tags>;
 
   // We collect here all the tags needed for interpolation in all surfaces
@@ -377,13 +382,14 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
   using factory_classes = tmpl::map<
       tmpl::pair<DenseTrigger, DenseTriggers::standard_dense_triggers>,
       tmpl::pair<DomainCreator<volume_dim>, domain_creators<volume_dim>>,
-      tmpl::pair<
-          Event,
-          tmpl::flatten<tmpl::list<
-              Events::Completion,
-              Events::MonitorMemory<volume_dim, ::Tags::Time>,
-              typename detail::ObserverTags<volume_dim>::field_observations,
-              Events::time_events<system>>>>,
+      tmpl::pair<Event,
+                 tmpl::flatten<tmpl::list<Events::Completion,
+                                          //   Events::MonitorMemory<volume_dim,
+                                          //   ::Tags::Time>,
+                                          Events::MonitorMemory<volume_dim>,
+                                          typename detail::ObserverTags<
+                                              volume_dim>::field_observations,
+                                          Events::time_events<system>>>>,
       tmpl::pair<
           ScalarTensor::BoundaryConditions::BoundaryCondition,
           ScalarTensor::BoundaryConditions::standard_boundary_conditions>,
