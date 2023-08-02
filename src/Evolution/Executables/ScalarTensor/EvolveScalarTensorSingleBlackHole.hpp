@@ -24,19 +24,12 @@
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
 #include "Domain/FunctionsOfTime/FunctionsOfTimeAreReady.hpp"
 #include "Domain/Structure/ObjectLabel.hpp"
-// #include
-// "Evolution/Executables/GeneralizedHarmonic/GeneralizedHarmonicBase.hpp"
 #include "Evolution/Executables/ScalarTensor/ScalarTensorBase.hpp"
-//
 #include "Evolution/Systems/GeneralizedHarmonic/Actions/SetInitialData.hpp"
-//
 #include "Evolution/Systems/ScalarTensor/Actions/NumericInitialData.hpp"
-//
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/RegisterDerived.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/RegisterDerivedWithCharm.hpp"
-//
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/RegisterDerived.hpp"
-//
 #include "Options/FactoryHelpers.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
 #include "Options/String.hpp"
@@ -76,16 +69,13 @@
 #include "Utilities/Serialization/RegisterDerivedClassesWithCharm.hpp"
 
 template <size_t VolumeDim, bool UseNumericalInitialData>
-// struct EvolutionMetavars
-//     : public ScalarTensorTemplateBase<
-//           EvolutionMetavars<VolumeDim, UseNumericalInitialData>> {
 struct EvolutionMetavars
     : public ScalarTensorTemplateBase<
           EvolutionMetavars<3_st, UseNumericalInitialData>> {
   using st_base = ScalarTensorTemplateBase<EvolutionMetavars>;
   using typename st_base::initialize_initial_data_dependent_quantities_actions;
   using typename st_base::system;
-//   static constexpr size_t volume_dim = VolumeDim;
+
   static constexpr size_t volume_dim = 3_st;
 
   static constexpr Options::String help{
@@ -149,12 +139,8 @@ struct EvolutionMetavars
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
 
-    // Note: These need to be the same as in `interpolator_source_vars`.
-    // For now, all interpolator targets in this executable need the same
-    // tags here
     using vars_to_interpolate_to_target =
         detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
-    // Most of these tags are required to compute the unit normal
     using compute_items_on_target =
             detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
@@ -171,12 +157,8 @@ struct EvolutionMetavars
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
 
-    // Note: These need to be the same as in `interpolator_source_vars`.
-    // For now, all interpolator targets in this executable need the same
-    // tags here
     using vars_to_interpolate_to_target =
         detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
-    // Most of these tags are required to compute the unit normal
     using compute_items_on_target =
             detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
@@ -193,12 +175,8 @@ struct EvolutionMetavars
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
 
-    // Note: These need to be the same as in `interpolator_source_vars`.
-    // For now, all interpolator targets in this executable need the same
-    // tags here
     using vars_to_interpolate_to_target =
         detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
-    // Most of these tags are required to compute the unit normal
     using compute_items_on_target =
             detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
@@ -215,12 +193,8 @@ struct EvolutionMetavars
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
 
-    // Note: These need to be the same as in `interpolator_source_vars`.
-    // For now, all interpolator targets in this executable need the same
-    // tags here
     using vars_to_interpolate_to_target =
         detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
-    // Most of these tags are required to compute the unit normal
     using compute_items_on_target =
             detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
@@ -237,12 +211,8 @@ struct EvolutionMetavars
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
 
-    // Note: These need to be the same as in `interpolator_source_vars`.
-    // For now, all interpolator targets in this executable need the same
-    // tags here
     using vars_to_interpolate_to_target =
         detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
-    // Most of these tags are required to compute the unit normal
     using compute_items_on_target =
             detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
@@ -259,12 +229,8 @@ struct EvolutionMetavars
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
 
-    // Note: These need to be the same as in `interpolator_source_vars`.
-    // For now, all interpolator targets in this executable need the same
-    // tags here
     using vars_to_interpolate_to_target =
         detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
-    // Most of these tags are required to compute the unit normal
     using compute_items_on_target =
             detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
@@ -284,19 +250,6 @@ struct EvolutionMetavars
 
   static constexpr bool use_control_systems =
       tmpl::size<control_systems>::value > 0;
-
-//   using interpolation_target_tags = tmpl::list<AhA, ExcisionBoundaryA>;
-//   using interpolation_target_tags = tmpl::list<AhA>;
-//   using interpolation_target_tags = tmpl::list<AhA, SphericalSurface,
-//                                     SphericalSurface2, SphericalSurface3,
-//                                     SphericalSurface4, SphericalSurface5,
-//                                     SphericalSurface6>;
-//   using interpolator_source_vars_excision_boundary = tmpl::list<
-//       gr::Tags::SpacetimeMetric<volume_dim, Frame::Inertial>,
-//       gh::ConstraintDamping::Tags::ConstraintGamma1>;
-//   using interpolator_source_vars = tmpl::remove_duplicates<
-//       tmpl::append<interpolator_source_vars_excision_boundary,
-//                    ::ah::source_vars<volume_dim>>>;
 
   using interpolation_target_tags = tmpl::push_back<
       control_system::metafunctions::interpolation_target_tags<control_systems>,
@@ -318,14 +271,6 @@ struct EvolutionMetavars
   // to be made the same. Otherwise a static assert is triggered.
   struct factory_creation
       : tt::ConformsTo<Options::protocols::FactoryCreation> {
-    // using factory_classes = Options::add_factory_classes<
-    //     typename st_base::factory_creation::factory_classes,
-    //     tmpl::pair<Event,
-    //                tmpl::list<intrp::Events::Interpolate<
-    //                               3, AhA, interpolator_source_vars>,
-    //                         intrp::Events::InterpolateWithoutInterpComponent<
-    //                               3, ExcisionBoundaryA, EvolutionMetavars,
-    //                               interpolator_source_vars>>>>;
     using factory_classes = Options::add_factory_classes<
         typename st_base::factory_creation::factory_classes,
         tmpl::pair<Event,
@@ -363,11 +308,6 @@ struct EvolutionMetavars
 
   using typename st_base::const_global_cache_tags;
 
-//   using observed_reduction_data_tags =
-//       observers::collect_reduction_data_tags<tmpl::push_back<
-//           tmpl::at<typename factory_creation::factory_classes, Event>,
-//           typename AhA::post_horizon_find_callbacks,
-//           typename ExcisionBoundaryA::post_interpolation_callback>>;
   using observed_reduction_data_tags =
       observers::collect_reduction_data_tags<tmpl::push_back<
           tmpl::at<typename factory_creation::factory_classes, Event>,
@@ -394,7 +334,6 @@ struct EvolutionMetavars
           Parallel::PhaseActions<Parallel::Phase::Initialization,
                                  initialization_actions>,
           tmpl::conditional_t<UseNumericalInitialData,
-                            //   tmpl::list<>,
                             tmpl::list<Parallel::PhaseActions<
                              Parallel::Phase::RegisterWithElementDataReader,
                              tmpl::list<importers::Actions::
@@ -405,15 +344,6 @@ struct EvolutionMetavars
                              tmpl::list<
                                         gh::Actions::SetInitialData,
                                         gh::Actions::ReceiveNumericInitialData,
-             // Initialization::Actions::AddSimpleTags<
-             //        ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
-                // ScalarTensor::Actions::InitializeEvolvedScalarVariables,
-                // Replace with ScalarTensor routines when they
-                // are added to ScalarTensor::Actions
-                // or initialize these variables with a hack of
-                // CurvedScalarWave::Initialization::InitializeEvolvedVariables
-                               // ScalarTensor::Actions::ReadNumericInitialData,
-                                // ScalarTensor::Actions::SetNumericInitialData,
                                         Parallel::Actions::TerminatePhase>>>,
                               tmpl::list<>>,
           Parallel::PhaseActions<
@@ -422,7 +352,6 @@ struct EvolutionMetavars
           Parallel::PhaseActions<Parallel::Phase::InitializeTimeStepperHistory,
                                  SelfStart::self_start_procedure<
                                     step_actions,
-                                    //  tmpl::list<>,
                                      system>>,
           Parallel::PhaseActions<Parallel::Phase::Register,
                                  tmpl::list<dg_registration_list,
@@ -442,36 +371,18 @@ struct EvolutionMetavars
         dg_registration_list, tmpl::list<>>;
   };
 
-//   using component_list = tmpl::flatten<tmpl::list<
-//       observers::Observer<EvolutionMetavars>,
-//       observers::ObserverWriter<EvolutionMetavars>,
-//       std::conditional_t<UseNumericalInitialData, tmpl::list<>,
-//                          //  importers::ElementDataReader<EvolutionMetavars>,
-//                          tmpl::list<>>,
-//       st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
-//       intrp::InterpolationTarget<EvolutionMetavars, AhA>,
-//       intrp::InterpolationTarget<EvolutionMetavars, ExcisionBoundaryA>>>;
   using component_list = tmpl::flatten<tmpl::list<
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
       mem_monitor::MemoryMonitor<EvolutionMetavars>,
       std::conditional_t<UseNumericalInitialData,
-                         //  tmpl::list<>,
                          importers::ElementDataReader<EvolutionMetavars>,
                          tmpl::list<>>,
       st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
       control_system::control_components<EvolutionMetavars, control_systems>,
       tmpl::transform<interpolation_target_tags,
                       tmpl::bind<intrp::InterpolationTarget,
-                                 tmpl::pin<EvolutionMetavars>, tmpl::_1>>
-      //   intrp::InterpolationTarget<EvolutionMetavars, AhA>,
-      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface>,
-      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface2>,
-      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface3>,
-      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface4>,
-      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface5>,
-      //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface6>
-      >>;
+                                 tmpl::pin<EvolutionMetavars>, tmpl::_1>>>>;
 };
 
 static const std::vector<void (*)()> charm_init_node_funcs{
@@ -479,7 +390,6 @@ static const std::vector<void (*)()> charm_init_node_funcs{
     &disable_openblas_multithreading,
     &domain::creators::time_dependence::register_derived_with_charm,
     &domain::FunctionsOfTime::register_derived_with_charm,
-    // &gh::BoundaryCorrections::register_derived_with_charm,
     &ScalarTensor::BoundaryCorrections::register_derived_with_charm,
     &domain::creators::register_derived_with_charm,
     &gh::ConstraintDamping::register_derived_with_charm,
