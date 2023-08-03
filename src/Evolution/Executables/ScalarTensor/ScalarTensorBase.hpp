@@ -523,14 +523,18 @@ struct ScalarTensorTemplateBase<
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
       // I think these are variables than can be retrieved from ID
       // gh::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
-      ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
-      tmpl::conditional_t<UseNumericalInitialData,
-      // Until we read numerical data for the scalar
-      // we set them to some analytical profile given some numerical data
-      // for the metric quantities
-              Initialization::Actions::AddSimpleTags<
-                    ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
-              tmpl::list<>>,
+      //   ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
+      Initialization::Actions::InitializeItems<
+          ScalarTensor::Initialization::ScalarTensor3Plus1Variables<
+              derived_metavars>>,
+      tmpl::conditional_t<
+          UseNumericalInitialData,
+          // Until we read numerical data for the scalar
+          // we set them to some analytical profile given some numerical data
+          // for the metric quantities
+          Initialization::Actions::AddSimpleTags<
+              ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
+          tmpl::list<>>,
       Actions::MutateApply<gh::gauges::SetPiFromGauge<volume_dim>>,
       // Initialization::Actions::GrTagsForHydro<system>,
       Initialization::Actions::AddSimpleTags<

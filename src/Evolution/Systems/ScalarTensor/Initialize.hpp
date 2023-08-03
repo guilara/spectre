@@ -68,66 +68,66 @@ class GlobalCache;
 /// \endcond
 
 namespace ScalarTensor::Actions {
-// template <size_t Dim>
+// template <size_t dim>
 struct InitializeScalarTensorAnd3Plus1Variables {
-  static constexpr size_t Dim = 3_st;
+  static constexpr size_t dim = 3_st;
   using frame = Frame::Inertial;
   using compute_tags = db::AddComputeTags<
       // Needed to compute the characteristic speeds for the AH finder
-      gr::Tags::SpatialMetricCompute<DataVector, Dim, frame>,
-      gr::Tags::DetAndInverseSpatialMetricCompute<DataVector, Dim, frame>,
-      gr::Tags::ShiftCompute<DataVector, Dim, frame>,
-      gr::Tags::LapseCompute<DataVector, Dim, frame>,
+      gr::Tags::SpatialMetricCompute<DataVector, dim, frame>,
+      gr::Tags::DetAndInverseSpatialMetricCompute<DataVector, dim, frame>,
+      gr::Tags::ShiftCompute<DataVector, dim, frame>,
+      gr::Tags::LapseCompute<DataVector, dim, frame>,
 
-      gr::Tags::SpacetimeNormalVectorCompute<DataVector, Dim, frame>,
-      gh::Tags::DerivLapseCompute<Dim, frame>,
+      gr::Tags::SpacetimeNormalVectorCompute<DataVector, dim, frame>,
+      gh::Tags::DerivLapseCompute<dim, frame>,
 
-      gr::Tags::InverseSpacetimeMetricCompute<DataVector, Dim, frame>,
-      gh::Tags::DerivShiftCompute<Dim, frame>,
+      gr::Tags::InverseSpacetimeMetricCompute<DataVector, dim, frame>,
+      gh::Tags::DerivShiftCompute<dim, frame>,
 
-      gh::Tags::DerivSpatialMetricCompute<Dim, frame>,
+      gh::Tags::DerivSpatialMetricCompute<dim, frame>,
 
       // Add trace compute tags for Christoffel and Extrinsic curvature
 
-      gr::Tags::SpatialChristoffelFirstKindCompute<DataVector, Dim, frame>,
-      gr::Tags::SpatialChristoffelSecondKindCompute<DataVector, Dim, frame>,
-      gr::Tags::TraceSpatialChristoffelSecondKindCompute<DataVector, Dim,
+      gr::Tags::SpatialChristoffelFirstKindCompute<DataVector, dim, frame>,
+      gr::Tags::SpatialChristoffelSecondKindCompute<DataVector, dim, frame>,
+      gr::Tags::TraceSpatialChristoffelSecondKindCompute<DataVector, dim,
                                                          frame>,
-      gh::Tags::ExtrinsicCurvatureCompute<Dim, frame>,
-      gh::Tags::TraceExtrinsicCurvatureCompute<Dim, frame>,
+      gh::Tags::ExtrinsicCurvatureCompute<dim, frame>,
+      gh::Tags::TraceExtrinsicCurvatureCompute<dim, frame>,
 
       // Compute constraint damping parameters.
-      gh::ConstraintDamping::Tags::ConstraintGamma0Compute<Dim, Frame::Grid>,
-      gh::ConstraintDamping::Tags::ConstraintGamma1Compute<Dim, Frame::Grid>,
-      gh::ConstraintDamping::Tags::ConstraintGamma2Compute<Dim, Frame::Grid>,
+      gh::ConstraintDamping::Tags::ConstraintGamma0Compute<dim, Frame::Grid>,
+      gh::ConstraintDamping::Tags::ConstraintGamma1Compute<dim, Frame::Grid>,
+      gh::ConstraintDamping::Tags::ConstraintGamma2Compute<dim, Frame::Grid>,
       //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
-      ScalarTensor::Sources::Tags::ScalarCurvatureSourceCompute<Dim, frame,
+      ScalarTensor::Sources::Tags::ScalarCurvatureSourceCompute<dim, frame,
                                                                 DataVector>,
 
       // Extra tags for curvatures
       ::Tags::DerivTensorCompute<
-          gr::Tags::ExtrinsicCurvature<DataVector, Dim, frame>,
-          ::domain::Tags::InverseJacobian<Dim, ::Frame::ElementLogical,
+          gr::Tags::ExtrinsicCurvature<DataVector, dim, frame>,
+          ::domain::Tags::InverseJacobian<dim, ::Frame::ElementLogical,
                                           ::Frame::Inertial>>,
       ::Tags::DerivTensorCompute<
-          gr::Tags::SpatialChristoffelSecondKind<DataVector, Dim, frame>,
-          ::domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
+          gr::Tags::SpatialChristoffelSecondKind<DataVector, dim, frame>,
+          ::domain::Tags::InverseJacobian<dim, Frame::ElementLogical,
                                           Frame::Inertial>>,
 
-      gr::Tags::SpatialRicciCompute<DataVector, Dim, frame>,
-      gr::Tags::SpatialRicciScalarCompute<DataVector, Dim, frame>,
+      gr::Tags::SpatialRicciCompute<DataVector, dim, frame>,
+      gr::Tags::SpatialRicciScalarCompute<DataVector, dim, frame>,
 
-      gr::Tags::WeylElectricCompute<DataVector, Dim, frame>,
-      gr::Tags::WeylElectricScalarCompute<DataVector, Dim, frame>,
+      gr::Tags::WeylElectricCompute<DataVector, dim, frame>,
+      gr::Tags::WeylElectricScalarCompute<DataVector, dim, frame>,
 
-      gr::Tags::SqrtDetSpatialMetricCompute<DataVector, Dim, frame>,
-      gr::Tags::WeylMagneticCompute<DataVector, Dim, frame>,
-      gr::Tags::WeylMagneticScalarCompute<DataVector, Dim, frame>>;
+      gr::Tags::SqrtDetSpatialMetricCompute<DataVector, dim, frame>,
+      gr::Tags::WeylMagneticCompute<DataVector, dim, frame>,
+      gr::Tags::WeylMagneticScalarCompute<DataVector, dim, frame>>;
 
   using const_global_cache_tags = tmpl::list<
-      gh::ConstraintDamping::Tags::DampingFunctionGamma0<Dim, Frame::Grid>,
-      gh::ConstraintDamping::Tags::DampingFunctionGamma1<Dim, Frame::Grid>,
-      gh::ConstraintDamping::Tags::DampingFunctionGamma2<Dim, Frame::Grid>>;
+      gh::ConstraintDamping::Tags::DampingFunctionGamma0<dim, Frame::Grid>,
+      gh::ConstraintDamping::Tags::DampingFunctionGamma1<dim, Frame::Grid>,
+      gh::ConstraintDamping::Tags::DampingFunctionGamma2<dim, Frame::Grid>>;
 
   template <typename DbTagsList, typename... InboxTags, typename Metavariables,
             typename ArrayIndex, typename ActionList,
@@ -142,7 +142,7 @@ struct InitializeScalarTensorAnd3Plus1Variables {
   }
 };
 
-// template <size_t Dim>
+// template <size_t dim>
 struct InitializeEvolvedScalarVariables {
  // using flat_variables_tag = typename ScalarWave::System<3_st>::variables_tag;
   // using curved_variables_tag =
@@ -189,6 +189,7 @@ namespace ScalarTensor::Initialization {
 template <typename Metavariables>
 struct ScalarTensor3Plus1Variables {
   static constexpr size_t dim = Metavariables::volume_dim;
+  using frame = Frame::Inertial;
 
   using mutable_global_cache_tags = tmpl::list<>;
   using simple_tags_from_options = tmpl::list<>;
@@ -222,7 +223,32 @@ struct ScalarTensor3Plus1Variables {
       gh::ConstraintDamping::Tags::ConstraintGamma1Compute<dim, Frame::Grid>,
       gh::ConstraintDamping::Tags::ConstraintGamma2Compute<dim, Frame::Grid>,
 
-      ScalarTensor::Tags::ScalarSourceCompute>;
+      // ScalarTensor::Tags::ScalarSourceCompute>;
+
+      // In this branch we have not removed the Sources namespace
+      ScalarTensor::Sources::Tags::ScalarSourceCompute,
+
+      // Extra tags for curvatures
+      ::Tags::DerivTensorCompute<
+          gr::Tags::ExtrinsicCurvature<DataVector, dim, frame>,
+          ::domain::Tags::InverseJacobian<dim, ::Frame::ElementLogical,
+                                          ::Frame::Inertial>>,
+      ::Tags::DerivTensorCompute<
+          gr::Tags::SpatialChristoffelSecondKind<DataVector, dim, frame>,
+          ::domain::Tags::InverseJacobian<dim, Frame::ElementLogical,
+                                          Frame::Inertial>>,
+
+      gr::Tags::SpatialRicciCompute<DataVector, dim, frame>,
+      gr::Tags::SpatialRicciScalarCompute<DataVector, dim, frame>,
+
+      gr::Tags::WeylElectricCompute<DataVector, dim, frame>,
+      gr::Tags::WeylElectricScalarCompute<DataVector, dim, frame>,
+
+      gr::Tags::SqrtDetSpatialMetricCompute<DataVector, dim, frame>,
+      gr::Tags::WeylMagneticCompute<DataVector, dim, frame>,
+      gr::Tags::WeylMagneticScalarCompute<DataVector, dim, frame>
+
+      >;
 
   using const_global_cache_tags = tmpl::list<
       gh::ConstraintDamping::Tags::DampingFunctionGamma0<dim, Frame::Grid>,
