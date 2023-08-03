@@ -61,42 +61,42 @@ class GlobalCache;
 namespace ScalarTensor::Actions {
 
 struct InitializeScalarTensorAnd3Plus1Variables {
-  static constexpr size_t Dim = 3_st;
+  static constexpr size_t dim = 3_st;
   using frame = Frame::Inertial;
   using compute_tags = db::AddComputeTags<
       // Needed to compute the characteristic speeds for the AH finder
-      gr::Tags::SpatialMetricCompute<DataVector, Dim, frame>,
-      gr::Tags::DetAndInverseSpatialMetricCompute<DataVector, Dim, frame>,
-      gr::Tags::ShiftCompute<DataVector, Dim, frame>,
-      gr::Tags::LapseCompute<DataVector, Dim, frame>,
+      gr::Tags::SpatialMetricCompute<DataVector, dim, frame>,
+      gr::Tags::DetAndInverseSpatialMetricCompute<DataVector, dim, frame>,
+      gr::Tags::ShiftCompute<DataVector, dim, frame>,
+      gr::Tags::LapseCompute<DataVector, dim, frame>,
 
-      gr::Tags::SpacetimeNormalVectorCompute<DataVector, Dim, frame>,
-      gh::Tags::DerivLapseCompute<Dim, frame>,
+      gr::Tags::SpacetimeNormalVectorCompute<DataVector, dim, frame>,
+      gh::Tags::DerivLapseCompute<dim, frame>,
 
-      gr::Tags::InverseSpacetimeMetricCompute<DataVector, Dim, frame>,
-      gh::Tags::DerivShiftCompute<Dim, frame>,
+      gr::Tags::InverseSpacetimeMetricCompute<DataVector, dim, frame>,
+      gh::Tags::DerivShiftCompute<dim, frame>,
 
-      gh::Tags::DerivSpatialMetricCompute<Dim, frame>,
+      gh::Tags::DerivSpatialMetricCompute<dim, frame>,
 
       // Compute tags for Trace of Christoffel and Extrinsic curvature
-      gr::Tags::SpatialChristoffelFirstKindCompute<DataVector, Dim, frame>,
-      gr::Tags::SpatialChristoffelSecondKindCompute<DataVector, Dim, frame>,
-      gr::Tags::TraceSpatialChristoffelSecondKindCompute<DataVector, Dim,
+      gr::Tags::SpatialChristoffelFirstKindCompute<DataVector, dim, frame>,
+      gr::Tags::SpatialChristoffelSecondKindCompute<DataVector, dim, frame>,
+      gr::Tags::TraceSpatialChristoffelSecondKindCompute<DataVector, dim,
                                                          frame>,
-      gh::Tags::ExtrinsicCurvatureCompute<Dim, frame>,
-      gh::Tags::TraceExtrinsicCurvatureCompute<Dim, frame>,
+      gh::Tags::ExtrinsicCurvatureCompute<dim, frame>,
+      gh::Tags::TraceExtrinsicCurvatureCompute<dim, frame>,
 
       // Compute constraint damping parameters.
-      gh::ConstraintDamping::Tags::ConstraintGamma0Compute<Dim, Frame::Grid>,
-      gh::ConstraintDamping::Tags::ConstraintGamma1Compute<Dim, Frame::Grid>,
-      gh::ConstraintDamping::Tags::ConstraintGamma2Compute<Dim, Frame::Grid>,
+      gh::ConstraintDamping::Tags::ConstraintGamma0Compute<dim, Frame::Grid>,
+      gh::ConstraintDamping::Tags::ConstraintGamma1Compute<dim, Frame::Grid>,
+      gh::ConstraintDamping::Tags::ConstraintGamma2Compute<dim, Frame::Grid>,
 
       ScalarTensor::Tags::ScalarSourceCompute>;
 
   using const_global_cache_tags = tmpl::list<
-      gh::ConstraintDamping::Tags::DampingFunctionGamma0<Dim, Frame::Grid>,
-      gh::ConstraintDamping::Tags::DampingFunctionGamma1<Dim, Frame::Grid>,
-      gh::ConstraintDamping::Tags::DampingFunctionGamma2<Dim, Frame::Grid>>;
+      gh::ConstraintDamping::Tags::DampingFunctionGamma0<dim, Frame::Grid>,
+      gh::ConstraintDamping::Tags::DampingFunctionGamma1<dim, Frame::Grid>,
+      gh::ConstraintDamping::Tags::DampingFunctionGamma2<dim, Frame::Grid>>;
 
   template <typename DbTagsList, typename... InboxTags, typename Metavariables,
             typename ArrayIndex, typename ActionList,
