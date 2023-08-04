@@ -111,6 +111,25 @@ struct InitializeScalarTensorAnd3Plus1Variables {
   }
 };
 
+struct InitializeEvolvedScalarVariables {
+  using curved_variables_tag = typename ScalarTensor::System::variables_tag;
+  using return_tags = tmpl::list<curved_variables_tag>;
+  using argument_tags = tmpl::list<gr::Tags::Lapse<DataVector>>;
+
+  static void apply(
+      const gsl::not_null<typename curved_variables_tag::type*> evolved_vars,
+      [[maybe_unused]] const Scalar<DataVector>& lapse) {
+    // Set variables to zero for now
+    get(get<CurvedScalarWave::Tags::Psi>(*evolved_vars)) = 0.0 * get(lapse);
+    auto& scalar_phi = get<CurvedScalarWave::Tags::Phi<3_st>>(*evolved_vars);
+    for (size_t i = 0; i < 3_st; i++) {
+      scalar_phi.get(i) = 0.0 * get(lapse);
+    }
+    get(get<CurvedScalarWave::Tags::Pi>(*evolved_vars)) =
+        0.0 * (get(lapse) - 1.0);
+  }
+};
+
 }  // namespace ScalarTensor::Actions
 
 namespace ScalarTensor::Initialization {
