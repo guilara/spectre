@@ -287,7 +287,7 @@ struct ObserverTags {
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
-      error_tags,
+    //   error_tags,
       // The 4-index constraint is only implemented in 3d
       tmpl::conditional_t<
           volume_dim == 3,
@@ -316,7 +316,8 @@ struct ObserverTags {
       ::Events::Tags::ObserverDetInvJacobianCompute<Frame::ElementLogical,
                                                     Frame::Inertial>,
       ::Events::Tags::ObserverMeshVelocityCompute<volume_dim, Frame::Inertial>,
-      analytic_compute, error_compute,
+      analytic_compute,
+      //   error_compute,
       gh::gauges::Tags::GaugeAndDerivativeCompute<volume_dim>>;
 
   using field_observations =
@@ -428,15 +429,21 @@ struct ScalarTensorTemplateBase<
       observers::collect_reduction_data_tags<tmpl::push_back<
           tmpl::at<typename factory_creation::factory_classes, Event>>>;
 
+  using scalar_tensor_3plus1_compute_tags =
+      ScalarTensor::Initialization::scalar_tensor_3plus1_compute_tags<3>;
+
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
-      ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
-      tmpl::conditional_t<UseNumericalInitialData,
-      // Until we read numerical data for the scalar
-      // we set them to some analytical profile given some numerical data
-      // for the metric quantities
-              Initialization::Actions::AddSimpleTags<
-                    ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
-              tmpl::list<>>,
+      //   ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
+      Initialization::Actions::AddComputeTags<
+          scalar_tensor_3plus1_compute_tags>,
+      tmpl::conditional_t<
+          UseNumericalInitialData,
+          // Until we read numerical data for the scalar
+          // we set them to some analytical profile given some numerical data
+          // for the metric quantities
+          Initialization::Actions::AddSimpleTags<
+              ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
+          tmpl::list<>>,
       Actions::MutateApply<gh::gauges::SetPiFromGauge<volume_dim>>,
       Initialization::Actions::AddSimpleTags<
           CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
