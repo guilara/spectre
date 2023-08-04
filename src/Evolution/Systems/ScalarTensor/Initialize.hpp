@@ -134,6 +134,36 @@ struct InitializeEvolvedScalarVariables {
 
 namespace ScalarTensor::Initialization {
 
+template <size_t Dim, typename Fr = Frame::Inertial>
+using scalar_tensor_3plus1_compute_tags = tmpl::list<
+    // Needed to compute the characteristic speeds for the AH finder
+    gr::Tags::SpatialMetricCompute<DataVector, Dim, Fr>,
+    gr::Tags::DetAndInverseSpatialMetricCompute<DataVector, Dim, Fr>,
+    gr::Tags::ShiftCompute<DataVector, Dim, Fr>,
+    gr::Tags::LapseCompute<DataVector, Dim, Fr>,
+
+    gr::Tags::SpacetimeNormalVectorCompute<DataVector, Dim, Fr>,
+    gh::Tags::DerivLapseCompute<Dim, Fr>,
+
+    gr::Tags::InverseSpacetimeMetricCompute<DataVector, Dim, Fr>,
+    gh::Tags::DerivShiftCompute<Dim, Fr>,
+
+    gh::Tags::DerivSpatialMetricCompute<Dim, Fr>,
+
+    // Compute tags for Trace of Christoffel and Extrinsic curvature
+    gr::Tags::SpatialChristoffelFirstKindCompute<DataVector, Dim, Fr>,
+    gr::Tags::SpatialChristoffelSecondKindCompute<DataVector, Dim, Fr>,
+    gr::Tags::TraceSpatialChristoffelSecondKindCompute<DataVector, Dim, Fr>,
+    gh::Tags::ExtrinsicCurvatureCompute<Dim, Fr>,
+    gh::Tags::TraceExtrinsicCurvatureCompute<Dim, Fr>,
+
+    // Compute constraint damping parameters.
+    gh::ConstraintDamping::Tags::ConstraintGamma0Compute<Dim, Frame::Grid>,
+    gh::ConstraintDamping::Tags::ConstraintGamma1Compute<Dim, Frame::Grid>,
+    gh::ConstraintDamping::Tags::ConstraintGamma2Compute<Dim, Frame::Grid>,
+
+    ScalarTensor::Tags::ScalarSourceCompute>;
+
 /// \ingroup InitializationGroup
 /// \brief Initialize the compute tags required by the ScalarTensor system
 ///
