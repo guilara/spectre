@@ -299,7 +299,6 @@ struct ObserverTags {
               ::Tags::PointwiseL2NormCompute<
                   gh::Tags::FourIndexConstraint<DataVector, 3>>,
               gh::Tags::ConstraintEnergyCompute<3, Frame::Inertial>,
-              gh::Tags::ExtrinsicCurvatureCompute<3, Frame::Inertial>,
               ::Tags::DerivTensorCompute<
                   gr::Tags::ExtrinsicCurvature<DataVector, 3>,
                   ::domain::Tags::InverseJacobian<
