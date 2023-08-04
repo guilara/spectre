@@ -11,6 +11,7 @@
 #include "Evolution/Systems/ScalarTensor/Characteristics.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/TimeDerivative.hpp"
+#include "Evolution/Systems/ScalarTensor/BoundaryCorrections/BoundaryCorrection.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -60,6 +61,7 @@ namespace ScalarTensor {
  * only implement this system in three spatial dimensions.
  */
 struct System {
+  using boundary_correction_base = BoundaryCorrections::BoundaryCorrection;
   static constexpr bool has_primitive_and_conservative_vars = false;
   static constexpr size_t volume_dim = 3;
 
