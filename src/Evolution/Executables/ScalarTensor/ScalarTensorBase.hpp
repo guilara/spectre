@@ -29,7 +29,6 @@
 #include "Evolution/EventsAndDenseTriggers/DenseTriggers/Factory.hpp"
 #include "Evolution/Initialization/DgDomain.hpp"
 #include "Evolution/Initialization/Evolution.hpp"
-#include "Evolution/Initialization/GrTagsForHydro.hpp"
 #include "Evolution/Initialization/NonconservativeSystem.hpp"
 #include "Evolution/Initialization/SetVariables.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
@@ -56,7 +55,6 @@
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/ProductOfCorrections.hpp"
 #include "Evolution/Systems/ScalarTensor/Initialize.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
-#include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/StressEnergy.hpp"
 #include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
@@ -112,11 +110,11 @@
 #include "ParallelAlgorithms/Interpolation/InterpolationTarget.hpp"
 #include "ParallelAlgorithms/Interpolation/Interpolator.hpp"
 #include "ParallelAlgorithms/Interpolation/Tags.hpp"
+#include "PointwiseFunctions/AnalyticData/GhScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrSchild.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/SphericalKerrSchild.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
-#include "PointwiseFunctions/AnalyticSolutions/GhScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
@@ -204,7 +202,7 @@ struct ObserverTags {
   using variables_tag = typename system::variables_tag;
   using analytic_solution_fields = typename variables_tag::tags_list;
 
-  using initial_data_list = gh::Solutions::ScalarTensor::all_solutions;
+  using initial_data_list = gh::ScalarTensor::AnalyticData::all_analytic_data;
 
   using analytic_compute = evolution::Tags::AnalyticSolutionsCompute<
       volume_dim, analytic_solution_fields, false, initial_data_list>;
@@ -285,7 +283,7 @@ struct ObserverTags {
           CurvedScalarWave::Tags::ConstraintGamma2,
           // Sources
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
-          ScalarTensor::Sources::Tags::ScalarSource,
+          ScalarTensor::Tags::ScalarSource,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
@@ -373,7 +371,7 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
 
   using system = ScalarTensor::System;
 
-  using initial_data_list = gh::Solutions::ScalarTensor::all_solutions;
+  using initial_data_list = gh::ScalarTensor::AnalyticData::all_analytic_data;
   using factory_classes = tmpl::map<
       tmpl::pair<DenseTrigger, DenseTriggers::standard_dense_triggers>,
       tmpl::pair<DomainCreator<volume_dim>, domain_creators<volume_dim>>,
@@ -459,7 +457,7 @@ struct ScalarTensorTemplateBase<
                  gh::ConstraintDamping::Tags::DampingFunctionGamma2<
                      volume_dim, Frame::Grid>,
                  // Source parameters
-                 ScalarTensor::Sources::Tags::ScalarMass>;
+                 ScalarTensor::Tags::ScalarMass>;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
