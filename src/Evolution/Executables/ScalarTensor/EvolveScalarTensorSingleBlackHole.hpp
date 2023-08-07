@@ -151,96 +151,6 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
 
-  struct SphericalSurface2
-      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
-    using temporal_id = ::Tags::Time;
-
-    using vars_to_interpolate_to_target =
-        detail::ObserverTags::scalar_charge_vars_to_interpolate_to_target;
-    using compute_items_on_target =
-        detail::ObserverTags::scalar_charge_compute_items_on_target;
-    using compute_target_points =
-        intrp::TargetPoints::Sphere<SphericalSurface2, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
-            detail::ObserverTags::scalar_charge_surface_obs_tags,
-            SphericalSurface2>;
-    template <typename metavariables>
-    using interpolating_component = typename metavariables::st_dg_element_array;
-  };
-
-  struct SphericalSurface3
-      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
-    using temporal_id = ::Tags::Time;
-
-    using vars_to_interpolate_to_target =
-        detail::ObserverTags::scalar_charge_vars_to_interpolate_to_target;
-    using compute_items_on_target =
-        detail::ObserverTags::scalar_charge_compute_items_on_target;
-    using compute_target_points =
-        intrp::TargetPoints::Sphere<SphericalSurface3, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
-            detail::ObserverTags::scalar_charge_surface_obs_tags,
-            SphericalSurface3>;
-    template <typename metavariables>
-    using interpolating_component = typename metavariables::st_dg_element_array;
-  };
-
-  struct SphericalSurface4
-      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
-    using temporal_id = ::Tags::Time;
-
-    using vars_to_interpolate_to_target =
-        detail::ObserverTags::scalar_charge_vars_to_interpolate_to_target;
-    using compute_items_on_target =
-        detail::ObserverTags::scalar_charge_compute_items_on_target;
-    using compute_target_points =
-        intrp::TargetPoints::Sphere<SphericalSurface4, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
-            detail::ObserverTags::scalar_charge_surface_obs_tags,
-            SphericalSurface4>;
-    template <typename metavariables>
-    using interpolating_component = typename metavariables::st_dg_element_array;
-  };
-
-  struct SphericalSurface5
-      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
-    using temporal_id = ::Tags::Time;
-
-    using vars_to_interpolate_to_target =
-        detail::ObserverTags::scalar_charge_vars_to_interpolate_to_target;
-    using compute_items_on_target =
-        detail::ObserverTags::scalar_charge_compute_items_on_target;
-    using compute_target_points =
-        intrp::TargetPoints::Sphere<SphericalSurface5, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
-            detail::ObserverTags::scalar_charge_surface_obs_tags,
-            SphericalSurface5>;
-    template <typename metavariables>
-    using interpolating_component = typename metavariables::st_dg_element_array;
-  };
-
-  struct SphericalSurface6
-      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
-    using temporal_id = ::Tags::Time;
-
-    using vars_to_interpolate_to_target =
-        detail::ObserverTags::scalar_charge_vars_to_interpolate_to_target;
-    using compute_items_on_target =
-        detail::ObserverTags::scalar_charge_compute_items_on_target;
-    using compute_target_points =
-        intrp::TargetPoints::Sphere<SphericalSurface6, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
-            detail::ObserverTags::scalar_charge_surface_obs_tags,
-            SphericalSurface6>;
-    template <typename metavariables>
-    using interpolating_component = typename metavariables::st_dg_element_array;
-  };
-
   using control_systems = tmpl::list<control_system::Systems::Shape<
       ::domain::ObjectLabel::None, 2,
       control_system::measurements::SingleHorizon<
@@ -251,11 +161,7 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
 
   using interpolation_target_tags = tmpl::push_back<
       control_system::metafunctions::interpolation_target_tags<control_systems>,
-      AhA, ExcisionBoundaryA,
-                                    SphericalSurface,
-                                    SphericalSurface2, SphericalSurface3,
-                                    SphericalSurface4, SphericalSurface5,
-                                    SphericalSurface6>;
+      AhA, ExcisionBoundaryA, SphericalSurface>;
   using interpolator_source_vars = ::ah::source_vars<volume_dim>;
 
   using scalar_charge_interpolator_source_vars =
@@ -280,21 +186,6 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
                            interpolator_source_vars>,
                        intrp::Events::InterpolateWithoutInterpComponent<
                            volume_dim, SphericalSurface, EvolutionMetavars,
-                           scalar_charge_interpolator_source_vars>,
-                       intrp::Events::InterpolateWithoutInterpComponent<
-                           volume_dim, SphericalSurface2, EvolutionMetavars,
-                           scalar_charge_interpolator_source_vars>,
-                       intrp::Events::InterpolateWithoutInterpComponent<
-                           volume_dim, SphericalSurface3, EvolutionMetavars,
-                           scalar_charge_interpolator_source_vars>,
-                       intrp::Events::InterpolateWithoutInterpComponent<
-                           volume_dim, SphericalSurface4, EvolutionMetavars,
-                           scalar_charge_interpolator_source_vars>,
-                       intrp::Events::InterpolateWithoutInterpComponent<
-                           volume_dim, SphericalSurface5, EvolutionMetavars,
-                           scalar_charge_interpolator_source_vars>,
-                       intrp::Events::InterpolateWithoutInterpComponent<
-                           volume_dim, SphericalSurface6, EvolutionMetavars,
                            scalar_charge_interpolator_source_vars>>>>,
         tmpl::pair<DenseTrigger,
                    control_system::control_system_triggers<control_systems>>>;
