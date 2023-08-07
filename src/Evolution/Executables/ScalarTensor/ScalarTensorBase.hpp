@@ -179,7 +179,6 @@ constexpr auto make_default_phase_order() {
                     Parallel::Phase::Exit};
 }
 
-template <size_t VolumeDim>
 struct ObserverTags {
   static constexpr size_t volume_dim = 3_st;
 
@@ -275,23 +274,21 @@ struct ObserverTags {
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
       error_tags,
       // The 4-index constraint is only implemented in 3d
-      tmpl::conditional_t<
-          volume_dim == 3,
-          tmpl::list<
-              gh::Tags::FourIndexConstraintCompute<3, Frame::Inertial>,
-              gh::Tags::FConstraintCompute<3, Frame::Inertial>,
-              ::Tags::PointwiseL2NormCompute<
-                  gh::Tags::FConstraint<DataVector, 3>>,
-              ::Tags::PointwiseL2NormCompute<
-                  gh::Tags::FourIndexConstraint<DataVector, 3>>,
-              gh::Tags::ConstraintEnergyCompute<3, Frame::Inertial>,
-              ::Tags::DerivTensorCompute<
-                  gr::Tags::ExtrinsicCurvature<DataVector, 3>,
-                  ::domain::Tags::InverseJacobian<
-                      volume_dim, Frame::ElementLogical, Frame::Inertial>>,
-              gr::Tags::WeylElectricCompute<DataVector, 3, Frame::Inertial>,
-              gr::Tags::Psi4RealCompute<Frame::Inertial>>,
-          tmpl::list<>>>;
+      tmpl::list<
+          gh::Tags::FourIndexConstraintCompute<volume_dim, Frame::Inertial>,
+          gh::Tags::FConstraintCompute<volume_dim, Frame::Inertial>,
+          ::Tags::PointwiseL2NormCompute<
+              gh::Tags::FConstraint<DataVector, volume_dim>>,
+          ::Tags::PointwiseL2NormCompute<
+              gh::Tags::FourIndexConstraint<DataVector, volume_dim>>,
+          gh::Tags::ConstraintEnergyCompute<volume_dim, Frame::Inertial>,
+          ::Tags::DerivTensorCompute<
+              gr::Tags::ExtrinsicCurvature<DataVector, volume_dim>,
+              ::domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
+                                              Frame::Inertial>>,
+          gr::Tags::WeylElectricCompute<DataVector, volume_dim,
+                                        Frame::Inertial>,
+          gr::Tags::Psi4RealCompute<Frame::Inertial>>>;
   using non_tensor_compute_tags = tmpl::list<
       ::Events::Tags::ObserverMeshCompute<volume_dim>,
       ::Events::Tags::ObserverCoordinatesCompute<volume_dim, Frame::Inertial>,
@@ -358,12 +355,11 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
   using factory_classes = tmpl::map<
       tmpl::pair<DenseTrigger, DenseTriggers::standard_dense_triggers>,
       tmpl::pair<DomainCreator<volume_dim>, domain_creators<volume_dim>>,
-      tmpl::pair<
-          Event,
-          tmpl::flatten<tmpl::list<
-              Events::Completion, Events::MonitorMemory<volume_dim>,
-              typename detail::ObserverTags<volume_dim>::field_observations,
-              Events::time_events<system>>>>,
+      tmpl::pair<Event,
+                 tmpl::flatten<tmpl::list<
+                     Events::Completion, Events::MonitorMemory<volume_dim>,
+                     typename detail::ObserverTags::field_observations,
+                     Events::time_events<system>>>>,
       tmpl::pair<
           ScalarTensor::BoundaryConditions::BoundaryCondition,
           ScalarTensor::BoundaryConditions::standard_boundary_conditions>,
@@ -403,14 +399,15 @@ struct ScalarTensorTemplateBase {
       observers::collect_reduction_data_tags<tmpl::push_back<
           tmpl::at<typename factory_creation::factory_classes, Event>>>;
 
-  using initialize_initial_data_dependent_quantities_actions = tmpl::list<
-      Initialization::Actions::AddComputeTags<
-          ScalarTensor::Initialization::scalar_tensor_3plus1_compute_tags<3>>,
-      Actions::MutateApply<gh::gauges::SetPiFromGauge<volume_dim>>,
-      Initialization::Actions::AddSimpleTags<
-          CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
-              volume_dim>>,
-      Parallel::Actions::TerminatePhase>;
+  using initialize_initial_data_dependent_quantities_actions =
+      tmpl::list<Initialization::Actions::AddComputeTags<
+                     ScalarTensor::Initialization::
+                         scalar_tensor_3plus1_compute_tags<volume_dim>>,
+                 Actions::MutateApply<gh::gauges::SetPiFromGauge<volume_dim>>,
+                 Initialization::Actions::AddSimpleTags<
+                     CurvedScalarWave::Initialization::
+                         InitializeConstraintDampingGammas<volume_dim>>,
+                 Parallel::Actions::TerminatePhase>;
 
   // A tmpl::list of tags to be added to the GlobalCache by the
   // metavariables
