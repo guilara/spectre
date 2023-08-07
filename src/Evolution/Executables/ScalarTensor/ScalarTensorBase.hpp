@@ -170,27 +170,13 @@ template <typename EvolutionMetavarsDerived>
 struct ScalarTensorTemplateBase;
 
 namespace detail {
-template <bool UseNumericalInitialData>
 constexpr auto make_default_phase_order() {
-    if constexpr (UseNumericalInitialData) {
-    // Register needs to be before InitializeTimeStepperHistory so that CCE is
-    // properly registered when the self-start happens
-    return std::array{Parallel::Phase::Initialization,
-                      Parallel::Phase::RegisterWithElementDataReader,
-                      Parallel::Phase::ImportInitialData,
-                      Parallel::Phase::InitializeInitialDataDependentQuantities,
-                      Parallel::Phase::Register,
-                      Parallel::Phase::InitializeTimeStepperHistory,
-                      Parallel::Phase::Evolve,
-                      Parallel::Phase::Exit};
-  } else {
-    return std::array{Parallel::Phase::Initialization,
-                      Parallel::Phase::InitializeInitialDataDependentQuantities,
-                      Parallel::Phase::Register,
-                      Parallel::Phase::InitializeTimeStepperHistory,
-                      Parallel::Phase::Evolve,
-                      Parallel::Phase::Exit};
-  }
+  return std::array{Parallel::Phase::Initialization,
+                    Parallel::Phase::InitializeInitialDataDependentQuantities,
+                    Parallel::Phase::Register,
+                    Parallel::Phase::InitializeTimeStepperHistory,
+                    Parallel::Phase::Evolve,
+                    Parallel::Phase::Exit};
 }
 
 template <size_t VolumeDim>
@@ -362,8 +348,7 @@ struct ObserverTags {
           CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
 };
 
-template <size_t VolumeDim, bool LocalTimeStepping,
-          bool UseNumericalInitialData>
+template <bool LocalTimeStepping>
 struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
   static constexpr size_t volume_dim = 3_st;
 
@@ -373,22 +358,17 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
   using factory_classes = tmpl::map<
       tmpl::pair<DenseTrigger, DenseTriggers::standard_dense_triggers>,
       tmpl::pair<DomainCreator<volume_dim>, domain_creators<volume_dim>>,
-      tmpl::pair<Event,
-                 tmpl::flatten<tmpl::list<Events::Completion,
-                                          //   Events::MonitorMemory<volume_dim,
-                                          //   ::Tags::Time>,
-                                          Events::MonitorMemory<volume_dim>,
-                                          typename detail::ObserverTags<
-                                              volume_dim>::field_observations,
-                                          Events::time_events<system>>>>,
+      tmpl::pair<
+          Event,
+          tmpl::flatten<tmpl::list<
+              Events::Completion, Events::MonitorMemory<volume_dim>,
+              typename detail::ObserverTags<volume_dim>::field_observations,
+              Events::time_events<system>>>>,
       tmpl::pair<
           ScalarTensor::BoundaryConditions::BoundaryCondition,
           ScalarTensor::BoundaryConditions::standard_boundary_conditions>,
       tmpl::pair<gh::gauges::GaugeCondition, gh::gauges::all_gauges>,
-      tmpl::pair<evolution::initial_data::InitialData,
-                 tmpl::conditional_t<UseNumericalInitialData,
-                                     tmpl::list<gh::NumericInitialData>,
-                                     initial_data_list>>,
+      tmpl::pair<evolution::initial_data::InitialData, initial_data_list>,
       tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
       tmpl::pair<PhaseChange, PhaseControl::factory_creatable_classes>,
       tmpl::pair<StepChooser<StepChooserUse::LtsStep>,
@@ -406,12 +386,9 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
 };
 }  // namespace detail
 
-template <template <size_t, bool> class EvolutionMetavarsDerived,
-          size_t VolumeDim, bool UseNumericalInitialData>
-struct ScalarTensorTemplateBase<
-    EvolutionMetavarsDerived<VolumeDim, UseNumericalInitialData>> {
-  using derived_metavars =
-      EvolutionMetavarsDerived<3_st, UseNumericalInitialData>;
+template <class EvolutionMetavarsDerived>
+struct ScalarTensorTemplateBase {
+  using derived_metavars = EvolutionMetavarsDerived;
 
   static constexpr size_t volume_dim = 3_st;
   using system = ScalarTensor::System;
@@ -420,26 +397,15 @@ struct ScalarTensorTemplateBase<
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}
 
-  using factory_creation =
-      detail::FactoryCreation<volume_dim, local_time_stepping,
-                              UseNumericalInitialData>;
+  using factory_creation = detail::FactoryCreation<local_time_stepping>;
 
   using observed_reduction_data_tags =
       observers::collect_reduction_data_tags<tmpl::push_back<
           tmpl::at<typename factory_creation::factory_classes, Event>>>;
 
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
-      //   ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
       Initialization::Actions::AddComputeTags<
           ScalarTensor::Initialization::scalar_tensor_3plus1_compute_tags<3>>,
-      tmpl::conditional_t<
-          UseNumericalInitialData,
-          // Until we read numerical data for the scalar
-          // we set them to some analytical profile given some numerical data
-          // for the metric quantities
-          Initialization::Actions::AddSimpleTags<
-              ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
-          tmpl::list<>>,
       Actions::MutateApply<gh::gauges::SetPiFromGauge<volume_dim>>,
       Initialization::Actions::AddSimpleTags<
           CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
@@ -464,7 +430,7 @@ struct ScalarTensorTemplateBase<
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
 
   static constexpr auto default_phase_order =
-      detail::make_default_phase_order<UseNumericalInitialData>();
+      detail::make_default_phase_order();
 
   using step_actions = tmpl::list<
       evolution::dg::Actions::ComputeTimeDerivative<
@@ -507,11 +473,8 @@ struct ScalarTensorTemplateBase<
           evolution::dg::Initialization::Domain<volume_dim, UseControlSystems>,
           Initialization::TimeStepperHistory<derived_metavars>>,
       Initialization::Actions::NonconservativeSystem<system>,
-      std::conditional_t<
-          UseNumericalInitialData,
-          tmpl::list<>,
-          evolution::Initialization::Actions::SetVariables<
-              domain::Tags::Coordinates<volume_dim, Frame::ElementLogical>>>,
+      evolution::Initialization::Actions::SetVariables<
+          domain::Tags::Coordinates<volume_dim, Frame::ElementLogical>>,
       // Random noise system::variables_tag
       //   Actions::RandomizeVariables<typename system::variables_tag,
       //                               RandomizeInitialGuess>,

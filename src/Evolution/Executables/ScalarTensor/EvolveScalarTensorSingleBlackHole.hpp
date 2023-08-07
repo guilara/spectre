@@ -67,10 +67,7 @@
 #include "Utilities/ProtocolHelpers.hpp"
 #include "Utilities/Serialization/RegisterDerivedClassesWithCharm.hpp"
 
-template <size_t VolumeDim, bool UseNumericalInitialData>
-struct EvolutionMetavars
-    : public ScalarTensorTemplateBase<
-          EvolutionMetavars<3_st, UseNumericalInitialData>> {
+struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
   using st_base = ScalarTensorTemplateBase<EvolutionMetavars>;
   using typename st_base::initialize_initial_data_dependent_quantities_actions;
   using typename st_base::system;
@@ -332,19 +329,6 @@ struct EvolutionMetavars
       tmpl::flatten<tmpl::list<
           Parallel::PhaseActions<Parallel::Phase::Initialization,
                                  initialization_actions>,
-          tmpl::conditional_t<
-              UseNumericalInitialData,
-              tmpl::list<Parallel::PhaseActions<
-                             Parallel::Phase::RegisterWithElementDataReader,
-                             tmpl::list<importers::Actions::
-                                            RegisterWithElementDataReader,
-                                        Parallel::Actions::TerminatePhase>>,
-                         Parallel::PhaseActions<
-                             Parallel::Phase::ImportInitialData,
-                             tmpl::list<gh::Actions::SetInitialData,
-                                        gh::Actions::ReceiveNumericInitialData,
-                                        Parallel::Actions::TerminatePhase>>>,
-              tmpl::list<>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
               initialize_initial_data_dependent_quantities_actions>,
@@ -373,9 +357,6 @@ struct EvolutionMetavars
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
       mem_monitor::MemoryMonitor<EvolutionMetavars>,
-      std::conditional_t<UseNumericalInitialData,
-                         importers::ElementDataReader<EvolutionMetavars>,
-                         tmpl::list<>>,
       st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
       control_system::control_components<EvolutionMetavars, control_systems>,
       tmpl::transform<interpolation_target_tags,
