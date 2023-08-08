@@ -34,7 +34,6 @@
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Initialize.hpp"
-#include "Evolution/Systems/CurvedScalarWave/PsiSquared.hpp"
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Actions/SetInitialData.hpp"
@@ -261,8 +260,8 @@ struct ObserverTags {
           gh::ConstraintDamping::Tags::ConstraintGamma0,
           gh::ConstraintDamping::Tags::ConstraintGamma1,
           gh::ConstraintDamping::Tags::ConstraintGamma2,
-          CurvedScalarWave::Tags::ConstraintGamma1,
-          CurvedScalarWave::Tags::ConstraintGamma2,
+          //   CurvedScalarWave::Tags::ConstraintGamma1,
+          //   CurvedScalarWave::Tags::ConstraintGamma2,
           // Sources
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           ScalarTensor::Tags::ScalarSource,
@@ -306,7 +305,8 @@ struct ObserverTags {
   using scalar_charge_vars_to_interpolate_to_target = tmpl::list<
       gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
       gr::Tags::InverseSpatialMetric<DataVector, volume_dim, Frame::Inertial>,
-      CurvedScalarWave::Tags::Phi<volume_dim>, CurvedScalarWave::Tags::Psi>;
+      ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Phi<volume_dim>>,
+      ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>>;
 
   using scalar_charge_compute_items_on_target = tmpl::list<
       StrahlkorperTags::ThetaPhiCompute<::Frame::Inertial>,
@@ -325,20 +325,17 @@ struct ObserverTags {
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
           ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
           ::Frame::Inertial>,
-      StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
-                                                   ::Frame::Inertial>,
-      CurvedScalarWave::Tags::PsiSquaredCompute,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
-          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
+          ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>,
+          ::Frame::Inertial>>;
 
   using scalar_charge_surface_obs_tags = tmpl::list<
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
           ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
           ::Frame::Inertial>,
-      StrahlkorperGr::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
-                                                   ::Frame::Inertial>,
       StrahlkorperGr::Tags::SurfaceIntegralCompute<
-          CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
+          ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>,
+          ::Frame::Inertial>>;
 };
 
 template <bool LocalTimeStepping>
