@@ -33,6 +33,7 @@
 #include "Evolution/Initialization/SetVariables.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Constraints.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Initialize.hpp"
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
@@ -242,8 +243,8 @@ struct ObserverTags {
           gr::Tags::SpatialRicciScalarCompute<DataVector, volume_dim,
                                               ::Frame::Inertial>,
           // Compute the constraints of CSW
-          CurvedScalarWave::Tags::OneIndexConstraintCompute<volume_dim>,
-          CurvedScalarWave::Tags::TwoIndexConstraintCompute<volume_dim>,
+          ScalarTensor::Tags::OneIndexConstraintCompute<volume_dim>,
+          ScalarTensor::Tags::TwoIndexConstraintCompute<volume_dim>,
           // GH constraint norms
           ::Tags::PointwiseL2NormCompute<gh::Tags::GaugeConstraint<
               DataVector, volume_dim, Frame::Inertial>>,
@@ -252,10 +253,10 @@ struct ObserverTags {
           ::Tags::PointwiseL2NormCompute<gh::Tags::ThreeIndexConstraint<
               DataVector, volume_dim, Frame::Inertial>>,
           // CSW constraint norms
-          ::Tags::PointwiseL2NormCompute<
-              CurvedScalarWave::Tags::OneIndexConstraint<volume_dim>>,
-          ::Tags::PointwiseL2NormCompute<
-              CurvedScalarWave::Tags::TwoIndexConstraint<volume_dim>>,
+          ::Tags::PointwiseL2NormCompute<ScalarTensor::Tags::CSW<
+              CurvedScalarWave::Tags::OneIndexConstraint<volume_dim>>>,
+          ::Tags::PointwiseL2NormCompute<ScalarTensor::Tags::CSW<
+              CurvedScalarWave::Tags::TwoIndexConstraint<volume_dim>>>,
           // Damping parameters
           gh::ConstraintDamping::Tags::ConstraintGamma0,
           gh::ConstraintDamping::Tags::ConstraintGamma1,
