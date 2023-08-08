@@ -110,6 +110,46 @@ struct CSWPhiCompute : CSW<CurvedScalarWave::Tags::Phi<Dim>>, db::ComputeTag {
   using base = CSW<CurvedScalarWave::Tags::Phi<Dim>>;
 };
 
+/*!
+ * \brief Compute tag for observing the scalar one index constraint.
+ */
+template <size_t Dim>
+struct CSWOneIndexConstraintCompute
+    : CSW<CurvedScalarWave::Tags::OneIndexConstraint<Dim>>,
+      db::ComputeTag {
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::OneIndexConstraint<Dim>>;
+  using return_type = tnsr::i<DataVector, Dim>;
+  static constexpr void function(const gsl::not_null<return_type*> result,
+                                 const tnsr::i<DataVector, Dim>& input) {
+    for (size_t i = 0; i < Dim; ++i) {
+      result->get(i) = input.get(i);
+    }
+  }
+  using base = CSW<CurvedScalarWave::Tags::OneIndexConstraint<Dim>>;
+};
+
+/*!
+ * \brief Compute tag for observing the scalar two index constraint.
+ */
+template <size_t Dim>
+struct CSWTwoIndexConstraintCompute
+    : CSW<CurvedScalarWave::Tags::TwoIndexConstraint<Dim>>,
+      db::ComputeTag {
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::TwoIndexConstraint<Dim>>;
+  using return_type = tnsr::ij<DataVector, Dim>;
+  static constexpr void function(const gsl::not_null<return_type*> result,
+                                 const tnsr::ij<DataVector, Dim>& input) {
+    for (size_t i = 0; i < Dim; ++i) {
+      for (size_t j = 0; j < Dim; ++j) {
+        result->get(i, j) = input.get(i, j);
+      }
+    }
+  }
+  using base = CSW<CurvedScalarWave::Tags::TwoIndexConstraint<Dim>>;
+};
+
 }  // namespace Tags
 
 }  // namespace ScalarTensor
