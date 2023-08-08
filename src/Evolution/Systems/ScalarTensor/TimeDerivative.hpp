@@ -16,6 +16,7 @@
 #include "Evolution/Systems/GeneralizedHarmonic/TimeDerivative.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
 #include "Evolution/Systems/ScalarTensor/StressEnergy.hpp"
+#include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "Time/Tags/Time.hpp"
 #include "Utilities/Gsl.hpp"
