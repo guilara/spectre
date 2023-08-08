@@ -41,7 +41,7 @@ struct OneIndexConstraintCompute
       const tnsr::i<DataVector, SpatialDim, Frame::Inertial>&,
       const tnsr::i<DataVector, SpatialDim, Frame::Inertial>&) =
       &CurvedScalarWave::one_index_constraint<SpatialDim>;
-  using base = OneIndexConstraint<SpatialDim>;
+  using base = CSW<OneIndexConstraint<SpatialDim>>;
 };
 
 /*!
@@ -63,7 +63,7 @@ struct TwoIndexConstraintCompute
       const gsl::not_null<return_type*> result,
       const tnsr::ij<DataVector, SpatialDim, Frame::Inertial>&) =
       &CurvedScalarWave::two_index_constraint<SpatialDim>;
-  using base = TwoIndexConstraint<SpatialDim>;
+  using base = CSW<TwoIndexConstraint<SpatialDim>>;
 };
 }  // namespace Tags
 }  // namespace ScalarTensor
