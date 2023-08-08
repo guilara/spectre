@@ -12,6 +12,7 @@
 #include "DataStructures/Tensor/EagerMath/Magnitude.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "NumericalAlgorithms/Spectral/SwshInterpolation.hpp"
 #include "Utilities/ConstantExpressions.hpp"
 #include "Utilities/ErrorHandling/Assert.hpp"
@@ -57,26 +58,30 @@ void KerrSphericalHarmonic::pup(PUP::er& p) {
 }
 
 template <typename DataType>
-tuples::TaggedTuple<CurvedScalarWave::Tags::Psi>
+tuples::TaggedTuple<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>>
 KerrSphericalHarmonic::variables(
     const tnsr::I<DataType, 3>& x,
-    tmpl::list<CurvedScalarWave::Tags::Psi> /*meta*/) const {
+    tmpl::list<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>> /*meta*/)
+    const {
   return {make_with_value<Scalar<DataType>>(x, 0.0)};
 }
 
 template <typename DataType>
-tuples::TaggedTuple<CurvedScalarWave::Tags::Phi<3_st>>
+tuples::TaggedTuple<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Phi<3_st>>>
 KerrSphericalHarmonic::variables(
     const tnsr::I<DataType, 3>& x,
-    tmpl::list<CurvedScalarWave::Tags::Phi<3_st>> /*meta*/) const {
+    tmpl::list<
+        ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Phi<3_st>>> /*meta*/)
+    const {
   return {make_with_value<tnsr::i<DataType, 3>>(x, 0.0)};
 }
 
 template <typename DataType>
-tuples::TaggedTuple<CurvedScalarWave::Tags::Pi>
+tuples::TaggedTuple<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Pi>>
 KerrSphericalHarmonic::variables(
     const tnsr::I<DataType, 3>& x,
-    tmpl::list<CurvedScalarWave::Tags::Pi> /*meta*/) const {
+    tmpl::list<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Pi>> /*meta*/)
+    const {
   Scalar<DataType> pi =
       make_with_value<Scalar<DataType>>(x, 0.0);
   get(pi) += get(magnitude(x)) - radius_;
@@ -115,15 +120,16 @@ bool operator!=(const KerrSphericalHarmonic& lhs,
       const tnsr::I<DTYPE(data), 3>& x, tmpl::list<TAG(data)> /*meta*/) const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (DataVector),
-                        (CurvedScalarWave::Tags::Psi,
-                         CurvedScalarWave::Tags::Pi))
+                        (ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>,
+                         ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Pi>))
 
 #define INSTANTIATE_VECTORS(_, data)                                        \
   template tuples::TaggedTuple<TAG(data)> KerrSphericalHarmonic::variables( \
       const tnsr::I<DTYPE(data), 3>& x, tmpl::list<TAG(data)> /*meta*/) const;
 
-GENERATE_INSTANTIATIONS(INSTANTIATE_VECTORS, (DataVector),
-                        (CurvedScalarWave::Tags::Phi<3_st>))
+GENERATE_INSTANTIATIONS(
+    INSTANTIATE_VECTORS, (DataVector),
+    (ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Phi<3_st>>))
 
 #undef DTYPE
 #undef TAG

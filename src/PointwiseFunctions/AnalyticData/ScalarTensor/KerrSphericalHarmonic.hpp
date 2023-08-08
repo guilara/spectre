@@ -9,6 +9,7 @@
 
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "Options/String.hpp"
 #include "PointwiseFunctions/AnalyticData/AnalyticData.hpp"
 #include "PointwiseFunctions/AnalyticData/ScalarTensor/AnalyticData.hpp"
@@ -137,19 +138,25 @@ class KerrSphericalHarmonic
   /// @{
   /// Retrieve scalar variable at `x`
   template <typename DataType>
-  auto variables(const tnsr::I<DataType, 3>& x,
-                 tmpl::list<CurvedScalarWave::Tags::Psi> /*meta*/) const
-      -> tuples::TaggedTuple<CurvedScalarWave::Tags::Psi>;
+  auto variables(
+      const tnsr::I<DataType, 3>& x,
+      tmpl::list<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>> /*meta*/)
+      const -> tuples::TaggedTuple<
+          ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>>;
 
   template <typename DataType>
   auto variables(const tnsr::I<DataType, 3>& x,
-                 tmpl::list<CurvedScalarWave::Tags::Phi<3_st>> /*meta*/) const
-      -> tuples::TaggedTuple<CurvedScalarWave::Tags::Phi<3_st>>;
+                 tmpl::list<ScalarTensor::Tags::CSW<
+                     CurvedScalarWave::Tags::Phi<3_st>>> /*meta*/) const
+      -> tuples::TaggedTuple<
+          ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Phi<3_st>>>;
 
   template <typename DataType>
-  auto variables(const tnsr::I<DataType, 3>& x,
-                 tmpl::list<CurvedScalarWave::Tags::Pi> /*meta*/) const
-      -> tuples::TaggedTuple<CurvedScalarWave::Tags::Pi>;
+  auto variables(
+      const tnsr::I<DataType, 3>& x,
+      tmpl::list<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Pi>> /*meta*/)
+      const -> tuples::TaggedTuple<
+          ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Pi>>;
   /// @}
 
   /// Retrieve a collection of scalar variables at `x`

@@ -6,6 +6,7 @@
 #include <cstddef>
 
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/AnalyticData/GeneralRelativity/AnalyticData.hpp"
 
 namespace ScalarTensor {
@@ -16,8 +17,9 @@ struct AnalyticDataBase {
   template <typename DataType>
   using tags = tmpl::push_back<
       typename gr::AnalyticDataBase<volume_dim>::template tags<DataType>,
-      CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
-      CurvedScalarWave::Tags::Phi<volume_dim>>;
+      ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Psi>,
+      ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Pi>,
+      ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Phi<volume_dim>>>;
 };
 
 /*!
