@@ -74,7 +74,7 @@ struct CSW : db::PrefixTag, Tag {
 struct CSWPsiCompute : CSW<CurvedScalarWave::Tags::Psi>, db::ComputeTag {
   using argument_tags = tmpl::list<CurvedScalarWave::Tags::Psi>;
   using return_type = Scalar<DataVector>;
-  static constexpr void (*function)(const gsl::not_null<return_type*> result,
+  static constexpr void function(const gsl::not_null<return_type*> result,
                                     const Scalar<DataVector>& input) {
     get(*result) = get(input);
   }
@@ -87,7 +87,7 @@ struct CSWPsiCompute : CSW<CurvedScalarWave::Tags::Psi>, db::ComputeTag {
 struct CSWPiCompute : CSW<CurvedScalarWave::Tags::Pi>, db::ComputeTag {
   using argument_tags = tmpl::list<CurvedScalarWave::Tags::Pi>;
   using return_type = Scalar<DataVector>;
-  static constexpr void (*function)(const gsl::not_null<return_type*> result,
+  static constexpr void function(const gsl::not_null<return_type*> result,
                                     const Scalar<DataVector>& input) {
     get(*result) = get(input);
   }
@@ -101,7 +101,7 @@ template <size_t Dim>
 struct CSWPhiCompute : CSW<CurvedScalarWave::Tags::Phi<Dim>>, db::ComputeTag {
   using argument_tags = tmpl::list<CurvedScalarWave::Tags::Phi<Dim>>;
   using return_type = tnsr::i<DataVector, Dim>;
-  static constexpr void (*function)(const gsl::not_null<return_type*> result,
+  static constexpr void function(const gsl::not_null<return_type*> result,
                                     const tnsr::i<DataVector, Dim>& input) {
     for (size_t i = 0; i < Dim; ++i) {
       result->get(i) = input.get(i);
