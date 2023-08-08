@@ -58,6 +58,16 @@ struct ScalarMass : db::SimpleTag {
   static constexpr bool pass_metavariables = false;
   static double create_from_options(const double mass_psi) { return mass_psi; }
 };
+
+/// We use this prefix tag to avoid ambiguities with the ::gh system when
+/// parsing observed variables
+template <typename Tag>
+struct CSW : db::PrefixTag, Tag {
+  using type = typename Tag::type;
+  using tag = Tag;
+  static std::string name() { return "CSW(" + Tag::name() + ")"; }
+};
+
 }  // namespace Tags
 
 }  // namespace ScalarTensor
