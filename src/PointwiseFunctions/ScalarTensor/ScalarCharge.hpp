@@ -7,6 +7,7 @@
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Surfaces/TagsDeclarations.hpp"  // IWYU pragma: keep
 #include "Utilities/Gsl.hpp"
 #include "Utilities/TMPL.hpp"
@@ -63,7 +64,7 @@ struct ScalarChargeIntegrandCompute : ScalarChargeIntegrand, db::ComputeTag {
   using base = ScalarChargeIntegrand;
   static constexpr auto function = &ScalarTensor::scalar_charge_integrand;
   using argument_tags =
-      tmpl::list<CurvedScalarWave::Tags::Phi<Dim>,
+      tmpl::list<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Phi<Dim>>,
                  StrahlkorperTags::UnitNormalVector<Frame::Inertial>>;
   using return_type = Scalar<DataVector>;
 };
