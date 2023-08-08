@@ -39,12 +39,12 @@ namespace ScalarTensor {
  */
 struct TimeDerivative {
   static constexpr size_t dim = 3;
-  using gh_dt_tags =
-      db::wrap_tags_in<::Tags::dt,
-                       typename gh::System<dim>::variables_tag::tags_list>;
+  using gh_dt_tags = db::wrap_tags_in<
+      ::Tags::dt,
+      typename ScalarTensor::System::gh_system::variables_tag::tags_list>;
   using scalar_dt_tags = db::wrap_tags_in<
       ::Tags::dt,
-      typename CurvedScalarWave::System<dim>::variables_tag::tags_list>;
+      typename ScalarTensor::System::wrapped_scalar_variables::tags_list>;
   using dt_tags = tmpl::append<gh_dt_tags, scalar_dt_tags>;
   using gh_temp_tags = typename gh::TimeDerivative<dim>::temporary_tags;
   using gh_gradient_tags = typename gh::System<dim>::gradients_tags;
