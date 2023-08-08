@@ -39,9 +39,9 @@ namespace ScalarTensor {
  */
 struct TimeDerivative {
   static constexpr size_t dim = 3;
-  using gh_dt_tags = db::wrap_tags_in<
-      ::Tags::dt,
-      typename ScalarTensor::System::gh_system::variables_tag::tags_list>;
+  using gh_dt_tags =
+      db::wrap_tags_in<::Tags::dt,
+                       typename gh::System<dim>::variables_tag::tags_list>;
   using scalar_dt_tags = db::wrap_tags_in<
       ::Tags::dt,
       typename ScalarTensor::System::wrapped_scalar_variables::tags_list>;
@@ -55,10 +55,21 @@ struct TimeDerivative {
       tmpl::list<ScalarTensor::Tags::TraceReversedStressEnergy<
           DataVector, dim, ::Frame::Inertial>>;
   using scalar_gradient_tags =
-      typename CurvedScalarWave::System<dim>::gradients_tags;
+      ScalarTensor::System::wrapped_scalar_variables::tags_list;
   using gradient_tags = tmpl::append<gh_gradient_tags, scalar_gradient_tags>;
   using scalar_arg_tags =
-      typename CurvedScalarWave::TimeDerivative<dim>::argument_tags;
+      tmpl::list<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Pi>,
+                 ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Phi<dim>>,
+                 gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, dim>,
+                 ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<dim>,
+                               Frame::Inertial>,
+                 ::Tags::deriv<gr::Tags::Shift<DataVector, dim>,
+                               tmpl::size_t<dim>, Frame::Inertial>,
+                 gr::Tags::InverseSpatialMetric<DataVector, dim>,
+                 gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, dim>,
+                 gr::Tags::TraceExtrinsicCurvature<DataVector>,
+                 CurvedScalarWave::Tags::ConstraintGamma1,
+                 CurvedScalarWave::Tags::ConstraintGamma2>;
   using temporary_tags = tmpl::remove_duplicates<
       tmpl::append<gh_temp_tags, scalar_temp_tags, scalar_extra_temp_tags>>;
   using argument_tags =

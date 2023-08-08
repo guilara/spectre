@@ -74,9 +74,6 @@ struct System {
       db::wrap_tags_in<ScalarTensor::Tags::CSW,
                        typename scalar_system::variables_tag::tags_list>>;
 
-  //   using variables_tag = ::Tags::Variables<
-  //       tmpl::append<typename gh_system::variables_tag::tags_list,
-  //                    typename scalar_system::variables_tag::tags_list>>;
   using variables_tag = ::Tags::Variables<
       tmpl::append<typename gh_system::variables_tag::tags_list,
                    typename wrapped_scalar_variables::tags_list>>;
@@ -84,9 +81,6 @@ struct System {
   using flux_variables = tmpl::append<typename gh_system::flux_variables,
                                       typename scalar_system::flux_variables>;
 
-  //   using gradient_variables =
-  //       tmpl::append<typename gh_system::gradient_variables,
-  //                    typename scalar_system::gradient_variables>;
   using gradient_variables =
       tmpl::append<typename gh_system::gradient_variables,
                    typename wrapped_scalar_variables::tags_list>;
