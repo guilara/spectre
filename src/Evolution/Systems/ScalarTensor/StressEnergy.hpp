@@ -96,7 +96,8 @@ struct TraceReversedStressEnergyCompute
       db::ComputeTag {
   static constexpr size_t Dim = 3;
   using argument_tags =
-      tmpl::list<CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<Dim>,
+      tmpl::list<ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Pi>,
+                 ScalarTensor::Tags::CSW<CurvedScalarWave::Tags::Phi<Dim>>,
                  gr::Tags::Lapse<DataVector>>;
   using return_type = tnsr::aa<DataVector, Dim, Frame::Inertial>;
   static constexpr void (*function)(
