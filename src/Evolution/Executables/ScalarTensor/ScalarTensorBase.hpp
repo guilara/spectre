@@ -243,8 +243,10 @@ struct ObserverTags {
           gr::Tags::SpatialRicciScalarCompute<DataVector, volume_dim,
                                               ::Frame::Inertial>,
           // Compute the constraints of CSW
-          CurvedScalarWave::Tags::OneIndexConstraintCompute<volume_dim>,
-          CurvedScalarWave::Tags::TwoIndexConstraintCompute<volume_dim>,
+          //   CurvedScalarWave::Tags::OneIndexConstraintCompute<volume_dim>,
+          //   CurvedScalarWave::Tags::TwoIndexConstraintCompute<volume_dim>,
+          ScalarTensor::Tags::CSWOneIndexConstraintCompute<volume_dim>,
+          ScalarTensor::Tags::CSWTwoIndexConstraintCompute<volume_dim>,
           // GH constraint norms
           ::Tags::PointwiseL2NormCompute<gh::Tags::GaugeConstraint<
               DataVector, volume_dim, Frame::Inertial>>,
