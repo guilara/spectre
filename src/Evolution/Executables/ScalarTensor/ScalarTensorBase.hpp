@@ -199,7 +199,10 @@ struct ObserverTags {
 
   using observe_fields = tmpl::append<
       tmpl::push_back<
-          analytic_solution_fields,
+          system::gh_system::variables_tag::tags_list,
+          //   ScalarTensor::Tags::CSWPsiCompute,
+          //   ScalarTensor::Tags::CSWPiCompute,
+          //   ScalarTensor::Tags::CSWPhiCompute<volume_dim>,
           gh::Tags::GaugeH<DataVector, volume_dim, Frame::Inertial>,
           gh::Tags::SpacetimeDerivGaugeH<DataVector, volume_dim,
                                          Frame::Inertial>,
@@ -243,8 +246,6 @@ struct ObserverTags {
           gr::Tags::SpatialRicciScalarCompute<DataVector, volume_dim,
                                               ::Frame::Inertial>,
           // Compute the constraints of CSW
-          //   CurvedScalarWave::Tags::OneIndexConstraintCompute<volume_dim>,
-          //   CurvedScalarWave::Tags::TwoIndexConstraintCompute<volume_dim>,
           ScalarTensor::Tags::CSWOneIndexConstraintCompute<volume_dim>,
           ScalarTensor::Tags::CSWTwoIndexConstraintCompute<volume_dim>,
           // GH constraint norms
@@ -255,16 +256,16 @@ struct ObserverTags {
           ::Tags::PointwiseL2NormCompute<gh::Tags::ThreeIndexConstraint<
               DataVector, volume_dim, Frame::Inertial>>,
           // CSW constraint norms
-          ::Tags::PointwiseL2NormCompute<
-              CurvedScalarWave::Tags::OneIndexConstraint<volume_dim>>,
-          ::Tags::PointwiseL2NormCompute<
-              CurvedScalarWave::Tags::TwoIndexConstraint<volume_dim>>,
+          ::Tags::PointwiseL2NormCompute<ScalarTensor::Tags::CSW<
+              CurvedScalarWave::Tags::OneIndexConstraint<volume_dim>>>,
+          ::Tags::PointwiseL2NormCompute<ScalarTensor::Tags::CSW<
+              CurvedScalarWave::Tags::TwoIndexConstraint<volume_dim>>>,
           // Damping parameters
           gh::ConstraintDamping::Tags::ConstraintGamma0,
           gh::ConstraintDamping::Tags::ConstraintGamma1,
           gh::ConstraintDamping::Tags::ConstraintGamma2,
-          CurvedScalarWave::Tags::ConstraintGamma1,
-          CurvedScalarWave::Tags::ConstraintGamma2,
+          //   CurvedScalarWave::Tags::ConstraintGamma1,
+          //   CurvedScalarWave::Tags::ConstraintGamma2,
           // Sources
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           ScalarTensor::Tags::ScalarSource,
