@@ -65,7 +65,6 @@ template <typename Tag>
 struct CSW : db::PrefixTag, Tag {
   using type = typename Tag::type;
   using tag = Tag;
-  static std::string name() { return "CSW(" + Tag::name() + ")"; }
 };
 
 /*!
