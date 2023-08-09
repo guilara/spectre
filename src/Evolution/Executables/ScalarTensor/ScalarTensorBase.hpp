@@ -185,12 +185,9 @@ struct ObserverTags {
   using system = ScalarTensor::System;
 
   using variables_tag = typename system::variables_tag;
-  using analytic_solution_fields = typename variables_tag::tags_list;
 
   using initial_data_list = gh::ScalarTensor::AnalyticData::all_analytic_data;
 
-  using analytic_compute = evolution::Tags::AnalyticSolutionsCompute<
-      volume_dim, analytic_solution_fields, false, initial_data_list>;
   using deriv_compute = ::Tags::DerivCompute<
       variables_tag,
       domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
@@ -200,9 +197,8 @@ struct ObserverTags {
   using observe_fields = tmpl::append<
       tmpl::push_back<
           system::gh_system::variables_tag::tags_list,
-          //   ScalarTensor::Tags::CSWPsiCompute,
-          //   ScalarTensor::Tags::CSWPiCompute,
-          //   ScalarTensor::Tags::CSWPhiCompute<volume_dim>,
+          ScalarTensor::Tags::CSWPsiCompute, ScalarTensor::Tags::CSWPiCompute,
+          ScalarTensor::Tags::CSWPhiCompute<volume_dim>,
           gh::Tags::GaugeH<DataVector, volume_dim, Frame::Inertial>,
           gh::Tags::SpacetimeDerivGaugeH<DataVector, volume_dim,
                                          Frame::Inertial>,
@@ -298,7 +294,6 @@ struct ObserverTags {
       ::Events::Tags::ObserverDetInvJacobianCompute<Frame::ElementLogical,
                                                     Frame::Inertial>,
       ::Events::Tags::ObserverMeshVelocityCompute<volume_dim, Frame::Inertial>,
-      analytic_compute,
       gh::gauges::Tags::GaugeAndDerivativeCompute<volume_dim>>;
 
   using field_observations =
