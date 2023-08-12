@@ -128,7 +128,7 @@ KerrSphericalHarmonic::variables(
   const auto phi = atan2(x[1], x[0]);
   get(pi) *= real(spherical_harmonic.evaluate(theta, phi, sin(theta / 2.),
                                               cos(theta / 2.)));
-  get(pi) *= amplitude_;
+  get(pi) *= amplitude_of_driver_;
   return pi;
 }
 
