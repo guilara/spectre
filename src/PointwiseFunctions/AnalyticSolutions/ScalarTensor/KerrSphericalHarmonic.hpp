@@ -61,6 +61,12 @@ class KerrSphericalHarmonic
     static constexpr Options::String help = {"Mass of the black hole."};
     static type lower_bound() { return 0.0; }
   };
+  /// The spin of the black hole
+  struct Spin {
+    using type = std::array<double, volume_dim>;
+    static constexpr Options::String help = {
+        "The [x,y,z] dimensionless spin of the black hole"};
+  };
   /// The amplitude of the scalar field
   struct Amplitude {
     using type = double;
@@ -90,7 +96,7 @@ class KerrSphericalHarmonic
         "l-mode."};
   };
 
-  using options = tmpl::list<Mass, Amplitude, Radius, Width, Mode>;
+  using options = tmpl::list<Mass, Spin, Amplitude, Radius, Width, Mode>;
   static constexpr Options::String help = {
       "Initial data for a pure spherical harmonic mode truncated by a circular "
       "Gaussian window funtion. The expression is taken from Scheel(2003), "
@@ -104,8 +110,10 @@ class KerrSphericalHarmonic
   KerrSphericalHarmonic& operator=(KerrSphericalHarmonic&& /*rhs*/) = default;
   ~KerrSphericalHarmonic() override = default;
 
-  KerrSphericalHarmonic(double mass, double amplitude, double radius,
-                        double width, std::pair<size_t, int> mode);
+  KerrSphericalHarmonic(double mass,
+                        const std::array<double, 3>& dimensionless_spin,
+                        double amplitude, double radius, double width,
+                        std::pair<size_t, int> mode);
 
   auto get_clone() const
       -> std::unique_ptr<evolution::initial_data::InitialData> override;
@@ -171,6 +179,8 @@ class KerrSphericalHarmonic
                          const KerrSphericalHarmonic& rhs);
 
   double mass_ = std::numeric_limits<double>::signaling_NaN();
+  std::array<double, volume_dim> dimensionless_spin_ =
+      make_array<volume_dim>(std::numeric_limits<double>::signaling_NaN());
   double amplitude_ = std::numeric_limits<double>::signaling_NaN();
   double radius_{std::numeric_limits<double>::signaling_NaN()};
   double width_sq_{std::numeric_limits<double>::signaling_NaN()};
