@@ -74,6 +74,12 @@ class KerrSphericalHarmonic
     static constexpr Options::String help = {
         "Amplitude of the constant scalar field"};
   };
+  /// The amplitude of the scalar driver
+  struct AmplitudeOfDriver {
+    using type = double;
+    static constexpr Options::String help = {
+        "Amplitude of the scalar driver field"};
+  };
   struct Radius {
     using type = double;
     static constexpr Options::String help = {
@@ -97,7 +103,8 @@ class KerrSphericalHarmonic
         "l-mode."};
   };
 
-  using options = tmpl::list<Mass, Spin, Amplitude, Radius, Width, Mode>;
+  using options =
+      tmpl::list<Mass, Spin, Amplitude, AmplitudeOfDriver, Radius, Width, Mode>;
   static constexpr Options::String help = {
       "Initial data for a pure spherical harmonic mode truncated by a circular "
       "Gaussian window funtion. The expression is taken from Scheel(2003), "
@@ -113,7 +120,8 @@ class KerrSphericalHarmonic
 
   KerrSphericalHarmonic(double mass,
                         const std::array<double, 3>& dimensionless_spin,
-                        double amplitude, double radius, double width,
+                        double amplitude, double amplitude_of_driver,
+                        double radius, double width,
                         std::pair<size_t, int> mode);
 
   auto get_clone() const
@@ -201,6 +209,7 @@ class KerrSphericalHarmonic
   std::array<double, volume_dim> dimensionless_spin_ =
       make_array<volume_dim>(std::numeric_limits<double>::signaling_NaN());
   double amplitude_ = std::numeric_limits<double>::signaling_NaN();
+  double amplitude_of_driver_ = std::numeric_limits<double>::signaling_NaN();
   double radius_{std::numeric_limits<double>::signaling_NaN()};
   double width_sq_{std::numeric_limits<double>::signaling_NaN()};
   std::pair<size_t, int> mode_{std::numeric_limits<size_t>::signaling_NaN(),

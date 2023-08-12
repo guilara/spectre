@@ -26,11 +26,13 @@ namespace fe::DecoupledScalar::Solutions {
 
 KerrSphericalHarmonic::KerrSphericalHarmonic(
     const double mass, const std::array<double, 3>& dimensionless_spin,
-    const double amplitude, const double radius, const double width,
+    const double amplitude, const double amplitude_of_driver,
+    const double radius, const double width,
     const std::pair<size_t, int> mode) {
   mass_ = mass;
   dimensionless_spin_ = dimensionless_spin;
   amplitude_ = amplitude;
+  amplitude_of_driver_ = amplitude_of_driver;
   radius_ = radius;
   width_sq_ = square(width);
   mode_ = mode;
@@ -53,6 +55,7 @@ void KerrSphericalHarmonic::pup(PUP::er& p) {
   p | mass_;
   p | dimensionless_spin_;
   p | amplitude_;
+  p | amplitude_of_driver_;
   p | radius_;
   p | width_sq_;
   p | mode_;
@@ -125,7 +128,7 @@ KerrSphericalHarmonic::variables(
   const auto phi = atan2(x[1], x[0]);
   get(pi) *= real(spherical_harmonic.evaluate(theta, phi, sin(theta / 2.),
                                               cos(theta / 2.)));
-  get(pi) *= amplitude_;
+  get(pi) *= amplitude_of_driver_;
   return pi;
 }
 
@@ -134,6 +137,7 @@ PUP::able::PUP_ID KerrSphericalHarmonic::my_PUP_ID = 0;
 bool operator==(const KerrSphericalHarmonic& lhs,
                 const KerrSphericalHarmonic& rhs) {
   return lhs.amplitude_ == rhs.amplitude_ and
+         lhs.amplitude_of_driver_ == rhs.amplitude_of_driver_ and
          lhs.dimensionless_spin_ == rhs.dimensionless_spin_ and
          lhs.radius_ == rhs.radius_ and lhs.width_sq_ == rhs.width_sq_ and
          lhs.mode_ == rhs.mode_ and lhs.mass_ == rhs.mass_ and
