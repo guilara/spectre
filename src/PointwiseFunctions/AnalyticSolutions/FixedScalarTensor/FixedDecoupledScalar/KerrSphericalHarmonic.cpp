@@ -24,22 +24,20 @@
 
 namespace fe::DecoupledScalar::Solutions {
 
-KerrSphericalHarmonic::KerrSphericalHarmonic(double mass, double amplitude,
-                                             double radius, double width,
-                                             std::pair<size_t, int> mode) {
+KerrSphericalHarmonic::KerrSphericalHarmonic(
+    const double mass, const std::array<double, 3>& dimensionless_spin,
+    const double amplitude, const double radius, const double width,
+    const std::pair<size_t, int> mode) {
   mass_ = mass;
+  dimensionless_spin_ = dimensionless_spin;
   amplitude_ = amplitude;
   radius_ = radius;
   width_sq_ = square(width);
-  mode_ = std::move(mode);
+  mode_ = mode;
   background_spacetime_ =
-      gr::Solutions::KerrSchild{// BH mass
-                                mass_,
-                                // Dimensionless spin
-                                std::array<double, 3>{{0.0, 0.0, 0.0}},
+      gr::Solutions::KerrSchild{mass_, dimensionless_spin_,
                                 // Center
                                 std::array<double, 3>{{0.0, 0.0, 0.0}}};
-
 }
 
 std::unique_ptr<evolution::initial_data::InitialData>
@@ -53,6 +51,7 @@ KerrSphericalHarmonic::KerrSphericalHarmonic(CkMigrateMessage* msg)
 void KerrSphericalHarmonic::pup(PUP::er& p) {
   InitialData::pup(p);
   p | mass_;
+  p | dimensionless_spin_;
   p | amplitude_;
   p | radius_;
   p | width_sq_;
@@ -134,9 +133,10 @@ PUP::able::PUP_ID KerrSphericalHarmonic::my_PUP_ID = 0;
 
 bool operator==(const KerrSphericalHarmonic& lhs,
                 const KerrSphericalHarmonic& rhs) {
-  return lhs.amplitude_ == rhs.amplitude_ and lhs.radius_ == rhs.radius_ and
-         lhs.width_sq_ == rhs.width_sq_ and lhs.mode_ == rhs.mode_ and
-         lhs.mass_ == rhs.mass_ and
+  return lhs.amplitude_ == rhs.amplitude_ and
+         lhs.dimensionless_spin_ == rhs.dimensionless_spin_ and
+         lhs.radius_ == rhs.radius_ and lhs.width_sq_ == rhs.width_sq_ and
+         lhs.mode_ == rhs.mode_ and lhs.mass_ == rhs.mass_ and
          lhs.background_spacetime_ == rhs.background_spacetime_;
 }
 
