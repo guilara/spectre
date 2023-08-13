@@ -48,7 +48,8 @@ struct TimeDerivative {
                  Tags::ConstraintGamma1, Tags::ConstraintGamma2,
                  fe::ScalarDriver::Tags::ScalarDriverSource,
                  fe::ScalarDriver::Tags::ScalarTauParameter,
-                 fe::ScalarDriver::Tags::ScalarSigmaParameter>;
+                 fe::ScalarDriver::Tags::ScalarSigmaParameter,
+                 fe::ScalarDriver::Tags::ScalarShiftParameter>;
 
   static void apply(
       gsl::not_null<Scalar<DataVector>*> dt_psi,
@@ -73,7 +74,8 @@ struct TimeDerivative {
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
       const Scalar<DataVector>& scalar_driver_source,
-      const double scalar_tau_parameter, const double scalar_sigma_parameter) {
+      const double scalar_tau_parameter, const double scalar_sigma_parameter,
+      const double scalar_shift_parameter) {
     // Use the definition from the CurvedScalarWave system
     // CurvedScalarWave::TimeDerivative<3_st>::apply(
     //     dt_psi, dt_pi, dt_phi,
@@ -92,10 +94,11 @@ struct TimeDerivative {
     *result_gamma2 = gamma2;
 
     // Psi equation
-    tenex::evaluate(dt_psi, -lapse() * pi() + shift(ti::I) * d_psi(ti::i));
+    tenex::evaluate(dt_psi, -lapse() * pi() + scalar_shift_parameter *
+                                                  shift(ti::I) * d_psi(ti::i));
 
     // Pi equation
-    tenex::evaluate(dt_pi, shift(ti::I) * d_pi(ti::i));
+    tenex::evaluate(dt_pi, scalar_shift_parameter * shift(ti::I) * d_pi(ti::i));
 
     // Phi equation. Not needed so set to zero.
     for (size_t index = 0; index < 3_st; ++index) {

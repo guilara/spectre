@@ -175,7 +175,8 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       const Scalar<DataVector>& gamma1_scalar_driver,
       const Scalar<DataVector>& gamma2_scalar_driver,
       const Scalar<DataVector>& scalar_driver_source,
-      const double scalar_tau_parameter, const double scalar_sigma_parameter) {
+      const double scalar_tau_parameter, const double scalar_sigma_parameter,
+      const double scalar_shift_parameter) {
     // Note: Check that CurvedScalarWave does not update GH variables
     // to a different value. If it does, invert the order of application of the
     // corrections first, so that the GH update is applied at last

@@ -158,6 +158,18 @@ struct ScalarTauParameter {
   static constexpr Options::String help{
       "Tau parameter for the scalar driver in code units"};
 };
+
+/*!
+ * \brief Scalar shift parameter.
+ */
+struct ScalarShiftParameter {
+  static std::string name() { return "ScalarShiftParameter"; }
+  using type = double;
+  static constexpr Options::String help{
+      "Parameter multiplying the shift terms in the scalar diver equation [in "
+      "code units]"};
+};
+
 }  // namespace fe::ScalarDriver::OptionTags
 
 namespace fe::ScalarDriver::Tags {
@@ -187,6 +199,15 @@ struct ScalarTauParameter : db::SimpleTag {
   static constexpr bool pass_metavariables = false;
   static double create_from_options(const double scalar_tau_parameter) {
     return scalar_tau_parameter;
+  }
+};
+
+struct ScalarShiftParameter : db::SimpleTag {
+  using type = double;
+  using option_tags = tmpl::list<OptionTags::ScalarShiftParameter>;
+  static constexpr bool pass_metavariables = false;
+  static double create_from_options(const double scalar_shift_parameter) {
+    return scalar_shift_parameter;
   }
 };
 

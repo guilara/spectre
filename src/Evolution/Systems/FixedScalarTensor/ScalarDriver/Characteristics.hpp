@@ -21,36 +21,41 @@ void characteristic_speeds(
     const gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*> char_speeds,
     const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
-    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form);
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form,
+    const double& scalar_shift_parameter);
 
 void characteristic_speeds(
     const gsl::not_null<std::array<DataVector, 4>*> char_speeds,
     const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
-    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form);
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form,
+    const double& scalar_shift_parameter);
 
 std::array<DataVector, 4> characteristic_speeds(
     const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
-    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form);
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form,
+    const double& scalar_shift_parameter);
 
 struct CharacteristicSpeedsCompute : Tags::CharacteristicSpeeds,
                                      db::ComputeTag {
   using base = Tags::CharacteristicSpeeds;
   using return_type = typename base::type;
-  using argument_tags = tmpl::list<
-      Tags::ConstraintGamma1, gr::Tags::Lapse<DataVector>,
-      gr::Tags::Shift<DataVector, 3_st>,
-      ::Tags::Normalized<domain::Tags::UnnormalizedFaceNormal<3_st>>>;
+  using argument_tags =
+      tmpl::list<Tags::ConstraintGamma1, gr::Tags::Lapse<DataVector>,
+                 gr::Tags::Shift<DataVector, 3_st>,
+                 ::Tags::Normalized<domain::Tags::UnnormalizedFaceNormal<3_st>>,
+                 Tags::ScalarShiftParameter>;
 
   static void function(
       gsl::not_null<return_type*> result, const Scalar<DataVector>& gamma_1,
       const Scalar<DataVector>& lapse,
       const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
-      const tnsr::i<DataVector, 3_st, Frame::Inertial>&
-          unit_normal_one_form) {
+      const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form,
+      const double& scalar_shift_parameter) {
     CurvedScalarWave::characteristic_speeds<3_st>(result, gamma_1, lapse, shift,
-                                      unit_normal_one_form);
+                                                  unit_normal_one_form,
+                                                  scalar_shift_parameter);
   }
 };
 

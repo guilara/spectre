@@ -70,7 +70,8 @@ class UpwindPenalty final : public BoundaryCorrection {
                  CharSpeedsTensor>;
   using dg_package_data_temporary_tags =
       tmpl::list<gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3_st>,
-                 Tags::ConstraintGamma1, Tags::ConstraintGamma2>;
+                 Tags::ConstraintGamma1, Tags::ConstraintGamma2,
+                 Tags::ScalarShiftParameter>;
   using dg_package_data_volume_tags = tmpl::list<>;
 
   double dg_package_data(
@@ -92,6 +93,7 @@ class UpwindPenalty final : public BoundaryCorrection {
       const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
       const Scalar<DataVector>& constraint_gamma1,
       const Scalar<DataVector>& constraint_gamma2,
+      const double& scalar_shift_parameter,
 
       const tnsr::i<DataVector, 3_st, Frame::Inertial>& interface_unit_normal,
       const tnsr::I<DataVector, 3_st, Frame::Inertial>&

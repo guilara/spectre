@@ -43,6 +43,7 @@ double UpwindPenalty::dg_package_data(
     const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
     const Scalar<DataVector>& constraint_gamma1,
     const Scalar<DataVector>& constraint_gamma2,
+    const double& scalar_shift_parameter,
 
     const tnsr::i<DataVector, 3_st, Frame::Inertial>& interface_unit_normal,
     const tnsr::I<DataVector, 3_st, Frame::Inertial>&
@@ -63,7 +64,7 @@ double UpwindPenalty::dg_package_data(
                         packaged_v_minus, constraint_gamma2, psi, pi, phi,
                         interface_unit_normal, interface_unit_normal_vector);
   characteristic_speeds(packaged_char_speeds, constraint_gamma1, lapse, shift,
-                        interface_unit_normal);
+                        interface_unit_normal, scalar_shift_parameter);
   if (normal_dot_mesh_velocity.has_value()) {
     get<0>(*packaged_char_speeds) -= get(*normal_dot_mesh_velocity);
     get<1>(*packaged_char_speeds) -= get(*normal_dot_mesh_velocity);
