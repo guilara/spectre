@@ -92,10 +92,11 @@ struct TimeDerivative {
     *result_gamma2 = gamma2;
 
     // Psi equation
-    tenex::evaluate(dt_psi, -lapse() * pi() + shift(ti::I) * d_psi(ti::i));
+    tenex::evaluate(dt_psi,
+                    -lapse() * pi() + 0.0 * shift(ti::I) * d_psi(ti::i));
 
     // Pi equation
-    tenex::evaluate(dt_pi, shift(ti::I) * d_pi(ti::i));
+    tenex::evaluate(dt_pi, 0.0 * shift(ti::I) * d_pi(ti::i));
 
     // Phi equation. Not needed so set to zero.
     for (size_t index = 0; index < 3_st; ++index) {

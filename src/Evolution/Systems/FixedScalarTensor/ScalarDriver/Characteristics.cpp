@@ -25,10 +25,11 @@ void characteristic_speeds(
     const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form) {
   destructive_resize_components(char_speeds, get(gamma_1).size());
   const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
-  get<0>(*char_speeds) = -(1. + get(gamma_1)) * shift_dot_normal;  // v(VPsi)
-  get<1>(*char_speeds) = -shift_dot_normal;                        // v(VZero)
-  get<2>(*char_speeds) = -shift_dot_normal;                        // v(VPlus)
-  get<3>(*char_speeds) = -shift_dot_normal;                        // v(VMinus)
+  get<0>(*char_speeds) =
+      -0.0 * (1. + get(gamma_1)) * shift_dot_normal;  // v(VPsi)
+  get<1>(*char_speeds) = -0.0 * shift_dot_normal;     // v(VZero)
+  get<2>(*char_speeds) = -0.0 * shift_dot_normal;     // v(VPlus)
+  get<3>(*char_speeds) = -0.0 * shift_dot_normal;     // v(VMinus)
 }
 
 void characteristic_speeds(
@@ -41,10 +42,10 @@ void characteristic_speeds(
     char_speed.destructive_resize(size);
   }
   const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
-  (*char_speeds)[0] = -(1. + get(gamma_1)) * shift_dot_normal;  // v(VPsi)
-  (*char_speeds)[1] = -shift_dot_normal;                        // v(VZero)
-  (*char_speeds)[2] = -shift_dot_normal;                        // v(VPlus)
-  (*char_speeds)[3] = -shift_dot_normal;                        // v(VMinus)
+  (*char_speeds)[0] = -0.0 * (1. + get(gamma_1)) * shift_dot_normal;  // v(VPsi)
+  (*char_speeds)[1] = -0.0 * shift_dot_normal;  // v(VZero)
+  (*char_speeds)[2] = -0.0 * shift_dot_normal;  // v(VPlus)
+  (*char_speeds)[3] = -0.0 * shift_dot_normal;  // v(VMinus)
 }
 
 std::array<DataVector, 4> characteristic_speeds(
