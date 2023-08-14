@@ -92,7 +92,7 @@ struct TimeDerivative {
     *result_gamma2 = gamma2;
 
     // Psi equation
-    tenex::evaluate(dt_psi, shift(ti::I) * d_psi(ti::i));
+    tenex::evaluate(dt_psi, 0.0 * shift(ti::I) * d_psi(ti::i));
     dt_psi->get() += -1.0 * scalar_driver_source.get();
 
     // Pi equation
