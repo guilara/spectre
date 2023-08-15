@@ -75,6 +75,7 @@
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Constraints.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Diagnostics.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Initialize.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/PsiSquared.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
@@ -365,6 +366,10 @@ struct ObserverTags {
           // Driver quantities
           fe::ScalarDriver::Tags::TargetPsi,
           fe::ScalarDriver::Tags::ScalarDriverSource,
+          fe::ScalarDriver::Tags::TrackingDiagnosticCompute<Frame::Inertial,
+                                                            DataVector>,
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarDriver::Tags::TrackingDiagnostic>,
           // Compute the constraints of CSW
           fe::ScalarDriver::Tags::OneIndexConstraintCompute,
           fe::ScalarDriver::Tags::TwoIndexConstraintCompute,
