@@ -9,6 +9,7 @@ spectre_target_sources(
   ${LIBRARY}
   PRIVATE
   Characteristics.cpp
+  Diagnostics.cpp
   Sources.cpp
   )
 
@@ -18,6 +19,7 @@ spectre_target_headers(
   HEADERS
   Characteristics.hpp
   Constraints.hpp
+  Diagnostics.hpp
   Initialize.hpp
   PsiSquared.hpp
   Sources.hpp

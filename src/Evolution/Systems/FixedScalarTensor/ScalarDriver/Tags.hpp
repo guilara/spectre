@@ -136,6 +136,10 @@ struct ScalarDriverSource : db::SimpleTag {
   using type = Scalar<DataVector>;
 };
 
+struct TrackingDiagnostic : db::SimpleTag {
+  using type = Scalar<DataVector>;
+};
+
 }  // namespace fe::ScalarDriver::Tags
 
 namespace fe::ScalarDriver::OptionTags {
