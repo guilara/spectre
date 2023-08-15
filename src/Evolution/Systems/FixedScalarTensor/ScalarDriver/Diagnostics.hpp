@@ -37,7 +37,7 @@ struct TrackingDiagnosticCompute : TrackingDiagnostic, db::ComputeTag {
       const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
       const Scalar<DataVector>&, const double,
       const double) = &fe::ScalarDriver::driver_tracking_diagnostic;
-  using base = ScalarDriverSource;
+  using base = TrackingDiagnostic;
 };
 
 }  // namespace Tags
