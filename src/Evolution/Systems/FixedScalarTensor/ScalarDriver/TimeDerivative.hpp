@@ -30,8 +30,8 @@ struct TimeDerivative {
                  Tags::ConstraintGamma1, Tags::ConstraintGamma2>;
 
   using argument_tags =
-      tmpl::list<Tags::Pi, Tags::Phi<3_st>, gr::Tags::Lapse<DataVector>,
-                 gr::Tags::Shift<DataVector, 3_st>,
+      tmpl::list<Tags::Psi, Tags::Pi, Tags::Phi<3_st>,
+                 gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3_st>,
                  ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3_st>,
                                Frame::Inertial>,
                  ::Tags::deriv<gr::Tags::Shift<DataVector, 3_st>,
@@ -57,7 +57,8 @@ struct TimeDerivative {
 
       const tnsr::i<DataVector, 3_st>& d_psi,
       const tnsr::i<DataVector, 3_st>& d_pi,
-      const tnsr::ij<DataVector, 3_st>& d_phi, const Scalar<DataVector>& pi,
+      const tnsr::ij<DataVector, 3_st>& d_phi,
+      const Scalar<DataVector>& /*psi*/, const Scalar<DataVector>& pi,
       const tnsr::i<DataVector, 3_st>& phi, const Scalar<DataVector>& lapse,
       const tnsr::I<DataVector, 3_st>& shift,
       const tnsr::i<DataVector, 3_st>& deriv_lapse,
