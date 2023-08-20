@@ -165,9 +165,10 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1_scalar,
       const Scalar<DataVector>& gamma2_scalar,
-      const Scalar<DataVector>& scalar_source,
+      const Scalar<DataVector>& /* scalar_source*/,
 
       // Scalar driver argument variables
+      const Scalar<DataVector>& psi_scalar_driver,
       const Scalar<DataVector>& pi_scalar_driver,
       const tnsr::i<DataVector, 3_st>& phi_scalar_driver,
       // Note: we omit the repeated ::gr argument variables for the driver
@@ -217,7 +218,11 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
         //
         deriv_lapse, deriv_shift, upper_spatial_metric,
         trace_spatial_christoffel, trace_extrinsic_curvature, gamma1_scalar,
-        gamma2_scalar, scalar_source);
+        gamma2_scalar,
+
+        // We source the scalar equation with the driver
+        psi_scalar_driver  // scalar_source
+    );
 
     // Call TimeDerivativeTerms for scalar
     fe::ScalarDriver::TimeDerivative::apply(
@@ -232,7 +237,7 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
 
         // Scalar argument variables
         d_psi_scalar_driver, d_pi_scalar_driver, d_phi_scalar_driver,
-        pi_scalar_driver, phi_scalar_driver,
+        psi_scalar_driver, pi_scalar_driver, phi_scalar_driver,
 
         lapse_scalar, shift_scalar,
 

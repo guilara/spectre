@@ -76,6 +76,7 @@ template void volume_terms<::fe::DecoupledScalar::TimeDerivativeTerms>(
     const Scalar<DataVector>& scalar_source,
 
     // Scalar driver argument tags
+    const Scalar<DataVector>& psi_scalar_driver,
     const Scalar<DataVector>& pi_scalar_driver,
     const tnsr::i<DataVector, 3_st>& phi_scalar_driver,
 
