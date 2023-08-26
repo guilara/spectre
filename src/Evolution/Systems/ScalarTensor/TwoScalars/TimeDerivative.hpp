@@ -56,12 +56,8 @@ struct TimeDerivative {
   using scalar_temp_tags = tmpl::append<single_scalar_temporary_tags<1>,
                                         single_scalar_temporary_tags<2>>;
   using scalar_extra_temp_tags =
-      tmpl::list<Csw<ScalarTensor::Tags::TraceReversedStressEnergy<
-                         DataVector, dim, ::Frame::Inertial>,
-                     1>,
-                 Csw<ScalarTensor::Tags::TraceReversedStressEnergy<
-                         DataVector, dim, ::Frame::Inertial>,
-                     2>>;
+      tmpl::list<ScalarTensor::Tags::TraceReversedStressEnergy<
+          DataVector, dim, ::Frame::Inertial>>;
   using gradient_tags = typename System::gradient_tags;
   using scalar_arg_tags =
       tmpl::append<single_scalar_arg_tags<1>, single_scalar_arg_tags<2>>;
@@ -129,7 +125,6 @@ struct TimeDerivative {
 
       // Extra temporal tags
       gsl::not_null<tnsr::aa<DataVector, dim>*> stress_energy,
-      gsl::not_null<tnsr::aa<DataVector, dim>*> stress_energy_2,
 
       // GH spatial derivatives
       const tnsr::iaa<DataVector, dim>& d_spacetime_metric,

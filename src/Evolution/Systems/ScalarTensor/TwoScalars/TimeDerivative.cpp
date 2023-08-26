@@ -81,7 +81,6 @@ void TimeDerivative::apply(
 
     // Extra temporal tags
     gsl::not_null<tnsr::aa<DataVector, dim>*> stress_energy,
-    gsl::not_null<tnsr::aa<DataVector, dim>*> stress_energy_2,
 
     // GH spatial derivatives
     const tnsr::iaa<DataVector, dim>& d_spacetime_metric,
@@ -190,17 +189,16 @@ void TimeDerivative::apply(
       trace_extrinsic_curvature, gamma1_scalar_2, gamma2_scalar_2);
 
   // Compute the (trace-reversed) stress energy tensor here
-  ScalarTensor::trace_reversed_stress_energy(stress_energy, pi_scalar,
-                                             phi_scalar, lapse_scalar);
+  trace_reversed_stress_energy(stress_energy,
 
-  ScalarTensor::trace_reversed_stress_energy(stress_energy_2, pi_scalar_2,
-                                             phi_scalar_2, lapse_scalar);
+                               pi_scalar, phi_scalar,
+
+                               pi_scalar_2, phi_scalar_2,
+
+                               lapse_scalar);
 
   // Add stress tensors to the gh RHS
   ScalarTensor::add_stress_energy_term_to_dt_pi(dt_pi, *stress_energy,
-                                                lapse_scalar);
-
-  ScalarTensor::add_stress_energy_term_to_dt_pi(dt_pi, *stress_energy_2,
                                                 lapse_scalar);
 
   // Add scalar sources to the scalar RHS
