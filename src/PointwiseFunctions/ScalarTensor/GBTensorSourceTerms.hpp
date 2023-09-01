@@ -2,3 +2,5 @@
 // See LICENSE.txt for details.
 
 #pragma once
+
+namespace ScalarTensor {}  // namespace ScalarTensor
