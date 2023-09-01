@@ -1,6 +1,15 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
+#include "PointwiseFunctions/ScalarTensor/GBScalarSourceTerms.hpp"
+
+#include "DataStructures/DataVector.hpp"
+#include "DataStructures/Tensor/Tensor.hpp"
+#include "Utilities/ConstantExpressions.hpp"
+#include "Utilities/GenerateInstantiations.hpp"
+#include "Utilities/Math.hpp"
+#include "Utilities/TMPL.hpp"
+
 namespace ScalarTensor {
 
 template <typename Frame>

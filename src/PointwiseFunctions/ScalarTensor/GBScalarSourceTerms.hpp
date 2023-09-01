@@ -3,6 +3,17 @@
 
 #pragma once
 
+#include <cstddef>
+
+#include "DataStructures/DataBox/Tag.hpp"
+#include "DataStructures/Tensor/Tensor.hpp"
+#include "DataStructures/Tensor/TypeAliases.hpp"
+#include "Evolution/Systems/ScalarTensor/Tags.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
+#include "Utilities/Gsl.hpp"
+
 namespace ScalarTensor {
 
 template <typename Frame>
@@ -16,6 +27,8 @@ void gb_scalar(
 /*!
  * \brief Compute the source term of the scalar equation with the reduction of
  * order scheme.
+ *
+ * \details The computation is done as follows:
  *
  * \begin{align}
  *     \mathcal{G}_\text{GB}
@@ -44,9 +57,10 @@ void gb_scalar_with_tenex(
 namespace Tags {
 
 /*!
- * \brief Compute tag for the trace reversed stress energy tensor.
+ * \brief Compute tag for the GB scalar with reduction of order.
  *
- * \details Call trace_reversed_stress_energy.
+ * \details Call gb_scalar_with_tenex.
+ * \note Should replace with a function including the couplings.
  */
 template <typename Frame = Frame::Inertial>
 struct GBScalarCompute : GBScalar, db::ComputeTag {
