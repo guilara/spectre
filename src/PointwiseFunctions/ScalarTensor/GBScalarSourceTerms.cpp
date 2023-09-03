@@ -68,8 +68,8 @@ void gb_scalar_with_tenex(
   static constexpr double two_over_three = 2.0 / 3.0;
   tenex::evaluate(result,
                   // Weyl squared in terms of electric and magnetic scalars
-                  8.0 * get(weyl_electric_scalar) -
-                      8.0 * get(weyl_magnetic_scalar)
+                  8.0 * weyl_electric_scalar() -
+                      8.0 * weyl_magnetic_scalar()
                       // Trace reversed stress energy squared
                       - 2.0 * square(kappa) *
                             trace_reversed_stress_energy(ti::a, ti::b) *
