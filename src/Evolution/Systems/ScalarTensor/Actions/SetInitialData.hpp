@@ -85,8 +85,15 @@ class NumericInitialData : public evolution::initial_data::InitialData {
       tmpl::list<gr::Tags::SpatialMetric<DataVector, 3>,
                  gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>,
                  gr::Tags::ExtrinsicCurvature<DataVector, 3>>;
-  struct AdmVars : tuples::tagged_tuple_from_typelist<
-                       db::wrap_tags_in<VarName, adm_vars>> {
+
+  // - CurvedScalarWave variables
+  using scalar_vars =
+      tmpl::list<CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
+                 CurvedScalarWave::Tags::Phi<3>>;
+
+  struct AdmVars
+      : tuples::tagged_tuple_from_typelist<
+            db::wrap_tags_in<VarName, tmpl::append<adm_vars, scalar_vars>>> {
     static constexpr Options::String help =
         "ADM variables: 'Lapse', 'Shift', 'SpatialMetric' and "
         "'ExtrinsicCurvature'. The initial GH variables will be computed "
@@ -100,7 +107,8 @@ class NumericInitialData : public evolution::initial_data::InitialData {
   using gh_vars = tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>,
                              gh::Tags::Pi<DataVector, 3>>;
   struct GhVars
-      : tuples::tagged_tuple_from_typelist<db::wrap_tags_in<VarName, gh_vars>> {
+      : tuples::tagged_tuple_from_typelist<
+            db::wrap_tags_in<VarName, tmpl::append<gh_vars, scalar_vars>>> {
     static constexpr Options::String help =
         "GH variables: 'SpacetimeMetric' and 'Pi'. These variables are "
         "used to set the initial data directly; Phi is then set to the "
@@ -110,23 +118,11 @@ class NumericInitialData : public evolution::initial_data::InitialData {
     using TaggedTuple::TaggedTuple;
   };
 
-  // - CurvedScalarWave variables
-  using scalar_vars =
-      tmpl::list<CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
-                 CurvedScalarWave::Tags::Phi<3>>;
-  struct ScalarVars : tuples::tagged_tuple_from_typelist<
-                          db::wrap_tags_in<VarName, scalar_vars>> {
-    static constexpr Options::String help =
-        "Scalar variables: 'Psi', 'Pi' and 'Phi'. These variables are "
-        "used to set the initial data directly.";
-    using options = tags_list;
-    using TaggedTuple::TaggedTuple;
-  };
-
   // Collect all variables that we support loading from volume data files.
   // Remember to `tmpl::remove_duplicates` when adding overlapping sets of
   // vars.
-  using all_vars = tmpl::append<adm_vars, gh_vars, scalar_vars>;
+  using all_vars =
+      tmpl::remove_duplicates<tmpl::append<adm_vars, gh_vars, scalar_vars>>;
 
   // Input-file options
   struct Variables {
