@@ -162,6 +162,17 @@ struct ScalarTauParameter {
   static constexpr Options::String help{
       "Tau parameter for the scalar driver in code units"};
 };
+
+/*!
+ * \brief Limiter parameter for the scalar driver source.
+ */
+struct DriverLimiterParameter {
+  static std::string name() { return "DriverLimiterParameter"; }
+  using type = double;
+  static constexpr Options::String help{
+      "Limiter parameter for the scalar driver source"};
+  static type lower_bound() { return 0.; }
+};
 }  // namespace fe::ScalarDriver::OptionTags
 
 namespace fe::ScalarDriver::Tags {
@@ -191,6 +202,15 @@ struct ScalarTauParameter : db::SimpleTag {
   static constexpr bool pass_metavariables = false;
   static double create_from_options(const double scalar_tau_parameter) {
     return scalar_tau_parameter;
+  }
+};
+
+struct DriverLimiterParameter : db::SimpleTag {
+  using type = double;
+  using option_tags = tmpl::list<OptionTags::DriverLimiterParameter>;
+  static constexpr bool pass_metavariables = false;
+  static double create_from_options(const double limiter_parameter) {
+    return limiter_parameter;
   }
 };
 

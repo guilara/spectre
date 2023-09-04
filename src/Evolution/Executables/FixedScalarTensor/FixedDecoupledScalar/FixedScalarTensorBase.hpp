@@ -606,7 +606,8 @@ struct FixedScalarTensorTemplateBase<
                  ScalarTensor::Sources::Tags::ScalarSecondCouplingParameter,
                  // Scalar driver parameters
                  fe::ScalarDriver::Tags::ScalarSigmaParameter,
-                 fe::ScalarDriver::Tags::ScalarTauParameter>;
+                 fe::ScalarDriver::Tags::ScalarTauParameter,
+                 fe::ScalarDriver::Tags::DriverLimiterParameter>;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
