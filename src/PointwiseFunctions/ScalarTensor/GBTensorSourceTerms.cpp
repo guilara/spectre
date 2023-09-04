@@ -31,7 +31,7 @@ void gb_H_tensor(const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
         for (size_t d = 0; d < 4; ++d) {
           if (a == 0 or b == 0) {
             spacetime_weyl_I.get(a, b, c, d) += 0.0;
-          } else if (c != 0 and d != 0) {
+          } else if (c > 0 and d > 0) {
             i = a - 1;
             j = b - 1;
             k = c - 1;
@@ -70,9 +70,23 @@ void gb_H_tensor(const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
       }
     }
   }
-  spacetime_weyl_I.get(a, b, c, d) += three_epsilon.get(a, b, e) *
-                                      normal_spacetime_one_form.get(d) *
-                                      weyl_magnetic_down_up.get(c, e);
+}
+
+void gb_H_tensor_with_tenex(
+    const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
+    const tnsr::ii<DataVector, 3, Frame>& weyl_electric,
+    const tnsr::ii<DataVector, 3, Frame>& weyl_magnetic,
+    const tnsr::ii<DataVector, 3>& spatial_metric,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const Scalar<DataVector>& sqrt_det_spatial_metric const
+        tnsr::aa<DataVector, Dim>& spacetime_metric,
+    const tnsr::A<DataVector, 3>& normal_spacetime_vector,
+    const tnsr::a<DataVector, 3>& normal_spacetime_one_form,
+    const tnsr::aa<DataVector, 3>& dd_coupling_function) {
+  tnsr::abcd<DataVector, 3> spacetime_weyl_I =
+      make_with_value<tnsr::abcd<DataVector, 3>>(get<0, 0>(spatial_metric),
+                                                 0.0);
+  // Electric part
 }
 
 }  // namespace ScalarTensor
