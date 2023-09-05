@@ -165,7 +165,7 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1_scalar,
       const Scalar<DataVector>& gamma2_scalar,
-      const Scalar<DataVector>& /* scalar_source*/,
+      const Scalar<DataVector>& scalar_source,
 
       // Scalar driver argument variables
       const Scalar<DataVector>& psi_scalar_driver,
