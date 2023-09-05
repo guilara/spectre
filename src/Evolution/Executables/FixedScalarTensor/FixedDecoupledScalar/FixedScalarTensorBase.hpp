@@ -72,6 +72,7 @@
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Tags.hpp"
 //
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Actions/InitializeConstraintGammas.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Constraints.hpp"
@@ -585,8 +586,8 @@ struct FixedScalarTensorTemplateBase<
           CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
               volume_dim>>,
       Initialization::Actions::AddSimpleTags<
-          fe::ScalarDriver::Initialization::InitializeConstraintDampingGammas<
-              volume_dim>>,
+          fe::ScalarDriver::Initialization::
+              InitializeConstraintDampingGammasGaussian>,
       Parallel::Actions::TerminatePhase>;
 
   // A tmpl::list of tags to be added to the GlobalCache by the
@@ -607,7 +608,11 @@ struct FixedScalarTensorTemplateBase<
                  // Scalar driver parameters
                  fe::ScalarDriver::Tags::ScalarSigmaParameter,
                  fe::ScalarDriver::Tags::ScalarTauParameter,
-                 fe::ScalarDriver::Tags::DriverLimiterParameter>;
+                 //  fe::ScalarDriver::Tags::DriverLimiterParameter,
+                 // Constraint damping
+                 fe::ScalarDriver::Tags::AmplitudeConstraintGamma2,
+                 fe::ScalarDriver::Tags::SigmaConstraintGamma2,
+                 fe::ScalarDriver::Tags::OffsetConstraintGamma2>;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
