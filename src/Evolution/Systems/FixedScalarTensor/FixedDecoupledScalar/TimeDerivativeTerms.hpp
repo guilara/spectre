@@ -221,7 +221,8 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
         gamma2_scalar,
 
         // We source the scalar equation with the driver
-        psi_scalar_driver  // scalar_source
+        // psi_scalar_driver
+        scalar_source
     );
 
     // Call TimeDerivativeTerms for scalar
