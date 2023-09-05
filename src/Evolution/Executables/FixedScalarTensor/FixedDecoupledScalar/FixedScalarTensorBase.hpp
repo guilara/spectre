@@ -360,6 +360,8 @@ struct ObserverTags {
           gh::ConstraintDamping::Tags::ConstraintGamma2,
           CurvedScalarWave::Tags::ConstraintGamma1,
           CurvedScalarWave::Tags::ConstraintGamma2,
+          fe::ScalarDriver::Tags::ConstraintGamma1,
+          fe::ScalarDriver::Tags::ConstraintGamma2,
           // Sources
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
