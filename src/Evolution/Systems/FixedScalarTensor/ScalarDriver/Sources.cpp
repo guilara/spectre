@@ -28,7 +28,7 @@ void compute_scalar_driver_source(
     const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi,
     const double scalar_tau_parameter, const double scalar_sigma_parameter) {
   // Make sure it has the same size
-  *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
+  // *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
   scalar_driver_source->get() =
       (1.0 / scalar_sigma_parameter) * (psi.get() - target_psi.get());
 }
@@ -39,7 +39,7 @@ void compute_scalar_driver_source_with_limiter(
     const double scalar_tau_parameter, const double scalar_sigma_parameter,
     const double limiter_parameter) {
   // Make sure it has the same size
-  *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
+  // *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
   // Compute scalar driver source
   scalar_driver_source->get() =
       (1.0 / scalar_sigma_parameter) * (psi.get() - target_psi.get());
@@ -62,7 +62,7 @@ void compute_scalar_driver_source_with_limiter(
 void compute_target_psi(const gsl::not_null<Scalar<DataVector>*> target_psi,
                         const Scalar<DataVector>& psi) {
   // Make sure it has the same size
-  *target_psi = make_with_value<Scalar<DataVector>>(psi, 0.);
+  // *target_psi = make_with_value<Scalar<DataVector>>(psi, 0.);
   target_psi->get() = psi.get();
 }
 
