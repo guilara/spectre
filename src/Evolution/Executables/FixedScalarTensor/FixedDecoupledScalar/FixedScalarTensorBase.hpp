@@ -52,6 +52,7 @@
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 //
+#include "Evolution/Systems/ScalarTensor/Actions/InitializeConstraintGammas.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/Factory.hpp"
@@ -585,8 +586,8 @@ struct FixedScalarTensorTemplateBase<
       Actions::MutateApply<gh::gauges::SetPiFromGauge<volume_dim>>,
       // Initialization::Actions::GrTagsForHydro<system>,
       Initialization::Actions::AddSimpleTags<
-          CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
-              volume_dim>>,
+          ScalarTensor::Initialization::
+              InitializeConstraintDampingGammasGaussian>,
       Initialization::Actions::AddSimpleTags<
           fe::ScalarDriver::Initialization::
               InitializeConstraintDampingGammasGaussian>,
@@ -614,7 +615,10 @@ struct FixedScalarTensorTemplateBase<
                  // Constraint damping
                  fe::ScalarDriver::Tags::AmplitudeConstraintGamma2,
                  fe::ScalarDriver::Tags::SigmaConstraintGamma2,
-                 fe::ScalarDriver::Tags::OffsetConstraintGamma2>;
+                 fe::ScalarDriver::Tags::OffsetConstraintGamma2,
+                 ScalarTensor::Tags::AmplitudeConstraintGamma2,
+                 ScalarTensor::Tags::SigmaConstraintGamma2,
+                 ScalarTensor::Tags::OffsetConstraintGamma2>;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;

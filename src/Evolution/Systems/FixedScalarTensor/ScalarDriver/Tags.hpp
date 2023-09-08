@@ -179,7 +179,9 @@ struct DriverLimiterParameter {
  * parameter for the scalar driver equation.
  */
 struct AmplitudeConstraintGamma2 {
-  static std::string name() { return "AmplitudeConstraintGamma2"; }
+  static std::string name() {
+    return "AmplitudeConstraintGamma2(ScalarDriver)";
+  }
   using type = double;
   static constexpr Options::String help{
       "Amplitude of the gaussian function for the constraint damping parameter "
@@ -192,7 +194,7 @@ struct AmplitudeConstraintGamma2 {
  * parameter for the scalar driver equation.
  */
 struct SigmaConstraintGamma2 {
-  static std::string name() { return "SigmaConstraintGamma2"; }
+  static std::string name() { return "SigmaConstraintGamma2(ScalarDriver)"; }
   using type = double;
   static constexpr Options::String help{
       "Width of the gaussian function for the constraint damping parameter "
@@ -205,7 +207,7 @@ struct SigmaConstraintGamma2 {
  * parameter for the scalar driver equation.
  */
 struct OffsetConstraintGamma2 {
-  static std::string name() { return "OffsetConstraintGamma2"; }
+  static std::string name() { return "OffsetConstraintGamma2(ScalarDriver)"; }
   using type = double;
   static constexpr Options::String help{
       "Asymptotic value for the gaussian function for the constraint damping "
