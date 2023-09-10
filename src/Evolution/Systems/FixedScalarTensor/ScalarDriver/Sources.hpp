@@ -59,15 +59,12 @@ struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
   using argument_tags =
       tmpl::list<fe::ScalarDriver::Tags::Psi, fe::ScalarDriver::Tags::TargetPsi,
                  fe::ScalarDriver::Tags::ScalarTauParameter,
-                 fe::ScalarDriver::Tags::ScalarSigmaParameter
-                 // , fe::ScalarDriver::Tags::DriverLimiterParameter
-                 >;
+                 fe::ScalarDriver::Tags::ScalarSigmaParameter>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
       const Scalar<DataVector>&, const double,
       const double) = &fe::ScalarDriver::Sources::compute_scalar_driver_source;
-  //   &fe::ScalarDriver::Sources::compute_scalar_driver_source_with_limiter;
   using base = ScalarDriverSource;
 };
 
