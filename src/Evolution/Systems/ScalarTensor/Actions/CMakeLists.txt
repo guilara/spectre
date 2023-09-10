@@ -4,14 +4,14 @@
 spectre_target_sources(
   ${LIBRARY}
   PRIVATE
-  NumericInitialData.cpp
   InitializeConstraintGammas.cpp
+  SetInitialData.cpp
   )
 
 spectre_target_headers(
   ${LIBRARY}
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
-  NumericInitialData.hpp
   InitializeConstraintGammas.hpp
+  SetInitialData.hpp
   )
