@@ -52,6 +52,7 @@
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 //
+#include "Evolution/Systems/ScalarTensor/Actions/InitializeConstraintGammas.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/Factory.hpp"
@@ -524,18 +525,19 @@ struct ScalarTensorTemplateBase<
       // I think these are variables than can be retrieved from ID
       // gh::Actions::InitializeGhAnd3Plus1Variables<volume_dim>,
       ScalarTensor::Actions::InitializeScalarTensorAnd3Plus1Variables,
-      tmpl::conditional_t<UseNumericalInitialData,
-      // Until we read numerical data for the scalar
-      // we set them to some analytical profile given some numerical data
-      // for the metric quantities
-              Initialization::Actions::AddSimpleTags<
-                    ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
-              tmpl::list<>>,
+      tmpl::conditional_t<
+          UseNumericalInitialData,
+          // Until we read numerical data for the scalar
+          // we set them to some analytical profile given some numerical data
+          // for the metric quantities
+          Initialization::Actions::AddSimpleTags<
+              ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
+          tmpl::list<>>,
       Actions::MutateApply<gh::gauges::SetPiFromGauge<volume_dim>>,
       // Initialization::Actions::GrTagsForHydro<system>,
       Initialization::Actions::AddSimpleTags<
-          CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
-              volume_dim>>,
+          ScalarTensor::Initialization::
+              InitializeConstraintDampingGammasGaussian>,
       Parallel::Actions::TerminatePhase>;
 
   // A tmpl::list of tags to be added to the GlobalCache by the
@@ -552,7 +554,10 @@ struct ScalarTensorTemplateBase<
                  // Source parameters
                  ScalarTensor::Sources::Tags::ScalarMass,
                  ScalarTensor::Sources::Tags::ScalarFirstCouplingParameter,
-                 ScalarTensor::Sources::Tags::ScalarSecondCouplingParameter>;
+                 ScalarTensor::Sources::Tags::ScalarSecondCouplingParameter,
+                 ScalarTensor::Tags::AmplitudeConstraintGamma2,
+                 ScalarTensor::Tags::SigmaConstraintGamma2,
+                 ScalarTensor::Tags::OffsetConstraintGamma2>;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
