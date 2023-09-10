@@ -36,6 +36,12 @@ void compute_scalar_driver_source(gsl::not_null<Scalar<DataVector>*> result,
                                   const double scalar_tau_parameter,
                                   const double scalar_sigma_parameter);
 
+void compute_scalar_driver_source_with_limiter(
+    const gsl::not_null<Scalar<DataVector>*> scalar_driver_source,
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi,
+    const double scalar_tau_parameter, const double scalar_sigma_parameter,
+    const double limiter_parameter);
+
 void compute_target_psi(gsl::not_null<Scalar<DataVector>*> target_psi,
                         const Scalar<DataVector>& psi);
 
