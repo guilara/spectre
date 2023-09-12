@@ -17,7 +17,7 @@ namespace ScalarTensor {
 using all_solutions = tmpl::list<
     gh::Solutions::WrappedGr<::ScalarTensor::Solutions::MinkowskiZeroScalar>,
     gh::Solutions::WrappedGr<::ScalarTensor::Solutions::KerrSchildScalar>,
-    gh::Solutions::WrappedGr<::ScalarTensor::Solutions::KerrSphericalHarmonic,
+    gh::Solutions::WrappedGr<::ScalarTensor::Solutions::KerrSphericalHarmonic>,
     gh::Solutions::WrappedGr<::ScalarTensor::Solutions::SphericalKerrSchildSH>>;
 }  // namespace ScalarTensor
 }  // namespace gh::Solutions
