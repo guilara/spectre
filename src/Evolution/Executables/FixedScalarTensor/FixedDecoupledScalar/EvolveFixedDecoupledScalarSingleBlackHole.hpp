@@ -31,6 +31,7 @@
 #include "Evolution/Systems/GeneralizedHarmonic/Actions/SetInitialData.hpp"
 //
 // #include "Evolution/Systems/ScalarTensor/Actions/NumericInitialData.hpp"
+#include "Evolution/Systems/ScalarTensor/Actions/SetInitialData.hpp"
 //
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/RegisterDerived.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/RegisterDerivedWithCharm.hpp"
