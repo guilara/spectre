@@ -11,6 +11,24 @@ namespace Tags {
 struct ScalarSource : db::SimpleTag {
   using type = Scalar<DataVector>;
 };
+
+// Extra compute tags for debugging
+/*!
+ * \brief The \f$ f'(\Psi) \f$ term.
+ */
+struct CouplingFunctionDerivative : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "CouplingFunctionDerivative"; }
+};
+
+/*!
+ * \brief The \f$ 8 (E^2 - B^2) \f$ term.
+ */
+struct GBScalar : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "GBScalar"; }
+};
+
 }  // namespace Tags
 
 namespace OptionTags {
