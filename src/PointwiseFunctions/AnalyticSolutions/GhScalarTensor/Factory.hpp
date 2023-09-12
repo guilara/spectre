@@ -6,6 +6,7 @@
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSchildScalar.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/KerrSphericalHarmonic.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/SphericalKerrSchildSH.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -16,6 +17,7 @@ namespace ScalarTensor {
 using all_solutions = tmpl::list<
     gh::Solutions::WrappedGr<::ScalarTensor::Solutions::MinkowskiZeroScalar>,
     gh::Solutions::WrappedGr<::ScalarTensor::Solutions::KerrSchildScalar>,
-    gh::Solutions::WrappedGr<::ScalarTensor::Solutions::KerrSphericalHarmonic>>;
+    gh::Solutions::WrappedGr<::ScalarTensor::Solutions::KerrSphericalHarmonic,
+    gh::Solutions::WrappedGr<::ScalarTensor::Solutions::SphericalKerrSchildSH>>;
 }  // namespace ScalarTensor
 }  // namespace gh::Solutions
