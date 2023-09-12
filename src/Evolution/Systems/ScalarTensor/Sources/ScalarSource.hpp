@@ -96,7 +96,7 @@ struct ScalarCurvatureSourceCompute : ScalarSource, db::ComputeTag {
  *
  * \details Call ....
  */
-template <typename Frame, typename DataType>
+template <typename DataType>
 struct CouplingFunctionDerivativeCompute : CouplingFunctionDerivative,
                                            db::ComputeTag {
   //   using argument_tags = tmpl::list<fe::ScalarDriver::Psi>;
@@ -116,7 +116,7 @@ struct CouplingFunctionDerivativeCompute : CouplingFunctionDerivative,
  *
  * \details Call compute_gb_scalar.
  */
-template <typename Frame, typename DataType>
+template <typename DataType>
 struct GBScalarCompute : GBScalar, db::ComputeTag {
   //   using argument_tags = tmpl::list<fe::ScalarDriver::Psi>;
   using argument_tags = tmpl::list<gr::Tags::WeylElectricScalar<DataType>,

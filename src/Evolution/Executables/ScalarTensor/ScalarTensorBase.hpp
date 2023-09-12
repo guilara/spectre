@@ -281,9 +281,9 @@ struct ObserverTags {
           gr::Tags::SpacetimeNormalOneFormCompute<DataVector, volume_dim,
                                                   Frame::Inertial>,
           gr::Tags::SpacetimeNormalVector<DataVector, volume_dim,
-                                                 Frame::Inertial>,
+                                          Frame::Inertial>,
           gr::Tags::InverseSpacetimeMetric<DataVector, volume_dim,
-                                                  Frame::Inertial>,
+                                           Frame::Inertial>,
           ::Tags::deriv<
               gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
               tmpl::size_t<volume_dim>, Frame::Inertial>,
@@ -342,6 +342,10 @@ struct ObserverTags {
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
           ScalarTensor::Sources::Tags::ScalarSource,
+          // More diagnostic compute tags
+          ScalarTensor::Sources::Tags::GBScalarCompute<DataVector>,
+          ScalarTensor::Sources::Tags::CouplingFunctionDerivativeCompute<
+              DataVector>,
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
