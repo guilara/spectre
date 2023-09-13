@@ -7,6 +7,106 @@
 
 namespace ScalarTensor {
 
+void gb_H_tensor(
+    const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> gb_H_tensor_result,
+    const tnsr::ii<DataVector, 3, Frame>& weyl_electric,
+    const tnsr::ii<DataVector, 3, Frame>& weyl_magnetic,
+    const tnsr::ii<DataVector, 3>& extrinsic_curvature,
+    const tnsr::Ijj<DataVector, 3>& spatial_christoffel_second_kind,
+    const tnsr::ii<DataVector, 3>& spatial_metric,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const Scalar<DataVector>& sqrt_det_spatial_metric,
+    const tnsr::aa<DataVector, Dim>& spacetime_metric,
+    const tnsr::A<DataVector, 3>& normal_spacetime_vector,
+    const tnsr::a<DataVector, 3>& normal_spacetime_one_form,
+    const tnsr::aa<DataVector>& dd_coupling_function) {
+  // Compute projections of the second derivative tensor
+
+  // nn
+  Scalar<DataVector> nnDDKG =
+      make_with_value<Scalar<DataVector>>(get<0, 0>(spacetime_metric), 0.0);
+  // = - L_n Pi from the equations of motion
+
+  // ns
+  tnsr::i<DataVector, 3> nsDDKG =
+      make_with_value<tnsr::i<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
+  tenex::evaluate<ti::i>(
+      nsDDKG, extrinsic_curvature(ti::i, ti::j) *
+                  inverse_spatial_metric(ti::J, ti::K) * phi_scalar(ti::k)
+      // + L_n phi from the equations of motion
+  );
+
+  // ss
+  tnsr::ii<DataVector, 3> ssDDKG = make_with_value<tnsr::ii<DataVector, 3>>(
+      get<0, 0>(spacetime_metric), 0.0);
+  // Note that D_phi is the covariant derivative and has Christoffel symbols
+  tenex::evaluate<ti::i, ti::j>(ssDDKG,
+                                -pi_scalar() * extrinsic_curvature(ti::i, ti::j)
+                                    // Note covariant derivative
+                                    + D_phi_scalar(ti::i, ti::j));
+  // Assemble in symmetric rank-2 4-tensor with lower indices
+  get<0, 0>(*DDKG_tensor_result) = square(get(lapse)) * get(nnDDKG);
+  for (size_t i = 0; i < 3; ++i) {
+    // nsH with lower indices
+    // Check sign
+    DDKG_tensor_result->get(0, i + 1) = get(lapse) * nsDDKG.get(i);
+  }
+  for (size_t i = 0; i < 3; ++i) {
+    for (size_t j = i; j < 3; ++j) {
+      // ssH with lower indices
+      DDKG_tensor_result->get(i + 1, j + 1) = ssDDKG.get(i, j);
+    }
+  }
+}
+
+// Compute projections of the H tensor. Then assemble in 4-tensor
+// Note: Needs computation of the cross products with the levi-civita iterator
+
+// nn
+Scalar<DataVector> nnH =
+    make_with_value<Scalar<DataVector>>(get<0, 0>(spacetime_metric), 0.0);
+// Raise indices of the spatial part of the second derivative of the scalar
+tenex::evaluate(nnH, weyl_electric(ti::i, ti::j) ssDDKGuu(ti::I, ti::J));
+
+// ns
+tnsr::i<DataVector, 3> nsH =
+    make_with_value<tnsr::i<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
+tenex::evaluate<ti::i>(nsH, weyl_electric(ti::i, ti::j) nsDDKGu(ti::J) +
+                                // sqrt(gamma) * epsilon_{ijk} B_{l}^{k} S^{jl}
+                                sqrt_det_spatial_metric() *
+                                    cross_product_weyl_magnetic_ssDDKG(ti::i));
+
+// ss
+tnsr::ii<DataVector, 3> ssH =
+    make_with_value<tnsr::ii<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
+tenex::evaluate<ti::i, ti::j>(
+    ssH, (trace_ssDDKG() + nnDDKG()) * weyl_electric(ti::i, ti::j)
+             // -2 * 2 symmetric part E ssDDKG
+             - (weyl_electric(ti::k, ti::i) * ssDDKGdu(ti::j, ti::K) +
+                weyl_electric(ti::k, ti::j) * ssDDKGdu(ti::i, ti::K))
+             // +2 sqrt(gamma) symmetric part cross prod
+             + sqrt_det_spatial_metric() *
+                   (cross_product_weyl_magnetic_nsDDKGu(ti::i, ti::j) +
+                    cross_product_weyl_magnetic_nsDDKGu(ti::j, ti::i))
+             // Sum the trace part
+             + spatial_metric(ti::i, ti::j) * nnH());
+
+// Assemble in symmetric rank-2 4-tensor with lower indices
+get<0, 0>(*gb_H_tensor_result) = square(get(lapse)) * get(nnH);
+for (size_t i = 0; i < 3; ++i) {
+  // nsH with lower indices
+  // Check sign
+  gb_H_tensor_result->get(0, i + 1) = get(lapse) * nsH.get(i);
+}
+for (size_t i = 0; i < 3; ++i) {
+  for (size_t j = i; j < 3; ++j) {
+    // ssH with lower indices
+    gb_H_tensor_result->get(i + 1, j + 1) = ssH.get(i, j);
+  }
+}
+}  // namespace ScalarTensor
+
+// Remove
 void gb_H_tensor(const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
                  const tnsr::ii<DataVector, 3, Frame>& weyl_electric,
                  const tnsr::ii<DataVector, 3, Frame>& weyl_magnetic,
