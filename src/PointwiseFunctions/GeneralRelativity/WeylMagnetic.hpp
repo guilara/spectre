@@ -101,6 +101,25 @@ struct WeylMagneticCompute : WeylMagnetic<DataType, Dim, Frame>,
   using base = WeylMagnetic<DataType, Dim, Frame>;
 };
 
+template <typename DataType, size_t Dim, typename Frame>
+struct WeylMagneticForGBCompute : WeylMagnetic<DataType, Dim, Frame>,
+                             db::ComputeTag {
+  using argument_tags = tmpl::list<
+      gr::Tags::GradExtrinsicCurvature<DataType, Dim, Frame>,
+      gr::Tags::SpatialMetric<DataType, Dim, Frame>,
+      gr::Tags::SqrtDetSpatialMetric<DataType>>;
+
+  using return_type = tnsr::ii<DataType, Dim, Frame>;
+
+  static constexpr auto function = static_cast<void (*)(
+      gsl::not_null<tnsr::ii<DataType, Dim, Frame>*>,
+      const tnsr::ijj<DataType, Dim, Frame>&,
+      const tnsr::ii<DataType, Dim, Frame>&, const Scalar<DataType>&)>(
+      &weyl_magnetic<Frame, DataType>);
+
+  using base = WeylMagnetic<DataType, Dim, Frame>;
+};
+
 /// Can be retrieved using gr::Tags::`WeylMagneticScalar`
 /// Computes magnetic part of the Weyl tensor
 template <typename DataType, size_t Dim, typename Frame>

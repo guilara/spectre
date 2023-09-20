@@ -55,7 +55,7 @@ void grad_extrinsic_curvature(
     const tnsr::ii<DataType, SpatialDim, Frame>& ex_curv,
     const tnsr::Ijj<DataType, SpatialDim, Frame>&
         spatial_christoffel_second_kind) {
-  destructive_resize_components(grad_ex_curv, get_size(get<0>(d_ex_curv)));
+  destructive_resize_components(grad_ex_curv, get_size(get<0,0>(ex_curv)));
   tenex::evaluate<ti::i, ti::j, ti::k>(
       grad_ex_curv, d_ex_curv(ti::i, ti::j, ti::k) -
                         spatial_christoffel_second_kind(ti::L, ti::i, ti::j) *
