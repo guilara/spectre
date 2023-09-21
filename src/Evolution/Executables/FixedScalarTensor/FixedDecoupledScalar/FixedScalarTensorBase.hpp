@@ -367,6 +367,10 @@ struct ObserverTags {
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
           ScalarTensor::Sources::Tags::ScalarSource,
+          // More diagnostic compute tags
+          ScalarTensor::Sources::Tags::GBScalarCompute<DataVector>,
+          ScalarTensor::Sources::Tags::CouplingFunctionDerivativeCompute<
+              DataVector>,
           // Driver quantities
           fe::ScalarDriver::Tags::TargetPsi,
           fe::ScalarDriver::Tags::ScalarDriverSource,
@@ -405,6 +409,7 @@ struct ObserverTags {
               ::Tags::deriv<gr::Tags::ExtrinsicCurvature<DataVector, volume_dim,
                                                          Frame::Inertial>,
                             tmpl::size_t<volume_dim>, Frame::Inertial>,
+              gr::Tags::GradExtrinsicCurvature<DataVector, 3, Frame::Inertial>,
               //   gr::Tags::WeylElectricCompute<3, Frame::Inertial,
               //   DataVector>,
               gr::Tags::WeylElectric<DataVector, 3, Frame::Inertial>,
