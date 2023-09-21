@@ -41,6 +41,15 @@ void multiply_by_coupling_function_prime_quartic(
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi);
 
+// Extra functions for debugging
+void compute_coupling_function_derivative(
+    gsl::not_null<Scalar<DataVector>*> result, const Scalar<DataVector>& psi,
+    const double first_coupling_psi, const double second_coupling_psi);
+
+void compute_gb_scalar(gsl::not_null<Scalar<DataVector>*> gb_scalar,
+                       const Scalar<DataVector>& weyl_electric_scalar,
+                       const Scalar<DataVector>& weyl_magnetic_scalar);
+
 namespace Tags {
 
 /*!
@@ -79,6 +88,44 @@ struct ScalarCurvatureSourceCompute : ScalarSource, db::ComputeTag {
       const Scalar<DataVector>&, const Scalar<DataVector>&, const double,
       const double, const double) = &compute_scalar_curvature_source;
   using base = ScalarSource;
+};
+
+// Extra compute tags for debugging
+/*!
+ * \brief Compute tag for the coupling function.
+ *
+ * \details Call ....
+ */
+template <typename DataType>
+struct CouplingFunctionDerivativeCompute : CouplingFunctionDerivative,
+                                           db::ComputeTag {
+  //   using argument_tags = tmpl::list<fe::ScalarDriver::Psi>;
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::Psi,
+                 ScalarTensor::Sources::Tags::ScalarFirstCouplingParameter,
+                 ScalarTensor::Sources::Tags::ScalarSecondCouplingParameter>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+      const double, const double) = &compute_coupling_function_derivative;
+  using base = CouplingFunctionDerivative;
+};
+
+/*!
+ * \brief Compute tag for the GB scalar.
+ *
+ * \details Call compute_gb_scalar.
+ */
+template <typename DataType>
+struct GBScalarCompute : GBScalar, db::ComputeTag {
+  //   using argument_tags = tmpl::list<fe::ScalarDriver::Psi>;
+  using argument_tags = tmpl::list<gr::Tags::WeylElectricScalar<DataType>,
+                                   gr::Tags::WeylMagneticScalar<DataType>>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+      const Scalar<DataVector>&) = &compute_gb_scalar;
+  using base = GBScalar;
 };
 
 }  // namespace Tags

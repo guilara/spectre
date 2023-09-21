@@ -343,6 +343,10 @@ struct ObserverTags {
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
           ScalarTensor::Sources::Tags::ScalarSource,
+          // More diagnostic compute tags
+          ScalarTensor::Sources::Tags::GBScalarCompute<DataVector>,
+          ScalarTensor::Sources::Tags::CouplingFunctionDerivativeCompute<
+              DataVector>,
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
