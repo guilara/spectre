@@ -27,6 +27,7 @@ void gb_H_tensor(
   // nn
   Scalar<DataVector> nnDDKG =
       make_with_value<Scalar<DataVector>>(get<0, 0>(spacetime_metric), 0.0);
+
   // = - L_n Pi from the equations of motion
   tenex::evaluate(
       nnDDKG, -(1.0 / lapse()) * (dt_pi_scalar() - shift(ti::I) * d_pi(ti::i)));
@@ -34,6 +35,7 @@ void gb_H_tensor(
   // ns
   tnsr::i<DataVector, 3> nsDDKG =
       make_with_value<tnsr::i<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
+
   tenex::evaluate<ti::i>(
       nsDDKG, extrinsic_curvature(ti::i, ti::j) *
                       inverse_spatial_metric(ti::J, ti::K) * phi_scalar(ti::k)
@@ -44,6 +46,7 @@ void gb_H_tensor(
   // ss
   tnsr::ii<DataVector, 3> ssDDKG = make_with_value<tnsr::ii<DataVector, 3>>(
       get<0, 0>(spacetime_metric), 0.0);
+
   // Note that D_phi is the covariant derivative and has Christoffel symbols
   tenex::evaluate<ti::i, ti::j>(
       ssDDKG, -pi_scalar() * extrinsic_curvature(ti::i, ti::j)
@@ -119,6 +122,7 @@ for (LeviCivitaIterator<3> levi_civita_it; levi_civita_it; ++levi_civita_it) {
 // ns
 tnsr::i<DataVector, 3> nsH =
     make_with_value<tnsr::i<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
+
 tenex::evaluate<ti::i>(nsH, weyl_electric(ti::i, ti::j) nsDDKGu(ti::J) +
                                 // sqrt(gamma) * epsilon_{ijk} B_{l}^{k} S^{jl}
                                 sqrt_det_spatial_metric() *
@@ -127,6 +131,7 @@ tenex::evaluate<ti::i>(nsH, weyl_electric(ti::i, ti::j) nsDDKGu(ti::J) +
 // ss
 tnsr::ii<DataVector, 3> ssH =
     make_with_value<tnsr::ii<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
+
 tenex::evaluate<ti::i, ti::j>(
     ssH, (trace_ssDDKG() + nnDDKG()) * weyl_electric(ti::i, ti::j)
              // -2 * 2 symmetric part E ssDDKG
