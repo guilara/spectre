@@ -471,13 +471,14 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
           ScalarTensor::BoundaryConditions::standard_boundary_conditions>,
       //
       tmpl::pair<gh::gauges::GaugeCondition, gh::gauges::all_gauges>,
-      tmpl::pair<
-          evolution::initial_data::InitialData,
-          //  gh::Solutions::all_solutions<volume_dim>
-          //  initial_data_list
-          tmpl::conditional_t<UseNumericalInitialData,
-                              tmpl::list<ScalarTensor::NumericInitialData>,
-                              initial_data_list>>,
+      tmpl::pair<evolution::initial_data::InitialData,
+                 //  gh::Solutions::all_solutions<volume_dim>
+                 //  initial_data_list
+                 tmpl::conditional_t<
+                     UseNumericalInitialData,
+                     tmpl::append<initial_data_list,
+                                  tmpl::list<ScalarTensor::NumericInitialData>>,
+                     initial_data_list>>,
       tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
       //   tmpl::pair<PhaseChange,
       //              tmpl::list<PhaseControl::VisitAndReturn<
