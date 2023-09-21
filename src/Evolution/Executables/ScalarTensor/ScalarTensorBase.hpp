@@ -42,6 +42,7 @@
 #include "Evolution/Systems/GeneralizedHarmonic/Initialize.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/Actions/SetInitialData.hpp"
 //
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
 //
@@ -470,12 +471,13 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
           ScalarTensor::BoundaryConditions::standard_boundary_conditions>,
       //
       tmpl::pair<gh::gauges::GaugeCondition, gh::gauges::all_gauges>,
-      tmpl::pair<evolution::initial_data::InitialData,
-                 //  gh::Solutions::all_solutions<volume_dim>
-                 //  initial_data_list
-                 tmpl::conditional_t<UseNumericalInitialData,
-                                     tmpl::list<gh::NumericInitialData>,
-                                     initial_data_list>>,
+      tmpl::pair<
+          evolution::initial_data::InitialData,
+          //  gh::Solutions::all_solutions<volume_dim>
+          //  initial_data_list
+          tmpl::conditional_t<UseNumericalInitialData,
+                              tmpl::list<ScalarTensor::NumericInitialData>,
+                              initial_data_list>>,
       tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
       //   tmpl::pair<PhaseChange,
       //              tmpl::list<PhaseControl::VisitAndReturn<
@@ -535,9 +537,9 @@ struct ScalarTensorTemplateBase<
           // Until we read numerical data for the scalar
           // we set them to some analytical profile given some numerical data
           // for the metric quantities
-          Initialization::Actions::AddSimpleTags<
-              ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
-          tmpl::list<>>,
+          //   Initialization::Actions::AddSimpleTags<
+          //         ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
+          tmpl::list<>, tmpl::list<>>,
       Actions::MutateApply<gh::gauges::SetPiFromGauge<volume_dim>>,
       // Initialization::Actions::GrTagsForHydro<system>,
       Initialization::Actions::AddSimpleTags<
