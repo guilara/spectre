@@ -59,6 +59,14 @@ tnsr::ii<DataType, SpatialDim, Frame> extrinsic_curvature(
     const tnsr::iaa<DataType, SpatialDim, Frame>& phi);
 /// @}
 
+template <typename DataType, size_t SpatialDim, typename Frame>
+void grad_extrinsic_curvature(
+    const gsl::not_null<tnsr::ijj<DataType, SpatialDim, Frame>*> grad_ex_curv,
+    const tnsr::ijj<DataType, SpatialDim, Frame>& d_ex_curv,
+    const tnsr::ii<DataType, SpatialDim, Frame>& ex_curv,
+    const tnsr::Ijj<DataType, SpatialDim, Frame>&
+        spatial_christoffel_second_kind);
+
 namespace Tags {
 /*!
  * \brief Compute item to get extrinsic curvature from generalized harmonic
@@ -118,5 +126,29 @@ struct TraceExtrinsicCurvatureCompute
 
   using base = gr::Tags::TraceExtrinsicCurvature<DataVector>;
 };
+
+template <size_t SpatialDim, typename Frame>
+struct GradExtrinsicCurvatureCompute
+    : gr::Tags::GradExtrinsicCurvature<DataVector, SpatialDim, Frame>,
+      db::ComputeTag {
+  using argument_tags = tmpl::list<
+     ::Tags::deriv<gr::Tags::ExtrinsicCurvature<DataVector, SpatialDim, Frame>,
+                    tmpl::size_t<SpatialDim>, Frame>,
+        gr::Tags::ExtrinsicCurvature<DataVector, SpatialDim, Frame>,
+        gr::Tags::SpatialChristoffelSecondKind<DataVector, SpatialDim, Frame>>;
+
+  using return_type = tnsr::ijj<DataVector, SpatialDim, Frame>;
+
+  static constexpr auto function = static_cast<void (*)(
+    const gsl::not_null<tnsr::ijj<DataVector, SpatialDim, Frame>*>,
+    const tnsr::ijj<DataVector, SpatialDim, Frame>&,
+    const tnsr::ii<DataVector, SpatialDim, Frame>&,
+    const tnsr::Ijj<DataVector, SpatialDim, Frame>&
+        spatial_christoffel_second_kind)>(
+      &grad_extrinsic_curvature<DataVector, SpatialDim, Frame>);
+
+  using base = gr::Tags::GradExtrinsicCurvature<DataVector, SpatialDim, Frame>;
+};
+
 }  // namespace Tags
 }  // namespace gh

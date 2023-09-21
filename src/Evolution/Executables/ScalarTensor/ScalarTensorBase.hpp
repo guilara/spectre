@@ -371,6 +371,7 @@ struct ObserverTags {
                             tmpl::size_t<volume_dim>, Frame::Inertial>,
               //   gr::Tags::WeylElectricCompute<3, Frame::Inertial,
               //   DataVector>,
+              gr::Tags::GradExtrinsicCurvature<DataVector, 3, Frame::Inertial>,
               gr::Tags::WeylElectric<DataVector, 3, Frame::Inertial>,
               gr::Tags::WeylElectricScalar<DataVector>,
               gr::Tags::WeylMagneticScalar<DataVector>,

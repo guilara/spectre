@@ -409,6 +409,7 @@ struct ObserverTags {
               ::Tags::deriv<gr::Tags::ExtrinsicCurvature<DataVector, volume_dim,
                                                          Frame::Inertial>,
                             tmpl::size_t<volume_dim>, Frame::Inertial>,
+              gr::Tags::GradExtrinsicCurvature<DataVector, 3, Frame::Inertial>,
               //   gr::Tags::WeylElectricCompute<3, Frame::Inertial,
               //   DataVector>,
               gr::Tags::WeylElectric<DataVector, 3, Frame::Inertial>,

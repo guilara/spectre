@@ -113,6 +113,7 @@ struct InitializeScalarTensorAnd3Plus1Variables {
           gr::Tags::ExtrinsicCurvature<DataVector, Dim, frame>,
           ::domain::Tags::InverseJacobian<Dim, ::Frame::ElementLogical,
                                           ::Frame::Inertial>>,
+      gh::Tags::GradExtrinsicCurvatureCompute<Dim, frame>,
       ::Tags::DerivTensorCompute<
           gr::Tags::SpatialChristoffelSecondKind<DataVector, Dim, frame>,
           ::domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
@@ -125,7 +126,7 @@ struct InitializeScalarTensorAnd3Plus1Variables {
       gr::Tags::WeylElectricScalarCompute<DataVector, Dim, frame>,
 
       gr::Tags::SqrtDetSpatialMetricCompute<DataVector, Dim, frame>,
-      gr::Tags::WeylMagneticCompute<DataVector, Dim, frame>,
+      gr::Tags::WeylMagneticForGBCompute<DataVector, Dim, frame>,
       gr::Tags::WeylMagneticScalarCompute<DataVector, Dim, frame>,
 
       // Tags for the scalar driver
