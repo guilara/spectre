@@ -75,15 +75,21 @@ Scalar<DataVector> nnH =
 tenex::evaluate(nnH, weyl_electric(ti::i, ti::j) ssDDKGuu(ti::I, ti::J));
 
 // Cross products
-// S cross B
-// epsilon_{ijk} B_{l}^{k} S^{jl}
 tensor::i<DataVector, 3> ssDDKGuu_cross_Bdu =
     make_with_value<tnsr::i<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
+tensor::ij<DataVector, 3> nsDDKGu_cross_Bdu =
+    make_with_value<tnsr::ij<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
 for (LeviCivitaIterator<3> levi_civita_it; levi_civita_it; ++levi_civita_it) {
   const auto [i, j, k] = levi_civita_it();
+  // S cross B
+  // epsilon_{ijk} B_{l}^{k} S^{jl}
   for (size_t l = 0; l < 3; ++l) {
     ssDDKGuu_cross_Bdu.get(i) += levi_civita_it.sign() * ssDDKGuu.get(j, l) *
                                  weyl_magnetic_down_up.get(l, k);
+    // j cross B
+    // Note: For now we don't impose symmetry of this quantity
+    nsDDKGu_cross_Bdu.get(i, l) += levi_civita_it.sign() * nsDDKGu.get(j) *
+                                   weyl_magnetic_down_up.get(l, k);
   }
 }
 
@@ -93,7 +99,7 @@ tnsr::i<DataVector, 3> nsH =
 tenex::evaluate<ti::i>(nsH, weyl_electric(ti::i, ti::j) nsDDKGu(ti::J) +
                                 // sqrt(gamma) * epsilon_{ijk} B_{l}^{k} S^{jl}
                                 sqrt_det_spatial_metric() *
-                                    cross_product_weyl_magnetic_ssDDKG(ti::i));
+                                    ssDDKGuu_cross_Bdu(ti::i));
 
 // ss
 tnsr::ii<DataVector, 3> ssH =
@@ -104,9 +110,8 @@ tenex::evaluate<ti::i, ti::j>(
              - (weyl_electric(ti::k, ti::i) * ssDDKGdu(ti::j, ti::K) +
                 weyl_electric(ti::k, ti::j) * ssDDKGdu(ti::i, ti::K))
              // +2 sqrt(gamma) symmetric part cross prod
-             + sqrt_det_spatial_metric() *
-                   (cross_product_weyl_magnetic_nsDDKGu(ti::i, ti::j) +
-                    cross_product_weyl_magnetic_nsDDKGu(ti::j, ti::i))
+             + sqrt_det_spatial_metric() * (nsDDKGu_cross_Bdu(ti::i, ti::j) +
+                                            nsDDKGu_cross_Bdu(ti::j, ti::i))
              // Sum the trace part
              + spatial_metric(ti::i, ti::j) * nnH());
 
