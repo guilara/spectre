@@ -30,7 +30,8 @@
 //
 #include "Evolution/Systems/GeneralizedHarmonic/Actions/SetInitialData.hpp"
 //
-#include "Evolution/Systems/ScalarTensor/Actions/NumericInitialData.hpp"
+// #include "Evolution/Systems/ScalarTensor/Actions/NumericInitialData.hpp"
+#include "Evolution/Systems/ScalarTensor/Actions/SetInitialData.hpp"
 //
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/RegisterDerived.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/RegisterDerivedWithCharm.hpp"
@@ -393,46 +394,47 @@ struct EvolutionMetavars
       tmpl::flatten<tmpl::list<
           Parallel::PhaseActions<Parallel::Phase::Initialization,
                                  initialization_actions>,
-          tmpl::conditional_t<UseNumericalInitialData,
-                            //   tmpl::list<>,
-                            tmpl::list<Parallel::PhaseActions<
-                             Parallel::Phase::RegisterWithElementDataReader,
-                             tmpl::list<importers::Actions::
-                                            RegisterWithElementDataReader,
-                                        Parallel::Actions::TerminatePhase>>,
-                         Parallel::PhaseActions<
-                             Parallel::Phase::ImportInitialData,
-                             tmpl::list<
-                                        gh::Actions::SetInitialData,
-                                        gh::Actions::ReceiveNumericInitialData,
-             // Initialization::Actions::AddSimpleTags<
-             //        ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
-                // ScalarTensor::Actions::InitializeEvolvedScalarVariables,
-                // Replace with ScalarTensor routines when they
-                // are added to ScalarTensor::Actions
-                // or initialize these variables with a hack of
-                // CurvedScalarWave::Initialization::InitializeEvolvedVariables
-                               // ScalarTensor::Actions::ReadNumericInitialData,
-                                // ScalarTensor::Actions::SetNumericInitialData,
-                                        Parallel::Actions::TerminatePhase>>>,
-                              tmpl::list<>>,
+          tmpl::conditional_t<
+              UseNumericalInitialData,
+              //   tmpl::list<>,
+              tmpl::list<
+                  Parallel::PhaseActions<
+                      Parallel::Phase::RegisterWithElementDataReader,
+                      tmpl::list<
+                          importers::Actions::RegisterWithElementDataReader,
+                          Parallel::Actions::TerminatePhase>>,
+                  Parallel::PhaseActions<
+                      Parallel::Phase::ImportInitialData,
+                      tmpl::list<
+                          ScalarTensor::Actions::SetInitialData,
+                          ScalarTensor::Actions::ReceiveNumericInitialData,
+                          // Initialization::Actions::AddSimpleTags<
+          //        ScalarTensor::Actions::InitializeEvolvedScalarVariables>,
+                     // ScalarTensor::Actions::InitializeEvolvedScalarVariables,
+                          // Replace with ScalarTensor routines when they
+                          // are added to ScalarTensor::Actions
+                          // or initialize these variables with a hack of
+                 // CurvedScalarWave::Initialization::InitializeEvolvedVariables
+                          // ScalarTensor::Actions::ReadNumericInitialData,
+                          // ScalarTensor::Actions::SetNumericInitialData,
+                          Parallel::Actions::TerminatePhase>>>,
+              tmpl::list<>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
               initialize_initial_data_dependent_quantities_actions>,
-          Parallel::PhaseActions<Parallel::Phase::InitializeTimeStepperHistory,
-                                 SelfStart::self_start_procedure<
-                                    step_actions,
-                                    //  tmpl::list<>,
-                                     system>>,
+          Parallel::PhaseActions<
+              Parallel::Phase::InitializeTimeStepperHistory,
+              SelfStart::self_start_procedure<step_actions,
+                                              //  tmpl::list<>,
+                                              system>>,
           Parallel::PhaseActions<Parallel::Phase::Register,
                                  tmpl::list<dg_registration_list,
                                             Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
               tmpl::list<::domain::Actions::CheckFunctionsOfTimeAreReady,
-                        Actions::RunEventsAndTriggers, Actions::ChangeSlabSize,
-                         step_actions,
-                         Actions::AdvanceTime,
+                         Actions::RunEventsAndTriggers, Actions::ChangeSlabSize,
+                         step_actions, Actions::AdvanceTime,
                          PhaseControl::Actions::ExecutePhaseChange>>>>>;
 
   template <typename ParallelComponent>

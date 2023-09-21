@@ -62,4 +62,22 @@ void multiply_by_coupling_function_prime_quartic(
                            (second_coupling_psi / 4.0) * cube(psi.get());
 }
 
+// Extra functions for debugging
+void compute_coupling_function_derivative(
+    gsl::not_null<Scalar<DataVector>*> result, const Scalar<DataVector>& psi,
+    const double first_coupling_psi, const double second_coupling_psi) {
+  *result = make_with_value<Scalar<DataVector>>(psi, 1.0);
+  multiply_by_coupling_function_prime_quartic(result, psi, first_coupling_psi,
+                                              second_coupling_psi);
+}
+
+void compute_gb_scalar(gsl::not_null<Scalar<DataVector>*> gb_scalar,
+                       const Scalar<DataVector>& weyl_electric_scalar,
+                       const Scalar<DataVector>& weyl_magnetic_scalar) {
+  *gb_scalar = make_with_value<Scalar<DataVector>>(weyl_electric_scalar, 0.);
+  // Compute the Riemann squared scalar in vacuum
+  gb_scalar->get() =
+      8.0 * (weyl_electric_scalar.get() - weyl_magnetic_scalar.get());
+}
+
 }  // namespace ScalarTensor::Sources

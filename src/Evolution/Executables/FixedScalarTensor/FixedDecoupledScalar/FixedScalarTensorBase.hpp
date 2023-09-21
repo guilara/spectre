@@ -367,6 +367,10 @@ struct ObserverTags {
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
           ScalarTensor::Sources::Tags::ScalarSource,
+          // More diagnostic compute tags
+          ScalarTensor::Sources::Tags::GBScalarCompute<DataVector>,
+          ScalarTensor::Sources::Tags::CouplingFunctionDerivativeCompute<
+              DataVector>,
           // Driver quantities
           fe::ScalarDriver::Tags::TargetPsi,
           fe::ScalarDriver::Tags::ScalarDriverSource,
