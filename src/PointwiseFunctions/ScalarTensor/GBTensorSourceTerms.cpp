@@ -70,22 +70,25 @@ void gb_H_tensor(
 // Note: Needs computation of the cross products with the levi-civita iterator
 
 // Preliminaries: Raise indices of the double derivative tensor projections
-tnsr::Ij<DataVector, 3> weyl_magnetic_down_up =
+tnsr::iJ<DataVector, 3> weyl_magnetic_down_up =
     make_with_value<tnsr::Ij<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
-tnsr::IJ<DataVector, 3> ssDDKGuu =
-    make_with_value<tnsr::IJ<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
 tnsr::I<DataVector, 3> nsDDKGu =
     make_with_value<tnsr::I<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
+tnsr::iJ<DataVector, 3> ssDDKGdu =
+    make_with_value<tnsr::iJ<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
+tnsr::IJ<DataVector, 3> ssDDKGuu =
+    make_with_value<tnsr::IJ<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
 
 tenex::evaluate<ti::i, ti::J>(weyl_magnetic_down_up,
                               weyl_magnetic(ti::i, ti::l) *
                                   inverse_spatial_metric(ti::L, ti::J));
-tenex::evaluate<ti::I, ti::J>(ssDDKGuu,
-                              inverse_spatial_metric(ti::I, ti::K) *
-                                  ssDDKG(ti::k, ti::l) *
-                                  inverse_spatial_metric(ti::L, ti::J));
 tenex::evaluate<ti::I>(nsDDKGu,
                        inverse_spatial_metric(ti::I, ti::J) * nsDDKG(ti::j));
+tenex::evaluate<ti::i, ti::J>(ssDDKGdu,
+                              ssDDKG(ti::i, ti::l) *
+                                  inverse_spatial_metric(ti::L, ti::J));
+tenex::evaluate<ti::I, ti::J>(ssDDKGuu, inverse_spatial_metric(ti::I, ti::L) *
+                                            ssDDKGdu(ti::l, ti::J));
 
 // nn
 Scalar<DataVector> nnH =
@@ -98,6 +101,7 @@ tensor::i<DataVector, 3> ssDDKGuu_cross_Bdu =
     make_with_value<tnsr::i<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
 tensor::ij<DataVector, 3> nsDDKGu_cross_Bdu =
     make_with_value<tnsr::ij<DataVector, 3>>(get<0, 0>(spacetime_metric), 0.0);
+
 for (LeviCivitaIterator<3> levi_civita_it; levi_civita_it; ++levi_civita_it) {
   const auto [i, j, k] = levi_civita_it();
   // S cross B
