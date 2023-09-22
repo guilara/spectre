@@ -46,7 +46,7 @@ void compute_coupling_function_derivative(
     gsl::not_null<Scalar<DataVector>*> result, const Scalar<DataVector>& psi,
     const double first_coupling_psi, const double second_coupling_psi);
 
-void compute_gb_scalar(gsl::not_null<Scalar<DataVector>*> gb_scalar,
+void compute_gb_scalar(const gsl::not_null<Scalar<DataVector>*> gb_scalar,
                        const Scalar<DataVector>& weyl_electric_scalar,
                        const Scalar<DataVector>& weyl_magnetic_scalar);
 
@@ -71,7 +71,15 @@ void compute_rhs_pi(const gsl::not_null<Scalar<DataVector>*> dt_pi,
                     const Scalar<DataVector>& gamma1,
                     const Scalar<DataVector>& gamma2);
 
-void compute_rhs_phi();
+void compute_rhs_phi(
+    const gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> dt_phi,
+    const tnsr::i<DataVector, Dim>& d_psi, const tnsr::i<DataVector, Dim>& d_pi,
+    const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, Dim>& shift,
+    const tnsr::i<DataVector, Dim>& deriv_lapse,
+    const tnsr::iJ<DataVector, Dim>& deriv_shift,
+    const Scalar<DataVector>& gamma2);
 
 namespace Tags {
 

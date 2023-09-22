@@ -91,19 +91,17 @@ void compute_rhs_psi(const gsl::not_null<Scalar<DataVector>*> dt_psi,
                       gamma1() * shift(ti::J) * (d_psi(ti::j) - phi(ti::j)));
 }
 
-void compute_rhs_pi(const gsl::not_null<Scalar<DataVector>*> dt_pi,
-                    const tnsr::i<DataVector, Dim>& d_pi,
-                    const tnsr::ij<DataVector, Dim>& d_phi,
-                    const Scalar<DataVector>& pi,
-                    const tnsr::i<DataVector, Dim>& phi,
-                    const Scalar<DataVector>& lapse,
-                    const tnsr::I<DataVector, Dim>& shift,
-                    const tnsr::i<DataVector, Dim>& deriv_lapse,
-                    const tnsr::II<DataVector, Dim>& upper_spatial_metric,
-                    const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
-                    const Scalar<DataVector>& trace_extrinsic_curvature,
-                    const Scalar<DataVector>& gamma1,
-                    const Scalar<DataVector>& gamma2) {
+void compute_rhs_pi(
+    const gsl::not_null<Scalar<DataVector>*> dt_pi,
+    const tnsr::i<DataVector, Dim>& d_psi, const tnsr::i<DataVector, Dim>& d_pi,
+    const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, Dim>& shift,
+    const tnsr::i<DataVector, Dim>& deriv_lapse,
+    const tnsr::II<DataVector, Dim>& upper_spatial_metric,
+    const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
+    const Scalar<DataVector>& trace_extrinsic_curvature,
+    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
   tenex::evaluate(
       dt_pi,
       lapse() * pi() * trace_extrinsic_curvature() +
@@ -112,6 +110,22 @@ void compute_rhs_pi(const gsl::not_null<Scalar<DataVector>*> dt_pi,
           gamma1() * gamma2() * shift(ti::I) * (d_psi(ti::i) - phi(ti::i)) -
           lapse() * upper_spatial_metric(ti::I, ti::J) * d_phi(ti::i, ti::j) -
           upper_spatial_metric(ti::I, ti::J) * phi(ti::i) * deriv_lapse(ti::j));
+}
+
+void compute_rhs_phi(
+    const gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> dt_phi,
+    const tnsr::i<DataVector, Dim>& d_psi, const tnsr::i<DataVector, Dim>& d_pi,
+    const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, Dim>& shift,
+    const tnsr::i<DataVector, Dim>& deriv_lapse,
+    const tnsr::iJ<DataVector, Dim>& deriv_shift,
+    const Scalar<DataVector>& gamma2) {
+  tenex::evaluate<ti::i>(
+      dt_phi, -lapse() * d_pi(ti::i) + shift(ti::J) * d_phi(ti::j, ti::i) +
+                  gamma2() * lapse() * (d_psi(ti::i) - phi(ti::i)) -
+                  pi() * deriv_lapse(ti::i) +
+                  phi(ti::j) * deriv_shift(ti::i, ti::J));
 }
 
 }  // namespace ScalarTensor::Sources
