@@ -52,33 +52,30 @@ void compute_gb_scalar(const gsl::not_null<Scalar<DataVector>*> gb_scalar,
 
 void compute_rhs_psi(const gsl::not_null<Scalar<DataVector>*> dt_psi,
                      const Scalar<DataVector>& pi,
-                     const tnsr::i<DataVector, Dim>& phi,
+                     const tnsr::i<DataVector, 3>& phi,
                      const Scalar<DataVector>& lapse,
-                     const tnsr::I<DataVector, Dim>& shift,
+                     const tnsr::I<DataVector, 3>& shift,
                      const Scalar<DataVector>& gamma1);
 
-void compute_rhs_pi(const gsl::not_null<Scalar<DataVector>*> dt_pi,
-                    const tnsr::i<DataVector, Dim>& d_pi,
-                    const tnsr::ij<DataVector, Dim>& d_phi,
-                    const Scalar<DataVector>& pi,
-                    const tnsr::i<DataVector, Dim>& phi,
-                    const Scalar<DataVector>& lapse,
-                    const tnsr::I<DataVector, Dim>& shift,
-                    const tnsr::i<DataVector, Dim>& deriv_lapse,
-                    const tnsr::II<DataVector, Dim>& upper_spatial_metric,
-                    const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
-                    const Scalar<DataVector>& trace_extrinsic_curvature,
-                    const Scalar<DataVector>& gamma1,
-                    const Scalar<DataVector>& gamma2);
+void compute_rhs_pi(
+    const gsl::not_null<Scalar<DataVector>*> dt_pi,
+    const tnsr::i<DataVector, 3>& d_pi, const tnsr::ij<DataVector, 3>& d_phi,
+    const Scalar<DataVector>& pi, const tnsr::i<DataVector, 3>& phi,
+    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+    const tnsr::i<DataVector, 3>& deriv_lapse,
+    const tnsr::II<DataVector, 3>& upper_spatial_metric,
+    const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
+    const Scalar<DataVector>& trace_extrinsic_curvature,
+    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2);
 
 void compute_rhs_phi(
-    const gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> dt_phi,
-    const tnsr::i<DataVector, Dim>& d_psi, const tnsr::i<DataVector, Dim>& d_pi,
-    const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& pi,
-    const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
-    const tnsr::I<DataVector, Dim>& shift,
-    const tnsr::i<DataVector, Dim>& deriv_lapse,
-    const tnsr::iJ<DataVector, Dim>& deriv_shift,
+    const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> dt_phi,
+    const tnsr::i<DataVector, 3>& d_psi, const tnsr::i<DataVector, 3>& d_pi,
+    const tnsr::ij<DataVector, 3>& d_phi, const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, 3>& phi, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3>& shift,
+    const tnsr::i<DataVector, 3>& deriv_lapse,
+    const tnsr::iJ<DataVector, 3>& deriv_shift,
     const Scalar<DataVector>& gamma2);
 
 namespace Tags {
@@ -164,12 +161,29 @@ struct GBScalarCompute : GBScalar, db::ComputeTag {
  *
  * \details Call ....
  */
-template <typename DataType>
+// template <typename DataType>
 struct RhsPsiCompute : RhsPsi, db::ComputeTag {
-  using argument_tags = tmpl::list<>;
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
+                 gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>,
+                 ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>,
+                               Frame::Inertial>,
+                 ::Tags::deriv<gr::Tags::Shift<DataVector, 3>, tmpl::size_t<3>,
+                               Frame::Inertial>,
+                 gr::Tags::InverseSpatialMetric<DataVector, 3>,
+                 gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, 3>,
+                 gr::Tags::TraceExtrinsicCurvature<DataVector>,
+                 CurvedScalarWave::Tags::ConstraintGamma1,
+                 CurvedScalarWave::Tags::ConstraintGamma2>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
-      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+      const gsl::not_null<return_type*> result, const tnsr::i<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&, const tnsr::ij<DataVector, 3>&,
+      const Scalar<DataVector>&, const tnsr::i<DataVector, 3>&,
+      const Scalar<DataVector>&, const tnsr::I<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&, const tnsr::iJ<DataVector, 3>&,
+      const tnsr::II<DataVector, 3>&, const tnsr::I<DataVector, 3>&,
+      const Scalar<DataVector>&, const Scalar<DataVector>&,
       const Scalar<DataVector>&) = &compute_rhs_psi;
   using base = RhsPsi;
 };
@@ -179,12 +193,29 @@ struct RhsPsiCompute : RhsPsi, db::ComputeTag {
  *
  * \details Call ....
  */
-template <typename DataType>
+// template <typename DataType>
 struct RhsPiCompute : RhsPi, db::ComputeTag {
-  using argument_tags = tmpl::list<>;
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
+                 gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>,
+                 ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>,
+                               Frame::Inertial>,
+                 ::Tags::deriv<gr::Tags::Shift<DataVector, 3>, tmpl::size_t<3>,
+                               Frame::Inertial>,
+                 gr::Tags::InverseSpatialMetric<DataVector, 3>,
+                 gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, 3>,
+                 gr::Tags::TraceExtrinsicCurvature<DataVector>,
+                 CurvedScalarWave::Tags::ConstraintGamma1,
+                 CurvedScalarWave::Tags::ConstraintGamma2>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
-      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+      const gsl::not_null<return_type*> result, const tnsr::i<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&, const tnsr::ij<DataVector, 3>&,
+      const Scalar<DataVector>&, const tnsr::i<DataVector, 3>&,
+      const Scalar<DataVector>&, const tnsr::I<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&, const tnsr::iJ<DataVector, 3>&,
+      const tnsr::II<DataVector, 3>&, const tnsr::I<DataVector, 3>&,
+      const Scalar<DataVector>&, const Scalar<DataVector>&,
       const Scalar<DataVector>&) = &compute_rhs_pi;
   using base = RhsPi;
 };
@@ -194,12 +225,29 @@ struct RhsPiCompute : RhsPi, db::ComputeTag {
  *
  * \details Call ....
  */
-template <typename DataType>
+// template <typename DataType>
 struct RhsPhiCompute : RhsPhi, db::ComputeTag {
-  using argument_tags = tmpl::list<>;
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
+                 gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>,
+                 ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>,
+                               Frame::Inertial>,
+                 ::Tags::deriv<gr::Tags::Shift<DataVector, 3>, tmpl::size_t<3>,
+                               Frame::Inertial>,
+                 gr::Tags::InverseSpatialMetric<DataVector, 3>,
+                 gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, 3>,
+                 gr::Tags::TraceExtrinsicCurvature<DataVector>,
+                 CurvedScalarWave::Tags::ConstraintGamma1,
+                 CurvedScalarWave::Tags::ConstraintGamma2>;
   using return_type = tnsr::i<DataVector, 3>;
   static constexpr void (*function)(
-      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+      const gsl::not_null<return_type*> result, const tnsr::i<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&, const tnsr::ij<DataVector, 3>&,
+      const Scalar<DataVector>&, const tnsr::i<DataVector, 3>&,
+      const Scalar<DataVector>&, const tnsr::I<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&, const tnsr::iJ<DataVector, 3>&,
+      const tnsr::II<DataVector, 3>&, const tnsr::I<DataVector, 3>&,
+      const Scalar<DataVector>&, const Scalar<DataVector>&,
       const Scalar<DataVector>&) = &compute_rhs_phi;
   using base = RhsPhi;
 };
