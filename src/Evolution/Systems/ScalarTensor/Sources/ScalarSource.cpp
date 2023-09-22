@@ -82,14 +82,14 @@ void compute_gb_scalar(gsl::not_null<Scalar<DataVector>*> gb_scalar,
 
 void compute_rhs_psi(
     const gsl::not_null<Scalar<DataVector>*> dt_psi,
-    const tnsr::i<DataVector, Dim>& d_psi, const tnsr::i<DataVector, Dim>& d_pi,
-    const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& pi,
-    const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
-    const tnsr::I<DataVector, Dim>& shift,
-    const tnsr::i<DataVector, Dim>& deriv_lapse,
-    const tnsr::iJ<DataVector, Dim>& deriv_shift,
-    const tnsr::II<DataVector, Dim>& upper_spatial_metric,
-    const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
+    const tnsr::i<DataVector, 3>& d_psi, const tnsr::i<DataVector, 3>& d_pi,
+    const tnsr::ij<DataVector, 3>& d_phi, const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, 3>& phi, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3>& shift,
+    const tnsr::i<DataVector, 3>& deriv_lapse,
+    const tnsr::iJ<DataVector, 3>& deriv_shift,
+    const tnsr::II<DataVector, 3>& upper_spatial_metric,
+    const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
     const Scalar<DataVector>& trace_extrinsic_curvature,
     const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
   tenex::evaluate(dt_psi,
@@ -99,14 +99,14 @@ void compute_rhs_psi(
 
 void compute_rhs_pi(
     const gsl::not_null<Scalar<DataVector>*> dt_pi,
-    const tnsr::i<DataVector, Dim>& d_psi, const tnsr::i<DataVector, Dim>& d_pi,
-    const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& pi,
-    const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
-    const tnsr::I<DataVector, Dim>& shift,
-    const tnsr::i<DataVector, Dim>& deriv_lapse,
-    const tnsr::iJ<DataVector, Dim>& deriv_shift,
-    const tnsr::II<DataVector, Dim>& upper_spatial_metric,
-    const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
+    const tnsr::i<DataVector, 3>& d_psi, const tnsr::i<DataVector, 3>& d_pi,
+    const tnsr::ij<DataVector, 3>& d_phi, const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, 3>& phi, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3>& shift,
+    const tnsr::i<DataVector, 3>& deriv_lapse,
+    const tnsr::iJ<DataVector, 3>& deriv_shift,
+    const tnsr::II<DataVector, 3>& upper_spatial_metric,
+    const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
     const Scalar<DataVector>& trace_extrinsic_curvature,
     const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
   tenex::evaluate(
@@ -120,15 +120,15 @@ void compute_rhs_pi(
 }
 
 void compute_rhs_phi(
-    const gsl::not_null<tnsr::i<DataVector, Dim, Frame::Inertial>*> dt_phi,
-    const tnsr::i<DataVector, Dim>& d_psi, const tnsr::i<DataVector, Dim>& d_pi,
-    const tnsr::ij<DataVector, Dim>& d_phi, const Scalar<DataVector>& pi,
-    const tnsr::i<DataVector, Dim>& phi, const Scalar<DataVector>& lapse,
-    const tnsr::I<DataVector, Dim>& shift,
-    const tnsr::i<DataVector, Dim>& deriv_lapse,
-    const tnsr::iJ<DataVector, Dim>& deriv_shift,
-    const tnsr::II<DataVector, Dim>& upper_spatial_metric,
-    const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
+    const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> dt_phi,
+    const tnsr::i<DataVector, 3>& d_psi, const tnsr::i<DataVector, 3>& d_pi,
+    const tnsr::ij<DataVector, 3>& d_phi, const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, 3>& phi, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3>& shift,
+    const tnsr::i<DataVector, 3>& deriv_lapse,
+    const tnsr::iJ<DataVector, 3>& deriv_shift,
+    const tnsr::II<DataVector, 3>& upper_spatial_metric,
+    const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
     const Scalar<DataVector>& trace_extrinsic_curvature,
     const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
   tenex::evaluate<ti::i>(
