@@ -50,6 +50,13 @@ void compute_gb_scalar(gsl::not_null<Scalar<DataVector>*> gb_scalar,
                        const Scalar<DataVector>& weyl_electric_scalar,
                        const Scalar<DataVector>& weyl_magnetic_scalar);
 
+void compute_rhs_psi(const gsl::not_null<Scalar<DataVector>*> dt_psi,
+                     const Scalar<DataVector>& pi,
+                     const tnsr::i<DataVector, Dim>& phi,
+                     const Scalar<DataVector>& lapse,
+                     const tnsr::I<DataVector, Dim>& shift,
+                     const Scalar<DataVector>& gamma1);
+
 namespace Tags {
 
 /*!

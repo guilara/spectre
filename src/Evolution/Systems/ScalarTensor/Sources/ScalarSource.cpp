@@ -80,4 +80,15 @@ void compute_gb_scalar(gsl::not_null<Scalar<DataVector>*> gb_scalar,
       8.0 * (weyl_electric_scalar.get() - weyl_magnetic_scalar.get());
 }
 
+void compute_rhs_psi(const gsl::not_null<Scalar<DataVector>*> dt_psi,
+                     const Scalar<DataVector>& pi,
+                     const tnsr::i<DataVector, Dim>& phi,
+                     const Scalar<DataVector>& lapse,
+                     const tnsr::I<DataVector, Dim>& shift,
+                     const Scalar<DataVector>& gamma1) {
+  tenex::evaluate(dt_psi,
+                  -lapse() * pi() + shift(ti::I) * d_psi(ti::i) +
+                      gamma1() * shift(ti::J) * (d_psi(ti::j) - phi(ti::j)));
+}
+
 }  // namespace ScalarTensor::Sources
