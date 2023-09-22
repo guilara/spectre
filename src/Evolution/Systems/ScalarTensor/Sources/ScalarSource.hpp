@@ -172,7 +172,14 @@ struct GBScalarCompute : GBScalar, db::ComputeTag {
 // template <typename DataType>
 struct RhsPsiCompute : RhsPsi, db::ComputeTag {
   using argument_tags =
-      tmpl::list<CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
+      tmpl::list<
+      ::Tags::deriv<CurvedScalarWave::Tags::Psi, tmpl::size_t<3>,
+                               Frame::Inertial>,
+      ::Tags::deriv<CurvedScalarWave::Tags::Pi, tmpl::size_t<3>,
+                               Frame::Inertial>,
+      ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>,
+                               Frame::Inertial>,
+      CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
                  gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>,
                  ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>,
                                Frame::Inertial>,
@@ -204,7 +211,14 @@ struct RhsPsiCompute : RhsPsi, db::ComputeTag {
 // template <typename DataType>
 struct RhsPiCompute : RhsPi, db::ComputeTag {
   using argument_tags =
-      tmpl::list<CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
+      tmpl::list<
+      ::Tags::deriv<CurvedScalarWave::Tags::Psi, tmpl::size_t<3>,
+                               Frame::Inertial>,
+      ::Tags::deriv<CurvedScalarWave::Tags::Pi, tmpl::size_t<3>,
+                               Frame::Inertial>,
+      ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>,
+                               Frame::Inertial>,
+      CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
                  gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>,
                  ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>,
                                Frame::Inertial>,
@@ -236,7 +250,14 @@ struct RhsPiCompute : RhsPi, db::ComputeTag {
 // template <typename DataType>
 struct RhsPhiCompute : RhsPhi, db::ComputeTag {
   using argument_tags =
-      tmpl::list<CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
+      tmpl::list<
+      ::Tags::deriv<CurvedScalarWave::Tags::Psi, tmpl::size_t<3>,
+                               Frame::Inertial>,
+      ::Tags::deriv<CurvedScalarWave::Tags::Pi, tmpl::size_t<3>,
+                               Frame::Inertial>,
+      ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>,
+                               Frame::Inertial>,
+      CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
                  gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>,
                  ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>,
                                Frame::Inertial>,
