@@ -74,7 +74,7 @@ void compute_rhs_pi(const gsl::not_null<Scalar<DataVector>*> dt_pi,
     const Scalar<DataVector>& trace_extrinsic_curvature,
     const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2);
 
-void compute_rhs_phi(const gsl::not_null<Scalar<DataVector>*> dt_phi,
+void compute_rhs_phi(const gsl::not_null<tnsr::i<DataVector, 3>*> dt_phi,
     const tnsr::i<DataVector, 3>& d_psi, const tnsr::i<DataVector, 3>& d_pi,
     const tnsr::ij<DataVector, 3>& d_phi, const Scalar<DataVector>& pi,
     const tnsr::i<DataVector, 3>& phi, const Scalar<DataVector>& lapse,
