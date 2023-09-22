@@ -128,6 +128,51 @@ struct GBScalarCompute : GBScalar, db::ComputeTag {
   using base = GBScalar;
 };
 
+/*!
+ * \brief Compute the Rhs of the Psi equation.
+ *
+ * \details Call ....
+ */
+template <typename DataType>
+struct RhsPsiCompute : RhsPsi, db::ComputeTag {
+  using argument_tags = tmpl::list<>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+      const Scalar<DataVector>&) = &compute_rhs_psi;
+  using base = RhsPsi;
+};
+
+/*!
+ * \brief Compute the Rhs of the Pi equation.
+ *
+ * \details Call ....
+ */
+template <typename DataType>
+struct RhsPiCompute : RhsPi, db::ComputeTag {
+  using argument_tags = tmpl::list<>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+      const Scalar<DataVector>&) = &compute_rhs_pi;
+  using base = RhsPi;
+};
+
+/*!
+ * \brief Compute the Rhs of the Phi equation.
+ *
+ * \details Call ....
+ */
+template <typename DataType>
+struct RhsPhiCompute : RhsPhi, db::ComputeTag {
+  using argument_tags = tmpl::list<>;
+  using return_type = tnsr::i<DataVector, 3>;
+  static constexpr void (*function)(
+      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
+      const Scalar<DataVector>&) = &compute_rhs_phi;
+  using base = RhsPhi;
+};
+
 }  // namespace Tags
 
 }  // namespace ScalarTensor::Sources
