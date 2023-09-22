@@ -350,6 +350,7 @@ struct ObserverTags {
           ScalarTensor::Sources::Tags::RhsPsiCompute,
           ScalarTensor::Sources::Tags::RhsPiCompute,
           ScalarTensor::Sources::Tags::RhsPhiCompute,
+          ::Tags::PointwiseL2NormCompute<ScalarTensor::Sources::Tags::RhsPhi>,
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
