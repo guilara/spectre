@@ -57,6 +57,22 @@ void compute_rhs_psi(const gsl::not_null<Scalar<DataVector>*> dt_psi,
                      const tnsr::I<DataVector, Dim>& shift,
                      const Scalar<DataVector>& gamma1);
 
+void compute_rhs_pi(const gsl::not_null<Scalar<DataVector>*> dt_pi,
+                    const tnsr::i<DataVector, Dim>& d_pi,
+                    const tnsr::ij<DataVector, Dim>& d_phi,
+                    const Scalar<DataVector>& pi,
+                    const tnsr::i<DataVector, Dim>& phi,
+                    const Scalar<DataVector>& lapse,
+                    const tnsr::I<DataVector, Dim>& shift,
+                    const tnsr::i<DataVector, Dim>& deriv_lapse,
+                    const tnsr::II<DataVector, Dim>& upper_spatial_metric,
+                    const tnsr::I<DataVector, Dim>& trace_spatial_christoffel,
+                    const Scalar<DataVector>& trace_extrinsic_curvature,
+                    const Scalar<DataVector>& gamma1,
+                    const Scalar<DataVector>& gamma2);
+
+void compute_rhs_phi();
+
 namespace Tags {
 
 /*!
