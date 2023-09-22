@@ -228,7 +228,8 @@ struct RhsPiCompute : RhsPi, db::ComputeTag {
                  gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, 3>,
                  gr::Tags::TraceExtrinsicCurvature<DataVector>,
                  CurvedScalarWave::Tags::ConstraintGamma1,
-                 CurvedScalarWave::Tags::ConstraintGamma2>;
+                 CurvedScalarWave::Tags::ConstraintGamma2,
+                 ScalarTensor::Sources::Tags::ScalarSource>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<return_type*> result, const tnsr::i<DataVector, 3>&,
@@ -238,7 +239,7 @@ struct RhsPiCompute : RhsPi, db::ComputeTag {
       const tnsr::i<DataVector, 3>&, const tnsr::iJ<DataVector, 3>&,
       const tnsr::II<DataVector, 3>&, const tnsr::I<DataVector, 3>&,
       const Scalar<DataVector>&, const Scalar<DataVector>&,
-      const Scalar<DataVector>&) = &compute_rhs_pi;
+      const Scalar<DataVector>&, const Scalar<DataVector>&) = &compute_rhs_pi;
   using base = RhsPi;
 };
 

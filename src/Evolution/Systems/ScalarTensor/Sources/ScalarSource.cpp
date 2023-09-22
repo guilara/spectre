@@ -108,7 +108,8 @@ void compute_rhs_pi(
     const tnsr::II<DataVector, 3>& upper_spatial_metric,
     const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
     const Scalar<DataVector>& trace_extrinsic_curvature,
-    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
+    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
+    const Scalar<DataVector>& scalar_source) {
   tenex::evaluate(
       dt_pi,
       lapse() * pi() * trace_extrinsic_curvature() +
@@ -117,6 +118,8 @@ void compute_rhs_pi(
           gamma1() * gamma2() * shift(ti::I) * (d_psi(ti::i) - phi(ti::i)) -
           lapse() * upper_spatial_metric(ti::I, ti::J) * d_phi(ti::i, ti::j) -
           upper_spatial_metric(ti::I, ti::J) * phi(ti::i) * deriv_lapse(ti::j));
+  // Add scalar source
+  Sources::add_scalar_source_to_dt_pi_scalar(dt_pi, scalar_source, lapse);
 }
 
 void compute_rhs_phi(
