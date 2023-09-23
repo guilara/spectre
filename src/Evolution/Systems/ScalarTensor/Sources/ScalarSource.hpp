@@ -128,7 +128,7 @@ struct ScalarSourceCompute : ScalarSource, db::ComputeTag {
  * \details Call compute_scalar_curvature_source. Needs that WeylElectric is in
  * data box.
  */
-template <size_t SpatialDim, typename Frame, typename DataType>
+template <typename DataType, size_t SpatialDim, typename Frame>
 struct ScalarCurvatureSourceCompute : ScalarSource, db::ComputeTag {
   using argument_tags =
       tmpl::list<gr::Tags::WeylElectricScalar<DataType>,
