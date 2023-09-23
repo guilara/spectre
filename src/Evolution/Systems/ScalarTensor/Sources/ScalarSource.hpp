@@ -134,8 +134,8 @@ struct ScalarCurvatureSourceCompute : ScalarSource, db::ComputeTag {
       tmpl::list<gr::Tags::WeylElectricScalar<DataType>,
                  gr::Tags::WeylMagneticScalar<DataType>,
                  CurvedScalarWave::Tags::Psi,
-                 ScalarTensor::Sources::Tags::ScalarFirstCouplingParameter,
-                 ScalarTensor::Sources::Tags::ScalarSecondCouplingParameter,
+                 ScalarTensor::Tags::ScalarFirstCouplingParameter,
+                 ScalarTensor::Tags::ScalarSecondCouplingParameter,
                  ScalarTensor::Tags::ScalarMass>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
@@ -157,8 +157,8 @@ struct CouplingFunctionDerivativeCompute : CouplingFunctionDerivative,
   //   using argument_tags = tmpl::list<fe::ScalarDriver::Psi>;
   using argument_tags =
       tmpl::list<CurvedScalarWave::Tags::Psi,
-                 ScalarTensor::Sources::Tags::ScalarFirstCouplingParameter,
-                 ScalarTensor::Sources::Tags::ScalarSecondCouplingParameter>;
+                 ScalarTensor::Tags::ScalarFirstCouplingParameter,
+                 ScalarTensor::Tags::ScalarSecondCouplingParameter>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
