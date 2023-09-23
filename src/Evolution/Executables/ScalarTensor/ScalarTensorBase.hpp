@@ -44,12 +44,15 @@
 #include "Evolution/Systems/GeneralizedHarmonic/Initialize.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/Actions/InitializeConstraintGammas.hpp"
+#include "Evolution/Systems/ScalarTensor/Actions/SetInitialData.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/ProductOfCorrections.hpp"
 #include "Evolution/Systems/ScalarTensor/Initialize.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
+#include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/StressEnergy.hpp"
 #include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
@@ -205,8 +208,7 @@ struct ObserverTags {
                                          Frame::Inertial>,
           gr::Tags::Shift<DataVector, volume_dim, Frame::Inertial>,
           gr::Tags::Lapse<DataVector>,
-          gr::Tags::SqrtDetSpatialMetricCompute<DataVector, volume_dim,
-                                                Frame::Inertial>,
+          gr::Tags::SqrtDetSpatialMetric<DataVector>,
           gr::Tags::SpacetimeNormalOneFormCompute<DataVector, volume_dim,
                                                   Frame::Inertial>,
           gr::Tags::SpacetimeNormalVector<DataVector, volume_dim,
@@ -225,19 +227,16 @@ struct ObserverTags {
                                                       Frame::Inertial>,
           gr::Tags::ExtrinsicCurvature<DataVector, volume_dim, Frame::Inertial>,
           gr::Tags::TraceExtrinsicCurvature<DataVector>,
+          // More 3 plus 1 variables
+          ::Tags::deriv<gr::Tags::SpatialChristoffelSecondKind<
+                            DataVector, volume_dim, Frame::Inertial>,
+                        tmpl::size_t<volume_dim>, Frame::Inertial>,
+          gr::Tags::SpatialRicci<DataVector, volume_dim, Frame::Inertial>,
+          gr::Tags::SpatialRicciScalar<DataVector>,
           // Compute the constraints of GH
           gh::Tags::GaugeConstraintCompute<volume_dim, Frame::Inertial>,
           gh::Tags::TwoIndexConstraintCompute<volume_dim, Frame::Inertial>,
           gh::Tags::ThreeIndexConstraintCompute<volume_dim, Frame::Inertial>,
-          ::Tags::DerivTensorCompute<
-              gr::Tags::SpatialChristoffelSecondKind<DataVector, volume_dim>,
-              ::domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
-                                              Frame::Inertial>,
-              ::domain::Tags::Mesh<volume_dim>>,
-          gr::Tags::SpatialRicciCompute<DataVector, volume_dim,
-                                        ::Frame::Inertial>,
-          gr::Tags::SpatialRicciScalarCompute<DataVector, volume_dim,
-                                              ::Frame::Inertial>,
           // Compute the constraints of CSW
           ScalarTensor::Tags::CswOneIndexConstraintCompute<volume_dim>,
           ScalarTensor::Tags::CswTwoIndexConstraintCompute<volume_dim>,
@@ -260,6 +259,8 @@ struct ObserverTags {
           // Sources
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           ScalarTensor::Tags::ScalarSource,
+          ScalarTensor::Tags::GBScalarCompute<DataVector>,
+          ScalarTensor::Tags::CouplingFunctionDerivativeCompute<DataVector>,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
@@ -272,13 +273,14 @@ struct ObserverTags {
           ::Tags::PointwiseL2NormCompute<
               gh::Tags::FourIndexConstraint<DataVector, volume_dim>>,
           gh::Tags::ConstraintEnergyCompute<volume_dim, Frame::Inertial>,
-          ::Tags::DerivTensorCompute<
-              gr::Tags::ExtrinsicCurvature<DataVector, volume_dim>,
-              ::domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
-                                              Frame::Inertial>,
-              ::domain::Tags::Mesh<volume_dim>>,
-          gr::Tags::WeylElectricCompute<DataVector, volume_dim,
-                                        Frame::Inertial>,
+          ::Tags::deriv<gr::Tags::ExtrinsicCurvature<DataVector, volume_dim,
+                                                     Frame::Inertial>,
+                        tmpl::size_t<volume_dim>, Frame::Inertial>,
+          gr::Tags::GradExtrinsicCurvature<DataVector, volume_dim,
+                                           Frame::Inertial>,
+          gr::Tags::WeylElectric<DataVector, volume_dim, Frame::Inertial>,
+          gr::Tags::WeylElectricScalar<DataVector>,
+          gr::Tags::WeylMagneticScalar<DataVector>,
           gr::Tags::Psi4RealCompute<Frame::Inertial>>>;
   using non_tensor_compute_tags = tmpl::list<
       ::Events::Tags::ObserverMeshCompute<volume_dim>,
@@ -395,8 +397,8 @@ struct ScalarTensorTemplateBase {
               volume_dim>>,
       Actions::MutateApply<gh::gauges::SetPiAndPhiFromConstraints<volume_dim>>,
       Initialization::Actions::AddSimpleTags<
-          CurvedScalarWave::Initialization::InitializeConstraintDampingGammas<
-              volume_dim>>,
+          ScalarTensor::Initialization::
+              InitializeConstraintDampingGammasGaussian>,
       Parallel::Actions::TerminatePhase>;
 
   // A tmpl::list of tags to be added to the GlobalCache by the
@@ -411,7 +413,12 @@ struct ScalarTensorTemplateBase {
                  gh::ConstraintDamping::Tags::DampingFunctionGamma2<
                      volume_dim, Frame::Grid>,
                  // Source parameters
-                 ScalarTensor::Tags::ScalarMass>;
+                 ScalarTensor::Tags::ScalarMass,
+                 ScalarTensor::Tags::ScalarFirstCouplingParameter,
+                 ScalarTensor::Tags::ScalarSecondCouplingParameter,
+                 ScalarTensor::Tags::AmplitudeConstraintGamma2,
+                 ScalarTensor::Tags::SigmaConstraintGamma2,
+                 ScalarTensor::Tags::OffsetConstraintGamma2>;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
