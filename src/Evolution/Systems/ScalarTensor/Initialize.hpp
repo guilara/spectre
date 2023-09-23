@@ -73,7 +73,7 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     gh::ConstraintDamping::Tags::ConstraintGamma2Compute<Dim, Frame::Grid>,
 
     // ScalarTensor::Tags::ScalarSourceCompute>;
-    ScalarTensor::Tags::ScalarCurvatureSourceCompute,
+    ScalarTensor::Tags::ScalarCurvatureSourceCompute<DataVector, Dim, Fr>,
 
     // Extra tags for curvatures
     ::Tags::DerivTensorCompute<
