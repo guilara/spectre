@@ -5,11 +5,13 @@
 
 #include <cstddef>
 
+#include "DataStructures/DataBox/Protocols/Mutator.hpp"
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Domain/Tags.hpp"
-#include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/Tags.hpp"
+#include "Utilities/ProtocolHelpers.hpp"
 
 namespace ScalarTensor::Initialization {
 
@@ -35,7 +37,8 @@ namespace ScalarTensor::Initialization {
  * - Removes: nothing
  * - Modifies: nothing
  */
-struct InitializeConstraintDampingGammasGaussian {
+struct InitializeConstraintDampingGammasGaussian
+    : tt::ConformsTo<db::protocols::Mutator> {
   using return_tags = tmpl::list<CurvedScalarWave::Tags::ConstraintGamma1,
                                  CurvedScalarWave::Tags::ConstraintGamma2>;
   using argument_tags =
