@@ -23,12 +23,15 @@
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/SpatialDerivOfShift.hpp"
 #include "PointwiseFunctions/GeneralRelativity/InverseSpacetimeMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Lapse.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Ricci.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Shift.hpp"
 #include "PointwiseFunctions/GeneralRelativity/SpacetimeMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/SpacetimeNormalOneForm.hpp"
 #include "PointwiseFunctions/GeneralRelativity/SpacetimeNormalVector.hpp"
 #include "PointwiseFunctions/GeneralRelativity/SpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
 #include "Utilities/TMPL.hpp"
 
 namespace ScalarTensor::Initialization {
@@ -69,6 +72,28 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     gh::ConstraintDamping::Tags::ConstraintGamma1Compute<Dim, Frame::Grid>,
     gh::ConstraintDamping::Tags::ConstraintGamma2Compute<Dim, Frame::Grid>,
 
-    ScalarTensor::Tags::ScalarSourceCompute>;
+    // ScalarTensor::Tags::ScalarSourceCompute>;
+    ScalarTensor::Tags::ScalarCurvatureSourceCompute,
+
+    // Extra tags for curvatures
+    ::Tags::DerivTensorCompute<
+        gr::Tags::ExtrinsicCurvature<DataVector, Dim, Fr>,
+        ::domain::Tags::InverseJacobian<Dim, ::Frame::ElementLogical,
+                                        ::Frame::Inertial>>,
+    gh::Tags::GradExtrinsicCurvatureCompute<Dim, Fr>,
+    ::Tags::DerivTensorCompute<
+        gr::Tags::SpatialChristoffelSecondKind<DataVector, Dim, Fr>,
+        ::domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
+                                        Frame::Inertial>>,
+
+    gr::Tags::SpatialRicciCompute<DataVector, Dim, Fr>,
+    gr::Tags::SpatialRicciScalarCompute<DataVector, Dim, Fr>,
+
+    gr::Tags::WeylElectricCompute<DataVector, Dim, Fr>,
+    gr::Tags::WeylElectricScalarCompute<DataVector, Dim, Fr>,
+
+    gr::Tags::SqrtDetSpatialMetricCompute<DataVector, Dim, Fr>,
+    gr::Tags::WeylMagneticForGBCompute<DataVector, Dim, Fr>,
+    gr::Tags::WeylMagneticScalarCompute<DataVector, Dim, Fr>>;
 
 }  // namespace ScalarTensor::Initialization
