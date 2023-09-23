@@ -6,12 +6,8 @@
 #include "DataStructures/DataBox/Tag.hpp"
 #include "Options/String.hpp"
 
-namespace ScalarTensor::Sources {
+namespace ScalarTensor {
 namespace Tags {
-struct ScalarSource : db::SimpleTag {
-  using type = Scalar<DataVector>;
-};
-
 // Extra compute tags for debugging
 /*!
  * \brief The \f$ f'(\Psi) \f$ term.
@@ -76,4 +72,4 @@ struct ScalarSecondCouplingParameter : db::SimpleTag {
   }
 };
 }  // namespace Tags
-}  // namespace ScalarTensor::Sources
+}  // namespace ScalarTensor
