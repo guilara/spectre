@@ -22,6 +22,7 @@
 #include "Evolution/Systems/GeneralizedHarmonic/Actions/SetInitialData.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/RegisterDerived.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/RegisterDerivedWithCharm.hpp"
+#include "Evolution/Systems/ScalarTensor/Actions/SetInitialData.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/RegisterDerived.hpp"
 #include "Options/FactoryHelpers.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
