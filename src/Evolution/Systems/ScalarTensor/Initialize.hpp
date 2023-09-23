@@ -79,12 +79,14 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     ::Tags::DerivTensorCompute<
         gr::Tags::ExtrinsicCurvature<DataVector, Dim, Fr>,
         ::domain::Tags::InverseJacobian<Dim, ::Frame::ElementLogical,
-                                        ::Frame::Inertial>>,
+                                        ::Frame::Inertial>,
+        ::domain::Tags::Mesh<Dim>>,
     gh::Tags::GradExtrinsicCurvatureCompute<Dim, Fr>,
     ::Tags::DerivTensorCompute<
         gr::Tags::SpatialChristoffelSecondKind<DataVector, Dim, Fr>,
         ::domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
-                                        Frame::Inertial>>,
+                                        Frame::Inertial>,
+        ::domain::Tags::Mesh<Dim>>,
 
     gr::Tags::SpatialRicciCompute<DataVector, Dim, Fr>,
     gr::Tags::SpatialRicciScalarCompute<DataVector, Dim, Fr>,
