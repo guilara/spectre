@@ -144,6 +144,10 @@ template <typename DataType>
 struct TraceExtrinsicCurvature : db::SimpleTag {
   using type = Scalar<DataType>;
 };
+template <typename DataType, size_t Dim, typename Frame>
+struct GradExtrinsicCurvature : db::SimpleTag {
+  using type = tnsr::ijj<DataType, Dim, Frame>;
+};
 
 /*!
  * \brief Holds a quantity that's similar to the shift, but isn't the shift.
