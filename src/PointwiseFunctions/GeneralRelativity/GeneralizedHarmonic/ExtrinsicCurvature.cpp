@@ -44,6 +44,22 @@ tnsr::ii<DataType, SpatialDim, Frame> extrinsic_curvature(
                       phi);
   return ex_curv;
 }
+
+template <typename DataType, size_t SpatialDim, typename Frame>
+void grad_extrinsic_curvature(
+    const gsl::not_null<tnsr::ijj<DataType, SpatialDim, Frame>*> grad_ex_curv,
+    const tnsr::ijj<DataType, SpatialDim, Frame>& d_ex_curv,
+    const tnsr::ii<DataType, SpatialDim, Frame>& ex_curv,
+    const tnsr::Ijj<DataType, SpatialDim, Frame>&
+        spatial_christoffel_second_kind) {
+  set_number_of_grid_points(grad_ex_curv, ex_curv);
+  tenex::evaluate<ti::i, ti::j, ti::k>(
+      grad_ex_curv, d_ex_curv(ti::i, ti::j, ti::k) -
+                        spatial_christoffel_second_kind(ti::L, ti::i, ti::j) *
+                            ex_curv(ti::l, ti::k) -
+                        spatial_christoffel_second_kind(ti::L, ti::i, ti::k) *
+                            ex_curv(ti::j, ti::l));
+}
 }  // namespace gh
 
 #define DIM(data) BOOST_PP_TUPLE_ELEM(0, data)
@@ -63,7 +79,14 @@ tnsr::ii<DataType, SpatialDim, Frame> extrinsic_curvature(
       const tnsr::A<DTYPE(data), DIM(data), FRAME(data)>&                 \
           spacetime_normal_vector,                                        \
       const tnsr::aa<DTYPE(data), DIM(data), FRAME(data)>& pi,            \
-      const tnsr::iaa<DTYPE(data), DIM(data), FRAME(data)>& phi);
+      const tnsr::iaa<DTYPE(data), DIM(data), FRAME(data)>& phi);          \
+  template void gh::grad_extrinsic_curvature(                              \
+      const gsl::not_null<tnsr::ijj<DTYPE(data), DIM(data), FRAME(data)>*> \
+          grad_ex_curv,                                                    \
+      const tnsr::ijj<DTYPE(data), DIM(data), FRAME(data)>& d_ex_curv,     \
+      const tnsr::ii<DTYPE(data), DIM(data), FRAME(data)>& ex_curv,        \
+      const tnsr::Ijj<DTYPE(data), DIM(data), FRAME(data)>&                \
+          spatial_christoffel_second_kind);
 
 GENERATE_INSTANTIATIONS(INSTANTIATE, (1, 2, 3), (double, DataVector),
                         (Frame::Grid, Frame::Inertial))
