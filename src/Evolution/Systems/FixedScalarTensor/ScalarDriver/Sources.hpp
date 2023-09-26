@@ -60,10 +60,10 @@ struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
       tmpl::list<fe::ScalarDriver::Tags::Psi, fe::ScalarDriver::Tags::TargetPsi,
                  fe::ScalarDriver::Tags::ScalarTauParameter,
                  fe::ScalarDriver::Tags::ScalarSigmaParameter>;
-  using return_type = Scalar<DataVector>;
+  using return_type = Scalar<DataType>;
   static constexpr void (*function)(
-      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
-      const Scalar<DataVector>&, const double,
+      const gsl::not_null<return_type*> result, const Scalar<DataType>&,
+      const Scalar<DataType>&, const double,
       const double) = &fe::ScalarDriver::Sources::compute_scalar_driver_source;
   using base = ScalarDriverSource;
 };
@@ -83,14 +83,14 @@ struct TargetPsiCompute : TargetPsi, db::ComputeTag {
                  ScalarTensor::Tags::ScalarFirstCouplingParameter,
                  ScalarTensor::Tags::ScalarSecondCouplingParameter,
                  ScalarTensor::Tags::ScalarMass>;
-  using return_type = Scalar<DataVector>;
+  using return_type = Scalar<DataType>;
   //   static constexpr void (*function)(const gsl::not_null<return_type*>
   //   result,
-  //                                     const Scalar<DataVector>&) =
+  //                                     const Scalar<DataType>&) =
   //       &compute_target_psi;
   static constexpr void (*function)(
-      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
-      const Scalar<DataVector>&, const Scalar<DataVector>&, const double,
+      const gsl::not_null<return_type*> result, const Scalar<DataType>&,
+      const Scalar<DataType>&, const Scalar<DataType>&, const double,
       const double, const double) =
       &ScalarTensor::compute_scalar_curvature_source;
   using base = ScalarDriverSource;
