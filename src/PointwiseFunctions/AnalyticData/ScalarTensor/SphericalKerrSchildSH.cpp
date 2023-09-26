@@ -81,7 +81,7 @@ SphericalKerrSchildSH::variables(
     tmpl::list<CurvedScalarWave::Tags::Pi> /*meta*/) const {
   Scalar<DataType> pi = make_with_value<Scalar<DataType>>(x, 0.0);
   get(pi) += get(magnitude(x)) - radius_;
-  get(pi) = exp(-get(pi) * get(pi) / width_sq_);
+  get(pi) = exp(-square(get(pi)) / width_sq_);
   const Spectral::Swsh::SpinWeightedSphericalHarmonic spherical_harmonic(
       0, mode_.first, mode_.second);
   const auto theta = atan2(hypot(x[0], x[1]), x[2]);
