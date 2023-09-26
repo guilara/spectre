@@ -104,7 +104,6 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       gsl::not_null<tnsr::abC<DataVector, 3_st>*> christoffel_first_kind_3_up,
       gsl::not_null<Scalar<DataVector>*> lapse,
       gsl::not_null<tnsr::I<DataVector, 3_st>*> shift,
-      gsl::not_null<tnsr::ii<DataVector, 3_st>*> spatial_metric,
       gsl::not_null<tnsr::II<DataVector, 3_st>*> inverse_spatial_metric,
       gsl::not_null<Scalar<DataVector>*> det_spatial_metric,
       gsl::not_null<Scalar<DataVector>*> sqrt_det_spatial_metric,
@@ -113,10 +112,8 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       gsl::not_null<tnsr::Abb<DataVector, 3_st>*> christoffel_second_kind,
       gsl::not_null<tnsr::a<DataVector, 3_st>*> trace_christoffel,
       gsl::not_null<tnsr::A<DataVector, 3_st>*> normal_spacetime_vector,
-      gsl::not_null<tnsr::a<DataVector, 3_st>*> normal_spacetime_one_form,
-      gsl::not_null<tnsr::abb<DataVector, 3_st>*> da_spacetime_metric,
-      // Scalar temporal variables
 
+      // Scalar temporal variables
       gsl::not_null<Scalar<DataVector>*> result_gamma1_scalar,
       gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar,
 
@@ -197,10 +194,11 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
         shift_dot_three_index_constraint,
         mesh_velocity_dot_three_index_constraint, phi_one_normal, pi_2_up,
         three_index_constraint, phi_1_up, phi_3_up, christoffel_first_kind_3_up,
-        lapse, shift, spatial_metric, inverse_spatial_metric,
-        det_spatial_metric, sqrt_det_spatial_metric, inverse_spacetime_metric,
+        lapse, shift, inverse_spatial_metric, det_spatial_metric,
+        sqrt_det_spatial_metric, inverse_spacetime_metric,
         christoffel_first_kind, christoffel_second_kind, trace_christoffel,
-        normal_spacetime_vector, normal_spacetime_one_form, da_spacetime_metric,
+        normal_spacetime_vector,
+
         // Scalar temporal variables
         result_gamma1_scalar, result_gamma2_scalar,
         // Extra temporal tags
