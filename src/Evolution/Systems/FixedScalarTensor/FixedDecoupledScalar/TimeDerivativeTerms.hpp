@@ -16,7 +16,7 @@
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/TimeDerivative.hpp"
 #include "Evolution/Systems/ScalarTensor/System.hpp"
-#include "Evolution/Systems/ScalarTensor/TimeDerivativeTerms.hpp"
+#include "Evolution/Systems/ScalarTensor/TimeDerivative.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 // Tag obtained from gh::TimeDerivative needs to be complete here to
 // be used in TemporaryReference.
@@ -46,10 +46,9 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       typename fe::ScalarDriver::System::flux_variables,
       tmpl::bind<::Tags::Flux, tmpl::_1, tmpl::pin<tmpl::size_t<3_st>>,
                  tmpl::pin<Frame::Inertial>>>;
-  using gh_temp_tags =
-      typename ScalarTensor::TimeDerivativeTerms::temporary_tags;
+  using gh_temp_tags = typename ScalarTensor::TimeDerivative::temporary_tags;
   using gh_gradient_tags = typename ScalarTensor::System::gradients_tags;
-  using gh_arg_tags = typename ScalarTensor::TimeDerivativeTerms::argument_tags;
+  using gh_arg_tags = typename ScalarTensor::TimeDerivative::argument_tags;
   using scalar_temp_tags =
       typename fe::ScalarDriver::TimeDerivative::temporary_tags;
   using scalar_extra_temp_tags = tmpl::list<>;
@@ -185,7 +184,7 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
     // corrections first, so that the GH update is applied at last
 
     // Call TimeDerivativeTerms for GH
-    ScalarTensor::TimeDerivativeTerms::apply(
+    ScalarTensor::TimeDerivative::apply(
         // GH dt variables
         dt_spacetime_metric, dt_pi, dt_phi,
         // Scalar dt variables
