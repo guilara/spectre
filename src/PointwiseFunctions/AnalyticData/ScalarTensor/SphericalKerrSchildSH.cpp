@@ -86,8 +86,8 @@ SphericalKerrSchildSH::variables(
       0, mode_.first, mode_.second);
   const auto theta = atan2(hypot(x[0], x[1]), x[2]);
   const auto phi = atan2(x[1], x[0]);
-  get(pi) *= real(spherical_harmonic.evaluate(theta, phi, sin(theta / 2.),
-                                              cos(theta / 2.)));
+  get(pi) *= real(spherical_harmonic.evaluate(theta, phi, sin(0.5 * theta),
+                                              cos(0.5 * theta)));
   get(pi) *= amplitude_;
   return pi;
 }
