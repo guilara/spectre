@@ -1,7 +1,7 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/MinkowskiZeroScalar.hpp"
+#include "PointwiseFunctions/AnalyticData/ScalarTensor/MinkowskiZeroScalar.hpp"
 
 #include <cmath>
 #include <cstddef>
@@ -17,7 +17,7 @@
 
 // IWYU pragma:  no_include "DataStructures/Tensor/TypeAliases.hpp"
 
-namespace ScalarTensor::Solutions {
+namespace ScalarTensor::AnalyticData {
 
 MinkowskiZeroScalar::MinkowskiZeroScalar(double amplitude) {
   amplitude_ = amplitude;
@@ -38,9 +38,8 @@ void MinkowskiZeroScalar::pup(PUP::er& p) {
 }
 
 template <typename DataType>
-tuples::TaggedTuple<CurvedScalarWave::Tags::Psi>
-MinkowskiZeroScalar::variables(
-    const tnsr::I<DataType, 3>& x, double /*t*/,
+tuples::TaggedTuple<CurvedScalarWave::Tags::Psi> MinkowskiZeroScalar::variables(
+    const tnsr::I<DataType, 3>& x,
     tmpl::list<CurvedScalarWave::Tags::Psi> /*meta*/) const {
   return {make_with_value<Scalar<DataType>>(x, amplitude_)};
 }
@@ -48,15 +47,14 @@ MinkowskiZeroScalar::variables(
 template <typename DataType>
 tuples::TaggedTuple<CurvedScalarWave::Tags::Phi<3_st>>
 MinkowskiZeroScalar::variables(
-    const tnsr::I<DataType, 3>& x, double /*t*/,
+    const tnsr::I<DataType, 3>& x,
     tmpl::list<CurvedScalarWave::Tags::Phi<3_st>> /*meta*/) const {
   return {make_with_value<tnsr::i<DataType, 3>>(x, 0.0)};
 }
 
 template <typename DataType>
-tuples::TaggedTuple<CurvedScalarWave::Tags::Pi>
-MinkowskiZeroScalar::variables(
-    const tnsr::I<DataType, 3>& x, double /*t*/,
+tuples::TaggedTuple<CurvedScalarWave::Tags::Pi> MinkowskiZeroScalar::variables(
+    const tnsr::I<DataType, 3>& x,
     tmpl::list<CurvedScalarWave::Tags::Pi> /*meta*/) const {
   return {make_with_value<Scalar<DataType>>(x, 0.0)};
 }
@@ -77,21 +75,17 @@ bool operator!=(const MinkowskiZeroScalar& lhs,
 #define DTYPE(data) BOOST_PP_TUPLE_ELEM(0, data)
 #define TAG(data) BOOST_PP_TUPLE_ELEM(1, data)
 
-#define INSTANTIATE_SCALARS(_, data)                                           \
-  template tuples::TaggedTuple < TAG(data)>                                    \
-      MinkowskiZeroScalar::variables(                                          \
-        const tnsr::I<DTYPE(data), 3>& x, double t, tmpl::list < TAG(data)>    \
-                            /*meta*/) const;
+#define INSTANTIATE_SCALARS(_, data)                                      \
+  template tuples::TaggedTuple<TAG(data)> MinkowskiZeroScalar::variables( \
+      const tnsr::I<DTYPE(data), 3>& x, tmpl::list<TAG(data)> /*meta*/) const;
 
 GENERATE_INSTANTIATIONS(
     INSTANTIATE_SCALARS, (DataVector),
     (CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi))
 
-#define INSTANTIATE_VECTORS(_, data)                                           \
-  template tuples::TaggedTuple < TAG(data) >                                   \
-  MinkowskiZeroScalar::variables(const tnsr::I<DTYPE(data), 3>& x, double t,   \
-                                 tmpl::list < TAG(data) >                      \
-                                 /*meta*/) const;
+#define INSTANTIATE_VECTORS(_, data)                                      \
+  template tuples::TaggedTuple<TAG(data)> MinkowskiZeroScalar::variables( \
+      const tnsr::I<DTYPE(data), 3>& x, tmpl::list<TAG(data)> /*meta*/) const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_VECTORS, (DataVector),
                         (CurvedScalarWave::Tags::Phi<3_st>))
@@ -100,4 +94,4 @@ GENERATE_INSTANTIATIONS(INSTANTIATE_VECTORS, (DataVector),
 #undef TAG
 #undef INSTANTIATE_SCALARS
 #undef INSTANTIATE_VECTORS
-} // namespace ScalarTensor::Solutions
+}  // namespace ScalarTensor::AnalyticData
