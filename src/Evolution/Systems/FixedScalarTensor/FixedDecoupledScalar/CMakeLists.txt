@@ -34,7 +34,6 @@ target_link_libraries(
   GeneralizedHarmonic
   ScalarDriver
   ScalarTensor
-  ScalarTensorSources
   Serialization
   Utilities
   CurvedScalarWave
