@@ -41,6 +41,16 @@ struct AllProductConditions<GhList, tmpl::list<ScalarConditions...>> {
                          tmpl::pin<ScalarConditions>>>...>>;
 };
 
+template <typename ClassList>
+struct remove_periodic_conditions {
+  using type = tmpl::remove_if<
+      ClassList,
+      std::is_base_of<domain::BoundaryConditions::MarkAsPeriodic, tmpl::_1>>;
+};
+
+template <typename ClassList>
+using remove_periodic_conditions_t =
+    typename remove_periodic_conditions<ClassList>::type;
 }  // namespace detail
 
 // remove the periodic BCs from the creatable classes of the
