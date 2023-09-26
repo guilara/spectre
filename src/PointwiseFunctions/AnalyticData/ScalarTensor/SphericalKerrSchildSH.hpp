@@ -136,18 +136,18 @@ class SphericalKerrSchildSH
   /// @{
   /// Retrieve scalar variable at `x`
   template <typename DataType>
-  auto variables(const tnsr::I<DataType, 3>& x
+  auto variables(const tnsr::I<DataType, 3>& x,
                      tmpl::list<CurvedScalarWave::Tags::Psi> /*meta*/) const
       -> tuples::TaggedTuple<CurvedScalarWave::Tags::Psi>;
 
   template <typename DataType>
   auto variables(
-      const tnsr::I<DataType, 3>& x
+      const tnsr::I<DataType, 3>& x,
           tmpl::list<CurvedScalarWave::Tags::Phi<3_st>> /*meta*/) const
       -> tuples::TaggedTuple<CurvedScalarWave::Tags::Phi<3_st>>;
 
   template <typename DataType>
-  auto variables(const tnsr::I<DataType, 3>& x
+  auto variables(const tnsr::I<DataType, 3>& x,
                      tmpl::list<CurvedScalarWave::Tags::Pi> /*meta*/) const
       -> tuples::TaggedTuple<CurvedScalarWave::Tags::Pi>;
   /// @}
