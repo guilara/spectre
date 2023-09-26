@@ -185,7 +185,7 @@ class SphericalKerrSchildSH
     static_assert(sizeof...(Tags) > 1,
                   "The generic template will recurse infinitely if only one "
                   "tag is being retrieved.");
-    return {get<Tags>(variables(x, t, tmpl::list<Tags>{}))...};
+    return {get<Tags>(variables(x, tmpl::list<Tags>{}))...};
   }
 
   /// Retrieve the metric variables
