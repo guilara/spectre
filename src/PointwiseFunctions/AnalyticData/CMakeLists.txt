@@ -15,10 +15,12 @@ spectre_target_headers(
 
 add_subdirectory(Burgers)
 add_subdirectory(CurvedWaveEquation)
+add_subdirectory(FixedScalarTensor)
 add_subdirectory(ForceFree)
 add_subdirectory(GeneralRelativity)
 add_subdirectory(GhGrMhd)
 add_subdirectory(GhScalarTensor)
+add_subdirectory(GhFixedScalarTensor)
 add_subdirectory(GrMhd)
 add_subdirectory(NewtonianEuler)
 add_subdirectory(Punctures)
