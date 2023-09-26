@@ -5,6 +5,7 @@
 
 #include <cstddef>
 
+#include "PointwiseFunctions/AnalyticData/GhFixedScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticData/GhGrMhd/Factory.hpp"
 #include "PointwiseFunctions/AnalyticData/GhScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Factory.hpp"
@@ -27,6 +28,7 @@ using solutions_including_matter = tmpl::append<
     tmpl::conditional_t<
         Dim == 3,
         tmpl::append<ghmhd_solutions,
-                     gh::ScalarTensor::AnalyticData::all_analytic_data>,
+                     gh::ScalarTensor::AnalyticData::all_analytic_data,
+                     gh::fe::DecoupledScalar::AnalyticData::all_analytic_data>,
         tmpl::list<>>>;
 }  // namespace gh
