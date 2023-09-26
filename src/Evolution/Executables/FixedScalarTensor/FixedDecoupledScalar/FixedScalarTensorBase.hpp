@@ -117,6 +117,9 @@
 //
 #include "ParallelAlgorithms/Actions/MemoryMonitor/ContributeMemoryData.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
+#include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/ErrorOnFailedApparentHorizon.hpp"
+#include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/FindApparentHorizon.hpp"
+#include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/IgnoreFailedApparentHorizon.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/MonitorMemory.hpp"
 #include "ParallelAlgorithms/Events/ObserveTimeStep.hpp"
