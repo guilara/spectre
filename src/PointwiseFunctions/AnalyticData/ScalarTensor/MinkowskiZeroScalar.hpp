@@ -10,9 +10,9 @@
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "Options/String.hpp"
-#include "PointwiseFunctions/AnalyticSolutions/AnalyticSolution.hpp"
+#include "PointwiseFunctions/AnalyticData/AnalyticData.hpp"
+#include "PointwiseFunctions/AnalyticData/ScalarTensor/AnalyticData.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Minkowski.hpp"
-#include "PointwiseFunctions/AnalyticSolutions/ScalarTensor/Solutions.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialData.hpp"
 #include "Utilities/Serialization/CharmPupable.hpp"
 #include "Utilities/TMPL.hpp"
@@ -26,15 +26,13 @@ class er;  // IWYU pragma: keep
 }  // namespace PUP
 /// \endcond
 
-namespace ScalarTensor::Solutions {
+namespace ScalarTensor::AnalyticData {
 /*!
  * \brief Set the scalar variables to zero on Minkowski space.
  */
-class MinkowskiZeroScalar : /* public evolution::initial_data::InitialData, */
-                            /* Why does it work with `virtual`? */
-                            public virtual evolution::initial_data::InitialData,
-                            public AnalyticSolution,
-                            public MarkAsAnalyticSolution {
+class MinkowskiZeroScalar : public virtual evolution::initial_data::InitialData,
+                            public MarkAsAnalyticData,
+                            public AnalyticDataBase {
  public:
 
   /// The amplitude of the scalar field
@@ -70,7 +68,7 @@ class MinkowskiZeroScalar : /* public evolution::initial_data::InitialData, */
   // solutions
   template <typename DataType, typename Frame = Frame::Inertial>
   using tags = tmpl::flatten<tmpl::list<
-      typename AnalyticSolution::template tags<DataType>,
+      typename AnalyticDataBase::template tags<DataType>,
       gr::Tags::DerivDetSpatialMetric<DataType, 3_st, Frame>,
       gr::Tags::TraceExtrinsicCurvature<DataType>,
       gr::Tags::SpatialChristoffelFirstKind<DataType, 3_st, Frame>,
@@ -80,17 +78,17 @@ class MinkowskiZeroScalar : /* public evolution::initial_data::InitialData, */
   /// @{
   /// Retrieve scalar variable at `(x, t)`
   template <typename DataType>
-  auto variables(const tnsr::I<DataType, 3>& x, double t,
+  auto variables(const tnsr::I<DataType, 3>& x,
                  tmpl::list<CurvedScalarWave::Tags::Psi> /*meta*/) const
       -> tuples::TaggedTuple<CurvedScalarWave::Tags::Psi>;
 
   template <typename DataType>
-  auto variables(const tnsr::I<DataType, 3>& x, double t,
+  auto variables(const tnsr::I<DataType, 3>& x,
                  tmpl::list<CurvedScalarWave::Tags::Phi<3_st>> /*meta*/) const
       -> tuples::TaggedTuple<CurvedScalarWave::Tags::Phi<3_st>>;
 
   template <typename DataType>
-  auto variables(const tnsr::I<DataType, 3>& x, double t,
+  auto variables(const tnsr::I<DataType, 3>& x,
                  tmpl::list<CurvedScalarWave::Tags::Pi> /*meta*/) const
       -> tuples::TaggedTuple<CurvedScalarWave::Tags::Pi>;
   /// @}
@@ -98,19 +96,19 @@ class MinkowskiZeroScalar : /* public evolution::initial_data::InitialData, */
   /// Retrieve a collection of scalar variables at `(x, t)`
   template <typename DataType, typename... Tags>
   tuples::TaggedTuple<Tags...> variables(const tnsr::I<DataType, 3>& x,
-                                         double t,
                                          tmpl::list<Tags...> /*meta*/) const {
     static_assert(sizeof...(Tags) > 1,
                   "The generic template will recurse infinitely if only one "
                   "tag is being retrieved.");
-    return {get<Tags>(variables(x, t, tmpl::list<Tags>{}))...};
+    return {get<Tags>(variables(x, tmpl::list<Tags>{}))...};
   }
 
   /// Retrieve the metric variables
   template <typename DataType, typename Tag>
-  tuples::TaggedTuple<Tag> variables(const tnsr::I<DataType, 3>& x, double t,
+  tuples::TaggedTuple<Tag> variables(const tnsr::I<DataType, 3>& x,
                                      tmpl::list<Tag> /*meta*/) const {
-    return background_spacetime_.variables(x, t, tmpl::list<Tag>{});
+    // We need to provide a time argument for the background solution
+    return background_spacetime_.variables(x, 0.0, tmpl::list<Tag>{});
   }
 
   // NOLINTNEXTLINE(google-runtime-references)
@@ -126,4 +124,4 @@ class MinkowskiZeroScalar : /* public evolution::initial_data::InitialData, */
 
 bool operator!=(const MinkowskiZeroScalar& lhs, const MinkowskiZeroScalar& rhs);
 
-}  // namespace ScalarTensor::Solutions
+}  // namespace ScalarTensor::AnalyticData
