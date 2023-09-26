@@ -5,10 +5,11 @@
 
 #include <cstddef>
 
+#include "PointwiseFunctions/AnalyticData/GhFixedScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticData/GhGrMhd/Factory.hpp"
+#include "PointwiseFunctions/AnalyticData/GhScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GhGrMhd/Factory.hpp"
-#include "PointwiseFunctions/AnalyticData/GhScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GhRelativisticEuler/Factory.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -25,6 +26,7 @@ using solutions_including_matter = tmpl::append<
         tmpl::append<gh::RelativisticEuler::Solutions::all_solutions,
                      gh::grmhd::Solutions::all_solutions,
                      gh::grmhd::AnalyticData::all_analytic_data,
-                     gh::ScalarTensor::AnalyticData::all_analytic_data>,
+                     gh::ScalarTensor::AnalyticData::all_analytic_data,
+                     gh::fe::DecoupledScalar::AnalyticData::all_analytic_data>,
         tmpl::list<>>>;
 }  // namespace gh
