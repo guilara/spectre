@@ -36,7 +36,7 @@
 #include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
 #include "Utilities/TMPL.hpp"
 
-namespace ScalarTensor::Initialization {
+namespace fe::DecoupledScalar::Initialization {
 
 /// \brief List of compute tags to be initialized in the ScalarTensor system
 ///
@@ -104,4 +104,4 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     fe::ScalarDriver::Tags::TargetPsiCompute<Fr, DataVector>,
     fe::ScalarDriver::Tags::ScalarDriverSourceCompute<Fr, DataVector>>;
 
-}  // namespace ScalarTensor::Initialization
+}  // namespace fe::DecoupledScalar::Initialization
