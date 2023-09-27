@@ -10,7 +10,10 @@ set(LIBS_TO_LINK
   EventsAndTriggers
   Evolution
   GeneralRelativity
+  GeneralRelativityAnalyticData
+  GeneralRelativitySolutions
   GeneralizedHarmonic
+  Importers
   Informer
   Interpolation
   LinearOperators
@@ -29,7 +32,6 @@ set(LIBS_TO_LINK
   ScalarTensor
   ScalarTensorPointwise
   ScalarTensorAnalyticData
-  ScalarTensorSources
   GhScalarTensorAnalyticData
   ScalarDriver
   FixedDecoupledScalar
@@ -42,5 +44,5 @@ add_spectre_parallel_executable(
   EvolveFixedDecoupledScalarSingleBlackHole
   Evolution/Executables/FixedScalarTensor/FixedDecoupledScalar
   "EvolutionMetavars<3, false>"
-  "${LIBS_TO_LINK};ApparentHorizons;ControlSystem;GeneralRelativitySolutions"
+  "${LIBS_TO_LINK};ApparentHorizonFinder;ControlSystem"
   )
