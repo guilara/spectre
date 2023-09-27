@@ -284,15 +284,17 @@ struct ObserverTags {
 
   using observe_fields = tmpl::append<
       tmpl::push_back<
+          tmpl::append<
           // GH field tags
           system::gh_system::gh_system::variables_tag::tags_list,
+          // Driver tags
+                       system::scalar_system::variables_tag::tags_list>,
           // Csw field tags
           ScalarTensor::Tags::CswCompute<CurvedScalarWave::Tags::Psi>,
           ScalarTensor::Tags::CswCompute<CurvedScalarWave::Tags::Pi>,
           ScalarTensor::Tags::CswCompute<
               CurvedScalarWave::Tags::Phi<volume_dim>>,
-          // Driver field tags
-          system::scalar_system::variables_tag::tags_list,
+          //   system::scalar_system::variables_tag::tags_list,
           // (These gauge tags need subsequent tags to compile [why?])
           gh::Tags::GaugeH<DataVector, volume_dim, Frame::Inertial>,
           gh::Tags::SpacetimeDerivGaugeH<DataVector, volume_dim,
