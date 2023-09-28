@@ -22,7 +22,10 @@ DemandOutgoingCharSpeeds::get_clone() const {
   return std::make_unique<DemandOutgoingCharSpeeds>(*this);
 }
 
-void DemandOutgoingCharSpeeds::pup(PUP::er& p) { BoundaryCondition::pup(p); }
+void DemandOutgoingCharSpeeds::pup(PUP::er& p) {
+  BoundaryCondition::pup(p);
+  p | csw_boundary_instance_;
+}
 
 DemandOutgoingCharSpeeds::DemandOutgoingCharSpeeds(CkMigrateMessage* const msg)
     : BoundaryCondition(msg) {}
