@@ -23,7 +23,10 @@ std::unique_ptr<BoundaryCorrection> UpwindPenalty::get_clone() const {
   return std::make_unique<UpwindPenalty>(*this);
 }
 
-void UpwindPenalty::pup(PUP::er& p) { BoundaryCorrection::pup(p); }
+void UpwindPenalty::pup(PUP::er& p) {
+  BoundaryCorrection::pup(p);
+  p | boundary_correction_for_scalar_;
+}
 
 // NOLINTNEXTLINE
 PUP::able::PUP_ID UpwindPenalty::my_PUP_ID = 0;
