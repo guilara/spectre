@@ -23,10 +23,18 @@ AnalyticConstant::get_clone() const {
 
 void AnalyticConstant::pup(PUP::er& p) {
   BoundaryCondition::pup(p);
+  p | amplitude_;
+  p | csw_analytic_constant_;
 }
 
 AnalyticConstant::AnalyticConstant(CkMigrateMessage* const msg)
     : BoundaryCondition(msg) {}
+
+AnalyticConstant::AnalyticConstant(const double amplitude)
+    : amplitude_(amplitude) {
+  csw_analytic_constant_ =
+      CurvedScalarWave::BoundaryConditions::AnalyticConstant<3>(amplitude);
+}
 
 // NOLINTNEXTLINE
 PUP::able::PUP_ID AnalyticConstant::my_PUP_ID = 0;
