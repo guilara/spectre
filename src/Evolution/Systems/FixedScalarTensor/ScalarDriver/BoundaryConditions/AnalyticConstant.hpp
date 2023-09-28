@@ -32,10 +32,17 @@ namespace fe::ScalarDriver::BoundaryConditions {
 /// outer boundary.
 class AnalyticConstant final : public BoundaryCondition {
  public:
-  using options = tmpl::list<>;
+  struct Amplitude {
+    using type = double;
+    static constexpr Options::String help = {
+        "Amplitude of the scalar at the boundary"};
+  };
+  using options = tmpl::list<Amplitude>;
   static constexpr Options::String help{
       "Boundary conditions which check that all characteristic "
       "fields are outflowing."};
+
+  AnalyticConstant(double amplitude);
   AnalyticConstant() = default;
   /// \cond
   AnalyticConstant(AnalyticConstant&&) = default;
@@ -92,9 +99,7 @@ class AnalyticConstant final : public BoundaryCondition {
       const Scalar<DataVector>& lapse_interior,
       const tnsr::I<DataVector, 3_st>& shift_interior) const {
     // Use the boundary condition from CurvedScalarWave
-    CurvedScalarWave::BoundaryConditions::AnalyticConstant<3_st>
-        csw_analytic_constant;
-    auto fe_string = csw_analytic_constant.dg_ghost(
+    auto fe_string = csw_analytic_constant_.dg_ghost(
         psi, pi, phi, lapse, shift, gamma1, gamma2, inverse_spatial_metric,
 
         face_mesh_velocity, normal_covector, normal_vector,
@@ -106,5 +111,10 @@ class AnalyticConstant final : public BoundaryCondition {
     }
     return std::nullopt;
   }
+
+ private:
+  CurvedScalarWave::BoundaryConditions::AnalyticConstant<3_st>
+      csw_analytic_constant_;
+  double amplitude_ = std::numeric_limits<double>::signaling_NaN();
 };
 }  // namespace fe::ScalarDriver::BoundaryConditions
