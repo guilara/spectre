@@ -40,6 +40,10 @@ class UpwindPenalty final : public BoundaryCorrection {
     using type = tnsr::a<DataVector, 3, Frame::Inertial>;
   };
 
+  CurvedScalarWave::BoundaryCorrections::UpwindPenalty<3_st>
+      boundary_correction_for_scalar_ =
+          CurvedScalarWave::BoundaryCorrections::UpwindPenalty<3_st>();
+
  public:
   using options = tmpl::list<>;
   static constexpr Options::String help = {
@@ -100,9 +104,7 @@ class UpwindPenalty final : public BoundaryCorrection {
           mesh_velocity,
       const std::optional<Scalar<DataVector>>& normal_dot_mesh_velocity) const {
     // Use the CurvedScalarWave routines
-    CurvedScalarWave::BoundaryCorrections::UpwindPenalty<3_st>
-        boundary_correction_for_scalar;
-    return boundary_correction_for_scalar.dg_package_data(
+    return boundary_correction_for_scalar_.dg_package_data(
         packaged_v_psi, packaged_v_zero, packaged_v_plus, packaged_v_minus,
         packaged_gamma2, packaged_interface_unit_normal, packaged_char_speeds,
 
@@ -141,20 +143,17 @@ class UpwindPenalty final : public BoundaryCorrection {
     // Use the CurvedScalarWave routines
     CurvedScalarWave::BoundaryCorrections::UpwindPenalty<3_st>
         boundary_correction_for_scalar;
-    boundary_correction_for_scalar.dg_boundary_terms(psi_boundary_correction,
-                                 pi_boundary_correction,
-                                 phi_boundary_correction,
+    boundary_correction_for_scalar_.dg_boundary_terms(
+        psi_boundary_correction, pi_boundary_correction,
+        phi_boundary_correction,
 
-                                 v_psi_int, v_zero_int, v_plus_int, v_minus_int,
-                                 gamma2_int,
+        v_psi_int, v_zero_int, v_plus_int, v_minus_int, gamma2_int,
 
-                                 interface_unit_normal_int, char_speeds_int,
+        interface_unit_normal_int, char_speeds_int,
 
-                                 v_psi_ext, v_zero_ext, v_plus_ext, v_minus_ext,
-                                 gamma2_ext,
+        v_psi_ext, v_zero_ext, v_plus_ext, v_minus_ext, gamma2_ext,
 
-                                 interface_unit_normal_ext, char_speeds_ext,
-                                 dg_formulation);
+        interface_unit_normal_ext, char_speeds_ext, dg_formulation);
   }
 };
 }  // namespace fe::ScalarDriver::BoundaryCorrections
