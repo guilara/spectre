@@ -77,9 +77,7 @@ class DemandOutgoingCharSpeeds final : public BoundaryCondition {
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& lapse,
       const tnsr::I<DataVector, 3_st>& shift) const {
     // Use the boundary condition from CurvedScalarWave
-    CurvedScalarWave::BoundaryConditions::DemandOutgoingCharSpeeds<3_st>
-        csw_boundary_instance;
-    auto fe_string = csw_boundary_instance.dg_demand_outgoing_char_speeds(
+    auto fe_string = csw_boundary_instance_.dg_demand_outgoing_char_speeds(
         face_mesh_velocity, normal_covector, normal_vector, gamma1, lapse,
         shift);
     if (not fe_string.has_value()) {
@@ -87,5 +85,11 @@ class DemandOutgoingCharSpeeds final : public BoundaryCondition {
     }
     return std::nullopt;
   }
+
+ private:
+  CurvedScalarWave::BoundaryConditions::DemandOutgoingCharSpeeds<3_st>
+      csw_boundary_instance_ =
+          CurvedScalarWave::BoundaryConditions::DemandOutgoingCharSpeeds<
+              3_st>();
 };
 }  // namespace fe::ScalarDriver::BoundaryConditions
