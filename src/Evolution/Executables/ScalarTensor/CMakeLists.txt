@@ -39,3 +39,17 @@ add_spectre_parallel_executable(
   "EvolutionMetavars"
   "${LIBS_TO_LINK};ApparentHorizonFinder;ControlSystem"
   )
+
+add_spectre_parallel_executable(
+  "EvolveScalarTensorBinaryBlackHole"
+  EvolveScalarTensorBinaryBlackHole
+  Evolution/Executables/ScalarTensor
+  "EvolutionMetavars"
+  "${LIBS_TO_LINK};ApparentHorizonFinder;Cce;ControlSystem;Deadlock;EvolutionTriggers"
+)
+
+
+if (TARGET SpEC::Exporter)
+  target_compile_definitions(
+    EvolveScalarTensorBinaryBlackHole PRIVATE HAS_SPEC_EXPORTER)
+endif()
