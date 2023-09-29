@@ -590,6 +590,9 @@ struct EvolutionMetavars {
       Initialization::Actions::AddComputeTags<
           ScalarTensor::Initialization::scalar_tensor_3plus1_compute_tags<
               volume_dim>>,
+      // For now we initially set the scalar variables to analytic values
+      Initialization::Actions::AddSimpleTags<
+          ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
       Initialization::Actions::AddComputeTags<
           tmpl::push_back<StepChoosers::step_chooser_compute_tags<
               EvolutionMetavars, local_time_stepping>>>,
