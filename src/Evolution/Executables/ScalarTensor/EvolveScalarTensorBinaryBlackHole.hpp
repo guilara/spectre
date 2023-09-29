@@ -149,6 +149,7 @@
 #include "ParallelAlgorithms/Interpolation/Protocols/InterpolationTargetTag.hpp"
 #include "ParallelAlgorithms/Interpolation/Tags.hpp"
 #include "ParallelAlgorithms/Interpolation/Targets/Sphere.hpp"
+#include "PointwiseFunctions/AnalyticData/GhScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/ConstraintGammas.hpp"
@@ -468,6 +469,8 @@ struct EvolutionMetavars {
             evolution::initial_data::InitialData,
             tmpl::flatten<tmpl::list<
                 gh::NumericInitialData,
+                // We add the analytic data to be able to impose Dirichlet BCs
+                gh::ScalarTensor::AnalyticData::all_analytic_data,
                 tmpl::conditional_t<std::is_same_v<SpecInitialData, NoSuchType>,
                                     tmpl::list<>, SpecInitialData>>>>,
         tmpl::pair<DenseTrigger,
