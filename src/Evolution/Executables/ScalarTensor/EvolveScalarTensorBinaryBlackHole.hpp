@@ -94,6 +94,7 @@
 #include "Options/Options.hpp"
 #include "Options/ParseOptions.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
+#include "Options/String.hpp"
 #include "Parallel/Algorithms/AlgorithmSingleton.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/InitializationFunctions.hpp"
@@ -185,6 +186,7 @@
 #include "Utilities/ErrorHandling/SegfaultHandler.hpp"
 #include "Utilities/Functional.hpp"
 #include "Utilities/GetOutput.hpp"
+#include "Utilities/NoSuchType.hpp"
 #include "Utilities/ProtocolHelpers.hpp"
 #include "Utilities/Serialization/RegisterDerivedClassesWithCharm.hpp"
 #include "Utilities/TMPL.hpp"
@@ -245,16 +247,11 @@ struct EvolutionMetavars {
 
   static constexpr size_t volume_dim = 3;
   static constexpr bool use_damped_harmonic_rollon = false;
-  //   using system = gh::System<volume_dim>;
   using system = ScalarTensor::System;
   static constexpr dg::Formulation dg_formulation =
       dg::Formulation::StrongInertial;
   using temporal_id = Tags::TimeStepId;
   static constexpr bool local_time_stepping = true;
-  // Set override_functions_of_time to true to override the
-  // 2nd or 3rd order piecewise polynomial functions of time using
-  // `read_spec_piecewise_polynomial()`
-  static constexpr bool override_functions_of_time = false;
 
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
       Actions::MutateApply<gh::gauges::SetPiAndPhiFromConstraints<volume_dim>>,
@@ -356,7 +353,6 @@ struct EvolutionMetavars {
                  gh::Tags::Pi<DataVector, volume_dim>,
                  gh::Tags::Phi<DataVector, volume_dim>>;
 
-  //   using observe_fields = system::gh_system::variables_tag::tags_list;
   using observe_fields = tmpl::append<
       tmpl::push_back<
           system::gh_system::variables_tag::tags_list,
@@ -431,7 +427,6 @@ struct EvolutionMetavars {
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
-      //   error_tags,
       // The 4-index constraint is only implemented in 3d
       tmpl::conditional_t<
           volume_dim == 3,
