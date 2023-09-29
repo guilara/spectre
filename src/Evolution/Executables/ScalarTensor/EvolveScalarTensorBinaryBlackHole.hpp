@@ -325,7 +325,7 @@ struct EvolutionMetavars {
         tags_to_observe, ExcisionBoundary<Excision>, ::Frame::Grid>;
     // run_callbacks
     template <typename metavariables>
-    using interpolating_component = typename metavariables::gh_dg_element_array;
+    using interpolating_component = typename metavariables::st_dg_element_array;
     static std::string name() {
       return "ObservationExcisionBoundary" + ::domain::name(Excision);
     }
@@ -641,7 +641,7 @@ struct EvolutionMetavars {
         intrp::callbacks::DumpBondiSachsOnWorldtube<BondiSachs>;
     using compute_items_on_target = tmpl::list<>;
     template <typename Metavariables>
-    using interpolating_component = gh_dg_element_array;
+    using interpolating_component = st_dg_element_array;
   };
 
   using interpolation_target_tags = tmpl::push_back<
@@ -654,7 +654,7 @@ struct EvolutionMetavars {
   struct registration
       : tt::ConformsTo<Parallel::protocols::RegistrationMetavariables> {
     using element_registrars =
-        tmpl::map<tmpl::pair<gh_dg_element_array, dg_registration_list>>;
+        tmpl::map<tmpl::pair<st_dg_element_array, dg_registration_list>>;
   };
 
   using control_components =
@@ -672,7 +672,7 @@ struct EvolutionMetavars {
     Parallel::printf("%s\n", time_bounds);
 
     if (alg::count(deadlocked_components,
-                   pretty_type::name<gh_dg_element_array>()) == 1) {
+                   pretty_type::name<st_dg_element_array>()) == 1) {
       tmpl::for_each<control_components>([&cache](auto component_v) {
         using component = tmpl::type_from<decltype(component_v)>;
         Parallel::simple_action<
@@ -681,7 +681,7 @@ struct EvolutionMetavars {
       });
 
       Parallel::simple_action<deadlock::PrintElementInfo>(
-          Parallel::get_parallel_component<gh_dg_element_array>(cache));
+          Parallel::get_parallel_component<st_dg_element_array>(cache));
     }
   }
 
