@@ -255,6 +255,9 @@ struct EvolutionMetavars {
   static constexpr bool local_time_stepping = true;
 
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
+        // For now we initially set the scalar variables to analytic values
+      Initialization::Actions::AddSimpleTags<
+          ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
       Actions::MutateApply<gh::gauges::SetPiAndPhiFromConstraints<volume_dim>>,
       Initialization::Actions::AddSimpleTags<
           ScalarTensor::Initialization::
@@ -593,9 +596,6 @@ struct EvolutionMetavars {
       Initialization::Actions::AddComputeTags<
           ScalarTensor::Initialization::scalar_tensor_3plus1_compute_tags<
               volume_dim>>,
-      // For now we initially set the scalar variables to analytic values
-      Initialization::Actions::AddSimpleTags<
-          ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
       Initialization::Actions::AddComputeTags<
           tmpl::push_back<StepChoosers::step_chooser_compute_tags<
               EvolutionMetavars, local_time_stepping>>>,
