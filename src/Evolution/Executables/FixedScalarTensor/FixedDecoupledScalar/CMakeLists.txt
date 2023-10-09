@@ -2,6 +2,7 @@
 # See LICENSE.txt for details.
 
 set(LIBS_TO_LINK
+  Charmxx::main
   CoordinateMaps
   DiscontinuousGalerkin
   Domain
@@ -39,10 +40,22 @@ set(LIBS_TO_LINK
   GhFixedScalarTensorAnalyticData
   )
 
-add_spectre_parallel_executable(
-  EvolveFixedDecoupledScalarSingleBlackHole
-  EvolveFixedDecoupledScalarSingleBlackHole
-  Evolution/Executables/FixedScalarTensor/FixedDecoupledScalar
-  "EvolutionMetavars<3, false>"
-  "${LIBS_TO_LINK};ApparentHorizonFinder;ControlSystem"
+set(SINGLE_BH_EXECUTABLE EvolveFixedDecoupledScalarSingleBlackHole)
+add_spectre_executable(
+  ${SINGLE_BH_EXECUTABLE}
+  EXCLUDE_FROM_ALL
+  EvolveFixedDecoupledScalarSingleBlackHole.cpp
+  )
+target_compile_definitions(
+  ${SINGLE_BH_EXECUTABLE}
+  PRIVATE
+  DIM=3
+  USE_NUMERICAL_ID="False"
+  )
+target_link_libraries(
+  ${SINGLE_BH_EXECUTABLE}
+  PRIVATE
+  ${LIBS_TO_LINK}
+  ApparentHorizonFinder
+  ControlSystem
   )
