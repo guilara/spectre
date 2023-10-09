@@ -50,7 +50,7 @@ target_compile_definitions(
   ${SINGLE_BH_EXECUTABLE}
   PRIVATE
   DIM=3
-  USE_NUMERICAL_ID="False"
+  USE_NUMERICAL_ID=False
   )
 target_link_libraries(
   ${SINGLE_BH_EXECUTABLE}
