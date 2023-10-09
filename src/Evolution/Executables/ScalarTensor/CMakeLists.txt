@@ -1,18 +1,7 @@
 # Distributed under the MIT License.
 # See LICENSE.txt for details.
 
-set(EXECUTABLE EvolveScalarTensorSingleBlackHole)
-
-add_spectre_executable(
-  ${EXECUTABLE}
-  EXCLUDE_FROM_ALL
-  EvolveScalarTensorSingleBlackHole.cpp
-  )
-
-target_link_libraries(
-  ${EXECUTABLE}
-  PRIVATE
-  Actions
+set(LIBS_TO_LINK
   ApparentHorizonFinder
   Charmxx::main
   ControlSystem
@@ -44,4 +33,31 @@ target_link_libraries(
   Serialization
   Time
   Utilities
+  )
+
+set(SINGLE_BH_EXECUTABLE EvolveScalarTensorSingleBlackHole)
+add_spectre_executable(
+  ${SINGLE_BH_EXECUTABLE}
+  EXCLUDE_FROM_ALL
+  EvolveScalarTensorSingleBlackHole.cpp
+  )
+target_link_libraries(
+  ${SINGLE_BH_EXECUTABLE}
+  PRIVATE
+  ${LIBS_TO_LINK}
+  )
+
+set(BBH_EXECUTABLE EvolveScalarTensorBinaryBlackHole)
+add_spectre_executable(
+  ${BBH_EXECUTABLE}
+  EXCLUDE_FROM_ALL
+  EvolveScalarTensorBinaryBlackHole.cpp
+  )
+target_link_libraries(
+  ${BBH_EXECUTABLE}
+  PRIVATE
+  ${LIBS_TO_LINK}
+  Cce
+  Deadlock
+  EvolutionTriggers
   )
