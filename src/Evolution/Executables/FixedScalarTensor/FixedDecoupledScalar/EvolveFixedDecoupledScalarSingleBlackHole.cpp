@@ -13,6 +13,9 @@
 #include "Parallel/CharmMain.tpp"
 #include "Utilities/Serialization/RegisterDerivedClassesWithCharm.hpp"
 
+// Parameters chosen in CMakeLists.txt
+using metavariables = EvolutionMetavars<DIM, USE_NUMERICAL_ID>;
+
 extern "C" void CkRegisterMainModule() {
   Parallel::charmxx::register_main_module<EvolutionMetavars>();
   Parallel::charmxx::register_init_node_and_proc(
