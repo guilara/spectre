@@ -460,17 +460,3 @@ struct EvolutionMetavars
       //   intrp::InterpolationTarget<EvolutionMetavars, SphericalSurface6>
       >>;
 };
-
-static const std::vector<void (*)()> charm_init_node_funcs{
-    &setup_error_handling, &disable_openblas_multithreading,
-    &domain::creators::time_dependence::register_derived_with_charm,
-    &domain::FunctionsOfTime::register_derived_with_charm,
-    // &gh::BoundaryCorrections::register_derived_with_charm,
-    // &ScalarTensor::BoundaryCorrections::register_derived_with_charm,
-    &fe::DecoupledScalar::BoundaryCorrections::register_derived_with_charm,
-    &domain::creators::register_derived_with_charm,
-    &gh::ConstraintDamping::register_derived_with_charm,
-    &register_factory_classes_with_charm<metavariables>};
-
-static const std::vector<void (*)()> charm_init_proc_funcs{
-    &enable_floating_point_exceptions, &enable_segfault_handler};
