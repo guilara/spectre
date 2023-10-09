@@ -667,7 +667,7 @@ struct EvolutionMetavars {
       control_system::control_components<EvolutionMetavars, control_systems>;
 
   static void run_deadlock_analysis_simple_actions(
-      Parallel::GlobalCache<metavariables>& cache,
+      Parallel::GlobalCache<EvolutionMetavars>& cache,
       const std::vector<std::string>& deadlocked_components) {
     const auto& functions_of_time =
         Parallel::get<::domain::Tags::FunctionsOfTime>(cache);
