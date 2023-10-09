@@ -706,18 +706,3 @@ struct EvolutionMetavars {
   static constexpr Options::String help{
       "Evolve a binary black hole using in ScalarTensor.\n"};
 };
-
-static const std::vector<void (*)()> charm_init_node_funcs{
-    &setup_error_handling,
-    &setup_memory_allocation_failure_reporting,
-    &disable_openblas_multithreading,
-    &domain::creators::time_dependence::register_derived_with_charm,
-    &domain::FunctionsOfTime::register_derived_with_charm,
-    &control_system::size::register_derived_with_charm,
-    &ScalarTensor::BoundaryCorrections::register_derived_with_charm,
-    &domain::creators::register_derived_with_charm,
-    &gh::ConstraintDamping::register_derived_with_charm,
-    &register_factory_classes_with_charm<metavariables>};
-
-static const std::vector<void (*)()> charm_init_proc_funcs{
-    &enable_floating_point_exceptions, &enable_segfault_handler};
