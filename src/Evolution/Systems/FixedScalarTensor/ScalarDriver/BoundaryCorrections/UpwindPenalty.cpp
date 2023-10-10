@@ -54,6 +54,23 @@ void UpwindPenalty::pup(PUP::er& p) {
           mesh_velocity,
       const std::optional<Scalar<DataVector>>& normal_dot_mesh_velocity) const {
     // Advection driver modifications
+    *packaged_gamma2 = constraint_gamma2;
+    *packaged_interface_unit_normal = interface_unit_normal;
+
+    characteristic_fields(packaged_v_psi, packaged_v_zero, packaged_v_plus,
+                          packaged_v_minus, constraint_gamma2, psi, pi, phi,
+                          interface_unit_normal, interface_unit_normal_vector);
+    characteristic_speeds(packaged_char_speeds, constraint_gamma1, lapse, shift,
+                          interface_unit_normal);
+    if (normal_dot_mesh_velocity.has_value()) {
+      get<0>(*packaged_char_speeds) -= get(*normal_dot_mesh_velocity);
+      get<1>(*packaged_char_speeds) -= get(*normal_dot_mesh_velocity);
+      get<2>(*packaged_char_speeds) -= get(*normal_dot_mesh_velocity);
+      get<3>(*packaged_char_speeds) -= get(*normal_dot_mesh_velocity);
+    }
+
+    return max(max(get<0>(*packaged_char_speeds), get<1>(*packaged_char_speeds),
+                   get<2>(*packaged_char_speeds)));
   }
 
   void UpwindPenalty::dg_boundary_terms(
@@ -81,7 +98,31 @@ void UpwindPenalty::pup(PUP::er& p) {
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext,
       dg::Formulation dg_formulation) const {
     // Advection driver modifications
-  }
+    // The boundary corrections for Psi and Pi are those of the simple
+    // advection equation
+    get(*psi_boundary_correction) =
+        -step_function(get<0>(char_speeds_ext)) * get<0>(char_speeds_ext) *
+            get(v_psi_ext) -
+        step_function(-get<0>(char_speeds_int)) * get<0>(char_speeds_int) *
+            get(v_psi_int);
+
+    get(*pi_boundary_correction) =
+        -step_function(get<2>(char_speeds_ext)) * get<2>(char_speeds_ext) *
+            get(v_plus_ext) -
+        step_function(-get<2>(char_speeds_int)) * get<2>(char_speeds_int) *
+            get(v_plus_int);
+
+    // We set the boundary correction of Phi to zero as we are not using this
+    // field
+    for (size_t i = 0; i < 3; ++i) {
+      phi_boundary_correction->get(i) =
+          0.0 *
+          (-step_function(get<3>(char_speeds_ext)) * get<3>(char_speeds_ext) *
+               get(v_minus_ext) -
+           step_function(-get<3>(char_speeds_int)) * get<3>(char_speeds_int) *
+               get(v_minus_int)) *
+          interface_unit_normal_int.get(i);
+    }
 }
 
 // NOLINTNEXTLINE
