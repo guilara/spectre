@@ -23,7 +23,6 @@ void characteristic_speeds(
     const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
     const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form) {
-  destructive_resize_components(char_speeds, get(gamma_1).size());
   const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
   get<0>(*char_speeds) = -(1. + get(gamma_1)) * shift_dot_normal;  // v(VPsi)
   get<1>(*char_speeds) = -shift_dot_normal;                        // v(VZero)
