@@ -66,4 +66,21 @@ void compute_target_psi(const gsl::not_null<Scalar<DataVector>*> target_psi,
   target_psi->get() = psi.get();
 }
 
+// For the exponential driver
+void add_scalar_driver_source_to_dt_psi_scalar_for_exponential_driver(
+    gsl::not_null<Scalar<DataVector>*> dt_psi,
+    const Scalar<DataVector>& scalar_driver_source) {
+  dt_psi->get() += scalar_driver_source.get();
+}
+
+void compute_scalar_driver_source_for_exponential_driver(
+    const gsl::not_null<Scalar<DataVector>*> scalar_driver_source,
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi,
+    const double scalar_tau_parameter, const double scalar_sigma_parameter) {
+  // Make sure it has the same size
+  // *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
+  scalar_driver_source->get() =
+      (-1.0 / scalar_tau_parameter) * (psi.get() - target_psi.get());
+}
+
 }  // namespace fe::ScalarDriver::Sources
