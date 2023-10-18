@@ -411,7 +411,7 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
       *this, internal_tags::deriv_null_form_unboosted<DataType, Frame>{});
   // Inverse-boost the first index, because it represents the derivative which
   // is given in the boosted frame
-  sr::lorentz_boost(deriv_null_form_boosted, deriv_null_form, 0.0, 0.0);
+  *deriv_null_form_boosted = deriv_null_form;
 }
 
 template <typename DataType, typename Frame>
