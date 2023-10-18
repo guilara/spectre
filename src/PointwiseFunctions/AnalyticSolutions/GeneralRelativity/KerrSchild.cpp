@@ -17,6 +17,7 @@
 #include "PointwiseFunctions/GeneralRelativity/ExtrinsicCurvature.hpp"
 #include "PointwiseFunctions/GeneralRelativity/IndexManipulation.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
+#include "PointwiseFunctions/SpecialRelativity/LorentzBoostMatrix.hpp"
 #include "Utilities/ConstantExpressions.hpp"
 #include "Utilities/ContainerHelpers.hpp"
 #include "Utilities/GenerateInstantiations.hpp"
@@ -31,12 +32,12 @@ KerrSchild::KerrSchild(CkMigrateMessage* /*msg*/) {}
 KerrSchild::KerrSchild(const double mass,
                        const std::array<double, 3>& dimensionless_spin,
                        const std::array<double, 3>& center,
+                       const std::array<double, 3>& boost_velocity,
                        const Options::Context& context)
     : mass_(mass),
-      // clang-tidy: do not std::move trivial types.
-      dimensionless_spin_(dimensionless_spin),  // NOLINT
-      // clang-tidy: do not std::move trivial types.
+      dimensionless_spin_(dimensionless_spin),
       center_(center),
+      boost_velocity_(boost_velocity),
       zero_spin_(dimensionless_spin_ == std::array<double, 3>{{0., 0., 0.}}) {
   const double spin_magnitude = magnitude(dimensionless_spin_);
   if (spin_magnitude > 1.0) {
@@ -53,6 +54,7 @@ void KerrSchild::pup(PUP::er& p) {
   p | mass_;
   p | dimensionless_spin_;
   p | center_;
+  p | boost_velocity_;
   p | zero_spin_;
 }
 

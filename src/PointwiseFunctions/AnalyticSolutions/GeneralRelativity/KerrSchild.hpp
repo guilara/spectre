@@ -233,12 +233,18 @@ class KerrSchild : public AnalyticSolution<3_st>,
     static constexpr Options::String help = {
         "The [x,y,z] center of the black hole"};
   };
-  using options = tmpl::list<Mass, Spin, Center>;
+  struct Velocity {
+    using type = std::array<double, volume_dim>;
+    static constexpr Options::String help = {
+        "The [x,y,z] boost velocity of the black hole"};
+  };
+  using options = tmpl::list<Mass, Spin, Center, Velocity>;
   static constexpr Options::String help{
       "Black hole in Kerr-Schild coordinates"};
 
   KerrSchild(double mass, const std::array<double, 3>& dimensionless_spin,
              const std::array<double, 3>& center,
+             const std::array<double, 3>& boost_velocity = {{0., 0., 0.}},
              const Options::Context& context = {});
 
   explicit KerrSchild(CkMigrateMessage* /*msg*/);
@@ -280,6 +286,9 @@ class KerrSchild : public AnalyticSolution<3_st>,
   const std::array<double, volume_dim>& center() const { return center_; }
   const std::array<double, volume_dim>& dimensionless_spin() const {
     return dimensionless_spin_;
+  }
+  const std::array<double, volume_dim>& boost_velocity() const {
+    return boost_velocity_;
   }
   bool zero_spin() const { return zero_spin_; }
 
@@ -566,6 +575,8 @@ class KerrSchild : public AnalyticSolution<3_st>,
       make_array<volume_dim>(std::numeric_limits<double>::signaling_NaN());
   std::array<double, volume_dim> center_ =
       make_array<volume_dim>(std::numeric_limits<double>::signaling_NaN());
+  std::array<double, volume_dim> boost_velocity_ =
+      make_array<volume_dim>(std::numeric_limits<double>::signaling_NaN());
   bool zero_spin_{};
 };
 
@@ -573,7 +584,8 @@ SPECTRE_ALWAYS_INLINE bool operator==(const KerrSchild& lhs,
                                       const KerrSchild& rhs) {
   return lhs.mass() == rhs.mass() and
          lhs.dimensionless_spin() == rhs.dimensionless_spin() and
-         lhs.center() == rhs.center();
+         lhs.center() == rhs.center() and
+         lhs.boost_velocity() == rhs.boost_velocity();
 }
 
 SPECTRE_ALWAYS_INLINE bool operator!=(const KerrSchild& lhs,
