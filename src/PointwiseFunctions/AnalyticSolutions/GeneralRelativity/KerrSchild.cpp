@@ -707,24 +707,24 @@ tnsr::i<DataType, 3, Frame>
 KerrSchild::IntermediateVars<DataType, Frame>::get_var(
     const IntermediateComputer<DataType, Frame>& computer,
     DerivLapse<DataType, Frame> /*meta*/) {
-  if (computer.solution().zero_spin()) {
-    const auto& x_minus_center =
-        get_var(computer, internal_tags::x_minus_center<DataType, Frame>{});
-    const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
-    const auto& r_squared =
-        get(get_var(computer, internal_tags::r_squared<DataType>{}));
+  // if (computer.solution().zero_spin()) {
+  //   const auto& x_minus_center =
+  //       get_var(computer, internal_tags::x_minus_center<DataType, Frame>{});
+  //   const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
+  //   const auto& r_squared =
+  //       get(get_var(computer, internal_tags::r_squared<DataType>{}));
 
-    const auto& lapse = get(get_var(computer, gr::Tags::Lapse<DataType>{}));
-    const auto& lapse_squared =
-        get(get_var(computer, internal_tags::lapse_squared<DataType>{}));
+  //   const auto& lapse = get(get_var(computer, gr::Tags::Lapse<DataType>{}));
+  //   const auto& lapse_squared =
+  //       get(get_var(computer, internal_tags::lapse_squared<DataType>{}));
 
-    tnsr::i<DataType, 3, Frame> d_lapse(get_size(r));
-    for (size_t i = 0; i < 3; ++i) {
-      d_lapse.get(i) = computer.solution().mass() * x_minus_center.get(i) *
-                       lapse * lapse_squared / r_squared / r;
-    }
-    return d_lapse;
-  }
+  //   tnsr::i<DataType, 3, Frame> d_lapse(get_size(r));
+  //   for (size_t i = 0; i < 3; ++i) {
+  //     d_lapse.get(i) = computer.solution().mass() * x_minus_center.get(i) *
+  //                      lapse * lapse_squared / r_squared / r;
+  //   }
+  //   return d_lapse;
+  // }
   tnsr::i<DataType, 3, Frame> result{};
   const auto& H = get_var(computer, internal_tags::H<DataType>{});
   const auto& deriv_H =
@@ -793,15 +793,15 @@ template <typename DataType, typename Frame>
 Scalar<DataType> KerrSchild::IntermediateVars<DataType, Frame>::get_var(
     const IntermediateComputer<DataType, Frame>& computer,
     gr::Tags::TraceExtrinsicCurvature<DataType> /*meta*/) {
-  if (computer.solution().zero_spin()) {
-    const double m = computer.solution().mass();
-    const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
-    Scalar<DataType> result(get_size(r));
-    get(result) = 1. / ((2. * m + r) * r);
-    get(result) = sqrt(cube(result.get()));
-    get(result) *= 2. * m * (3. * m + r);
-    return result;
-  }
+  // if (computer.solution().zero_spin()) {
+  //   const double m = computer.solution().mass();
+  //   const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
+  //   Scalar<DataType> result(get_size(r));
+  //   get(result) = 1. / ((2. * m + r) * r);
+  //   get(result) = sqrt(cube(result.get()));
+  //   get(result) *= 2. * m * (3. * m + r);
+  //   return result;
+  // }
   return trace(
       get_var(computer, gr::Tags::ExtrinsicCurvature<DataType, 3, Frame>{}),
       get_var(computer, gr::Tags::InverseSpatialMetric<DataType, 3, Frame>{}));
@@ -812,20 +812,20 @@ tnsr::I<DataType, 3, Frame>
 KerrSchild::IntermediateVars<DataType, Frame>::get_var(
     const IntermediateComputer<DataType, Frame>& computer,
     gr::Tags::TraceSpatialChristoffelSecondKind<DataType, 3, Frame> /*meta*/) {
-  if (computer.solution().zero_spin()) {
-    const double m = computer.solution().mass();
-    const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
-    const auto& r_squared =
-        get(get_var(computer, internal_tags::r_squared<DataType>{}));
-    const auto& x_minus_center =
-        get_var(computer, internal_tags::x_minus_center<DataType, Frame>{});
-    DataType factor = m * (8. * m + 3. * r) / square(2. * m + r) / r_squared;
-    tnsr::I<DataType, 3, Frame> result(get_size(r));
-    for (size_t i = 0; i < 3; ++i) {
-      result.get(i) = factor * x_minus_center.get(i);
-    }
-    return result;
-  }
+  // if (computer.solution().zero_spin()) {
+  //   const double m = computer.solution().mass();
+  //   const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
+  //   const auto& r_squared =
+  //       get(get_var(computer, internal_tags::r_squared<DataType>{}));
+  //   const auto& x_minus_center =
+  //       get_var(computer, internal_tags::x_minus_center<DataType, Frame>{});
+  //   DataType factor = m * (8. * m + 3. * r) / square(2. * m + r) / r_squared;
+  //   tnsr::I<DataType, 3, Frame> result(get_size(r));
+  //   for (size_t i = 0; i < 3; ++i) {
+  //     result.get(i) = factor * x_minus_center.get(i);
+  //   }
+  //   return result;
+  // }
   const auto& inverse_spatial_metric =
       get_var(computer, gr::Tags::InverseSpatialMetric<DataType, 3, Frame>{});
   const auto& spatial_christoffel_second_kind = get_var(
