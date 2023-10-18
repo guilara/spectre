@@ -400,8 +400,8 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
   }
 }
 
-// Note: I believe there is a mistake below. We set it equal to the
-// unboosted for now
+// Note: This is a special relativity approximation
+// To be checked if its good
 template <typename DataType, typename Frame>
 void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::ab<DataType, 3, Frame>*> deriv_null_form_boosted,
@@ -411,7 +411,8 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
       *this, internal_tags::deriv_null_form_unboosted<DataType, Frame>{});
   // Inverse-boost the first index, because it represents the derivative which
   // is given in the boosted frame
-  *deriv_null_form_boosted = deriv_null_form;
+  sr::lorentz_boost(deriv_null_form_boosted, deriv_null_form,
+                    -solution_.boost_velocity(), -solution_.boost_velocity());
 }
 
 template <typename DataType, typename Frame>
