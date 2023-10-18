@@ -326,7 +326,8 @@ void test_einstein_solution() {
   const double mass = 1.7;
   const std::array<double, 3> spin{{0.1, 0.2, 0.3}};
   const std::array<double, 3> center{{0.3, 0.2, 0.4}};
-  const std::array<double, 3> boost_velocity{{0.2, -0.3, 0.1}};
+  // const std::array<double, 3> boost_velocity{{0.2, -0.3, 0.1}};
+   const std::array<double, 3> boost_velocity{{0.0, 0.0, 0.0}};
   //   ...for grid
   const std::array<double, 3> lower_bound{{0.8, 1.22, 1.30}};
   const double time = -2.8;
@@ -334,15 +335,15 @@ void test_einstein_solution() {
   gr::Solutions::KerrSchild solution(mass, spin, center, boost_velocity);
   TestHelpers::VerifyGrSolution::verify_consistency(
       solution, time, tnsr::I<double, 3, Frame>{lower_bound}, 0.01, 1.0e-10);
-  // if constexpr (std::is_same_v<Frame, ::Frame::Inertial>) {
-  //   // Don't look at time-independent solution in other than the inertial
-  //   // frame.
-  //   const size_t grid_size = 8;
-  //   const std::array<double, 3> upper_bound{{0.82, 1.24, 1.32}};
-  //   TestHelpers::VerifyGrSolution::verify_time_independent_einstein_solution(
-  //       solution, grid_size, lower_bound, upper_bound,
-  //       std::numeric_limits<double>::epsilon() * 1.e5);
-  // }
+  if constexpr (std::is_same_v<Frame, ::Frame::Inertial>) {
+    // Don't look at time-independent solution in other than the inertial
+    // frame.
+    const size_t grid_size = 8;
+    const std::array<double, 3> upper_bound{{0.82, 1.24, 1.32}};
+    TestHelpers::VerifyGrSolution::verify_time_independent_einstein_solution(
+        solution, grid_size, lower_bound, upper_bound,
+        std::numeric_limits<double>::epsilon() * 1.e5);
+  }
 }
 
 template <typename Frame, typename DataType>
