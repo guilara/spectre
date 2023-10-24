@@ -650,6 +650,9 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
   }
 }
 
+// This is probably wrong, since the time derivative of the spatial metric was
+// set to zero above. However, it is not zero as the boosted black hole solution
+// depends on both x and t.
 template <typename DataType, typename Frame>
 void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::ii<DataType, 3, Frame>*> dt_spatial_metric,
@@ -711,6 +714,48 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
   }
 }
 
+template <typename DataType, typename Frame>
+void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
+    const gsl::not_null<Scalar<DataType>*> null_form_dot_deriv_H,
+    const gsl::not_null<CachedBuffer*> cache,
+    internal_tags::null_form_dot_deriv_H<DataType> /*meta*/) const {
+  const auto& deriv_H =
+      cache->get_var(*this, internal_tags::deriv_H<DataType, Frame>{});
+  const auto& null_form =
+      cache->get_var(*this, internal_tags::null_form<DataType, Frame>{});
+  get(*null_form_dot_deriv_H) = 0.0;
+  for (size_t i = 0; i < 3; ++i) {
+    get(*null_form_dot_deriv_H) += null_form.get(i + 1) * deriv_H.get(i + 1);
+  }
+}
+
+// Check which index corresponds to the derivative
+template <typename DataType, typename Frame>
+void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
+    const gsl::not_null<tnsr::i<DataType, 3, Frame>*>
+        null_form_dot_deriv_null_form,
+    const gsl::not_null<CachedBuffer*> cache,
+    internal_tags::null_form_dot_deriv_null_form<DataType, Frame> /*meta*/)
+    const {
+  const auto& deriv_null_form =
+      cache->get_var(*this, internal_tags::deriv_null_form<DataType, Frame>{});
+  const auto& null_form =
+      cache->get_var(*this, internal_tags::null_form<DataType, Frame>{});
+  for (size_t j = 0; j < 3; ++j) {
+    null_form_dot_deriv_null_form->get(j) = 0.0;
+    for (size_t i = 0; i < 3; ++i) {
+      null_form_dot_deriv_null_form->get(j) +=
+          null_form.get(i + 1) * deriv_null_form.get(i + 1, j + 1);
+    }
+  }
+}
+
+// This is probably wrong, since the time derivative of the spatial metric was
+// set to zero above. However, it is not zero as the boosted black hole solution
+// depends on both x and t.
+// In SpEC this the extrinsic curvature is computed from expressions given
+// in terms of l, H and their derivatives. If properly boosted, they should
+// give the right terms coming from the time derivative of the spatial metric.
 template <typename DataType, typename Frame>
 void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::ii<DataType, 3, Frame>*> extrinsic_curvature,
@@ -804,17 +849,17 @@ KerrSchild::IntermediateVars<DataType, Frame>::get_var(
     const auto& r_squared =
         get(get_var(computer, internal_tags::r_squared<DataType>{}));
 
-    const auto& lapse = get(get_var(computer, gr::Tags::Lapse<DataType>{}));
-    const auto& lapse_squared =
-        get(get_var(computer, internal_tags::lapse_squared<DataType>{}));
+  //   const auto& lapse = get(get_var(computer, gr::Tags::Lapse<DataType>{}));
+  //   const auto& lapse_squared =
+  //       get(get_var(computer, internal_tags::lapse_squared<DataType>{}));
 
-    tnsr::i<DataType, 3, Frame> d_lapse(get_size(r));
-    for (size_t i = 0; i < 3; ++i) {
-      d_lapse.get(i) = computer.solution().mass() * x_minus_center.get(i) *
-                       lapse * lapse_squared / r_squared / r;
-    }
-    return d_lapse;
-  }
+  //   tnsr::i<DataType, 3, Frame> d_lapse(get_size(r));
+  //   for (size_t i = 0; i < 3; ++i) {
+  //     d_lapse.get(i) = computer.solution().mass() * x_minus_center.get(i) *
+  //                      lapse * lapse_squared / r_squared / r;
+  //   }
+  //   return d_lapse;
+  // }
   tnsr::i<DataType, 3, Frame> result{};
   const auto& H = get_var(computer, internal_tags::H<DataType>{});
   const auto& deriv_H =
