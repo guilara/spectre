@@ -307,39 +307,64 @@ void test_tag_retrieval(const DataType& used_for_size) {
   const double mass = 1.234;
   const std::array<double, 3> spin{{0.1, -0.2, 0.3}};
   const std::array<double, 3> center{{1.0, 2.0, 3.0}};
+  const std::array<double, 3> boost_velocity{{0.2, -0.3, 0.1}};
   const auto x = spatial_coords<Frame>(used_for_size);
   const double t = 1.3;
 
   // Evaluate solution
-  const gr::Solutions::KerrSchild solution(mass, spin, center);
+  const gr::Solutions::KerrSchild solution(mass, spin, center, boost_velocity);
   TestHelpers::AnalyticSolutions::test_tag_retrieval(
       solution, x, t,
       typename gr::Solutions::KerrSchild::template tags<DataType, Frame>{});
 }
 
 template <typename Frame>
-void test_einstein_solution() {
+void test_einstein_solution(const bool use_non_zero_velocity) {
+  INFO("Verify KerrSchild solution satisfies Einstein equations");
   // Parameters
   //   ...for KerrSchild solution
   const double mass = 1.7;
   const std::array<double, 3> spin{{0.1, 0.2, 0.3}};
   const std::array<double, 3> center{{0.3, 0.2, 0.4}};
+   const std::array<double, 3> boost_velocity{{0.4, -0.51, -0.5}};
   //   ...for grid
   const std::array<double, 3> lower_bound{{0.8, 1.22, 1.30}};
   const double time = -2.8;
 
-  gr::Solutions::KerrSchild solution(mass, spin, center);
-  TestHelpers::VerifyGrSolution::verify_consistency(
-      solution, time, tnsr::I<double, 3, Frame>{lower_bound}, 0.01, 1.0e-10);
-  if constexpr (std::is_same_v<Frame, ::Frame::Inertial>) {
-    // Don't look at time-independent solution in other than the inertial
-    // frame.
-    const size_t grid_size = 8;
-    const std::array<double, 3> upper_bound{{0.82, 1.24, 1.32}};
-    TestHelpers::VerifyGrSolution::verify_time_independent_einstein_solution(
-        solution, grid_size, lower_bound, upper_bound,
-        std::numeric_limits<double>::epsilon() * 1.e5);
+  if (use_non_zero_velocity) {
+    gr::Solutions::KerrSchild solution(mass, spin, center, boost_velocity);
+    // Time derivatives are non zero. However we do not code up the time
+    // dependence of the boosted solution for simplicity. Hence we only check
+    // consistency in the spatial derivatives.
+    TestHelpers::VerifyGrSolution::verify_spatial_consistency(
+        solution, time, tnsr::I<double, 3, Frame>{lower_bound}, 0.01, 1.0e-10);
+  } else {
+    gr::Solutions::KerrSchild solution(mass, spin, center);
+    TestHelpers::VerifyGrSolution::verify_consistency(
+        solution, time, tnsr::I<double, 3, Frame>{lower_bound}, 0.01, 1.0e-10);
+    if constexpr (std::is_same_v<Frame, ::Frame::Inertial>) {
+      // Don't look at time-independent solution in other than the inertial
+      // frame.
+      const size_t grid_size = 8;
+      const std::array<double, 3> upper_bound{{0.82, 1.24, 1.32}};
+      TestHelpers::VerifyGrSolution::verify_time_independent_einstein_solution(
+          solution, grid_size, lower_bound, upper_bound,
+          std::numeric_limits<double>::epsilon() * 1.e5);
+    }
   }
+
+  gr::Solutions::KerrSchild solution(mass, spin, center, boost_velocity);
+  TestHelpers::VerifyGrSolution::verify_spatial_consistency(
+      solution, time, tnsr::I<double, 3, Frame>{lower_bound}, 0.01, 1.0e-10);
+  // if constexpr (std::is_same_v<Frame, ::Frame::Inertial>) {
+  //   // Don't look at time-independent solution in other than the inertial
+  //   // frame.
+  //   const size_t grid_size = 8;
+  //   const std::array<double, 3> upper_bound{{0.82, 1.24, 1.32}};
+  //   TestHelpers::VerifyGrSolution::verify_time_independent_einstein_solution(
+  //       solution, grid_size, lower_bound, upper_bound,
+  //       std::numeric_limits<double>::epsilon() * 1.e5);
+  // }
 }
 
 template <typename Frame, typename DataType>
@@ -367,12 +392,14 @@ void test_zero_spin_optimization(const DataType& used_for_size) {
 }
 
 void test_serialize() {
-  gr::Solutions::KerrSchild solution(3.0, {{0.2, 0.3, 0.2}}, {{0.0, 3.0, 4.0}});
+  gr::Solutions::KerrSchild solution(3.0, {{0.2, 0.3, 0.2}}, {{0.0, 3.0, 4.0}},
+                                     {{0.1, 0.2, 0.3}});
   test_serialization(solution);
 }
 
 void test_copy_and_move() {
-  gr::Solutions::KerrSchild solution(3.0, {{0.2, 0.3, 0.2}}, {{0.0, 3.0, 4.0}});
+  gr::Solutions::KerrSchild solution(3.0, {{0.2, 0.3, 0.2}}, {{0.0, 3.0, 4.0}},
+                                     {{0.1, 0.2, 0.3}});
   test_copy_semantics(solution);
   auto solution_copy = solution;
   // clang-tidy: std::move of trivially copyable type
@@ -383,9 +410,11 @@ void test_construct_from_options() {
   const auto created = TestHelpers::test_creation<gr::Solutions::KerrSchild>(
       "Mass: 0.5\n"
       "Spin: [0.1,0.2,0.3]\n"
-      "Center: [1.0,3.0,2.0]");
-  CHECK(created ==
-        gr::Solutions::KerrSchild(0.5, {{0.1, 0.2, 0.3}}, {{1.0, 3.0, 2.0}}));
+      "Center: [1.0,3.0,2.0]\n"
+      "Velocity: [0.5,0.4,0.3]");
+  CHECK(created == gr::Solutions::KerrSchild(0.5, {{0.1, 0.2, 0.3}},
+                                             {{1.0, 3.0, 2.0}},
+                                             {{0.5, 0.4, 0.3}}));
 }
 
 }  // namespace
@@ -401,7 +430,8 @@ SPECTRE_TEST_CASE("Unit.PointwiseFunctions.AnalyticSolutions.Gr.KerrSchild",
   test_numerical_deriv_det_spatial_metric<Frame::Inertial>(DataVector(5));
   test_tag_retrieval<Frame::Inertial>(DataVector(5));
   test_tag_retrieval<Frame::Inertial>(0.0);
-  test_einstein_solution<Frame::Inertial>();
+  test_einstein_solution<Frame::Inertial>(true);
+  test_einstein_solution<Frame::Inertial>(false);
   test_zero_spin_optimization<Frame::Inertial>(DataVector(5));
   test_zero_spin_optimization<Frame::Inertial>(0.0);
 
@@ -410,7 +440,8 @@ SPECTRE_TEST_CASE("Unit.PointwiseFunctions.AnalyticSolutions.Gr.KerrSchild",
   test_numerical_deriv_det_spatial_metric<Frame::Grid>(DataVector(5));
   test_tag_retrieval<Frame::Grid>(DataVector(5));
   test_tag_retrieval<Frame::Grid>(0.0);
-  test_einstein_solution<Frame::Grid>();
+  test_einstein_solution<Frame::Grid>(true);
+  test_einstein_solution<Frame::Grid>(false);
   test_zero_spin_optimization<Frame::Grid>(DataVector(5));
   test_zero_spin_optimization<Frame::Grid>(0.0);
 
@@ -429,13 +460,15 @@ SPECTRE_TEST_CASE("Unit.PointwiseFunctions.AnalyticSolutions.Gr.KerrSchild",
   CHECK_THROWS_WITH(TestHelpers::test_creation<gr::Solutions::KerrSchild>(
                         "Mass: -0.5\n"
                         "Spin: [0.1,0.2,0.3]\n"
-                        "Center: [1.0,3.0,2.0]"),
+                        "Center: [1.0,3.0,2.0]\n"
+                        "Velocity: [0,0,0]"),
                     Catch::Matchers::ContainsSubstring(
                         "Value -0.5 is below the lower bound of 0"));
   CHECK_THROWS_WITH(
       TestHelpers::test_creation<gr::Solutions::KerrSchild>(
           "Mass: 0.5\n"
           "Spin: [1.1,0.9,0.3]\n"
-          "Center: [1.0,3.0,2.0]"),
+          "Center: [1.0,3.0,2.0]\n"
+          "Velocity: [0,0,0]"),
       Catch::Matchers::ContainsSubstring("Spin magnitude must be < 1"));
 }
