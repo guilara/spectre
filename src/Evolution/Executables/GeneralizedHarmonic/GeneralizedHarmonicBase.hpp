@@ -394,7 +394,7 @@ struct GeneralizedHarmonicTemplateBase {
                   Filters::Exponential<0>,
                   tmpl::list<gr::Tags::SpacetimeMetric<DataVector, volume_dim>,
                              gh::Tags::Pi<DataVector, volume_dim>,
-                             gh::Tags::Phi<DataVector, volume_dim>>>>>>;
+                             gh::Tags::Phi<DataVector, volume_dim>>>>;
 
   template <typename DerivedMetavars, bool UseControlSystems>
   using initialization_actions = tmpl::list<
