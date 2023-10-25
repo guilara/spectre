@@ -740,6 +740,7 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
       cache->get_var(*this, internal_tags::null_form_dot_deriv_H<DataType>{});
   const auto& null_form_dot_deriv_null_form = cache->get_var(
       *this, internal_tags::null_form_dot_deriv_null_form<DataType, Frame>{});
+  const double l0_sign = -1.0;
   for (size_t i = 0; i < 3; ++i) {
     for (size_t j = i; j < 3; ++j) {  // Check symmetry
       // Now implemented the SpEC formula, but we changed sign
@@ -753,11 +754,11 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
                     null_form.get(j + 1) * deriv_null_form.get(0, i + 1))) -
           get(lapse) *
               (get(H) *
-                   ((-1.0) * null_form.get(i + 1) *
+                   (l0_sign * null_form.get(i + 1) *
                         deriv_null_form.get(j + 1, 0) +
-                    (-1.0) * null_form.get(j + 1) *
+                    l0_sign * null_form.get(j + 1) *
                         deriv_null_form.get(i + 1, 0) +
-                    (-1.0) * get<0>(null_form) *
+                    l0_sign * get<0>(null_form) *
                         (deriv_null_form.get(i + 1, j + 1) +
                          deriv_null_form.get(j + 1, i + 1) +
                          2.0 * get(H) *
@@ -767,7 +768,7 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
                                   null_form_dot_deriv_null_form.get(i)) +
                          2.0 * null_form.get(i + 1) * null_form.get(j + 1) *
                              get(null_form_dot_deriv_H))) +
-               (-1.0) * get<0>(null_form) *
+               l0_sign * get<0>(null_form) *
                    (null_form.get(i + 1) * deriv_H.get(j + 1) +
                     null_form.get(j + 1) * deriv_H.get(i + 1)));
     }
