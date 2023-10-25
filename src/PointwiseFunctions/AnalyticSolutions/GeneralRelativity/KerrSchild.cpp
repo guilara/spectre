@@ -27,6 +27,8 @@
 #include "Utilities/StdArrayHelpers.hpp"
 #include "Utilities/StdHelpers.hpp"
 
+#include "Parallel/Printf.hpp"
+
 namespace gr::Solutions {
 KerrSchild::KerrSchild(CkMigrateMessage* /*msg*/) {}
 
@@ -691,8 +693,9 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
       cache->get_var(*this, internal_tags::deriv_H<DataType, Frame>{});
   const auto& null_form =
       cache->get_var(*this, internal_tags::null_form<DataType, Frame>{});
+  get(*null_form_dot_deriv_H) = 0.0;
   for (size_t i = 0; i < 3; ++i) {
-    get(*null_form_dot_deriv_H) = null_form.get(i + 1) * deriv_H.get(i + 1);
+    get(*null_form_dot_deriv_H) += null_form.get(i + 1) * deriv_H.get(i + 1);
   }
 }
 
@@ -741,6 +744,10 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
   const auto& null_form_dot_deriv_null_form = cache->get_var(
       *this, internal_tags::null_form_dot_deriv_null_form<DataType, Frame>{});
   const double l0_sign = -1.0;
+  const auto& oorootg =
+      1.0 / sqrt(1.0 + 2.0 * get<0>(null_form) * get<0>(null_form) * get(H));
+  double l0_spec_sign = -1.0;
+  const auto& l0_spec = -1.0 * get<0>(null_form);
   for (size_t i = 0; i < 3; ++i) {
     for (size_t j = i; j < 3; ++j) {  // Check symmetry
       // Now implemented the SpEC formula, but we changed sign
@@ -771,6 +778,35 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
                l0_sign * get<0>(null_form) *
                    (null_form.get(i + 1) * deriv_H.get(j + 1) +
                     null_form.get(j + 1) * deriv_H.get(i + 1)));
+
+      // spec formula
+      // Symmetry
+      // auto l0_spec = -1.0 * get<0>(null_form);
+      // l0_spec_sign = -1.0;
+      auto LdotdH = get(null_form_dot_deriv_H);
+      extrinsic_curvature->get(i, j) =
+          (-1.0 / oorootg) *
+              (null_form.get(i + 1) * null_form.get(j + 1) * get<0>(deriv_H) +
+               get(H) *
+                   (null_form.get(i + 1) * deriv_null_form.get(0, j + 1) +
+                    null_form.get(j + 1) * deriv_null_form.get(0, i + 1))) -
+          oorootg *
+              (get(H) *
+                   (l0_spec_sign * null_form.get(i + 1) *
+                        deriv_null_form.get(j + 1, 0) +
+                    l0_spec_sign * null_form.get(j + 1) *
+                        deriv_null_form.get(i + 1, 0) +
+                    l0_spec * (deriv_null_form.get(j + 1, i + 1) +
+                               deriv_null_form.get(i + 1, j + 1) +
+                               2.0 * get(H) *
+                                   (null_form.get(i + 1) *
+                                        null_form_dot_deriv_null_form.get(j) +
+                                    null_form.get(j + 1) *
+                                        null_form_dot_deriv_null_form.get(i)) +
+                               2.0 * null_form.get(i + 1) *
+                                   null_form.get(j + 1) * LdotdH)) +
+               l0_spec * (null_form.get(i + 1) * deriv_H.get(j + 1) +
+                          null_form.get(j + 1) * deriv_H.get(i + 1)));
     }
   }
 }

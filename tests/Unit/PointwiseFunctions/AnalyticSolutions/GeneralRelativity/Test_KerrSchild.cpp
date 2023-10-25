@@ -413,8 +413,8 @@ SPECTRE_TEST_CASE("Unit.PointwiseFunctions.AnalyticSolutions.Gr.KerrSchild",
   // test_zero_spin_optimization<Frame::Inertial>(DataVector(5));
   // test_zero_spin_optimization<Frame::Inertial>(0.0);
 
-  // test_schwarzschild<Frame::Grid>(DataVector(5));
-  // test_schwarzschild<Frame::Grid>(0.0);
+  test_schwarzschild<Frame::Grid>(DataVector(5));
+  test_schwarzschild<Frame::Grid>(0.0);
   // test_numerical_deriv_det_spatial_metric<Frame::Grid>(DataVector(5));
   // test_tag_retrieval<Frame::Grid>(DataVector(5));
   // test_tag_retrieval<Frame::Grid>(0.0);
