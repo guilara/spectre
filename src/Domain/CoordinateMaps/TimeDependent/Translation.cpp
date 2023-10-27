@@ -373,9 +373,7 @@ std::array<tt::remove_cvref_wrap_t<T>, Dim> Translation<Dim>::piecewise_helper(
         get_element(gsl::at(result, i), k) +=
             gsl::at(func_or_deriv_of_time, i) * radial_falloff_factor;
       }
-      ASSERT(max(magnitude(result)) <= outer_radius_.value() or
-                 equal_within_roundoff(
-                     max(magnitude(result)) / outer_radius_.value(), 1.0),
+      ASSERT(max(magnitude(result)) <= outer_radius_.value(),
              "Coordinates translated outside outer radius, This should not "
              "happen");
     }
