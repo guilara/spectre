@@ -105,8 +105,8 @@ struct EvolutionMetavars
         ::ah::compute_items_on_target<volume_dim, Frame::Inertial>;
     using compute_target_points =
         intrp::TargetPoints::ApparentHorizon<AhA, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::FindApparentHorizon<AhA, ::Frame::Inertial>;
+    using post_interpolation_callbacks = tmpl::list<
+        intrp::callbacks::FindApparentHorizon<AhA, ::Frame::Inertial>>;
     using horizon_find_failure_callback =
         intrp::callbacks::IgnoreFailedApparentHorizon;
     using post_horizon_find_callbacks = tmpl::list<
@@ -137,9 +137,9 @@ struct EvolutionMetavars
         gh::CharacteristicSpeedsOnStrahlkorperCompute<3, Frame::Grid>>>;
     using compute_target_points =
         intrp::TargetPoints::Sphere<ExcisionBoundaryA, ::Frame::Grid>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveSurfaceData<tags_to_observe, ExcisionBoundaryA,
-                                             ::Frame::Grid>;
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::ObserveSurfaceData<
+            tags_to_observe, ExcisionBoundaryA, ::Frame::Grid>>;
     // run_callbacks
     template <typename metavariables>
     using interpolating_component = typename metavariables::st_dg_element_array;
@@ -159,10 +159,10 @@ struct EvolutionMetavars
         detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
         intrp::TargetPoints::Sphere<SphericalSurface, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
             detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
-            SphericalSurface>;
+            SphericalSurface>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
@@ -181,10 +181,10 @@ struct EvolutionMetavars
         detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
         intrp::TargetPoints::Sphere<SphericalSurface2, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
             detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
-            SphericalSurface2>;
+            SphericalSurface2>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
@@ -203,10 +203,10 @@ struct EvolutionMetavars
         detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
         intrp::TargetPoints::Sphere<SphericalSurface3, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
             detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
-            SphericalSurface3>;
+            SphericalSurface3>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
@@ -225,10 +225,10 @@ struct EvolutionMetavars
         detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
         intrp::TargetPoints::Sphere<SphericalSurface4, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
             detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
-            SphericalSurface4>;
+            SphericalSurface4>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
@@ -247,10 +247,10 @@ struct EvolutionMetavars
         detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
         intrp::TargetPoints::Sphere<SphericalSurface5, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
             detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
-            SphericalSurface5>;
+            SphericalSurface5>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
@@ -269,10 +269,10 @@ struct EvolutionMetavars
         detail::ObserverTags<3_st>::scalar_charge_compute_items_on_target;
     using compute_target_points =
         intrp::TargetPoints::Sphere<SphericalSurface6, ::Frame::Inertial>;
-    using post_interpolation_callback =
-        intrp::callbacks::ObserveTimeSeriesOnSurface<
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
             detail::ObserverTags<3_st>::scalar_charge_surface_obs_tags,
-            SphericalSurface6>;
+            SphericalSurface6>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
