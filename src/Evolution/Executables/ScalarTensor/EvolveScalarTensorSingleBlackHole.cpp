@@ -5,6 +5,7 @@
 
 #include <vector>
 
+#include "ControlSystem/ControlErrors/Size/RegisterDerivedWithCharm.hpp"
 #include "Domain/Creators/RegisterDerivedWithCharm.hpp"
 #include "Domain/Creators/TimeDependence/RegisterDerivedWithCharm.hpp"
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
@@ -21,6 +22,7 @@ extern "C" void CkRegisterMainModule() {
        &domain::FunctionsOfTime::register_derived_with_charm,
        &ScalarTensor::BoundaryCorrections::register_derived_with_charm,
        &gh::ConstraintDamping::register_derived_with_charm,
+       &control_system::size::register_derived_with_charm,
        &register_factory_classes_with_charm<EvolutionMetavars>},
       {});
 }
