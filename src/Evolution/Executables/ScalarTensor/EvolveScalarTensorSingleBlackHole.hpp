@@ -11,6 +11,7 @@
 #include "ControlSystem/Measurements/SingleHorizon.hpp"
 #include "ControlSystem/Metafunctions.hpp"
 #include "ControlSystem/Systems/Shape.hpp"
+#include "ControlSystem/Systems/Size.hpp"
 #include "ControlSystem/Trigger.hpp"
 #include "Domain/Structure/ObjectLabel.hpp"
 #include "Evolution/Actions/RunEventsAndTriggers.hpp"
@@ -134,10 +135,12 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
 
-  using control_systems = tmpl::list<control_system::Systems::Shape<
-      ::domain::ObjectLabel::None, 2,
-      control_system::measurements::SingleHorizon<
-          ::domain::ObjectLabel::None>>>;
+  using control_systems =
+      tmpl::list<control_system::Systems::Shape<
+                     ::domain::ObjectLabel::None, 2,
+                     control_system::measurements::SingleHorizon<
+                         ::domain::ObjectLabel::None>>,
+                 control_system::Systems::Size<::domain::ObjectLabel::None, 2>>;
 
   static constexpr bool use_control_systems =
       tmpl::size<control_systems>::value > 0;
@@ -170,6 +173,7 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
                    tmpl::flatten<tmpl::list<
                        intrp::Events::Interpolate<volume_dim, AhA,
                                                   interpolator_source_vars>,
+                       control_system::control_system_events<control_systems>,
                        intrp::Events::InterpolateWithoutInterpComponent<
                          volume_dim, ExcisionBoundaryA,
                            interpolator_source_vars>,
@@ -223,6 +227,8 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
                          Actions::ChangeSlabSize, step_actions,
                          Actions::AdvanceTime,
                          PhaseControl::Actions::ExecutePhaseChange>>>>>;
+
+  using gh_dg_element_array = st_dg_element_array;
 
   template <typename ParallelComponent>
   struct registration_list {
