@@ -66,6 +66,18 @@ class KerrSphericalHarmonic
     static constexpr Options::String help = {
         "The [x,y,z] dimensionless spin of the black hole"};
   };
+  /// The location of the black hole
+  struct Center {
+    using type = std::array<double, volume_dim>;
+    static constexpr Options::String help = {
+        "The [x,y,z] center of the black hole"};
+  };
+  /// The velocity of the black hole
+  struct Velocity {
+    using type = std::array<double, volume_dim>;
+    static constexpr Options::String help = {
+        "The [x,y,z] boost velocity of the black hole"};
+  };
   /// The amplitude of the scalar field
   struct Amplitude {
     using type = double;
@@ -101,8 +113,8 @@ class KerrSphericalHarmonic
         "l-mode."};
   };
 
-  using options =
-      tmpl::list<Mass, Spin, Amplitude, AmplitudeOfDriver, Radius, Width, Mode>;
+  using options = tmpl::list<Mass, Spin, Center, Velocity, Amplitude,
+                             AmplitudeOfDriver, Radius, Width, Mode>;
   static constexpr Options::String help = {
       "Initial data for a pure spherical harmonic mode truncated by a circular "
       "Gaussian window funtion. The expression is taken from Scheel(2003), "
@@ -118,6 +130,8 @@ class KerrSphericalHarmonic
 
   KerrSphericalHarmonic(double mass,
                         const std::array<double, 3>& dimensionless_spin,
+                        const std::array<double, 3>& center,
+                        const std::array<double, 3>& boost_velocity,
                         double amplitude, double amplitude_of_driver,
                         double radius, double width,
                         std::pair<size_t, int> mode);
@@ -205,6 +219,10 @@ class KerrSphericalHarmonic
 
   double mass_ = std::numeric_limits<double>::signaling_NaN();
   std::array<double, volume_dim> dimensionless_spin_ =
+      make_array<volume_dim>(std::numeric_limits<double>::signaling_NaN());
+  std::array<double, volume_dim> center_ =
+      make_array<volume_dim>(std::numeric_limits<double>::signaling_NaN());
+  std::array<double, volume_dim> boost_velocity_ =
       make_array<volume_dim>(std::numeric_limits<double>::signaling_NaN());
   double amplitude_ = std::numeric_limits<double>::signaling_NaN();
   double amplitude_of_driver_ = std::numeric_limits<double>::signaling_NaN();

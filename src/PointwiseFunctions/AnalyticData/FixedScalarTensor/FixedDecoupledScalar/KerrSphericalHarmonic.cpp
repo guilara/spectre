@@ -26,20 +26,21 @@ namespace fe::DecoupledScalar::AnalyticData {
 
 KerrSphericalHarmonic::KerrSphericalHarmonic(
     const double mass, const std::array<double, 3>& dimensionless_spin,
-    const double amplitude, const double amplitude_of_driver,
-    const double radius, const double width,
+    const std::array<double, 3>& center,
+    const std::array<double, 3>& boost_velocity, const double amplitude,
+    const double amplitude_of_driver, const double radius, const double width,
     const std::pair<size_t, int> mode) {
   mass_ = mass;
   dimensionless_spin_ = dimensionless_spin;
+  center_ = center;
+  boost_velocity_ = boost_velocity;
   amplitude_ = amplitude;
   amplitude_of_driver_ = amplitude_of_driver;
   radius_ = radius;
   width_sq_ = square(width);
   mode_ = mode;
-  background_spacetime_ =
-      gr::Solutions::KerrSchild{mass_, dimensionless_spin_,
-                                // Center
-                                std::array<double, 3>{{0.0, 0.0, 0.0}}};
+  background_spacetime_ = gr::Solutions::KerrSchild{mass_, dimensionless_spin_,
+                                                    center_, boost_velocity_};
 }
 
 std::unique_ptr<evolution::initial_data::InitialData>
@@ -54,6 +55,8 @@ void KerrSphericalHarmonic::pup(PUP::er& p) {
   InitialData::pup(p);
   p | mass_;
   p | dimensionless_spin_;
+  p | center_;
+  p | boost_velocity_;
   p | amplitude_;
   p | amplitude_of_driver_;
   p | radius_;
@@ -138,6 +141,8 @@ bool operator==(const KerrSphericalHarmonic& lhs,
   return lhs.amplitude_ == rhs.amplitude_ and
          lhs.amplitude_of_driver_ == rhs.amplitude_of_driver_ and
          lhs.dimensionless_spin_ == rhs.dimensionless_spin_ and
+         lhs.center_ == rhs.center_ and
+         lhs.boost_velocity_ == rhs.boost_velocity_ and
          lhs.radius_ == rhs.radius_ and lhs.width_sq_ == rhs.width_sq_ and
          lhs.mode_ == rhs.mode_ and lhs.mass_ == rhs.mass_ and
          lhs.background_spacetime_ == rhs.background_spacetime_;
