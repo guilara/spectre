@@ -11,6 +11,7 @@
 #include "ControlSystem/Event.hpp"
 #include "ControlSystem/Measurements/SingleHorizon.hpp"
 #include "ControlSystem/Systems/Shape.hpp"
+#include "ControlSystem/Systems/Size.hpp"
 #include "ControlSystem/Trigger.hpp"
 #include "Domain/Creators/RegisterDerivedWithCharm.hpp"
 #include "Domain/Creators/TimeDependence/RegisterDerivedWithCharm.hpp"
@@ -40,6 +41,9 @@
 #include "Options/String.hpp"
 #include "Parallel/MemoryMonitor/MemoryMonitor.hpp"
 #include "Parallel/PhaseControl/ExecutePhaseChange.hpp"
+#include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/ErrorOnFailedApparentHorizon.hpp"
+#include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/FindApparentHorizon.hpp"
+#include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/IgnoreFailedApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/ComputeExcisionBoundaryVolumeQuantities.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/ComputeExcisionBoundaryVolumeQuantities.tpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/ComputeHorizonVolumeQuantities.hpp"
@@ -94,26 +98,31 @@ struct EvolutionMetavars
       "field with an extra scalar driver \n"
       "on a domain with a single horizon and corresponding excised region"};
 
-  struct AhA : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+  template <typename Frame>
+  struct Ah : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
-    using tags_to_observe = ::ah::tags_for_observing<Frame::Inertial>;
+    using tags_to_observe = ::ah::tags_for_observing<Frame>;
     using surface_tags_to_observe = ::ah::surface_tags_for_observing;
     using compute_vars_to_interpolate = ah::ComputeHorizonVolumeQuantities;
     using vars_to_interpolate_to_target =
-        ::ah::vars_to_interpolate_to_target<volume_dim, ::Frame::Inertial>;
+        ::ah::vars_to_interpolate_to_target<volume_dim, Frame>;
     using compute_items_on_target =
-        ::ah::compute_items_on_target<volume_dim, Frame::Inertial>;
+        ::ah::compute_items_on_target<volume_dim, Frame>;
     using compute_target_points =
-        intrp::TargetPoints::ApparentHorizon<AhA, ::Frame::Inertial>;
-    using post_interpolation_callbacks = tmpl::list<
-        intrp::callbacks::FindApparentHorizon<AhA, ::Frame::Inertial>>;
+        intrp::TargetPoints::ApparentHorizon<Ah, Frame>;
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::FindApparentHorizon<Ah, Frame>>;
     using horizon_find_failure_callback =
         intrp::callbacks::IgnoreFailedApparentHorizon;
     using post_horizon_find_callbacks = tmpl::list<
-        intrp::callbacks::ObserveTimeSeriesOnSurface<tags_to_observe, AhA>,
-        intrp::callbacks::ObserveSurfaceData<surface_tags_to_observe, AhA,
-                                             ::Frame::Inertial>>;
+        intrp::callbacks::ObserveTimeSeriesOnSurface<tags_to_observe, Ah>,
+        intrp::callbacks::ObserveSurfaceData<surface_tags_to_observe, Ah,
+                                             Frame>,
+        // Needs to be Frame::Grid or Frame::Distorted
+        ::ah::callbacks::ObserveCenters<Ah, ::Frame::Grid>>;
   };
+
+  using AhA = Ah<::Frame::Grid>;
 
   struct ExcisionBoundaryA
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
@@ -277,10 +286,12 @@ struct EvolutionMetavars
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
 
-  using control_systems = tmpl::list<control_system::Systems::Shape<
-      ::domain::ObjectLabel::None, 2,
-      control_system::measurements::SingleHorizon<
-          ::domain::ObjectLabel::None>>>;
+  using control_systems =
+      tmpl::list<control_system::Systems::Shape<
+                     ::domain::ObjectLabel::None, 2,
+                     control_system::measurements::SingleHorizon<
+                         ::domain::ObjectLabel::None>>,
+                 control_system::Systems::Size<::domain::ObjectLabel::None, 2>>;
 
   static constexpr bool use_control_systems =
       tmpl::size<control_systems>::value > 0;
@@ -330,6 +341,7 @@ struct EvolutionMetavars
             Event,
             tmpl::flatten<tmpl::list<
                 intrp::Events::Interpolate<3, AhA, interpolator_source_vars>,
+                control_system::control_system_events<control_systems>,
                 intrp::Events::InterpolateWithoutInterpComponent<
                     3, ExcisionBoundaryA, interpolator_source_vars>,
                 intrp::Events::InterpolateWithoutInterpComponent<
@@ -420,6 +432,8 @@ struct EvolutionMetavars
                          Actions::ChangeSlabSize, step_actions,
                          Actions::AdvanceTime,
                          PhaseControl::Actions::ExecutePhaseChange>>>>>;
+
+  using gh_dg_element_array = st_dg_element_array;
 
   template <typename ParallelComponent>
   struct registration_list {
