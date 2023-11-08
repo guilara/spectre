@@ -30,8 +30,8 @@ ConstraintPreservingSphericalRadiation::ConstraintPreservingSphericalRadiation(
     CkMigrateMessage* const msg)
     : BoundaryCondition(msg) {}
 
-ConstraintPreservingSphericalRadiation::ConstraintPreservingSphericalRadiation()
-    : {
+ConstraintPreservingSphericalRadiation::
+    ConstraintPreservingSphericalRadiation() {
   csw_constraint_preserving_ = CurvedScalarWave::BoundaryConditions::
       ConstraintPreservingSphericalRadiation<3>();
 }
