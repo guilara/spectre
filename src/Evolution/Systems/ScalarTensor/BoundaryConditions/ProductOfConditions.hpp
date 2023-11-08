@@ -414,7 +414,7 @@ class ProductOfConditions final : public BoundaryCondition {
       // Scalar interior dt tags
       const Scalar<DataVector>& logical_dt_psi_scalar,
       const Scalar<DataVector>& logical_dt_pi_scalar,
-      const tnsr::i<DataVector, Dim>& logical_dt_phi_scalar,
+      const tnsr::i<DataVector, dim>& logical_dt_phi_scalar,
 
       // c.f. GH dg_interior_deriv_vars_tags
       const tnsr::iaa<DataVector, dim, Frame::Inertial>& d_spacetime_metric,
