@@ -154,6 +154,17 @@ class UpwindPenalty final : public BoundaryCorrection {
         v_psi_ext, v_zero_ext, v_plus_ext, v_minus_ext, gamma2_ext,
 
         interface_unit_normal_ext, char_speeds_ext, dg_formulation);
+
+    // Since the principal part of the psi equation doesn't really mix
+    // with that of the gradient equations, we simply turn off the boundary
+    // corrections for the gradient fields. In this way we keep the shift in the
+    // equation, and the mesh velocity correction.
+
+    // Set to zero the pi and phi boundary corrections
+    get(*pi_boundary_correction) = 0.0 * get(*psi_boundary_correction);
+    for (size_t i = 0; i < 3_st; ++i) {
+      phi_boundary_correction->get(i) = 0.0 * interface_unit_normal_int.get(i);
+    }
   }
 };
 }  // namespace fe::ScalarDriver::BoundaryCorrections

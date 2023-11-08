@@ -47,6 +47,16 @@ void compute_scalar_driver_source_with_limiter(
 void compute_target_psi(gsl::not_null<Scalar<DataVector>*> target_psi,
                         const Scalar<DataVector>& psi);
 
+// For the exponential driver
+void add_scalar_driver_source_to_dt_psi_scalar_for_exponential_driver(
+    gsl::not_null<Scalar<DataVector>*> dt_psi,
+    const Scalar<DataVector>& scalar_driver_source);
+
+void compute_scalar_driver_source_for_exponential_driver(
+    const gsl::not_null<Scalar<DataVector>*> scalar_driver_source,
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi,
+    const double scalar_tau_parameter, const double scalar_sigma_parameter);
+
 }  // namespace fe::ScalarDriver::Sources
 
 namespace fe::ScalarDriver::Tags {
@@ -63,12 +73,11 @@ struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
                  fe::ScalarDriver::Tags::ScalarTauParameter,
                  fe::ScalarDriver::Tags::ScalarSigmaParameter>;
   using return_type = Scalar<DataType>;
-  static constexpr void (*function)(const gsl::not_null<return_type*> result,
-                                    const Scalar<DataType>&,
-                                    const Scalar<DataType>&,
-                                    const Scalar<DataType>&,
-                                    const Scalar<DataType>&) =
-      &fe::ScalarDriver::Sources::compute_scalar_driver_source;
+  static constexpr void (*function)(
+      const gsl::not_null<return_type*> result, const Scalar<DataType>&,
+      const Scalar<DataType>&, const Scalar<DataType>&,
+      const Scalar<DataType>&) = &fe::ScalarDriver::Sources::
+                          compute_scalar_driver_source_for_exponential_driver;
   using base = ScalarDriverSource;
 };
 

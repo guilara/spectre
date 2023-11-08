@@ -5,6 +5,8 @@
 
 #include <cstddef>
 
+#include "DataStructures/DataVector.hpp"
+#include "DataStructures/Tensor/Tensor.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Evolution/Systems/CurvedScalarWave/TimeDerivative.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
@@ -71,24 +73,45 @@ struct TimeDerivative {
       const Scalar<DataVector>& scalar_tau_parameter,
       const Scalar<DataVector>& scalar_sigma_parameter) {
     // Use the definition from the CurvedScalarWave system
-    CurvedScalarWave::TimeDerivative<3_st>::apply(
-        dt_psi, dt_pi, dt_phi,
+    // CurvedScalarWave::TimeDerivative<3_st>::apply(
+    //     dt_psi, dt_pi, dt_phi,
 
-        result_lapse, result_shift, result_inverse_spatial_metric,
-        result_gamma1, result_gamma2,
+    //     result_lapse, result_shift, result_inverse_spatial_metric,
+    //     result_gamma1, result_gamma2,
 
-        d_psi, d_pi, d_phi, pi, phi, lapse, shift, deriv_lapse, deriv_shift,
-        upper_spatial_metric, trace_spatial_christoffel,
-        trace_extrinsic_curvature, gamma1, gamma2);
+    //     d_psi, d_pi, d_phi, pi, phi, lapse, shift, deriv_lapse, deriv_shift,
+    //     upper_spatial_metric, trace_spatial_christoffel,
+    //     trace_extrinsic_curvature, gamma1, gamma2);
+
+    *result_lapse = lapse;
+    *result_shift = shift;
+    *result_inverse_spatial_metric = upper_spatial_metric;
+    *result_gamma1 = gamma1;
+    *result_gamma2 = gamma2;
+
+    // Psi equation
+    tenex::evaluate(dt_psi, shift(ti::I) * d_psi(ti::i));
+
+    // Pi equation
+    dt_pi->get() = 0.0 * get(lapse) * pi.get();
+
+    // Phi equation
+    for (size_t index = 0; index < 3_st; ++index) {
+      dt_phi->get(index) = 0.0 * get(lapse) * phi.get(index);
+    }
 
     // Add extra terms to the Klein-Gordon equation
     // Make sure all variables called here are in the arguments of apply
     // and in the DataBox
-    Sources::add_scalar_driver_friction_term_to_dt_pi_scalar(
-        dt_pi, pi, lapse, shift, scalar_tau_parameter, scalar_sigma_parameter);
+    // Sources::add_scalar_driver_friction_term_to_dt_pi_scalar(
+    //     dt_pi, pi, lapse, shift, scalar_tau_parameter,
+    //     scalar_sigma_parameter);
 
-    Sources::add_scalar_driver_source_to_dt_pi_scalar(
-        dt_pi, scalar_driver_source, lapse);
+    // Sources::add_scalar_driver_source_to_dt_pi_scalar(
+    //     dt_pi, scalar_driver_source, lapse);
+
+    Sources::add_scalar_driver_source_to_dt_psi_scalar_for_exponential_driver(
+        dt_psi, scalar_driver_source);
   }
 };
 
