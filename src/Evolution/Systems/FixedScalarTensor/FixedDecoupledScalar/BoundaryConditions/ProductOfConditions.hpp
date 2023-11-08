@@ -438,51 +438,49 @@ class ProductOfConditions final : public BoundaryCondition {
 
   std::optional<std::string> dg_time_derivative(
       // GH
-      gsl::not_null<tnsr::aa<DataVector, dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
           dt_spacetime_metric_correction,
-      gsl::not_null<tnsr::aa<DataVector, dim, Frame::Inertial>*>
-          dt_pi_correction,
-      gsl::not_null<tnsr::iaa<DataVector, dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*> dt_pi_correction,
+      gsl::not_null<tnsr::iaa<DataVector, 3, Frame::Inertial>*>
           dt_phi_correction,
       // Scalar
       gsl::not_null<Scalar<DataVector>*> dt_psi_scalar_correction,
       gsl::not_null<Scalar<DataVector>*> dt_pi_scalar_correction,
-      gsl::not_null<tnsr::i<DataVector, dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
           dt_phi_scalar_correction,
       // Scalar Driver
       gsl::not_null<Scalar<DataVector>*> dt_psi_scalar_driver_correction,
       gsl::not_null<Scalar<DataVector>*> dt_pi_scalar_driver_correction,
-      gsl::not_null<tnsr::i<DataVector, dim, Frame::Inertial>*>
+      gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
           dt_phi_scalar_driver_correction,
 
-      const std::optional<tnsr::I<DataVector, dim, Frame::Inertial>>&
+      const std::optional<tnsr::I<DataVector, 3, Frame::Inertial>>&
           face_mesh_velocity,
-      const tnsr::i<DataVector, dim, Frame::Inertial>& normal_covector,
-      const tnsr::I<DataVector, dim, Frame::Inertial>& normal_vector,
+      const tnsr::i<DataVector, 3, Frame::Inertial>& normal_covector,
+      const tnsr::I<DataVector, 3, Frame::Inertial>& normal_vector,
 
       // c.f. GH dg_interior_evolved_variables_tags
-      const tnsr::aa<DataVector, dim, Frame::Inertial>& spacetime_metric,
-      const tnsr::aa<DataVector, dim, Frame::Inertial>& pi,
-      const tnsr::iaa<DataVector, dim, Frame::Inertial>& phi,
+      const tnsr::aa<DataVector, 3, Frame::Inertial>& spacetime_metric,
+      const tnsr::aa<DataVector, 3, Frame::Inertial>& pi,
+      const tnsr::iaa<DataVector, 3, Frame::Inertial>& phi,
       // Scalar evolved variables
       const Scalar<DataVector>& psi_scalar,
-      const tnsr::i<DataVector, dim, Frame::Inertial>& phi_scalar,
+      const tnsr::i<DataVector, 3, Frame::Inertial>& phi_scalar,
       // Scalar Driver evolved variables
       const Scalar<DataVector>& psi_scalar_driver,
-      const tnsr::i<DataVector, dim, Frame::Inertial>& phi_scalar_driver,
+      const tnsr::i<DataVector, 3, Frame::Inertial>& phi_scalar_driver,
 
       // c.f. GH dg_interior_temporary_tags
-      const tnsr::I<DataVector, dim, Frame::Inertial>& coords,
+      const tnsr::I<DataVector, 3, Frame::Inertial>& coords,
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
       const Scalar<DataVector>& lapse,
-      const tnsr::I<DataVector, dim, Frame::Inertial>& shift,
-      const tnsr::AA<DataVector, dim, Frame::Inertial>&
-          inverse_spacetime_metric,
-      const tnsr::A<DataVector, dim, Frame::Inertial>&
+      const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
+      const tnsr::AA<DataVector, 3, Frame::Inertial>& inverse_spacetime_metric,
+      const tnsr::A<DataVector, 3, Frame::Inertial>&
           spacetime_unit_normal_vector,
-      const tnsr::iaa<DataVector, dim, Frame::Inertial>& three_index_constraint,
-      const tnsr::a<DataVector, dim, Frame::Inertial>& gauge_source,
-      const tnsr::ab<DataVector, dim, Frame::Inertial>&
+      const tnsr::iaa<DataVector, 3, Frame::Inertial>& three_index_constraint,
+      const tnsr::a<DataVector, 3, Frame::Inertial>& gauge_source,
+      const tnsr::ab<DataVector, 3, Frame::Inertial>&
           spacetime_deriv_gauge_source,
       // Scalar interior temporary
       const Scalar<DataVector>& gamma1_scalar,
@@ -492,31 +490,31 @@ class ProductOfConditions final : public BoundaryCondition {
       const Scalar<DataVector>& gamma2_scalar_driver,
 
       // c.f. dg_interior_dt_vars_tags
-      const tnsr::aa<DataVector, dim, Frame::Inertial>&
+      const tnsr::aa<DataVector, 3, Frame::Inertial>&
           logical_dt_spacetime_metric,
-      const tnsr::aa<DataVector, dim, Frame::Inertial>& logical_dt_pi,
-      const tnsr::iaa<DataVector, dim, Frame::Inertial>& logical_dt_phi,
+      const tnsr::aa<DataVector, 3, Frame::Inertial>& logical_dt_pi,
+      const tnsr::iaa<DataVector, 3, Frame::Inertial>& logical_dt_phi,
       // Scalar interior dt tags
       const Scalar<DataVector>& logical_dt_psi_scalar,
       const Scalar<DataVector>& logical_dt_pi_scalar,
-      const tnsr::i<DataVector, dim>& logical_dt_phi_scalar,
+      const tnsr::i<DataVector, 3>& logical_dt_phi_scalar,
       // Scalar Driver interior dt tags
       const Scalar<DataVector>& logical_dt_psi_scalar_driver,
       const Scalar<DataVector>& logical_dt_pi_scalar_driver,
-      const tnsr::i<DataVector, dim>& logical_dt_phi_scalar_driver,
+      const tnsr::i<DataVector, 3>& logical_dt_phi_scalar_driver,
 
       // c.f. GH dg_interior_deriv_vars_tags
-      const tnsr::iaa<DataVector, dim, Frame::Inertial>& d_spacetime_metric,
-      const tnsr::iaa<DataVector, dim, Frame::Inertial>& d_pi,
-      const tnsr::ijaa<DataVector, dim, Frame::Inertial>& d_phi,
+      const tnsr::iaa<DataVector, 3, Frame::Inertial>& d_spacetime_metric,
+      const tnsr::iaa<DataVector, 3, Frame::Inertial>& d_pi,
+      const tnsr::ijaa<DataVector, 3, Frame::Inertial>& d_phi,
       // Scalar deriv vars
-      const tnsr::i<DataVector, dim, Frame::Inertial>& d_psi_scalar,
-      const tnsr::i<DataVector, dim, Frame::Inertial>& d_pi_scalar,
-      const tnsr::ij<DataVector, dim, Frame::Inertial>& d_phi_scalar,
+      const tnsr::i<DataVector, 3, Frame::Inertial>& d_psi_scalar,
+      const tnsr::i<DataVector, 3, Frame::Inertial>& d_pi_scalar,
+      const tnsr::ij<DataVector, 3, Frame::Inertial>& d_phi_scalar,
       // Scalar Driver deriv vars
-      const tnsr::i<DataVector, dim, Frame::Inertial>& d_psi_scalar_driver,
-      const tnsr::i<DataVector, dim, Frame::Inertial>& d_pi_scalar_driver,
-      const tnsr::ij<DataVector, dim, Frame::Inertial>& d_phi_scalar_driver)
+      const tnsr::i<DataVector, 3, Frame::Inertial>& d_psi_scalar_driver,
+      const tnsr::i<DataVector, 3, Frame::Inertial>& d_pi_scalar_driver,
+      const tnsr::ij<DataVector, 3, Frame::Inertial>& d_phi_scalar_driver)
       const {
     // GH Bjorus boundary condition
     auto gh_string = derived_gh_condition_.dg_time_derivative(
