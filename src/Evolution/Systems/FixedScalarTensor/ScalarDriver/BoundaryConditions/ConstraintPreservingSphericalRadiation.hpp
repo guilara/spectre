@@ -38,7 +38,6 @@ class ConstraintPreservingSphericalRadiation final : public BoundaryCondition {
       "Bayliss-Turkel radiation boundary condition."};
 
   ConstraintPreservingSphericalRadiation();
-  ConstraintPreservingSphericalRadiation() = default;
   /// \cond
   ConstraintPreservingSphericalRadiation(
       ConstraintPreservingSphericalRadiation&&) = default;
