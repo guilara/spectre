@@ -40,9 +40,6 @@ template <evolution::BoundaryConditions::Type GhBcType,
           evolution::BoundaryConditions::Type ScalarBcType>
 struct UnionOfBcTypes {
   static_assert(
-      (GhBcType == evolution::BoundaryConditions::Type::TimeDerivative) or
-          (ScalarBcType ==
-           evolution::BoundaryConditions::Type::TimeDerivative) or
           (GhBcType ==
            evolution::BoundaryConditions::Type::GhostAndTimeDerivative) or
           (ScalarBcType ==
@@ -50,6 +47,32 @@ struct UnionOfBcTypes {
       "TimeDerivative boundary conditions are not yet supported.");
   static constexpr evolution::BoundaryConditions::Type bc_type =
       evolution::BoundaryConditions::Type::Ghost;
+};
+
+template <evolution::BoundaryConditions::Type GhBcType>
+struct UnionOfBcTypes<GhBcType,
+                      evolution::BoundaryConditions::Type::TimeDerivative> {
+  static_assert(GhBcType == evolution::BoundaryConditions::Type::TimeDerivative,
+                "If either boundary condition in `ProductOfConditions` has "
+                "`Type::TimeDerivative`, both must have "
+                "`Type::TimeDerivative`");
+};
+
+template <evolution::BoundaryConditions::Type ScalarBcType>
+struct UnionOfBcTypes<evolution::BoundaryConditions::Type::TimeDerivative,
+                      ScalarBcType> {
+  static_assert(ScalarBcType ==
+                    evolution::BoundaryConditions::Type::TimeDerivative,
+                "If either boundary condition in `ProductOfConditions` has "
+                "`Type::TimeDerivative`, both must have "
+                "`Type::TimeDerivative`");
+};
+
+template <>
+struct UnionOfBcTypes<evolution::BoundaryConditions::Type::TimeDerivative,
+                      evolution::BoundaryConditions::Type::TimeDerivative> {
+  static constexpr evolution::BoundaryConditions::Type bc_type =
+      evolution::BoundaryConditions::Type::TimeDerivative;
 };
 
 // This defines evolution::BoundaryConditions::Type bc_type
@@ -404,6 +427,154 @@ class ProductOfConditions final : public BoundaryCondition {
         face_mesh_velocity, normal_covector, normal_vector,
         inverse_spatial_metric_interior, gamma1_interior_scalar_driver,
         gamma2_interior_scalar_driver, lapse_interior, shift_interior);
+    if (not gh_string.has_value()) {
+      return scalar_string;
+    }
+    if (not scalar_string.has_value()) {
+      return gh_string;
+    }
+    return gh_string.value() + ";" + scalar_string.value();
+  }
+
+  std::optional<std::string> dg_time_derivative(
+      // GH
+      gsl::not_null<tnsr::aa<DataVector, dim, Frame::Inertial>*>
+          dt_spacetime_metric_correction,
+      gsl::not_null<tnsr::aa<DataVector, dim, Frame::Inertial>*>
+          dt_pi_correction,
+      gsl::not_null<tnsr::iaa<DataVector, dim, Frame::Inertial>*>
+          dt_phi_correction,
+      // Scalar
+      gsl::not_null<Scalar<DataVector>*> dt_psi_scalar_correction,
+      gsl::not_null<Scalar<DataVector>*> dt_pi_scalar_correction,
+      gsl::not_null<tnsr::i<DataVector, dim, Frame::Inertial>*>
+          dt_phi_scalar_correction,
+
+      const std::optional<tnsr::I<DataVector, dim, Frame::Inertial>>&
+          face_mesh_velocity,
+      const tnsr::i<DataVector, dim, Frame::Inertial>& normal_covector,
+      const tnsr::I<DataVector, dim, Frame::Inertial>& normal_vector,
+
+      // c.f. GH dg_interior_evolved_variables_tags
+      const tnsr::aa<DataVector, dim, Frame::Inertial>& spacetime_metric,
+      const tnsr::aa<DataVector, dim, Frame::Inertial>& pi,
+      const tnsr::iaa<DataVector, dim, Frame::Inertial>& phi,
+      // Scalar evolved variables
+      const Scalar<DataVector>& psi_scalar,
+      const tnsr::i<DataVector, dim, Frame::Inertial>& phi_scalar,
+
+      // c.f. GH dg_interior_temporary_tags
+      const tnsr::I<DataVector, dim, Frame::Inertial>& coords,
+      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
+      const Scalar<DataVector>& lapse,
+      const tnsr::I<DataVector, dim, Frame::Inertial>& shift,
+      const tnsr::AA<DataVector, dim, Frame::Inertial>&
+          inverse_spacetime_metric,
+      const tnsr::A<DataVector, dim, Frame::Inertial>&
+          spacetime_unit_normal_vector,
+      const tnsr::iaa<DataVector, dim, Frame::Inertial>& three_index_constraint,
+      const tnsr::a<DataVector, dim, Frame::Inertial>& gauge_source,
+      const tnsr::ab<DataVector, dim, Frame::Inertial>&
+          spacetime_deriv_gauge_source,
+      // Scalar interior temporary
+      //   const tnsr::I<DataVector, dim, Frame::Inertial>& coords,
+      const Scalar<DataVector>& gamma1_scalar,
+      const Scalar<DataVector>& gamma2_scalar,
+
+      // c.f. dg_interior_dt_vars_tags
+      const tnsr::aa<DataVector, dim, Frame::Inertial>&
+          logical_dt_spacetime_metric,
+      const tnsr::aa<DataVector, dim, Frame::Inertial>& logical_dt_pi,
+      const tnsr::iaa<DataVector, dim, Frame::Inertial>& logical_dt_phi,
+      // Scalar interior dt tags
+      const Scalar<DataVector>& logical_dt_psi_scalar,
+      const Scalar<DataVector>& logical_dt_pi_scalar,
+      const tnsr::i<DataVector, dim>& logical_dt_phi_scalar,
+
+      // c.f. GH dg_interior_deriv_vars_tags
+      const tnsr::iaa<DataVector, dim, Frame::Inertial>& d_spacetime_metric,
+      const tnsr::iaa<DataVector, dim, Frame::Inertial>& d_pi,
+      const tnsr::ijaa<DataVector, dim, Frame::Inertial>& d_phi,
+      // Scalar deriv vars
+      const tnsr::i<DataVector, dim, Frame::Inertial>& d_psi_scalar,
+      const tnsr::i<DataVector, dim, Frame::Inertial>& d_pi_scalar,
+      const tnsr::ij<DataVector, dim, Frame::Inertial>& d_phi_scalar) const {
+    // GH Bjorus boundary condition
+    auto gh_string = derived_gh_condition_.dg_time_derivative(
+        // GH
+        gsl::not_null<tnsr::aa<DataVector, dim, Frame::Inertial>*>
+            dt_spacetime_metric_correction,
+        gsl::not_null<tnsr::aa<DataVector, dim, Frame::Inertial>*>
+            dt_pi_correction,
+        gsl::not_null<tnsr::iaa<DataVector, dim, Frame::Inertial>*>
+            dt_phi_correction,
+        // Scalar
+        gsl::not_null<Scalar<DataVector>*> dt_psi_scalar_correction,
+        gsl::not_null<Scalar<DataVector>*> dt_pi_scalar_correction,
+        gsl::not_null<tnsr::i<DataVector, dim, Frame::Inertial>*>
+            dt_phi_scalar_correction,
+
+        const std::optional<tnsr::I<DataVector, dim, Frame::Inertial>>&
+            face_mesh_velocity,
+        const tnsr::i<DataVector, dim, Frame::Inertial>& normal_covector,
+        const tnsr::I<DataVector, dim, Frame::Inertial>& normal_vector,
+
+        // c.f. GH dg_interior_evolved_variables_tags
+        const tnsr::aa<DataVector, dim, Frame::Inertial>& spacetime_metric,
+        const tnsr::aa<DataVector, dim, Frame::Inertial>& pi,
+        const tnsr::iaa<DataVector, dim, Frame::Inertial>& phi,
+        // Scalar evolved variables
+        const Scalar<DataVector>& psi_scalar,
+        const tnsr::i<DataVector, dim, Frame::Inertial>& phi_scalar,
+
+        // c.f. GH dg_interior_temporary_tags
+        const tnsr::I<DataVector, dim, Frame::Inertial>& coords,
+        const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
+        const Scalar<DataVector>& lapse,
+        const tnsr::I<DataVector, dim, Frame::Inertial>& shift,
+        const tnsr::AA<DataVector, dim, Frame::Inertial>&
+            inverse_spacetime_metric,
+        const tnsr::A<DataVector, dim, Frame::Inertial>&
+            spacetime_unit_normal_vector,
+        const tnsr::iaa<DataVector, dim, Frame::Inertial>&
+            three_index_constraint,
+        const tnsr::a<DataVector, dim, Frame::Inertial>& gauge_source,
+        const tnsr::ab<DataVector, dim, Frame::Inertial>&
+            spacetime_deriv_gauge_source,
+        // Scalar interior temporary
+        //   const tnsr::I<DataVector, dim, Frame::Inertial>& coords,
+        const Scalar<DataVector>& gamma1_scalar,
+        const Scalar<DataVector>& gamma2_scalar,
+
+        // c.f. dg_interior_dt_vars_tags
+        const tnsr::aa<DataVector, dim, Frame::Inertial>&
+            logical_dt_spacetime_metric,
+        const tnsr::aa<DataVector, dim, Frame::Inertial>& logical_dt_pi,
+        const tnsr::iaa<DataVector, dim, Frame::Inertial>& logical_dt_phi,
+        // Scalar interior dt tags
+        const Scalar<DataVector>& logical_dt_psi_scalar,
+        const Scalar<DataVector>& logical_dt_pi_scalar,
+        const tnsr::i<DataVector, dim>& logical_dt_phi_scalar,
+
+        // c.f. GH dg_interior_deriv_vars_tags
+        const tnsr::iaa<DataVector, dim, Frame::Inertial>& d_spacetime_metric,
+        const tnsr::iaa<DataVector, dim, Frame::Inertial>& d_pi,
+        const tnsr::ijaa<DataVector, dim, Frame::Inertial>& d_phi,
+        // Scalar deriv vars
+        const tnsr::i<DataVector, dim, Frame::Inertial>& d_psi_scalar,
+        const tnsr::i<DataVector, dim, Frame::Inertial>& d_pi_scalar,
+        const tnsr::ij<DataVector, dim, Frame::Inertial>& d_phi_scalar);
+
+    // Scalar ConstraintPreservingSphericalRadiation boundary conditions
+    auto scalar_string = derived_scalar_condition_.dg_time_derivative(
+        dt_psi_scalar_driver_correction, dt_pi_scalar_driver_correction,
+        dt_phi_scalar_driver_correction, face_mesh_velocity, normal_covector,
+        normal_vector, psi_scalar_driver, phi_scalar_driver, coords,
+        gamma1_scalar_driver, gamma2_scalar_driver, lapse, shift,
+        logical_dt_psi_scalar_driver, logical_dt_pi_scalar_driver,
+        logical_dt_phi_scalar_driver, d_psi_scalar_driver, d_pi_scalar_driver,
+        d_phi_scalar_driver);
+
     if (not gh_string.has_value()) {
       return scalar_string;
     }
