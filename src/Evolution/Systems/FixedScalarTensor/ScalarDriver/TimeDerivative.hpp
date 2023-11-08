@@ -5,6 +5,8 @@
 
 #include <cstddef>
 
+#include "DataStructures/DataVector.hpp"
+#include "DataStructures/Tensor/Tensor.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Evolution/Systems/CurvedScalarWave/TimeDerivative.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
@@ -71,15 +73,32 @@ struct TimeDerivative {
       const Scalar<DataVector>& scalar_tau_parameter,
       const Scalar<DataVector>& scalar_sigma_parameter) {
     // Use the definition from the CurvedScalarWave system
-    CurvedScalarWave::TimeDerivative<3_st>::apply(
-        dt_psi, dt_pi, dt_phi,
+    // CurvedScalarWave::TimeDerivative<3_st>::apply(
+    //     dt_psi, dt_pi, dt_phi,
 
-        result_lapse, result_shift, result_inverse_spatial_metric,
-        result_gamma1, result_gamma2,
+    //     result_lapse, result_shift, result_inverse_spatial_metric,
+    //     result_gamma1, result_gamma2,
 
-        d_psi, d_pi, d_phi, pi, phi, lapse, shift, deriv_lapse, deriv_shift,
-        upper_spatial_metric, trace_spatial_christoffel,
-        trace_extrinsic_curvature, gamma1, gamma2);
+    //     d_psi, d_pi, d_phi, pi, phi, lapse, shift, deriv_lapse, deriv_shift,
+    //     upper_spatial_metric, trace_spatial_christoffel,
+    //     trace_extrinsic_curvature, gamma1, gamma2);
+
+    *result_lapse = lapse;
+    *result_shift = shift;
+    *result_inverse_spatial_metric = upper_spatial_metric;
+    *result_gamma1 = gamma1;
+    *result_gamma2 = gamma2;
+
+    // Psi equation
+    tenex::evaluate(dt_psi, -lapse() * pi() + shift(ti::I) * d_psi(ti::i));
+
+    // Pi equation
+    tenex::evaluate(dt_pi, shift(ti::I) * d_pi(ti::i));
+
+    // Phi equation. Not needed so set to zero.
+    for (size_t index = 0; index < 3_st; ++index) {
+      dt_phi->get(index) = 0.0 * get(lapse) * phi.get(index);
+    }
 
     // Add extra terms to the Klein-Gordon equation
     // Make sure all variables called here are in the arguments of apply
