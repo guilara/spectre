@@ -6,6 +6,7 @@ spectre_target_sources(
   PRIVATE
   AnalyticConstant.cpp
   BoundaryCondition.cpp
+  ConstraintPreservingSphericalRadiation.cpp
   DemandOutgoingCharSpeeds.cpp
 )
 
@@ -15,6 +16,7 @@ spectre_target_headers(
   HEADERS
   AnalyticConstant.hpp
   BoundaryCondition.hpp
+  ConstraintPreservingSphericalRadiation.hpp
   DemandOutgoingCharSpeeds.hpp
   Factory.hpp
 )
