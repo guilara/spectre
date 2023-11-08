@@ -403,8 +403,8 @@ class ProductOfConditions final : public BoundaryCondition {
           spacetime_deriv_gauge_source,
       // Scalar interior temporary
       //   const tnsr::I<DataVector, dim, Frame::Inertial>& coords,
-      const Scalar<DataVector>& gamma1_scalar const Scalar<DataVector>&
-          gamma2_scalar,
+      const Scalar<DataVector>& gamma1_scalar,
+      const Scalar<DataVector>& gamma2_scalar,
 
       // c.f. dg_interior_dt_vars_tags
       const tnsr::aa<DataVector, dim, Frame::Inertial>&
