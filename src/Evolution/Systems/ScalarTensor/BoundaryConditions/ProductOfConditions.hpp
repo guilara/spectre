@@ -385,7 +385,7 @@ class ProductOfConditions final : public BoundaryCondition {
       const tnsr::aa<DataVector, dim, Frame::Inertial>& pi,
       const tnsr::iaa<DataVector, dim, Frame::Inertial>& phi,
       // Scalar evolved variables
-      const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>& pi_scalar,
+      const Scalar<DataVector>& psi_scalar,
       const tnsr::i<DataVector, dim, Frame::Inertial>& phi_scalar,
 
       // c.f. GH dg_interior_temporary_tags
@@ -403,7 +403,8 @@ class ProductOfConditions final : public BoundaryCondition {
           spacetime_deriv_gauge_source,
       // Scalar interior temporary
       //   const tnsr::I<DataVector, dim, Frame::Inertial>& coords,
-      const Scalar<DataVector>& gamma2_scalar,
+      const Scalar<DataVector>& gamma1_scalar const Scalar<DataVector>&
+          gamma2_scalar,
 
       // c.f. dg_interior_dt_vars_tags
       const tnsr::aa<DataVector, dim, Frame::Inertial>&
@@ -411,6 +412,9 @@ class ProductOfConditions final : public BoundaryCondition {
       const tnsr::aa<DataVector, dim, Frame::Inertial>& logical_dt_pi,
       const tnsr::iaa<DataVector, dim, Frame::Inertial>& logical_dt_phi,
       // Scalar interior dt tags
+      const Scalar<DataVector>& logical_dt_psi_scalar,
+      const Scalar<DataVector>& logical_dt_pi_scalar,
+      const tnsr::i<DataVector, Dim>& logical_dt_phi_scalar,
 
       // c.f. GH dg_interior_deriv_vars_tags
       const tnsr::iaa<DataVector, dim, Frame::Inertial>& d_spacetime_metric,
@@ -441,8 +445,10 @@ class ProductOfConditions final : public BoundaryCondition {
     auto scalar_string = derived_scalar_condition_.dg_time_derivative(
         dt_psi_scalar_correction, dt_pi_scalar_correction,
         dt_phi_scalar_correction, face_mesh_velocity, normal_covector,
-        psi_scalar, pi_scalar, phi_scalar, coords, gamma2_scalar, d_psi_scalar,
-        d_pi_scalar, d_phi_scalar);
+        normal_vector, psi_scalar, phi_scalar, coords, gamma1_scalar,
+        gamma2_scalar, lapse, shift, logical_dt_psi_scalar,
+        logical_dt_pi_scalar, logical_dt_phi_scalar, d_psi_scalar, d_pi_scalar,
+        d_phi_scalar);
 
     if (not gh_string.has_value()) {
       return scalar_string;
