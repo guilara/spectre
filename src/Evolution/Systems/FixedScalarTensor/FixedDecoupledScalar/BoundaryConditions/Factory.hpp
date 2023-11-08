@@ -4,16 +4,11 @@
 #pragma once
 
 #include "Domain/BoundaryConditions/Periodic.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/Factory.hpp"
-//
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/BoundaryCondition.hpp"
-//
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
-//
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/AnalyticConstant.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
-//
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/BoundaryCondition.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/ProductOfConditions.hpp"
 #include "Utilities/TMPL.hpp"
@@ -24,10 +19,14 @@ namespace detail {
 
 template <typename DerivedGhCondition, typename DerivedScalarCondition>
 using ProductOfConditionsIfConsistent = tmpl::conditional_t<
-    (DerivedGhCondition::bc_type ==
-     evolution::BoundaryConditions::Type::DemandOutgoingCharSpeeds) xor
-        (DerivedScalarCondition::bc_type ==
-         evolution::BoundaryConditions::Type::DemandOutgoingCharSpeeds),
+    ((DerivedGhCondition::bc_type ==
+      evolution::BoundaryConditions::Type::DemandOutgoingCharSpeeds) xor
+     (DerivedScalarCondition::bc_type ==
+      evolution::BoundaryConditions::Type::DemandOutgoingCharSpeeds)) or
+        ((DerivedGhCondition::bc_type ==
+          evolution::BoundaryConditions::Type::TimeDerivative) xor
+         (DerivedScalarCondition::bc_type ==
+          evolution::BoundaryConditions::Type::TimeDerivative)),
     tmpl::list<>,
     ProductOfConditions<DerivedGhCondition, DerivedScalarCondition>>;
 
@@ -72,6 +71,8 @@ using subset_standard_boundary_conditions_gh =
 
 using subset_standard_boundary_conditions_scalar =
     tmpl::list<fe::ScalarDriver::BoundaryConditions::AnalyticConstant,
+               fe::ScalarDriver::BoundaryConditions::
+                   ConstraintPreservingSphericalRadiation,
                fe::ScalarDriver::BoundaryConditions::DemandOutgoingCharSpeeds>;
 
 using standard_boundary_conditions =
