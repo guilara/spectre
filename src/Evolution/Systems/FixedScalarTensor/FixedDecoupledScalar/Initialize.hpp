@@ -7,12 +7,16 @@
 #include <optional>
 
 #include "DataStructures/Tensor/Tensor.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/ConstraintGammas.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Constraints.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/ConstraintDamping/ConstraintGammas.hpp"
+#include "Evolution/Systems/ScalarTensor/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
@@ -73,6 +77,14 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     gh::ConstraintDamping::Tags::ConstraintGamma0Compute<Dim, Frame::Grid>,
     gh::ConstraintDamping::Tags::ConstraintGamma1Compute<Dim, Frame::Grid>,
     gh::ConstraintDamping::Tags::ConstraintGamma2Compute<Dim, Frame::Grid>,
+    ScalarTensor::ConstraintDamping::Tags::ConstraintGamma1Compute<Dim,
+                                                                   Frame::Grid>,
+    ScalarTensor::ConstraintDamping::Tags::ConstraintGamma2Compute<Dim,
+                                                                   Frame::Grid>,
+    fe::DecoupledScalar::ConstraintDamping::Tags::ConstraintGamma1Compute<
+        Dim, Frame::Grid>,
+    fe::DecoupledScalar::ConstraintDamping::Tags::ConstraintGamma2Compute<
+        Dim, Frame::Grid>,
 
     // ScalarTensor::Tags::ScalarSourceCompute>;
     ScalarTensor::Tags::ScalarCurvatureSourceCompute<DataVector, Dim, Fr>,
