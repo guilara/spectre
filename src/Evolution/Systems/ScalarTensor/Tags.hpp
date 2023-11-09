@@ -11,6 +11,7 @@
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Constraints.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Tags.hpp"
 #include "NumericalAlgorithms/LinearOperators/PartialDerivatives.hpp"
 #include "Options/String.hpp"
 #include "Utilities/TMPL.hpp"
