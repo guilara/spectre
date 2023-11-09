@@ -258,6 +258,10 @@ struct ObserverTags {
           gh::ConstraintDamping::Tags::ConstraintGamma0,
           gh::ConstraintDamping::Tags::ConstraintGamma1,
           gh::ConstraintDamping::Tags::ConstraintGamma2,
+          ScalarTensor::Tags::CswCompute<
+              CurvedScalarWave::Tags::ConstraintGamma1>,
+          ScalarTensor::Tags::CswCompute<
+              CurvedScalarWave::Tags::ConstraintGamma2>,
           // Sources
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           ScalarTensor::Tags::ScalarSource,
