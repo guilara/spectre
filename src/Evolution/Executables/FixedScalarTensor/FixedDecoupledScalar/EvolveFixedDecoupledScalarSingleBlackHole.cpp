@@ -10,7 +10,9 @@
 #include "Domain/Creators/TimeDependence/RegisterDerivedWithCharm.hpp"
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/RegisterDerived.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/RegisterDerivedWithCharm.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/RegisterDerivedWithCharm.hpp"
+#include "Evolution/Systems/ScalarTensor/ConstraintDamping/RegisterDerivedWithCharm.hpp"
 #include "Parallel/CharmMain.tpp"
 #include "Utilities/Serialization/RegisterDerivedClassesWithCharm.hpp"
 
@@ -25,6 +27,8 @@ extern "C" void CkRegisterMainModule() {
        &domain::FunctionsOfTime::register_derived_with_charm,
        &fe::DecoupledScalar::BoundaryCorrections::register_derived_with_charm,
        &gh::ConstraintDamping::register_derived_with_charm,
+       &ScalarTensor::ConstraintDamping::register_derived_with_charm,
+       &fe::DecoupledScalar::ConstraintDamping::register_derived_with_charm,
        &control_system::size::register_derived_with_charm,
        &register_factory_classes_with_charm<metavariables>},
       {});
