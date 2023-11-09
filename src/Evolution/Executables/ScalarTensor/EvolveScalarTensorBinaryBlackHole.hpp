@@ -72,6 +72,7 @@
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/ProductOfCorrections.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/RegisterDerived.hpp"
+#include "Evolution/Systems/ScalarTensor/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Initialize.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
@@ -255,13 +256,13 @@ struct EvolutionMetavars {
   static constexpr bool local_time_stepping = true;
 
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
-        // For now we initially set the scalar variables to analytic values
+      // For now we initially set the scalar variables to analytic values
       Initialization::Actions::AddSimpleTags<
           ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
       Actions::MutateApply<gh::gauges::SetPiAndPhiFromConstraints<volume_dim>>,
-      Initialization::Actions::AddSimpleTags<
-          ScalarTensor::Initialization::
-              InitializeConstraintDampingGammasGaussian>,
+      //   Initialization::Actions::AddSimpleTags<
+      //       ScalarTensor::Initialization::
+      //           InitializeConstraintDampingGammasGaussian>,
       Parallel::Actions::TerminatePhase>;
 
   // NOLINTNEXTLINE(google-runtime-references)
@@ -424,6 +425,10 @@ struct EvolutionMetavars {
           gh::ConstraintDamping::Tags::ConstraintGamma0,
           gh::ConstraintDamping::Tags::ConstraintGamma1,
           gh::ConstraintDamping::Tags::ConstraintGamma2,
+          ScalarTensor::Tags::CswCompute<
+              CurvedScalarWave::Tags::ConstraintGamma1>,
+          ScalarTensor::Tags::CswCompute<
+              CurvedScalarWave::Tags::ConstraintGamma2>,
           // Sources
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           ScalarTensor::Tags::ScalarSource,
@@ -528,21 +533,25 @@ struct EvolutionMetavars {
 
   // A tmpl::list of tags to be added to the GlobalCache by the
   // metavariables
-  using const_global_cache_tags =
-      tmpl::list<gh::gauges::Tags::GaugeCondition,
-                 gh::ConstraintDamping::Tags::DampingFunctionGamma0<
-                     volume_dim, Frame::Grid>,
-                 gh::ConstraintDamping::Tags::DampingFunctionGamma1<
-                     volume_dim, Frame::Grid>,
-                 gh::ConstraintDamping::Tags::DampingFunctionGamma2<
-                     volume_dim, Frame::Grid>,
-                 // Source parameters
-                 ScalarTensor::Tags::ScalarMass,
-                 ScalarTensor::Tags::ScalarFirstCouplingParameter,
-                 ScalarTensor::Tags::ScalarSecondCouplingParameter,
-                 ScalarTensor::Tags::AmplitudeConstraintGamma2,
-                 ScalarTensor::Tags::SigmaConstraintGamma2,
-                 ScalarTensor::Tags::OffsetConstraintGamma2>;
+  using const_global_cache_tags = tmpl::list<
+      gh::gauges::Tags::GaugeCondition,
+      gh::ConstraintDamping::Tags::DampingFunctionGamma0<volume_dim,
+                                                         Frame::Grid>,
+      gh::ConstraintDamping::Tags::DampingFunctionGamma1<volume_dim,
+                                                         Frame::Grid>,
+      gh::ConstraintDamping::Tags::DampingFunctionGamma2<volume_dim,
+                                                         Frame::Grid>,
+      ScalarTensor::ConstraintDamping::Tags::DampingFunctionGamma1<volume_dim,
+                                                                   Frame::Grid>,
+      ScalarTensor::ConstraintDamping::Tags::DampingFunctionGamma2<volume_dim,
+                                                                   Frame::Grid>,
+      // Source parameters
+      ScalarTensor::Tags::ScalarMass,
+      ScalarTensor::Tags::ScalarFirstCouplingParameter,
+      ScalarTensor::Tags::ScalarSecondCouplingParameter,
+      ScalarTensor::Tags::AmplitudeConstraintGamma2,
+      ScalarTensor::Tags::SigmaConstraintGamma2,
+      ScalarTensor::Tags::OffsetConstraintGamma2>;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers,
