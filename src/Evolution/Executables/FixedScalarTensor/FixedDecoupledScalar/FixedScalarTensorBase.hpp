@@ -637,15 +637,17 @@ struct FixedScalarTensorTemplateBase<
       ScalarTensor::Tags::ScalarSecondCouplingParameter,
       // Scalar driver parameters
       fe::ScalarDriver::Tags::ScalarSigmaParameter,
-      fe::ScalarDriver::Tags::ScalarTauParameter,
+      fe::ScalarDriver::Tags::ScalarTauParameter
+      //   ,
       //  fe::ScalarDriver::Tags::DriverLimiterParameter,
       // Constraint damping
-      fe::ScalarDriver::Tags::AmplitudeConstraintGamma2,
-      fe::ScalarDriver::Tags::SigmaConstraintGamma2,
-      fe::ScalarDriver::Tags::OffsetConstraintGamma2,
-      ScalarTensor::Tags::AmplitudeConstraintGamma2,
-      ScalarTensor::Tags::SigmaConstraintGamma2,
-      ScalarTensor::Tags::OffsetConstraintGamma2>;
+      //   fe::ScalarDriver::Tags::AmplitudeConstraintGamma2,
+      //   fe::ScalarDriver::Tags::SigmaConstraintGamma2,
+      //   fe::ScalarDriver::Tags::OffsetConstraintGamma2,
+      //   ScalarTensor::Tags::AmplitudeConstraintGamma2,
+      //   ScalarTensor::Tags::SigmaConstraintGamma2,
+      //   ScalarTensor::Tags::OffsetConstraintGamma2
+      >;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
