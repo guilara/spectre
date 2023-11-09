@@ -424,10 +424,12 @@ struct ScalarTensorTemplateBase {
       // Source parameters
       ScalarTensor::Tags::ScalarMass,
       ScalarTensor::Tags::ScalarFirstCouplingParameter,
-      ScalarTensor::Tags::ScalarSecondCouplingParameter,
-      ScalarTensor::Tags::AmplitudeConstraintGamma2,
-      ScalarTensor::Tags::SigmaConstraintGamma2,
-      ScalarTensor::Tags::OffsetConstraintGamma2>;
+      ScalarTensor::Tags::ScalarSecondCouplingParameter
+      //   ,
+      //   ScalarTensor::Tags::AmplitudeConstraintGamma2,
+      //   ScalarTensor::Tags::SigmaConstraintGamma2,
+      //   ScalarTensor::Tags::OffsetConstraintGamma2
+      >;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
