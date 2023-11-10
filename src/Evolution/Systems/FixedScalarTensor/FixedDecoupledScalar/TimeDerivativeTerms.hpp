@@ -245,7 +245,7 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
         deriv_lapse, deriv_shift, upper_spatial_metric,
         trace_spatial_christoffel, trace_extrinsic_curvature,
         gamma1_scalar_driver, gamma2_scalar_driver, scalar_driver_source,
-        scalar_tau_parameter, scalar_sigma_parameter);
+        scalar_tau_parameter, scalar_sigma_parameter, mesh_velocity);
   }
 };
 

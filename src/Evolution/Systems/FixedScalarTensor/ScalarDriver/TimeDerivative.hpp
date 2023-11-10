@@ -8,6 +8,8 @@
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
+#include "Domain/Tags.hpp"
+#include "Domain/TagsTimeDependent.hpp"
 #include "Evolution/Systems/CurvedScalarWave/TimeDerivative.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
@@ -44,7 +46,8 @@ struct TimeDerivative {
                  Tags::ConstraintGamma1, Tags::ConstraintGamma2,
                  fe::ScalarDriver::Tags::ScalarDriverSource,
                  fe::ScalarDriver::Tags::ScalarTauParameter,
-                 fe::ScalarDriver::Tags::ScalarSigmaParameter>;
+                 fe::ScalarDriver::Tags::ScalarSigmaParameter,
+                 domain::Tags::MeshVelocity<3_st, Frame::Inertial>>;
 
   static void apply(
       gsl::not_null<Scalar<DataVector>*> dt_psi,
@@ -71,7 +74,9 @@ struct TimeDerivative {
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
       const Scalar<DataVector>& scalar_driver_source,
       const Scalar<DataVector>& scalar_tau_parameter,
-      const Scalar<DataVector>& scalar_sigma_parameter) {
+      const Scalar<DataVector>& scalar_sigma_parameter,
+      const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
+          mesh_velocity) {
     // Use the definition from the CurvedScalarWave system
     // CurvedScalarWave::TimeDerivative<3_st>::apply(
     //     dt_psi, dt_pi, dt_phi,
@@ -89,11 +94,20 @@ struct TimeDerivative {
     *result_gamma1 = gamma1;
     *result_gamma2 = gamma2;
 
-    // Psi equation
-    tenex::evaluate(dt_psi, -lapse() * pi() + shift(ti::I) * d_psi(ti::i));
-
-    // Pi equation
-    tenex::evaluate(dt_pi, shift(ti::I) * d_pi(ti::i));
+    if (mesh_velocity.has_value()) {
+      // Psi equation
+      tenex::evaluate(dt_psi, -lapse() * pi() + (shift(ti::I) -
+                                                 mesh_velocity.value()(ti::I)) *
+                                                    d_psi(ti::i));
+      // Pi equation
+      tenex::evaluate(
+          dt_pi, (shift(ti::I) - mesh_velocity.value()(ti::I)) * d_pi(ti::i));
+    } else {
+      // Psi equation
+      tenex::evaluate(dt_psi, -lapse() * pi() + shift(ti::I) * d_psi(ti::i));
+      // Pi equation
+      tenex::evaluate(dt_pi, shift(ti::I) * d_pi(ti::i));
+    }
 
     // Phi equation. Not needed so set to zero.
     for (size_t index = 0; index < 3_st; ++index) {
