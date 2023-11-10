@@ -36,6 +36,25 @@ struct DampingFunctionGamma2 {
       "DampingFunction for damping parameter gamma2"};
   using group = fe::DecoupledScalar::OptionTags::Group;
 };
+
+template <size_t VolumeDim, typename Fr>
+struct DampingFunctionScalarSigmaParameter {
+  using type = std::unique_ptr<
+      ::fe::DecoupledScalar::ConstraintDamping::DampingFunction<VolumeDim, Fr>>;
+  static constexpr Options::String help{
+      "DampingFunction for driver parameter sigma"};
+  using group = fe::DecoupledScalar::OptionTags::Group;
+};
+
+template <size_t VolumeDim, typename Fr>
+struct DampingFunctionScalarTauParameter {
+  using type = std::unique_ptr<
+      ::fe::DecoupledScalar::ConstraintDamping::DampingFunction<VolumeDim, Fr>>;
+  static constexpr Options::String help{
+      "DampingFunction for driver parameter tau"};
+  using group = fe::DecoupledScalar::OptionTags::Group;
+};
+
 }  // namespace OptionTags
 
 namespace Tags {
@@ -77,5 +96,44 @@ struct DampingFunctionGamma2 : db::SimpleTag {
     return damping_function->get_clone();
   }
 };
+
+/*!
+ * \brief A DampingFunction to compute the scalar driver parameter
+ * \f$\sigma\f$.
+ */
+template <size_t VolumeDim, typename Fr>
+struct DampingFunctionScalarSigmaParameter : db::SimpleTag {
+  using DampingFunctionType =
+      ::fe::DecoupledScalar::ConstraintDamping::DampingFunction<VolumeDim, Fr>;
+  using type = std::unique_ptr<DampingFunctionType>;
+  using option_tags =
+      tmpl::list<::fe::DecoupledScalar::ConstraintDamping::OptionTags::
+                     DampingFunctionScalarSigmaParameter<VolumeDim, Fr>>;
+
+  static constexpr bool pass_metavariables = false;
+  static type create_from_options(const type& damping_function) {
+    return damping_function->get_clone();
+  }
+};
+
+/*!
+ * \brief A DampingFunction to compute the scalar driver parameter
+ * \f$\tau\f$.
+ */
+template <size_t VolumeDim, typename Fr>
+struct DampingFunctionScalarTauParameter : db::SimpleTag {
+  using DampingFunctionType =
+      ::fe::DecoupledScalar::ConstraintDamping::DampingFunction<VolumeDim, Fr>;
+  using type = std::unique_ptr<DampingFunctionType>;
+  using option_tags =
+      tmpl::list<::fe::DecoupledScalar::ConstraintDamping::OptionTags::
+                     DampingFunctionScalarTauParameter<VolumeDim, Fr>>;
+
+  static constexpr bool pass_metavariables = false;
+  static type create_from_options(const type& damping_function) {
+    return damping_function->get_clone();
+  }
+};
+
 }  // namespace Tags
 }  // namespace fe::DecoupledScalar::ConstraintDamping

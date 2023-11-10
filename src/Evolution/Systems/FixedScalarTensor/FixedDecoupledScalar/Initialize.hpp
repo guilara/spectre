@@ -85,6 +85,11 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
         Dim, Frame::Grid>,
     fe::DecoupledScalar::ConstraintDamping::Tags::ConstraintGamma2Compute<
         Dim, Frame::Grid>,
+    // Scalar driver parameters
+    fe::DecoupledScalar::ConstraintDamping::Tags::ScalarSigmaParameterCompute<
+        Dim, Frame::Grid>,
+    fe::DecoupledScalar::ConstraintDamping::Tags::ScalarTauParameterCompute<
+        Dim, Frame::Grid>,
 
     // ScalarTensor::Tags::ScalarSourceCompute>;
     ScalarTensor::Tags::ScalarCurvatureSourceCompute<DataVector, Dim, Fr>,

@@ -376,6 +376,9 @@ struct ObserverTags {
               CurvedScalarWave::Tags::ConstraintGamma2>,
           fe::ScalarDriver::Tags::ConstraintGamma1,
           fe::ScalarDriver::Tags::ConstraintGamma2,
+          // Scalar Driver parameters
+          fe::ScalarDriver::Tags::ScalarSigmaParameter,
+          fe::ScalarDriver::Tags::ScalarTauParameter,
           // Sources
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
@@ -631,23 +634,29 @@ struct FixedScalarTensorTemplateBase<
           volume_dim, Frame::Grid>,
       fe::DecoupledScalar::ConstraintDamping::Tags::DampingFunctionGamma2<
           volume_dim, Frame::Grid>,
+      // Scalar driver parameters
+      fe::DecoupledScalar::ConstraintDamping::Tags::
+          DampingFunctionScalarSigmaParameter<volume_dim, Frame::Grid>,
+      fe::DecoupledScalar::ConstraintDamping::Tags::
+          DampingFunctionScalarTauParameter<volume_dim, Frame::Grid>,
       // Source parameters
       ScalarTensor::Tags::ScalarMass,
       ScalarTensor::Tags::ScalarFirstCouplingParameter,
-      ScalarTensor::Tags::ScalarSecondCouplingParameter,
-      // Scalar driver parameters
-      fe::ScalarDriver::Tags::ScalarSigmaParameter,
-      fe::ScalarDriver::Tags::ScalarTauParameter
-      //   ,
-      //  fe::ScalarDriver::Tags::DriverLimiterParameter,
-      // Constraint damping
-      //   fe::ScalarDriver::Tags::AmplitudeConstraintGamma2,
-      //   fe::ScalarDriver::Tags::SigmaConstraintGamma2,
-      //   fe::ScalarDriver::Tags::OffsetConstraintGamma2,
-      //   ScalarTensor::Tags::AmplitudeConstraintGamma2,
-      //   ScalarTensor::Tags::SigmaConstraintGamma2,
-      //   ScalarTensor::Tags::OffsetConstraintGamma2
-      >;
+      ScalarTensor::Tags::ScalarSecondCouplingParameter>;
+  //   ,
+  // Scalar driver parameters
+  //   fe::ScalarDriver::Tags::ScalarSigmaParameter,
+  //       fe::ScalarDriver::Tags::ScalarTauParameter
+  //   ,
+  //  fe::ScalarDriver::Tags::DriverLimiterParameter,
+  // Constraint damping
+  //   fe::ScalarDriver::Tags::AmplitudeConstraintGamma2,
+  //   fe::ScalarDriver::Tags::SigmaConstraintGamma2,
+  //   fe::ScalarDriver::Tags::OffsetConstraintGamma2,
+  //   ScalarTensor::Tags::AmplitudeConstraintGamma2,
+  //   ScalarTensor::Tags::SigmaConstraintGamma2,
+  //   ScalarTensor::Tags::OffsetConstraintGamma2
+  //   >;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers>;
