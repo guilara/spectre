@@ -18,8 +18,8 @@ void add_scalar_driver_friction_term_to_dt_pi_scalar(
     gsl::not_null<Scalar<DataVector>*> dt_pi,
     const Scalar<DataVector>& scalar_driver_pi, const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, 3_st>& shift,
-    const Scalar<DataType>& scalar_tau_parameter,
-    const Scalar<DataType>& scalar_sigma_parameter) {
+    const Scalar<DataVector>& scalar_tau_parameter,
+    const Scalar<DataVector>& scalar_sigma_parameter) {
   dt_pi->get() += -1.0 *
                   (scalar_tau_parameter.get() / scalar_sigma_parameter.get()) *
                   square(lapse.get()) * scalar_driver_pi.get();
@@ -28,8 +28,8 @@ void add_scalar_driver_friction_term_to_dt_pi_scalar(
 void compute_scalar_driver_source(
     const gsl::not_null<Scalar<DataVector>*> scalar_driver_source,
     const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi,
-    const Scalar<DataType>& scalar_tau_parameter,
-    const Scalar<DataType>& scalar_sigma_parameter) {
+    const Scalar<DataVector>& scalar_tau_parameter,
+    const Scalar<DataVector>& scalar_sigma_parameter) {
   // Make sure it has the same size
 //   *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
   scalar_driver_source->get() =
@@ -39,8 +39,8 @@ void compute_scalar_driver_source(
 void compute_scalar_driver_source_with_limiter(
     const gsl::not_null<Scalar<DataVector>*> scalar_driver_source,
     const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi,
-    const Scalar<DataType>& scalar_tau_parameter,
-    const Scalar<DataType>& scalar_sigma_parameter,
+    const Scalar<DataVector>& scalar_tau_parameter,
+    const Scalar<DataVector>& scalar_sigma_parameter,
     const double limiter_parameter) {
   // Make sure it has the same size
 //   *scalar_driver_source = make_with_value<Scalar<DataVector>>(psi, 0.);
