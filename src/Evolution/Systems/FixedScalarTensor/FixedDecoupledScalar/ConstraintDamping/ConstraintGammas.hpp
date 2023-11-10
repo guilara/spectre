@@ -98,4 +98,68 @@ struct ConstraintGamma2Compute : ::fe::ScalarDriver::Tags::ConstraintGamma2,
 
   using base = ::fe::ScalarDriver::Tags::ConstraintGamma2;
 };
+
+/*!
+ * \brief Computes the constraint damping parameter \f$\sigma\f$ from the
+ * coordinates and a DampingFunction.
+ *
+ * \details Can be retrieved using
+ * `fe::ScalarDriver::Tags::ScalarSigmaParameter`.
+ */
+template <size_t SpatialDim, typename Frame>
+struct ScalarSigmaParameterCompute
+    : ::fe::ScalarDriver::Tags::ScalarSigmaParameter,
+      db::ComputeTag {
+  using argument_tags =
+      tmpl::list<DampingFunctionScalarSigmaParameter<SpatialDim, Frame>,
+                 domain::Tags::Coordinates<SpatialDim, Frame>, ::Tags::Time,
+                 ::domain::Tags::FunctionsOfTime>;
+  using return_type = Scalar<DataVector>;
+
+  static constexpr void function(
+      const gsl::not_null<Scalar<DataVector>*> gamma,
+      const ::fe::DecoupledScalar::ConstraintDamping::DampingFunction<
+          SpatialDim, Frame>& damping_function,
+      const tnsr::I<DataVector, SpatialDim, Frame>& coords, const double time,
+      const std::unordered_map<
+          std::string,
+          std::unique_ptr<domain::FunctionsOfTime::FunctionOfTime>>&
+          functions_of_time) {
+    damping_function(gamma, coords, time, functions_of_time);
+  }
+
+  using base = ::fe::ScalarDriver::Tags::ScalarSigmaParameter;
+};
+
+/*!
+ * \brief Computes the constraint damping parameter \f$\tau\f$ from the
+ * coordinates and a DampingFunction.
+ *
+ * \details Can be retrieved using
+ * `fe::ScalarDriver::Tags::ScalarTauParameter`.
+ */
+template <size_t SpatialDim, typename Frame>
+struct ScalarTauParameterCompute : ::fe::ScalarDriver::Tags::ScalarTauParameter,
+                                   db::ComputeTag {
+  using argument_tags =
+      tmpl::list<DampingFunctionScalarTauParameter<SpatialDim, Frame>,
+                 domain::Tags::Coordinates<SpatialDim, Frame>, ::Tags::Time,
+                 ::domain::Tags::FunctionsOfTime>;
+  using return_type = Scalar<DataVector>;
+
+  static constexpr void function(
+      const gsl::not_null<Scalar<DataVector>*> gamma,
+      const ::fe::DecoupledScalar::ConstraintDamping::DampingFunction<
+          SpatialDim, Frame>& damping_function,
+      const tnsr::I<DataVector, SpatialDim, Frame>& coords, const double time,
+      const std::unordered_map<
+          std::string,
+          std::unique_ptr<domain::FunctionsOfTime::FunctionOfTime>>&
+          functions_of_time) {
+    damping_function(gamma, coords, time, functions_of_time);
+  }
+
+  using base = ::fe::ScalarDriver::Tags::ScalarTauParameter;
+};
+
 }  // namespace fe::DecoupledScalar::ConstraintDamping::Tags
