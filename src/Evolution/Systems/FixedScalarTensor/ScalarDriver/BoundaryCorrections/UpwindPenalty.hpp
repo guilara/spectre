@@ -102,19 +102,7 @@ class UpwindPenalty final : public BoundaryCorrection {
           interface_unit_normal_vector,
       const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
           mesh_velocity,
-      const std::optional<Scalar<DataVector>>& normal_dot_mesh_velocity) const {
-    // Use the CurvedScalarWave routines
-    return boundary_correction_for_scalar_.dg_package_data(
-        packaged_v_psi, packaged_v_zero, packaged_v_plus, packaged_v_minus,
-        packaged_gamma2, packaged_interface_unit_normal, packaged_char_speeds,
-
-        psi, pi, phi,
-
-        lapse, shift, constraint_gamma1, constraint_gamma2,
-
-        interface_unit_normal, interface_unit_normal_vector, mesh_velocity,
-        normal_dot_mesh_velocity);
-  }
+      const std::optional<Scalar<DataVector>>& normal_dot_mesh_velocity) const;
 
   void dg_boundary_terms(
       gsl::not_null<Scalar<DataVector>*> psi_boundary_correction,
@@ -139,21 +127,6 @@ class UpwindPenalty final : public BoundaryCorrection {
       const tnsr::i<DataVector, 3_st, Frame::Inertial>&
           interface_unit_normal_ext,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext,
-      dg::Formulation dg_formulation) const {
-    // Use the CurvedScalarWave routines
-    CurvedScalarWave::BoundaryCorrections::UpwindPenalty<3_st>
-        boundary_correction_for_scalar;
-    boundary_correction_for_scalar_.dg_boundary_terms(
-        psi_boundary_correction, pi_boundary_correction,
-        phi_boundary_correction,
-
-        v_psi_int, v_zero_int, v_plus_int, v_minus_int, gamma2_int,
-
-        interface_unit_normal_int, char_speeds_int,
-
-        v_psi_ext, v_zero_ext, v_plus_ext, v_minus_ext, gamma2_ext,
-
-        interface_unit_normal_ext, char_speeds_ext, dg_formulation);
-  }
+      dg::Formulation dg_formulation) const;
 };
 }  // namespace fe::ScalarDriver::BoundaryCorrections
