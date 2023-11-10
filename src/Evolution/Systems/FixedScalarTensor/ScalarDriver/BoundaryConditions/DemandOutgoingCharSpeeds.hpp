@@ -90,7 +90,7 @@ class DemandOutgoingCharSpeeds final : public BoundaryCondition {
 
     // These are the modified char speeds for the advection equation
     characteristic_speeds(make_not_null(&char_speeds), gamma1, lapse, shift,
-                          normal_covector);
+                          normal_covector, face_mesh_velocity);
 
     if (face_mesh_velocity.has_value()) {
       const auto face_speed = dot_product(normal_covector, *face_mesh_velocity);

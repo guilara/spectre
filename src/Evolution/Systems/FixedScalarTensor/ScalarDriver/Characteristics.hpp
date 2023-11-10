@@ -22,7 +22,8 @@ void characteristic_speeds(
     const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
     const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form,
-    const std::optional<tnsr::I<DataVector, 3_st, Frame>>& mesh_velocity);
+    const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
+        mesh_velocity);
 
 struct CharacteristicSpeedsCompute : Tags::CharacteristicSpeeds,
                                      db::ComputeTag {
