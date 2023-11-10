@@ -25,7 +25,7 @@ void characteristic_speeds(
     const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form,
     const std::optional<tnsr::I<DataVector, 3_st, Frame::Inertial>>&
         mesh_velocity) {
-  auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
+  DataVector shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
 
   if (mesh_velocity.has_value()) {
     // Substract the mesh velocity from the shift
