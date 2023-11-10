@@ -403,7 +403,8 @@ struct ObserverTags {
               fe::ScalarDriver::Tags::TwoIndexConstraint>,
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
-          ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
+          ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>,
+          ::Events::Tags::ObserverMeshVelocity<volume_dim, Frame::Inertial>>,
       //   error_tags,
       // The 4-index constraint is only implemented in 3d
       tmpl::conditional_t<
