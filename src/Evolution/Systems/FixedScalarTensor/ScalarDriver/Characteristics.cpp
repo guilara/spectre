@@ -22,8 +22,14 @@ void characteristic_speeds(
     const gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*> char_speeds,
     const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
-    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form) {
+    const tnsr::i<DataVector, 3_st, Frame::Inertial>& unit_normal_one_form,
+    const std::optional<tnsr::I<DataVector, 3_st, Frame>>& mesh_velocity) {
   const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
+  // Substract the mesh velocity from the shift
+  if (mesh_velocity.has_value()) {
+    shift_dot_normal -=
+        get(dot_product((*mesh_velocity), unit_normal_one_form));
+  }
   get<0>(*char_speeds) = -(1. + get(gamma_1)) * shift_dot_normal;  // v(VPsi)
   get<1>(*char_speeds) = -shift_dot_normal;                        // v(VZero)
   get<2>(*char_speeds) = -shift_dot_normal;                        // v(VPlus)

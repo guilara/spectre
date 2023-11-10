@@ -61,7 +61,7 @@ double UpwindPenalty::dg_package_data(
                         packaged_v_minus, constraint_gamma2, psi, pi, phi,
                         interface_unit_normal, interface_unit_normal_vector);
   characteristic_speeds(packaged_char_speeds, constraint_gamma1, lapse, shift,
-                        interface_unit_normal);
+                        interface_unit_normal, mesh_velocity);
   if (normal_dot_mesh_velocity.has_value()) {
     get<0>(*packaged_char_speeds) -= get(*normal_dot_mesh_velocity);
     get<1>(*packaged_char_speeds) -= get(*normal_dot_mesh_velocity);
