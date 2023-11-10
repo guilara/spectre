@@ -17,7 +17,8 @@ namespace fe::ScalarDriver {
 void driver_tracking_diagnostic(
     const gsl::not_null<Scalar<DataVector>*> diagnostic,
     const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi,
-    const double scalar_tau_parameter, const double scalar_sigma_parameter);
+    const Scalar<DataType>& scalar_tau_parameter,
+    const Scalar<DataType>& scalar_sigma_parameter);
 
 namespace Tags {
 
@@ -33,10 +34,12 @@ struct TrackingDiagnosticCompute : TrackingDiagnostic, db::ComputeTag {
                  fe::ScalarDriver::Tags::ScalarTauParameter,
                  fe::ScalarDriver::Tags::ScalarSigmaParameter>;
   using return_type = Scalar<DataVector>;
-  static constexpr void (*function)(
-      const gsl::not_null<return_type*> result, const Scalar<DataVector>&,
-      const Scalar<DataVector>&, const double,
-      const double) = &fe::ScalarDriver::driver_tracking_diagnostic;
+  static constexpr void (*function)(const gsl::not_null<return_type*> result,
+                                    const Scalar<DataVector>&,
+                                    const Scalar<DataVector>&,
+                                    const Scalar<DataVector>&,
+                                    const Scalar<DataVector>&) =
+      &fe::ScalarDriver::driver_tracking_diagnostic;
   using base = TrackingDiagnostic;
 };
 
