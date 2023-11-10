@@ -140,28 +140,33 @@ struct TrackingDiagnostic : db::SimpleTag {
   using type = Scalar<DataVector>;
 };
 
-}  // namespace fe::ScalarDriver::Tags
-
-namespace fe::ScalarDriver::OptionTags {
 /*!
  * \brief Scalar sigma parameter.
  */
-struct ScalarSigmaParameter {
+struct ScalarSigmaParameter : db::SimpleTag {
+  using type = Scalar<DataVector>;
   static std::string name() { return "ScalarDriverSigmaParameter"; }
-  using type = double;
-  static constexpr Options::String help{
-      "Sigma parameter for the scalar diver in code units"};
 };
 
 /*!
  * \brief Scalar tau parameter.
  */
-struct ScalarTauParameter {
+struct ScalarTauParameter : db::SimpleTag {
+  using type = Scalar<DataVector>;
   static std::string name() { return "ScalarDriverTauParameter"; }
-  using type = double;
-  static constexpr Options::String help{
-      "Tau parameter for the scalar driver in code units"};
 };
+
+/*!
+ * \brief The target for the scalar driver field.
+ */
+struct TargetPsi : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "TargetPsi(ScalarDriver)"; }
+};
+
+}  // namespace fe::ScalarDriver::Tags
+
+namespace fe::ScalarDriver::OptionTags {
 
 /*!
  * \brief Limiter parameter for the scalar driver source.
@@ -217,34 +222,6 @@ struct OffsetConstraintGamma2 {
 }  // namespace fe::ScalarDriver::OptionTags
 
 namespace fe::ScalarDriver::Tags {
-
-/*!
- * \brief The target for the scalar driver field.
- */
-struct TargetPsi : db::SimpleTag {
-  using type = Scalar<DataVector>;
-  static std::string name() { return "TargetPsi(ScalarDriver)"; }
-};
-
-// We should updgrade these to be scalars so that we can prescribe space
-// dependence
-struct ScalarSigmaParameter : db::SimpleTag {
-  using type = double;
-  using option_tags = tmpl::list<OptionTags::ScalarSigmaParameter>;
-  static constexpr bool pass_metavariables = false;
-  static double create_from_options(const double scalar_sigma_parameter) {
-    return scalar_sigma_parameter;
-  }
-};
-
-struct ScalarTauParameter : db::SimpleTag {
-  using type = double;
-  using option_tags = tmpl::list<OptionTags::ScalarTauParameter>;
-  static constexpr bool pass_metavariables = false;
-  static double create_from_options(const double scalar_tau_parameter) {
-    return scalar_tau_parameter;
-  }
-};
 
 struct DriverLimiterParameter : db::SimpleTag {
   using type = double;
