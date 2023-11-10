@@ -68,7 +68,8 @@ struct TimeDerivative {
       const Scalar<DataVector>& trace_extrinsic_curvature,
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
       const Scalar<DataVector>& scalar_driver_source,
-      const double scalar_tau_parameter, const double scalar_sigma_parameter) {
+      const Scalar<DataVector>& scalar_tau_parameter,
+      const Scalar<DataVector>& scalar_sigma_parameter) {
     // Use the definition from the CurvedScalarWave system
     CurvedScalarWave::TimeDerivative<3_st>::apply(
         dt_psi, dt_pi, dt_phi,

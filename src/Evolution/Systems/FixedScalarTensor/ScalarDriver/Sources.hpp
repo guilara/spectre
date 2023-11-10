@@ -27,19 +27,21 @@ void add_scalar_driver_source_to_dt_pi_scalar(
 void add_scalar_driver_friction_term_to_dt_pi_scalar(
     gsl::not_null<Scalar<DataVector>*> dt_pi,
     const Scalar<DataVector>& scalar_driver_pi, const Scalar<DataVector>& lapse,
-    const tnsr::I<DataVector, 3_st>& shift, const double scalar_tau_parameter,
-    const double scalar_sigma_parameter);
+    const tnsr::I<DataVector, 3_st>& shift,
+    const Scalar<DataVector>& scalar_tau_parameter,
+    const Scalar<DataVector>& scalar_sigma_parameter);
 
-void compute_scalar_driver_source(gsl::not_null<Scalar<DataVector>*> result,
-                                  const Scalar<DataVector>& psi,
-                                  const Scalar<DataVector>& target_psi,
-                                  const double scalar_tau_parameter,
-                                  const double scalar_sigma_parameter);
+void compute_scalar_driver_source(
+    gsl::not_null<Scalar<DataVector>*> result, const Scalar<DataVector>& psi,
+    const Scalar<DataVector>& target_psi,
+    const Scalar<DataVector>& scalar_tau_parameter,
+    const Scalar<DataVector>& scalar_sigma_parameter);
 
 void compute_scalar_driver_source_with_limiter(
     const gsl::not_null<Scalar<DataVector>*> scalar_driver_source,
     const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi,
-    const double scalar_tau_parameter, const double scalar_sigma_parameter,
+    const Scalar<DataVector>& scalar_tau_parameter,
+    const Scalar<DataVector>& scalar_sigma_parameter,
     const double limiter_parameter);
 
 void compute_target_psi(gsl::not_null<Scalar<DataVector>*> target_psi,
@@ -61,10 +63,12 @@ struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
                  fe::ScalarDriver::Tags::ScalarTauParameter,
                  fe::ScalarDriver::Tags::ScalarSigmaParameter>;
   using return_type = Scalar<DataType>;
-  static constexpr void (*function)(
-      const gsl::not_null<return_type*> result, const Scalar<DataType>&,
-      const Scalar<DataType>&, const double,
-      const double) = &fe::ScalarDriver::Sources::compute_scalar_driver_source;
+  static constexpr void (*function)(const gsl::not_null<return_type*> result,
+                                    const Scalar<DataType>&,
+                                    const Scalar<DataType>&,
+                                    const Scalar<DataType>&,
+                                    const Scalar<DataType>&) =
+      &fe::ScalarDriver::Sources::compute_scalar_driver_source;
   using base = ScalarDriverSource;
 };
 
