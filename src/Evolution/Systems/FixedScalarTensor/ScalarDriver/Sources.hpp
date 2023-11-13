@@ -55,7 +55,8 @@ void add_scalar_driver_source_to_dt_psi_scalar_for_exponential_driver(
 void compute_scalar_driver_source_for_exponential_driver(
     const gsl::not_null<Scalar<DataVector>*> scalar_driver_source,
     const Scalar<DataVector>& psi, const Scalar<DataVector>& target_psi,
-    const double scalar_tau_parameter, const double scalar_sigma_parameter);
+    const Scalar<DataVector>& scalar_tau_parameter,
+    const Scalar<DataVector>& scalar_sigma_parameter);
 
 }  // namespace fe::ScalarDriver::Sources
 
