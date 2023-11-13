@@ -140,6 +140,10 @@ struct TrackingDiagnostic : db::SimpleTag {
   using type = Scalar<DataVector>;
 };
 
+struct ShiftMinusMeshVelocity : db::SimpleTag {
+  using type = tnsr::I<DataVector, 3_st>;
+};
+
 /*!
  * \brief Scalar sigma parameter.
  */
