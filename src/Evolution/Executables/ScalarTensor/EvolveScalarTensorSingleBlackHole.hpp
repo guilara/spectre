@@ -129,7 +129,8 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
 
-  struct SphericalSurface
+  template <size_t SphereNumber>
+  struct SphericalSurfaceTmp
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
 
@@ -138,14 +139,22 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
     using compute_items_on_target =
         detail::ObserverTags::scalar_charge_compute_items_on_target;
     using compute_target_points =
-        intrp::TargetPoints::Sphere<SphericalSurface, ::Frame::Inertial>;
+        intrp::TargetPoints::Sphere<SphericalSurfaceTmp<SphereNumber>,
+                                    ::Frame::Inertial>;
     using post_interpolation_callbacks =
         tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
             detail::ObserverTags::scalar_charge_surface_obs_tags,
-            SphericalSurface>>;
+            SphericalSurfaceTmp<SphereNumber>>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::st_dg_element_array;
   };
+
+  using SphericalSurface = SphericalSurfaceTmp<1>;
+  using SphericalSurface2 = SphericalSurfaceTmp<2>;
+  using SphericalSurface3 = SphericalSurfaceTmp<3>;
+  using SphericalSurface4 = SphericalSurfaceTmp<4>;
+  using SphericalSurface5 = SphericalSurfaceTmp<5>;
+  using SphericalSurface6 = SphericalSurfaceTmp<6>;
 
   using control_systems =
       tmpl::list<control_system::Systems::Shape<
@@ -159,7 +168,9 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
 
   using interpolation_target_tags = tmpl::push_back<
       control_system::metafunctions::interpolation_target_tags<control_systems>,
-      AhA, ExcisionBoundaryA, SphericalSurface>;
+      AhA, ExcisionBoundaryA, SphericalSurface, SphericalSurface2,
+      SphericalSurface3, SphericalSurface4, SphericalSurface5,
+      SphericalSurface6>;
   using interpolator_source_vars = ::ah::source_vars<volume_dim>;
 
   using scalar_charge_interpolator_source_vars =
@@ -185,6 +196,21 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
                     volume_dim, ExcisionBoundaryA, interpolator_source_vars>,
                 intrp::Events::InterpolateWithoutInterpComponent<
                     volume_dim, SphericalSurface,
+                    scalar_charge_interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    volume_dim, SphericalSurface2,
+                    scalar_charge_interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    volume_dim, SphericalSurface3,
+                    scalar_charge_interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    volume_dim, SphericalSurface4,
+                    scalar_charge_interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    volume_dim, SphericalSurface5,
+                    scalar_charge_interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    volume_dim, SphericalSurface6,
                     scalar_charge_interpolator_source_vars>>>>,
         tmpl::pair<DenseTrigger,
                    control_system::control_system_triggers<control_systems>>>;
