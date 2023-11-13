@@ -391,6 +391,7 @@ struct ObserverTags {
           fe::ScalarDriver::Tags::ScalarDriverSource,
           fe::ScalarDriver::Tags::TrackingDiagnosticCompute<Frame::Inertial,
                                                             DataVector>,
+          fe::ScalarDriver::Tags::ShiftMinusMeshVelocityCompute,
           ::Tags::PointwiseL2NormCompute<
               fe::ScalarDriver::Tags::TrackingDiagnostic>,
           // Compute the constraints of CSW

@@ -22,4 +22,15 @@ void driver_tracking_diagnostic(
   diagnostic->get() = psi.get() - target_psi.get();
 }
 
+void shift_minus_mesh_velocity(
+    const gsl::not_null<tnsr::I<DataVector, 3>*> result,
+    const tnsr::I<DataVector, 3>& shift,
+    const std::optional<tnsr::I<DataVector, 3>>& mesh_velocity) {
+  if (mesh_velocity.has_value()) {
+    tenex::evaluate<ti::I>(result, shift(ti::I) - mesh_velocity.value()(ti::I));
+  } else {
+    tenex::evaluate<ti::I>(result, shift(ti::I));
+  }
+}
+
 }  // namespace fe::ScalarDriver
