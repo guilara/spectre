@@ -339,6 +339,62 @@ struct EvolutionMetavars {
 
   using ExcisionBoundaryA = ExcisionBoundary<::domain::ObjectLabel::A>;
   using ExcisionBoundaryB = ExcisionBoundary<::domain::ObjectLabel::B>;
+
+  using scalar_charge_interpolator_source_vars = tmpl::list<
+      gr::Tags::SpatialMetric<DataVector, volume_dim, Frame::Inertial>,
+      gr::Tags::InverseSpatialMetric<DataVector, volume_dim, Frame::Inertial>,
+      CurvedScalarWave::Tags::Phi<volume_dim>, CurvedScalarWave::Tags::Psi>;
+
+  template <size_t SphereNumber>
+  struct SphericalSurfaceTmp
+      : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    using temporal_id = ::Tags::Time;
+
+    using vars_to_interpolate_to_target =
+        scalar_charge_interpolator_source_vars;
+    using compute_items_on_target = tmpl::list<
+        ylm::Tags::ThetaPhiCompute<::Frame::Inertial>,
+        ylm::Tags::RadiusCompute<::Frame::Inertial>,
+        ylm::Tags::RhatCompute<::Frame::Inertial>,
+        ylm::Tags::InvJacobianCompute<::Frame::Inertial>,
+        ylm::Tags::JacobianCompute<::Frame::Inertial>,
+        ylm::Tags::DxRadiusCompute<::Frame::Inertial>,
+        ylm::Tags::NormalOneFormCompute<::Frame::Inertial>,
+        ylm::Tags::OneOverOneFormMagnitudeCompute<DataVector, volume_dim,
+                                                  ::Frame::Inertial>,
+        ylm::Tags::UnitNormalOneFormCompute<::Frame::Inertial>,
+        ylm::Tags::UnitNormalVectorCompute<::Frame::Inertial>,
+        gr::surfaces::Tags::AreaElementCompute<::Frame::Inertial>,
+        ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrandCompute,
+        gr::surfaces::Tags::SurfaceIntegralCompute<
+            ScalarTensor::StrahlkorperScalar::Tags::ScalarChargeIntegrand,
+            ::Frame::Inertial>,
+        gr::surfaces::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
+                                                   ::Frame::Inertial>,
+        CurvedScalarWave::Tags::PsiSquaredCompute,
+        gr::surfaces::Tags::SurfaceIntegralCompute<
+            CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<SphericalSurfaceTmp<SphereNumber>,
+                                    ::Frame::Inertial>;
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
+            tmpl::list<
+                gr::surfaces::Tags::SurfaceIntegralCompute<
+                    ScalarTensor::StrahlkorperScalar::Tags::
+                        ScalarChargeIntegrand,
+                    ::Frame::Inertial>,
+                gr::surfaces::Tags::SurfaceIntegralCompute<
+                    CurvedScalarWave::Tags::Psi, ::Frame::Inertial>,
+                gr::surfaces::Tags::SurfaceIntegralCompute<
+                    CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>,
+            SphericalSurfaceTmp<SphereNumber>>>;
+    template <typename metavariables>
+    using interpolating_component = typename metavariables::gh_dg_element_array;
+  };
+
+  using SphericalSurface = SphericalSurfaceTmp<1>;
+
   using both_horizons = control_system::measurements::BothHorizons;
   using control_systems =
       tmpl::list<control_system::Systems::Rotation<3, both_horizons>,
@@ -502,6 +558,9 @@ struct EvolutionMetavars {
                     3, ExcisionBoundaryA, interpolator_source_vars>,
                 intrp::Events::InterpolateWithoutInterpComponent<
                     3, ExcisionBoundaryB, interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    3, SphericalSurface,
+                    scalar_charge_interpolator_source_vars>,
                 Events::MonitorMemory<3>, Events::Completion,
                 dg::Events::field_observations<volume_dim, observe_fields,
                                                non_tensor_compute_tags>,
@@ -662,7 +721,8 @@ struct EvolutionMetavars {
 
   using interpolation_target_tags = tmpl::push_back<
       control_system::metafunctions::interpolation_target_tags<control_systems>,
-      AhA, AhB, AhC, BondiSachs, ExcisionBoundaryA, ExcisionBoundaryB>;
+      AhA, AhB, AhC, BondiSachs, ExcisionBoundaryA, ExcisionBoundaryB,
+      SphericalSurface>;
 
   using observed_reduction_data_tags = observers::collect_reduction_data_tags<
       tmpl::at<typename factory_creation::factory_classes, Event>>;
