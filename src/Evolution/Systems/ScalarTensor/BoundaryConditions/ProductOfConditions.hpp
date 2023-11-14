@@ -37,14 +37,8 @@ namespace detail {
 template <evolution::BoundaryConditions::Type GhBcType,
           evolution::BoundaryConditions::Type ScalarBcType>
 struct UnionOfBcTypes {
-  static_assert(
-      (GhBcType ==
-       evolution::BoundaryConditions::Type::GhostAndTimeDerivative) or
-          (ScalarBcType ==
-           evolution::BoundaryConditions::Type::GhostAndTimeDerivative),
-      "GhostAndTimeDerivative boundary conditions are not yet supported.");
   static constexpr evolution::BoundaryConditions::Type bc_type =
-      evolution::BoundaryConditions::Type::Ghost;
+      evolution::BoundaryConditions::Type::GhostAndTimeDerivative;
 };
 
 template <>
