@@ -96,18 +96,14 @@ struct TimeDerivative {
 
     if (mesh_velocity.has_value()) {
       // Psi equation
-      tenex::evaluate(dt_psi, -lapse() * pi() + (shift(ti::I) -
-                                                 mesh_velocity.value()(ti::I)) *
-                                                    d_psi(ti::i));
-      // Pi equation
-      tenex::evaluate(
-          dt_pi, (shift(ti::I) - mesh_velocity.value()(ti::I)) * d_pi(ti::i));
+      tenex::evaluate(dt_psi, -lapse() * pi() -
+                                  mesh_velocity.value()(ti::I) * d_psi(ti::i));
     } else {
       // Psi equation
-      tenex::evaluate(dt_psi, -lapse() * pi() + shift(ti::I) * d_psi(ti::i));
-      // Pi equation
-      tenex::evaluate(dt_pi, shift(ti::I) * d_pi(ti::i));
+      tenex::evaluate(dt_psi, -lapse() * pi());
     }
+    // Pi equation
+    tenex::evaluate(dt_pi, shift(ti::I) * d_pi(ti::i));
 
     // Phi equation. Not needed so set to zero.
     for (size_t index = 0; index < 3_st; ++index) {
