@@ -135,6 +135,9 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
             SphericalSurfaceTmp<SphereNumber>>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::st_dg_element_array;
+    static std::string name() {
+      return "SphericalSurface" + std::to_string(SphereNumber);
+    }
   };
 
   using SphericalSurface = SphericalSurfaceTmp<1>;
