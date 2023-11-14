@@ -391,6 +391,9 @@ struct EvolutionMetavars {
             SphericalSurfaceTmp<SphereNumber>>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::gh_dg_element_array;
+    static std::string name() {
+      return "SphericalSurface" + std::to_string(SphereNumber);
+    }
   };
 
   using SphericalSurface = SphericalSurfaceTmp<1>;
