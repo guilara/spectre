@@ -48,25 +48,6 @@ struct UnionOfBcTypes<evolution::BoundaryConditions::Type::Ghost,
       evolution::BoundaryConditions::Type::Ghost;
 };
 
-template <evolution::BoundaryConditions::Type GhBcType>
-struct UnionOfBcTypes<GhBcType,
-                      evolution::BoundaryConditions::Type::TimeDerivative> {
-  static_assert(GhBcType == evolution::BoundaryConditions::Type::TimeDerivative,
-                "If either boundary condition in `ProductOfConditions` has "
-                "`Type::TimeDerivative`, both must have "
-                "`Type::TimeDerivative`");
-};
-
-template <evolution::BoundaryConditions::Type ScalarBcType>
-struct UnionOfBcTypes<evolution::BoundaryConditions::Type::TimeDerivative,
-                      ScalarBcType> {
-  static_assert(ScalarBcType ==
-                    evolution::BoundaryConditions::Type::TimeDerivative,
-                "If either boundary condition in `ProductOfConditions` has "
-                "`Type::TimeDerivative`, both must have "
-                "`Type::TimeDerivative`");
-};
-
 template <>
 struct UnionOfBcTypes<evolution::BoundaryConditions::Type::TimeDerivative,
                       evolution::BoundaryConditions::Type::TimeDerivative> {

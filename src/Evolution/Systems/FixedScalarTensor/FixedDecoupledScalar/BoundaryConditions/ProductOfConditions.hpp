@@ -39,33 +39,8 @@ namespace detail {
 template <evolution::BoundaryConditions::Type GhBcType,
           evolution::BoundaryConditions::Type ScalarBcType>
 struct UnionOfBcTypes {
-  static_assert(
-          (GhBcType ==
-           evolution::BoundaryConditions::Type::GhostAndTimeDerivative) or
-          (ScalarBcType ==
-           evolution::BoundaryConditions::Type::GhostAndTimeDerivative),
-      "TimeDerivative boundary conditions are not yet supported.");
   static constexpr evolution::BoundaryConditions::Type bc_type =
-      evolution::BoundaryConditions::Type::Ghost;
-};
-
-template <evolution::BoundaryConditions::Type GhBcType>
-struct UnionOfBcTypes<GhBcType,
-                      evolution::BoundaryConditions::Type::TimeDerivative> {
-  static_assert(GhBcType == evolution::BoundaryConditions::Type::TimeDerivative,
-                "If either boundary condition in `ProductOfConditions` has "
-                "`Type::TimeDerivative`, both must have "
-                "`Type::TimeDerivative`");
-};
-
-template <evolution::BoundaryConditions::Type ScalarBcType>
-struct UnionOfBcTypes<evolution::BoundaryConditions::Type::TimeDerivative,
-                      ScalarBcType> {
-  static_assert(ScalarBcType ==
-                    evolution::BoundaryConditions::Type::TimeDerivative,
-                "If either boundary condition in `ProductOfConditions` has "
-                "`Type::TimeDerivative`, both must have "
-                "`Type::TimeDerivative`");
+      evolution::BoundaryConditions::Type::GhostAndTimeDerivative;
 };
 
 template <>
