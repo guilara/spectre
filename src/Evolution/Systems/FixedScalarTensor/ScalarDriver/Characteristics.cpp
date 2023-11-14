@@ -27,13 +27,13 @@ void characteristic_speeds(
         mesh_velocity) {
   DataVector shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
 
-  if (mesh_velocity.has_value()) {
-    // Substract the mesh velocity from the shift
-    shift_dot_normal -=
-        get(dot_product((*mesh_velocity), unit_normal_one_form));
-  }
+  // if (mesh_velocity.has_value()) {
+  //   // Substract the mesh velocity from the shift
+  //   shift_dot_normal -=
+  //       get(dot_product((*mesh_velocity), unit_normal_one_form));
+  // }
 
-  get<0>(*char_speeds) = -(1. + get(gamma_1)) * shift_dot_normal;  // v(VPsi)
+  get<0>(*char_speeds) = -shift_dot_normal;                        // v(VPsi)
   get<1>(*char_speeds) = -shift_dot_normal;                        // v(VZero)
   get<2>(*char_speeds) = -shift_dot_normal;                        // v(VPlus)
   get<3>(*char_speeds) = -shift_dot_normal;                        // v(VMinus)
