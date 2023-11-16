@@ -6,6 +6,7 @@ spectre_target_sources(
   PRIVATE
   BoundaryCondition.cpp
   ConstraintPreserving.cpp
+  BjorusAnalyticConstant.cpp
   )
 
 spectre_target_headers(
@@ -14,6 +15,7 @@ spectre_target_headers(
   HEADERS
   BoundaryCondition.hpp
   ConstraintPreserving.hpp
+  BjorusAnalyticConstant.hpp
   Factory.hpp
   ProductOfConditions.hpp
   )
