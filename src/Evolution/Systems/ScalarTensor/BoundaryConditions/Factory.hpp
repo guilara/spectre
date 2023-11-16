@@ -5,6 +5,7 @@
 
 #include "Domain/BoundaryConditions/Periodic.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/AnalyticConstant.hpp"
+#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/ConstraintPreservingSphericalRadiation.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Bjorhus.hpp"
@@ -12,9 +13,9 @@
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/DirichletAnalytic.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/ScalarTensor/BoundaryConditions/BjorusAnalyticConstant.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/BoundaryCondition.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
-#include "Evolution/Systems/ScalarWave/BoundaryConditions/ConstraintPreservingSphericalRadiation.hpp"
 #include "Utilities/TMPL.hpp"
 
 namespace ScalarTensor::BoundaryConditions {
@@ -60,10 +61,11 @@ using subset_standard_boundary_conditions_scalar = tmpl::list<
     CurvedScalarWave::BoundaryConditions::
         ConstraintPreservingSphericalRadiation<3>,
     CurvedScalarWave::BoundaryConditions::DemandOutgoingCharSpeeds<3>>;
-using standard_boundary_conditions =
-    tmpl::push_back<typename detail::AllProductConditions<
-                        subset_standard_boundary_conditions_gh,
-                        subset_standard_boundary_conditions_scalar>::type,
-                    domain::BoundaryConditions::Periodic<BoundaryCondition>>;
+using standard_boundary_conditions = tmpl::append<
+    detail::AllProductConditions<
+        subset_standard_boundary_conditions_gh,
+        subset_standard_boundary_conditions_scalar>::type,
+    tmpl::list<ScalarTensor::BoundaryConditions::BjorusAnalyticConstant,
+               domain::BoundaryConditions::Periodic<BoundaryCondition>>>;
 
 }  // namespace ScalarTensor::BoundaryConditions
