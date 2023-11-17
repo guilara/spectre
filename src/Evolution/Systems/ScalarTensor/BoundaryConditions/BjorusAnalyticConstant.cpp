@@ -11,7 +11,7 @@ namespace ScalarTensor::BoundaryConditions {
 BjorusAnalyticConstant::BjorusAnalyticConstant(
     gh::BoundaryConditions::detail::ConstraintPreservingBjorhusType type,
     const double amplitude_scalar)
-    : constraint_preserving_(type), amplitude_scalar_(amplitude_scalar) {}
+    : constraint_preserving_(type), csw_analytic_constant_(amplitude_scalar) {}
 
 // LCOV_EXCL_START
 BjorusAnalyticConstant::BjorusAnalyticConstant(CkMigrateMessage* const msg)
@@ -26,7 +26,7 @@ BjorusAnalyticConstant::get_clone() const {
 void BjorusAnalyticConstant::pup(PUP::er& p) {
   BoundaryCondition::pup(p);
   p | constraint_preserving_;
-  p | amplitude_scalar_;
+  p | csw_analytic_constant_;
 }
 
 std::optional<std::string> BjorusAnalyticConstant::dg_ghost(
@@ -39,11 +39,12 @@ std::optional<std::string> BjorusAnalyticConstant::dg_ghost(
     const gsl::not_null<Scalar<DataVector>*> pi_scalar,
     const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> phi_scalar,
 
+    // c.f. dg_package_data_temporary_tags from the combined Upwind correction
+    // (i.e. from ScalarTensor::ProductOfCorrections)
     const gsl::not_null<Scalar<DataVector>*> gamma1,
     const gsl::not_null<Scalar<DataVector>*> gamma2,
     const gsl::not_null<Scalar<DataVector>*> lapse,
     const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> shift,
-
     const gsl::not_null<Scalar<DataVector>*> gamma1_scalar,
     const gsl::not_null<Scalar<DataVector>*> gamma2_scalar,
 
@@ -84,18 +85,10 @@ std::optional<std::string> BjorusAnalyticConstant::dg_ghost(
     const tnsr::aa<DataVector, 3, Frame::Inertial>& /*logical_dt_pi*/,
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*logical_dt_phi*/,
 
-    const Scalar<DataVector>& logical_dt_psi_scalar,
-    const Scalar<DataVector>& logical_dt_pi_scalar,
-    const tnsr::i<DataVector, 3, Frame::Inertial>& logical_dt_phi_scalar,
-
     // c.f. dg_interior_deriv_vars_tags
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*d_spacetime_metric*/,
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*d_pi*/,
-    const tnsr::ijaa<DataVector, 3, Frame::Inertial>& /*d_phi*/,
-
-    const tnsr::i<DataVector, 3, Frame::Inertial>& d_psi_scalar,
-    const tnsr::i<DataVector, 3, Frame::Inertial>& d_pi_scalar,
-    const tnsr::ij<DataVector, 3, Frame::Inertial>& d_phi_scalar) const {
+    const tnsr::ijaa<DataVector, 3, Frame::Inertial>& /*d_phi*/) const {
   *gamma1 = interior_gamma1;
   *gamma2 = interior_gamma2;
   *spacetime_metric = interior_spacetime_metric;
@@ -105,14 +98,15 @@ std::optional<std::string> BjorusAnalyticConstant::dg_ghost(
   *shift = interior_shift;
   *inv_spatial_metric = interior_inv_spatial_metric;
 
-  // Implement as in CurvedScalarWave::AnalyticConstant
-  *psi_scalar =
-      make_with_value<Scalar<DataVector>>(interior_gamma1, amplitude_scalar_);
-  *pi_scalar = make_with_value<Scalar<DataVector>>(interior_gamma1, 0.0);
-  *phi_scalar = make_with_value<tnsr::i<DataVector, 3, Frame::Inertial>>(
-      interior_gamma1, 0.0);
+  return csw_analytic_constant_.dg_ghost(
+      psi_scalar, pi_scalar, phi_scalar, lapse, shift, gamma1_scalar,
+      gamma2_scalar, inv_spatial_metric, face_mesh_velocity, normal_covector,
+      normal_vector, interior_inv_spatial_metric,
 
-  return {};
+      // Just for size. Fine to use gh gammas instead of CSW ones
+      interior_gamma1, interior_gamma2,
+
+      interior_lapse, interior_shift);
 }
 
 std::optional<std::string> BjorusAnalyticConstant::dg_time_derivative(
@@ -159,18 +153,10 @@ std::optional<std::string> BjorusAnalyticConstant::dg_time_derivative(
     const tnsr::aa<DataVector, 3, Frame::Inertial>& logical_dt_pi,
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& logical_dt_phi,
 
-    const Scalar<DataVector>& logical_dt_psi_scalar,
-    const Scalar<DataVector>& logical_dt_pi_scalar,
-    const tnsr::i<DataVector, 3, Frame::Inertial>& logical_dt_phi_scalar,
-
     // c.f. dg_interior_deriv_vars_tags
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& d_spacetime_metric,
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& d_pi,
-    const tnsr::ijaa<DataVector, 3, Frame::Inertial>& d_phi,
-
-    const tnsr::i<DataVector, 3, Frame::Inertial>& d_psi_scalar,
-    const tnsr::i<DataVector, 3, Frame::Inertial>& d_pi_scalar,
-    const tnsr::ij<DataVector, 3, Frame::Inertial>& d_phi_scalar) const {
+    const tnsr::ijaa<DataVector, 3, Frame::Inertial>& d_phi) const {
   get(*dt_psi_scalar_correction) = 0.0;
   get(*dt_pi_scalar_correction) = 0.0;
   for (size_t i = 0; i < 3; ++i) {

@@ -105,11 +105,12 @@ class BjorusAnalyticConstant final : public BoundaryCondition {
       gsl::not_null<Scalar<DataVector>*> pi_scalar,
       gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> phi_scalar,
 
+      // c.f. dg_package_data_temporary_tags from the combined Upwind correction
+      // (i.e. from ScalarTensor::ProductOfCorrections)
       gsl::not_null<Scalar<DataVector>*> gamma1,
       gsl::not_null<Scalar<DataVector>*> gamma2,
       gsl::not_null<Scalar<DataVector>*> lapse,
       gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> shift,
-
       gsl::not_null<Scalar<DataVector>*> gamma1_scalar,
       gsl::not_null<Scalar<DataVector>*> gamma2_scalar,
 
@@ -151,38 +152,21 @@ class BjorusAnalyticConstant final : public BoundaryCondition {
       const tnsr::aa<DataVector, 3, Frame::Inertial>& /*logical_dt_pi*/,
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*logical_dt_phi*/,
 
-      const Scalar<DataVector>& logical_dt_psi_scalar,
-      const Scalar<DataVector>& logical_dt_pi_scalar,
-      const tnsr::i<DataVector, 3, Frame::Inertial>& logical_dt_phi_scalar,
-
       // c.f. dg_interior_deriv_vars_tags
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*d_spacetime_metric*/,
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*d_pi*/,
-      const tnsr::ijaa<DataVector, 3, Frame::Inertial>& /*d_phi*/,
-
-      const tnsr::i<DataVector, 3, Frame::Inertial>& d_psi_scalar,
-      const tnsr::i<DataVector, 3, Frame::Inertial>& d_pi_scalar,
-      const tnsr::ij<DataVector, 3, Frame::Inertial>& d_phi_scalar) const;
+      const tnsr::ijaa<DataVector, 3, Frame::Inertial>& /*d_phi*/) const;
 
   using dg_interior_dt_vars_tags =
       tmpl::list<::Tags::dt<gr::Tags::SpacetimeMetric<DataVector, 3>>,
                  ::Tags::dt<gh::Tags::Pi<DataVector, 3>>,
-                 ::Tags::dt<gh::Tags::Phi<DataVector, 3>>,
-                 ::Tags::dt<CurvedScalarWave::Tags::Psi>,
-                 ::Tags::dt<CurvedScalarWave::Tags::Pi>,
-                 ::Tags::dt<CurvedScalarWave::Tags::Phi<3>>>;
+                 ::Tags::dt<gh::Tags::Phi<DataVector, 3>>>;
   using dg_interior_deriv_vars_tags =
       tmpl::list<::Tags::deriv<gr::Tags::SpacetimeMetric<DataVector, 3>,
                                tmpl::size_t<3>, Frame::Inertial>,
                  ::Tags::deriv<gh::Tags::Pi<DataVector, 3>, tmpl::size_t<3>,
                                Frame::Inertial>,
                  ::Tags::deriv<gh::Tags::Phi<DataVector, 3>, tmpl::size_t<3>,
-                               Frame::Inertial>,
-                 ::Tags::deriv<CurvedScalarWave::Tags::Psi, tmpl::size_t<3>,
-                               Frame::Inertial>,
-                 ::Tags::deriv<CurvedScalarWave::Tags::Pi, tmpl::size_t<3>,
-                               Frame::Inertial>,
-                 ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>,
                                Frame::Inertial>>;
 
   std::optional<std::string> dg_time_derivative(
@@ -230,22 +214,15 @@ class BjorusAnalyticConstant final : public BoundaryCondition {
       const tnsr::aa<DataVector, 3, Frame::Inertial>& logical_dt_pi,
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& logical_dt_phi,
 
-      const Scalar<DataVector>& logical_dt_psi_scalar,
-      const Scalar<DataVector>& logical_dt_pi_scalar,
-      const tnsr::i<DataVector, 3, Frame::Inertial>& logical_dt_phi_scalar,
-
       // c.f. dg_interior_deriv_vars_tags
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& d_spacetime_metric,
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& d_pi,
-      const tnsr::ijaa<DataVector, 3, Frame::Inertial>& d_phi,
-
-      const tnsr::i<DataVector, 3, Frame::Inertial>& d_psi_scalar,
-      const tnsr::i<DataVector, 3, Frame::Inertial>& d_pi_scalar,
-      const tnsr::ij<DataVector, 3, Frame::Inertial>& d_phi_scalar) const;
+      const tnsr::ijaa<DataVector, 3, Frame::Inertial>& d_phi) const;
 
  private:
   gh::BoundaryConditions::ConstraintPreservingBjorhus<3>
       constraint_preserving_{};
-  double amplitude_scalar_ = std::numeric_limits<double>::signaling_NaN();
+  CurvedScalarWave::BoundaryConditions::AnalyticConstant<3>
+      csw_analytic_constant_{};
 };
 }  // namespace ScalarTensor::BoundaryConditions
