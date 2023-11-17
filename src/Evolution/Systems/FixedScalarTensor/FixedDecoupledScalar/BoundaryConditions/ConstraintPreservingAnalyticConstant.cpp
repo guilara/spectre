@@ -42,6 +42,11 @@ std::optional<std::string> ConstraintPreservingAnalyticConstant::dg_ghost(
     const gsl::not_null<Scalar<DataVector>*> pi_scalar,
     const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> phi_scalar,
 
+    const gsl::not_null<Scalar<DataVector>*> psi_scalar_driver,
+    const gsl::not_null<Scalar<DataVector>*> pi_scalar_driver,
+    const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
+        phi_scalar_driver,
+
     // c.f. dg_package_data_temporary_tags from the combined Upwind correction
     // (i.e. from fe::DecoupledScalar::ProductOfCorrections)
     const gsl::not_null<Scalar<DataVector>*> gamma1,
@@ -50,6 +55,8 @@ std::optional<std::string> ConstraintPreservingAnalyticConstant::dg_ghost(
     const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> shift,
     const gsl::not_null<Scalar<DataVector>*> gamma1_scalar,
     const gsl::not_null<Scalar<DataVector>*> gamma2_scalar,
+    const gsl::not_null<Scalar<DataVector>*> gamma1_scalar_driver,
+    const gsl::not_null<Scalar<DataVector>*> gamma2_scalar_driver,
 
     const gsl::not_null<tnsr::II<DataVector, 3, Frame::Inertial>*>
         inv_spatial_metric,
@@ -67,6 +74,10 @@ std::optional<std::string> ConstraintPreservingAnalyticConstant::dg_ghost(
     const Scalar<DataVector>& pi_scalar_interior,
     const tnsr::i<DataVector, 3>& phi_scalar_interior,
 
+    const Scalar<DataVector>& psi_scalar_driver_interior,
+    const Scalar<DataVector>& pi_scalar_driver_interior,
+    const tnsr::i<DataVector, 3>& phi_scalar_driver_interior,
+
     const tnsr::I<DataVector, 3, Frame::Inertial>& /*coords*/,
     const Scalar<DataVector>& interior_gamma1,
     const Scalar<DataVector>& interior_gamma2,
@@ -81,6 +92,8 @@ std::optional<std::string> ConstraintPreservingAnalyticConstant::dg_ghost(
     const tnsr::a<DataVector, 3, Frame::Inertial>& /*gauge_source*/,
     const tnsr::ab<DataVector, 3, Frame::Inertial>&
     /*spacetime_deriv_gauge_source*/,
+    const Scalar<DataVector>& interior_gamma1_scalar,
+    const Scalar<DataVector>& interior_gamma2_scalar,
 
     // c.f. dg_interior_dt_vars_tags
     const tnsr::aa<DataVector, 3, Frame::Inertial>&
@@ -88,10 +101,18 @@ std::optional<std::string> ConstraintPreservingAnalyticConstant::dg_ghost(
     const tnsr::aa<DataVector, 3, Frame::Inertial>& /*logical_dt_pi*/,
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*logical_dt_phi*/,
 
+    const Scalar<DataVector>& logical_dt_psi_scalar,
+    const Scalar<DataVector>& logical_dt_pi_scalar,
+    const tnsr::i<DataVector, 3>& logical_dt_phi_scalar,
+
     // c.f. dg_interior_deriv_vars_tags
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*d_spacetime_metric*/,
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*d_pi*/,
-    const tnsr::ijaa<DataVector, 3, Frame::Inertial>& /*d_phi*/) const {
+    const tnsr::ijaa<DataVector, 3, Frame::Inertial>& /*d_phi*/,
+
+    const tnsr::i<DataVector, 3, Frame::Inertial>& d_psi_scalar,
+    const tnsr::i<DataVector, 3, Frame::Inertial>& d_pi_scalar,
+    const tnsr::ij<DataVector, 3, Frame::Inertial>& d_phi_scalar) const {
   // GH
   *gamma1 = interior_gamma1;
   *gamma2 = interior_gamma2;
@@ -103,12 +124,18 @@ std::optional<std::string> ConstraintPreservingAnalyticConstant::dg_ghost(
   *inv_spatial_metric = interior_inv_spatial_metric;
 
   // Scalar
+  *psi_scalar = psi_scalar_interior;
+  *pi_scalar = pi_scalar_interior;
+  *phi_scalar = phi_scalar_interior;
+  *gamma1_scalar = interior_gamma1_scalar;
+  *gamma2_scalar = interior_gamma2_scalar;
 
   // Scalar Driver
   return scalar_driver_analytic_constant_.dg_ghost(
-      psi_scalar, pi_scalar, phi_scalar, lapse, shift, gamma1_scalar,
-      gamma2_scalar, inv_spatial_metric, face_mesh_velocity, normal_covector,
-      normal_vector, interior_inv_spatial_metric,
+      psi_scalar_driver, pi_scalar_driver, phi_scalar_driver, lapse, shift,
+      gamma1_scalar_driver, gamma2_scalar_driver, inv_spatial_metric,
+      face_mesh_velocity, normal_covector, normal_vector,
+      interior_inv_spatial_metric,
 
       // Just for size. Fine to use gh gammas instead of CSW ones
       interior_gamma1, interior_gamma2,
@@ -130,6 +157,11 @@ ConstraintPreservingAnalyticConstant::dg_time_derivative(
     const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
         dt_phi_scalar_correction,
 
+    const gsl::not_null<Scalar<DataVector>*> dt_psi_scalar_driver_correction,
+    const gsl::not_null<Scalar<DataVector>*> dt_pi_scalar_driver_correction,
+    const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
+        dt_phi_scalar_driver_correction,
+
     const std::optional<tnsr::I<DataVector, 3, Frame::Inertial>>&
         face_mesh_velocity,
     const tnsr::i<DataVector, 3, Frame::Inertial>& normal_covector,
@@ -141,6 +173,10 @@ ConstraintPreservingAnalyticConstant::dg_time_derivative(
 
     const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>& pi_scalar,
     const tnsr::i<DataVector, 3, Frame::Inertial>& phi_scalar,
+
+    const Scalar<DataVector>& psi_scalar_driver,
+    const Scalar<DataVector>& pi_scalar_driver,
+    const tnsr::i<DataVector, 3, Frame::Inertial>& phi_scalar_driver,
     // c.f. dg_interior_primitive_variables_tags
 
     // c.f. dg_interior_temporary_tags
@@ -155,16 +191,26 @@ ConstraintPreservingAnalyticConstant::dg_time_derivative(
     const tnsr::a<DataVector, 3, Frame::Inertial>& gauge_source,
     const tnsr::ab<DataVector, 3, Frame::Inertial>&
         spacetime_deriv_gauge_source,
+    const Scalar<DataVector>& gamma1_scalar,
+    const Scalar<DataVector>& gamma2_scalar,
 
     // c.f. dg_interior_dt_vars_tags
     const tnsr::aa<DataVector, 3, Frame::Inertial>& logical_dt_spacetime_metric,
     const tnsr::aa<DataVector, 3, Frame::Inertial>& logical_dt_pi,
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& logical_dt_phi,
 
+    const Scalar<DataVector>& logical_dt_psi_scalar,
+    const Scalar<DataVector>& logical_dt_pi_scalar,
+    const tnsr::i<DataVector, 3>& logical_dt_phi_scalar,
+
     // c.f. dg_interior_deriv_vars_tags
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& d_spacetime_metric,
     const tnsr::iaa<DataVector, 3, Frame::Inertial>& d_pi,
-    const tnsr::ijaa<DataVector, 3, Frame::Inertial>& d_phi) const {
+    const tnsr::ijaa<DataVector, 3, Frame::Inertial>& d_phi,
+
+    const tnsr::i<DataVector, 3, Frame::Inertial>& d_psi_scalar,
+    const tnsr::i<DataVector, 3, Frame::Inertial>& d_pi_scalar,
+    const tnsr::ij<DataVector, 3, Frame::Inertial>& d_phi_scalar) const {
   // GH ConstraintPreserving
   auto gh_string = constraint_preserving_.dg_time_derivative(
       dt_spacetime_metric_correction, dt_pi_correction, dt_phi_correction,

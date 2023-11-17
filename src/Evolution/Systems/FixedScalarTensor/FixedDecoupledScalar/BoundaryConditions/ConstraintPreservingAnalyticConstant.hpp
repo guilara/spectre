@@ -86,7 +86,8 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>,
                  gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>,
                  CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
-                 CurvedScalarWave::Tags::Phi<3>>;
+                 CurvedScalarWave::Tags::Phi<3>, ScalarDriver::Tags::Psi,
+                 ScalarDriver::Tags::Pi, ScalarDriver::Tags::Phi<3>>;
   using dg_interior_temporary_tags =
       tmpl::list<domain::Tags::Coordinates<3, Frame::Inertial>,
                  ::gh::ConstraintDamping::Tags::ConstraintGamma1,
@@ -97,7 +98,9 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
                  gr::Tags::SpacetimeNormalVector<DataVector, 3>,
                  gh::Tags::ThreeIndexConstraint<DataVector, 3>,
                  gh::Tags::GaugeH<DataVector, 3>,
-                 gh::Tags::SpacetimeDerivGaugeH<DataVector, 3>>;
+                 gh::Tags::SpacetimeDerivGaugeH<DataVector, 3>,
+                 CurvedScalarWave::Tags::ConstraintGamma1,
+                 CurvedScalarWave::Tags::ConstraintGamma2>;
   using dg_interior_primitive_variables_tags = tmpl::list<>;
   using dg_gridless_tags = tmpl::list<>;
 
@@ -110,6 +113,10 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       gsl::not_null<Scalar<DataVector>*> pi_scalar,
       gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> phi_scalar,
 
+      gsl::not_null<Scalar<DataVector>*> psi_scalar_driver,
+      gsl::not_null<Scalar<DataVector>*> pi_scalar_driver,
+      gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> phi_scalar_driver,
+
       // c.f. dg_package_data_temporary_tags from the combined Upwind correction
       // (i.e. from fe::DecoupledScalar::ProductOfCorrections)
       gsl::not_null<Scalar<DataVector>*> gamma1,
@@ -118,6 +125,8 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> shift,
       gsl::not_null<Scalar<DataVector>*> gamma1_scalar,
       gsl::not_null<Scalar<DataVector>*> gamma2_scalar,
+      gsl::not_null<Scalar<DataVector>*> gamma1_scalar_driver,
+      gsl::not_null<Scalar<DataVector>*> gamma2_scalar_driver,
 
       gsl::not_null<tnsr::II<DataVector, 3, Frame::Inertial>*>
           inv_spatial_metric,
@@ -135,6 +144,10 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       const Scalar<DataVector>& pi_scalar_interior,
       const tnsr::i<DataVector, 3>& phi_scalar_interior,
 
+      const Scalar<DataVector>& psi_scalar_driver_interior,
+      const Scalar<DataVector>& pi_scalar_driver_interior,
+      const tnsr::i<DataVector, 3>& phi_scalar_driver_interior,
+
       const tnsr::I<DataVector, 3, Frame::Inertial>& /*coords*/,
       const Scalar<DataVector>& interior_gamma1,
       const Scalar<DataVector>& interior_gamma2,
@@ -150,6 +163,8 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       const tnsr::a<DataVector, 3, Frame::Inertial>& /*gauge_source*/,
       const tnsr::ab<DataVector, 3, Frame::Inertial>&
       /*spacetime_deriv_gauge_source*/,
+      const Scalar<DataVector>& interior_gamma1_scalar,
+      const Scalar<DataVector>& interior_gamma2_scalar,
 
       // c.f. dg_interior_dt_vars_tags
       const tnsr::aa<DataVector, 3, Frame::Inertial>&
@@ -157,21 +172,38 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       const tnsr::aa<DataVector, 3, Frame::Inertial>& /*logical_dt_pi*/,
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*logical_dt_phi*/,
 
+      const Scalar<DataVector>& logical_dt_psi_scalar,
+      const Scalar<DataVector>& logical_dt_pi_scalar,
+      const tnsr::i<DataVector, 3>& logical_dt_phi_scalar,
+
       // c.f. dg_interior_deriv_vars_tags
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*d_spacetime_metric*/,
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& /*d_pi*/,
-      const tnsr::ijaa<DataVector, 3, Frame::Inertial>& /*d_phi*/) const;
+      const tnsr::ijaa<DataVector, 3, Frame::Inertial>& /*d_phi*/,
+
+      const tnsr::i<DataVector, 3, Frame::Inertial>& d_psi_scalar,
+      const tnsr::i<DataVector, 3, Frame::Inertial>& d_pi_scalar,
+      const tnsr::ij<DataVector, 3, Frame::Inertial>& d_phi_scalar) const;
 
   using dg_interior_dt_vars_tags =
       tmpl::list<::Tags::dt<gr::Tags::SpacetimeMetric<DataVector, 3>>,
                  ::Tags::dt<gh::Tags::Pi<DataVector, 3>>,
-                 ::Tags::dt<gh::Tags::Phi<DataVector, 3>>>;
+                 ::Tags::dt<gh::Tags::Phi<DataVector, 3>>,
+                 ::Tags::dt<CurvedScalarWave::Tags::Psi>,
+                 ::Tags::dt<CurvedScalarWave::Tags::Pi>,
+                 ::Tags::dt<CurvedScalarWave::Tags::Phi<3>>>;
   using dg_interior_deriv_vars_tags =
       tmpl::list<::Tags::deriv<gr::Tags::SpacetimeMetric<DataVector, 3>,
                                tmpl::size_t<3>, Frame::Inertial>,
                  ::Tags::deriv<gh::Tags::Pi<DataVector, 3>, tmpl::size_t<3>,
                                Frame::Inertial>,
                  ::Tags::deriv<gh::Tags::Phi<DataVector, 3>, tmpl::size_t<3>,
+                               Frame::Inertial>,
+                 ::Tags::deriv<CurvedScalarWave::Tags::Psi, tmpl::size_t<3>,
+                               Frame::Inertial>,
+                 ::Tags::deriv<CurvedScalarWave::Tags::Pi, tmpl::size_t<3>,
+                               Frame::Inertial>,
+                 ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>,
                                Frame::Inertial>>;
 
   std::optional<std::string> dg_time_derivative(
@@ -186,6 +218,11 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
           dt_phi_scalar_correction,
 
+      gsl::not_null<Scalar<DataVector>*> dt_psi_scalar_driver_correction,
+      gsl::not_null<Scalar<DataVector>*> dt_pi_scalar_driver_correction,
+      gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
+          dt_phi_scalar_driver_correction,
+
       const std::optional<tnsr::I<DataVector, 3, Frame::Inertial>>&
           face_mesh_velocity,
       const tnsr::i<DataVector, 3, Frame::Inertial>& normal_covector,
@@ -197,6 +234,10 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
 
       const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>& pi_scalar,
       const tnsr::i<DataVector, 3, Frame::Inertial>& phi_scalar,
+
+      const Scalar<DataVector>& psi_scalar_driver,
+      const Scalar<DataVector>& pi_scalar_driver,
+      const tnsr::i<DataVector, 3, Frame::Inertial>& phi_scalar_driver,
       // c.f. dg_interior_primitive_variables_tags
 
       // c.f. dg_interior_temporary_tags
@@ -212,6 +253,8 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       const tnsr::a<DataVector, 3, Frame::Inertial>& gauge_source,
       const tnsr::ab<DataVector, 3, Frame::Inertial>&
           spacetime_deriv_gauge_source,
+      const Scalar<DataVector>& gamma1_scalar,
+      const Scalar<DataVector>& gamma2_scalar,
 
       // c.f. dg_interior_dt_vars_tags
       const tnsr::aa<DataVector, 3, Frame::Inertial>&
@@ -219,10 +262,18 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       const tnsr::aa<DataVector, 3, Frame::Inertial>& logical_dt_pi,
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& logical_dt_phi,
 
+      const Scalar<DataVector>& logical_dt_psi_scalar,
+      const Scalar<DataVector>& logical_dt_pi_scalar,
+      const tnsr::i<DataVector, 3>& logical_dt_phi_scalar,
+
       // c.f. dg_interior_deriv_vars_tags
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& d_spacetime_metric,
       const tnsr::iaa<DataVector, 3, Frame::Inertial>& d_pi,
-      const tnsr::ijaa<DataVector, 3, Frame::Inertial>& d_phi) const;
+      const tnsr::ijaa<DataVector, 3, Frame::Inertial>& d_phi,
+
+      const tnsr::i<DataVector, 3, Frame::Inertial>& d_psi_scalar,
+      const tnsr::i<DataVector, 3, Frame::Inertial>& d_pi_scalar,
+      const tnsr::ij<DataVector, 3, Frame::Inertial>& d_phi_scalar) const;
 
  private:
   gh::BoundaryConditions::ConstraintPreservingBjorhus<3>
