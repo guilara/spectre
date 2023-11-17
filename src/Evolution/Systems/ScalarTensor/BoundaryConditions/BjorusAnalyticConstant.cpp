@@ -43,6 +43,10 @@ std::optional<std::string> BjorusAnalyticConstant::dg_ghost(
     const gsl::not_null<Scalar<DataVector>*> gamma2,
     const gsl::not_null<Scalar<DataVector>*> lapse,
     const gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> shift,
+
+    const gsl::not_null<Scalar<DataVector>*> gamma1_scalar,
+    const gsl::not_null<Scalar<DataVector>*> gamma2_scalar,
+
     const gsl::not_null<tnsr::II<DataVector, 3, Frame::Inertial>*>
         inv_spatial_metric,
 
@@ -73,9 +77,6 @@ std::optional<std::string> BjorusAnalyticConstant::dg_ghost(
     const tnsr::a<DataVector, 3, Frame::Inertial>& /*gauge_source*/,
     const tnsr::ab<DataVector, 3, Frame::Inertial>&
     /*spacetime_deriv_gauge_source*/,
-
-    // const Scalar<DataVector>& gamma1_scalar_interior,
-    // const Scalar<DataVector>& gamma2_scalar_interior,
 
     // c.f. dg_interior_dt_vars_tags
     const tnsr::aa<DataVector, 3, Frame::Inertial>&
@@ -152,9 +153,6 @@ std::optional<std::string> BjorusAnalyticConstant::dg_time_derivative(
     const tnsr::a<DataVector, 3, Frame::Inertial>& gauge_source,
     const tnsr::ab<DataVector, 3, Frame::Inertial>&
         spacetime_deriv_gauge_source,
-
-    // const Scalar<DataVector>& gamma1_scalar_interior,
-    // const Scalar<DataVector>& gamma2_scalar_interior,
 
     // c.f. dg_interior_dt_vars_tags
     const tnsr::aa<DataVector, 3, Frame::Inertial>& logical_dt_spacetime_metric,

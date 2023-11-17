@@ -92,11 +92,7 @@ class BjorusAnalyticConstant final : public BoundaryCondition {
                  gr::Tags::SpacetimeNormalVector<DataVector, 3>,
                  gh::Tags::ThreeIndexConstraint<DataVector, 3>,
                  gh::Tags::GaugeH<DataVector, 3>,
-                 gh::Tags::SpacetimeDerivGaugeH<DataVector, 3>
-                 //  ,
-                 //  CurvedScalarWave::Tags::ConstraintGamma1,
-                 //  CurvedScalarWave::Tags::ConstraintGamma2
-                 >;
+                 gh::Tags::SpacetimeDerivGaugeH<DataVector, 3>>;
   using dg_interior_primitive_variables_tags = tmpl::list<>;
   using dg_gridless_tags = tmpl::list<>;
 
@@ -113,6 +109,10 @@ class BjorusAnalyticConstant final : public BoundaryCondition {
       gsl::not_null<Scalar<DataVector>*> gamma2,
       gsl::not_null<Scalar<DataVector>*> lapse,
       gsl::not_null<tnsr::I<DataVector, 3, Frame::Inertial>*> shift,
+
+      gsl::not_null<Scalar<DataVector>*> gamma1_scalar,
+      gsl::not_null<Scalar<DataVector>*> gamma2_scalar,
+
       gsl::not_null<tnsr::II<DataVector, 3, Frame::Inertial>*>
           inv_spatial_metric,
 
@@ -144,9 +144,6 @@ class BjorusAnalyticConstant final : public BoundaryCondition {
       const tnsr::a<DataVector, 3, Frame::Inertial>& /*gauge_source*/,
       const tnsr::ab<DataVector, 3, Frame::Inertial>&
       /*spacetime_deriv_gauge_source*/,
-
-    //   const Scalar<DataVector>& gamma1_scalar_interior,
-    //   const Scalar<DataVector>& gamma2_scalar_interior,
 
       // c.f. dg_interior_dt_vars_tags
       const tnsr::aa<DataVector, 3, Frame::Inertial>&
@@ -226,9 +223,6 @@ class BjorusAnalyticConstant final : public BoundaryCondition {
       const tnsr::a<DataVector, 3, Frame::Inertial>& gauge_source,
       const tnsr::ab<DataVector, 3, Frame::Inertial>&
           spacetime_deriv_gauge_source,
-
-    //   const Scalar<DataVector>& gamma1_scalar_interior,
-    //   const Scalar<DataVector>& gamma2_scalar_interior,
 
       // c.f. dg_interior_dt_vars_tags
       const tnsr::aa<DataVector, 3, Frame::Inertial>&
