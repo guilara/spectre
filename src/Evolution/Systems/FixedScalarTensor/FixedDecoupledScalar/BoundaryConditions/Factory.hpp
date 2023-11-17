@@ -5,12 +5,12 @@
 
 #include "Domain/BoundaryConditions/Periodic.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/BoundaryCondition.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
-#include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/ConstraintPreservingAnalyticConstant.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/AnalyticConstant.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/BoundaryCondition.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/ProductOfConditions.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 #include "Utilities/TMPL.hpp"
 
 namespace fe::DecoupledScalar::BoundaryConditions {
@@ -26,7 +26,11 @@ using ProductOfConditionsIfConsistent = tmpl::conditional_t<
         ((DerivedGhCondition::bc_type ==
           evolution::BoundaryConditions::Type::TimeDerivative) xor
          (DerivedScalarCondition::bc_type ==
-          evolution::BoundaryConditions::Type::TimeDerivative)),
+          evolution::BoundaryConditions::Type::TimeDerivative)) or
+        ((DerivedGhCondition::bc_type ==
+          evolution::BoundaryConditions::Type::GhostAndTimeDerivative) xor
+         (DerivedScalarCondition::bc_type ==
+          evolution::BoundaryConditions::Type::GhostAndTimeDerivative)),
     tmpl::list<>,
     ProductOfConditions<DerivedGhCondition, DerivedScalarCondition>>;
 
@@ -75,10 +79,12 @@ using subset_standard_boundary_conditions_scalar =
                    ConstraintPreservingSphericalRadiation,
                fe::ScalarDriver::BoundaryConditions::DemandOutgoingCharSpeeds>;
 
-using standard_boundary_conditions =
-    tmpl::push_back<typename detail::AllProductConditions<
-                        subset_standard_boundary_conditions_gh,
-                        subset_standard_boundary_conditions_scalar>::type,
-                    domain::BoundaryConditions::Periodic<BoundaryCondition>>;
+using standard_boundary_conditions = tmpl::append<
+    detail::AllProductConditions<
+        subset_standard_boundary_conditions_gh,
+        subset_standard_boundary_conditions_scalar>::type,
+    tmpl::list<fe::DecoupledScalar::BoundaryConditions::
+                   ConstraintPreservingAnalyticConstant,
+               domain::BoundaryConditions::Periodic<BoundaryCondition>>>;
 
 }  // namespace fe::DecoupledScalar::BoundaryConditions
