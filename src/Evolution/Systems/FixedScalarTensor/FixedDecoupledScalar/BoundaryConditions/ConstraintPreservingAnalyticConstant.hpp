@@ -17,12 +17,13 @@
 #include "Domain/Structure/Direction.hpp"
 #include "Domain/Tags.hpp"
 #include "Evolution/BoundaryConditions/Type.hpp"
-#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/AnalyticConstant.hpp"
+#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/ConstraintPreservingSphericalRadiation.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/BoundaryCondition.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/AnalyticConstant.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Bjorhus.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
-#include "Evolution/Systems/ScalarTensor/BoundaryConditions/BoundaryCondition.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "Options/String.hpp"
 #include "Utilities/Gsl.hpp"
@@ -278,9 +279,10 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
  private:
   gh::BoundaryConditions::ConstraintPreservingBjorhus<3>
       constraint_preserving_{};
-  CurvedScalarWave::BoundaryCondition::ConstraintPreservingSphericalRadiation<3>
+  CurvedScalarWave::BoundaryConditions::ConstraintPreservingSphericalRadiation<
+      3>
       csw_constraint_preserving_{};
-  fe::ScalarDriver::BoundaryConditions::AnalyticConstant<3>
+  fe::ScalarDriver::BoundaryConditions::AnalyticConstant
       scalar_driver_analytic_constant_{};
 };
 }  // namespace fe::DecoupledScalar::BoundaryConditions

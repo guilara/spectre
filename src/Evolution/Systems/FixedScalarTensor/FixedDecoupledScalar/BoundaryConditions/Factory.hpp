@@ -79,7 +79,8 @@ using standard_boundary_conditions = tmpl::append<
     detail::AllProductConditions<
         subset_standard_boundary_conditions_gh,
         subset_standard_boundary_conditions_scalar>::type,
-    tmpl::list<fe::DecoupledScalar::ConstraintPreservingAnalyticConstant,
+    tmpl::list<fe::DecoupledScalar::BoundaryConditions::
+                   ConstraintPreservingAnalyticConstant,
                domain::BoundaryConditions::Periodic<BoundaryCondition>>>;
 
 }  // namespace fe::DecoupledScalar::BoundaryConditions
