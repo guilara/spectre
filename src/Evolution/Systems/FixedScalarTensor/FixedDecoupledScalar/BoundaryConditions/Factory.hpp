@@ -26,7 +26,11 @@ using ProductOfConditionsIfConsistent = tmpl::conditional_t<
         ((DerivedGhCondition::bc_type ==
           evolution::BoundaryConditions::Type::TimeDerivative) xor
          (DerivedScalarCondition::bc_type ==
-          evolution::BoundaryConditions::Type::TimeDerivative)),
+          evolution::BoundaryConditions::Type::TimeDerivative)) or
+        ((DerivedGhCondition::bc_type ==
+          evolution::BoundaryConditions::Type::GhostAndTimeDerivative) xor
+         (DerivedScalarCondition::bc_type ==
+          evolution::BoundaryConditions::Type::GhostAndTimeDerivative)),
     tmpl::list<>,
     ProductOfConditions<DerivedGhCondition, DerivedScalarCondition>>;
 
