@@ -235,6 +235,15 @@ ConstraintPreservingAnalyticConstant::dg_time_derivative(
     dt_phi_scalar_driver_correction->get(i) = 0.0;
   }
 
+  if (not gh_string.has_value() and not scalar_string.has_value()) {
+    return {};
+  }
+  if (not gh_string.has_value()) {
+    return scalar_string;
+  }
+  if (not scalar_string.has_value()) {
+    return gh_string;
+  }
   return gh_string.value() + ";" + scalar_string.value();
 }
 
