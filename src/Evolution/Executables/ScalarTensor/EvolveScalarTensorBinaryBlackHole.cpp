@@ -24,6 +24,7 @@ extern "C" void CkRegisterMainModule() {
        &ScalarTensor::BoundaryCorrections::register_derived_with_charm,
        &gh::ConstraintDamping::register_derived_with_charm,
        &ScalarTensor::ConstraintDamping::register_derived_with_charm,
+       &control_system::size::register_derived_with_charm,
        &register_factory_classes_with_charm<EvolutionMetavars>},
       {});
 }
