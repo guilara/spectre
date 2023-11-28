@@ -249,7 +249,7 @@ struct EvolutionMetavars {
 
   static constexpr size_t volume_dim = 3;
   static constexpr bool use_damped_harmonic_rollon = false;
-  using system = ScalarTensor::System;
+  using system = fe::DecoupledScalar::System;
   static constexpr dg::Formulation dg_formulation =
       dg::Formulation::StrongInertial;
   using temporal_id = Tags::TimeStepId;
@@ -258,7 +258,9 @@ struct EvolutionMetavars {
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
       // For now we initially set the scalar variables to analytic values
       Initialization::Actions::AddSimpleTags<
-          ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
+          //   ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
+          fe::DecoupledScalar::Initialization::
+              InitializeEvolvedScalarVariables>,
       Actions::MutateApply<gh::gauges::SetPiAndPhiFromConstraints<volume_dim>>,
       //   Initialization::Actions::AddSimpleTags<
       //       ScalarTensor::Initialization::
@@ -420,7 +422,11 @@ struct EvolutionMetavars {
 
   using observe_fields = tmpl::append<
       tmpl::push_back<
-          system::gh_system::variables_tag::tags_list,
+          tmpl::append<
+              // GH field tags
+              system::gh_system::gh_system::variables_tag::tags_list,
+              // Driver tags
+              system::scalar_system::variables_tag::tags_list>,
           ScalarTensor::Tags::CswCompute<CurvedScalarWave::Tags::Psi>,
           ScalarTensor::Tags::CswCompute<CurvedScalarWave::Tags::Pi>,
           ScalarTensor::Tags::CswCompute<
@@ -538,7 +544,7 @@ struct EvolutionMetavars {
             tmpl::flatten<tmpl::list<
                 gh::NumericInitialData,
                 // We add the analytic data to be able to impose Dirichlet BCs
-                gh::ScalarTensor::AnalyticData::all_analytic_data,
+                gh::fe::DecoupledScalar::AnalyticData::all_analytic_data,
                 tmpl::conditional_t<std::is_same_v<SpecInitialData, NoSuchType>,
                                     tmpl::list<>, SpecInitialData>>>>,
         tmpl::pair<DenseTrigger,
@@ -569,9 +575,9 @@ struct EvolutionMetavars {
                                                non_tensor_compute_tags>,
                 control_system::control_system_events<control_systems>,
                 Events::time_events<system>>>>,
-        tmpl::pair<
-            ScalarTensor::BoundaryConditions::BoundaryCondition,
-            ScalarTensor::BoundaryConditions::standard_boundary_conditions>,
+        tmpl::pair<fe::DecoupledScalar::BoundaryConditions::BoundaryCondition,
+                   fe::DecoupledScalar::BoundaryConditions::
+                       standard_boundary_conditions>,
         tmpl::pair<
             gh::gauges::GaugeCondition,
             tmpl::list<gh::gauges::DampedHarmonic, gh::gauges::Harmonic>>,
@@ -650,8 +656,12 @@ struct EvolutionMetavars {
           tmpl::list<gr::Tags::SpacetimeMetric<DataVector, volume_dim>,
                      gh::Tags::Pi<DataVector, volume_dim>,
                      gh::Tags::Phi<DataVector, volume_dim>>>,
-      dg::Actions::Filter<Filters::Exponential<1>,
-                          system::scalar_system::variables_tag::tags_list>>;
+      dg::Actions::Filter<
+          Filters::Exponential<1>,
+          system::gh_system::scalar_system::variables_tag::tags_list>,
+      dg::Actions::Filter<
+          Filters::Exponential<2>,
+          system::scalar_system::scalar_system::variables_tag::tags_list>>;
 
   using initialization_actions = tmpl::list<
       Initialization::Actions::InitializeItems<
@@ -666,8 +676,8 @@ struct EvolutionMetavars {
                                           Frame::Inertial>,
           typename system::gradient_variables>>>,
       Initialization::Actions::AddComputeTags<
-          ScalarTensor::Initialization::scalar_tensor_3plus1_compute_tags<
-              volume_dim>>,
+          fe::DecoupledScalar::Initialization::
+              scalar_tensor_3plus1_compute_tags<volume_dim>>,
       Initialization::Actions::AddComputeTags<
           tmpl::push_back<StepChoosers::step_chooser_compute_tags<
               EvolutionMetavars, local_time_stepping>>>,
