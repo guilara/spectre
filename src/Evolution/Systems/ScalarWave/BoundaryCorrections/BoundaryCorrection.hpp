@@ -14,6 +14,8 @@ namespace ScalarWave::BoundaryCorrections {
 /// \cond
 template <size_t Dim>
 class UpwindPenalty;
+template <size_t Dim>
+class SimplePenalty;
 /// \endcond
 
 /*!
@@ -35,7 +37,7 @@ class BoundaryCorrection : public PUP::able {
   WRAPPED_PUPable_abstract(BoundaryCorrection<Dim>);  // NOLINT
   /// \endcond
 
-  using creatable_classes = tmpl::list<UpwindPenalty<Dim>>;
+  using creatable_classes = tmpl::list<SimplePenalty<Dim>, UpwindPenalty<Dim>>;
 
   virtual std::unique_ptr<BoundaryCorrection<Dim>> get_clone() const = 0;
 };

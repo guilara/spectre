@@ -5,6 +5,7 @@ spectre_target_sources(
   ${LIBRARY}
   PRIVATE
   RegisterDerived.cpp
+  SimplePenalty.cpp
   UpwindPenalty.cpp
   )
 
@@ -15,5 +16,6 @@ spectre_target_headers(
   BoundaryCorrection.hpp
   Factory.hpp
   RegisterDerived.hpp
+  SimplePenalty.hpp
   UpwindPenalty.hpp
   )

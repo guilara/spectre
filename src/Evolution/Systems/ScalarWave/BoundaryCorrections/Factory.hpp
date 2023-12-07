@@ -4,4 +4,5 @@
 #pragma once
 
 #include "Evolution/Systems/ScalarWave/BoundaryCorrections/BoundaryCorrection.hpp"
+#include "Evolution/Systems/ScalarWave/BoundaryCorrections/SimplePenalty.hpp"
 #include "Evolution/Systems/ScalarWave/BoundaryCorrections/UpwindPenalty.hpp"
