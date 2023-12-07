@@ -108,8 +108,18 @@ double SimplePenalty<Dim>::dg_package_data(
   get(*packaged_char_speed_v_psi) = get<0>(*packaged_char_speeds) * get(psi);
   get(*packaged_char_speed_gamma2_v_psi) *= get<0>(*packaged_char_speeds);
 
-  return max(max(get<0>(*packaged_char_speeds), get<1>(*packaged_char_speeds),
-                 get<2>(*packaged_char_speeds)));
+  const auto result =
+      max(max(get<0>(*packaged_char_speeds), get<1>(*packaged_char_speeds),
+              get<2>(*packaged_char_speeds)));
+
+  // To avoid ambiguities in the penalties package the evolved fields themselves
+  get(*packaged_char_speed_v_psi) = get(psi);
+  get(*packaged_char_speed_v_plus) = get(pi);
+  for (size_t d = 0; d < Dim; ++d) {
+    packaged_char_speed_v_zero->get(d) = phi.get(d);
+  }
+
+  return result;
 }
 
 template <size_t Dim>
@@ -149,66 +159,24 @@ void SimplePenalty<Dim>::dg_boundary_terms(
   //       get(char_speed_v_psi_int));
   psi_boundary_correction->get() = 0.0;
 
-  get(*pi_boundary_correction) =
-      penalty_factor_ *
-      (
+  get(*pi_boundary_correction) = penalty_factor_ * (get(char_speed_v_plus_ext) -
+                                                    get(char_speed_v_plus_int));
 
-          (0.5 * (get(char_speed_v_plus_ext) + get(char_speed_v_minus_ext)) +
-           get(char_speed_constraint_gamma2_v_psi_ext))
-
-          -
-
-          (0.5 * (get(char_speed_v_plus_int) + get(char_speed_v_minus_int)) +
-           get(char_speed_constraint_gamma2_v_psi_int))
-
-      );
   for (size_t d = 0; d < Dim; ++d) {
     get(*pi_boundary_correction) +=
         penalty_factor_ *
-        (
-
-            (0.5 * (char_speed_minus_normal_times_v_plus_ext.get(d) -
-                    char_speed_minus_normal_times_v_minus_ext.get(d)) +
-             char_speed_v_zero_ext.get(d))
-
-            -
-
-            (0.5 * (char_speed_normal_times_v_plus_int.get(d) -
-                    char_speed_normal_times_v_minus_int.get(d)) +
-             char_speed_v_zero_int.get(d))
-
-        );
+        (char_speed_v_zero_ext.get(d) - char_speed_v_zero_int.get(d));
   }
 
   for (size_t d = 0; d < Dim; ++d) {
     phi_boundary_correction->get(d) =
         penalty_factor_ *
-        (
-
-            (0.5 * (get(char_speed_v_plus_ext) + get(char_speed_v_minus_ext)) +
-             get(char_speed_constraint_gamma2_v_psi_ext))
-
-            -
-
-            (0.5 * (get(char_speed_v_plus_int) + get(char_speed_v_minus_int)) +
-             get(char_speed_constraint_gamma2_v_psi_int))
-
-        );
+        (get(char_speed_v_plus_ext) - get(char_speed_v_plus_int));
 
     for (size_t i = 0; i < Dim; ++i) {
       phi_boundary_correction->get(d) +=
           penalty_factor_ *
-          (
-
-              (0.5 * (char_speed_minus_normal_times_v_plus_ext.get(i) -
-                      char_speed_minus_normal_times_v_minus_ext.get(i)) +
-               char_speed_v_zero_ext.get(i)) -
-
-              (0.5 * (char_speed_normal_times_v_plus_int.get(i) -
-                      char_speed_normal_times_v_minus_int.get(i)) +
-               char_speed_v_zero_int.get(i))
-
-          );
+          (char_speed_v_zero_ext.get(i) - char_speed_v_zero_int.get(i));
     }
   }
 }
