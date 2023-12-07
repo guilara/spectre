@@ -153,13 +153,13 @@ void SimplePenalty<Dim>::dg_boundary_terms(
       penalty_factor_ *
       (
 
-          0.5 * (get(char_speed_v_plus_ext) + get(char_speed_v_minus_ext)) +
-          get(char_speed_constraint_gamma2_v_psi_ext)
+          (0.5 * (get(char_speed_v_plus_ext) + get(char_speed_v_minus_ext)) +
+           get(char_speed_constraint_gamma2_v_psi_ext))
 
           -
 
-          0.5 * (get(char_speed_v_plus_int) + get(char_speed_v_minus_int)) +
-          get(char_speed_constraint_gamma2_v_psi_int)
+          (0.5 * (get(char_speed_v_plus_int) + get(char_speed_v_minus_int)) +
+           get(char_speed_constraint_gamma2_v_psi_int))
 
       );
   for (size_t d = 0; d < Dim; ++d) {
@@ -167,15 +167,15 @@ void SimplePenalty<Dim>::dg_boundary_terms(
         penalty_factor_ *
         (
 
-            0.5 * (char_speed_minus_normal_times_v_plus_ext.get(d) -
-                   char_speed_minus_normal_times_v_minus_ext.get(d)) +
-            char_speed_v_zero_ext.get(d)
+            (0.5 * (char_speed_minus_normal_times_v_plus_ext.get(d) -
+                    char_speed_minus_normal_times_v_minus_ext.get(d)) +
+             char_speed_v_zero_ext.get(d))
 
             -
 
-            0.5 * (char_speed_normal_times_v_plus_int.get(d) -
-                   char_speed_normal_times_v_minus_int.get(d)) +
-            char_speed_v_zero_int.get(d)
+            (0.5 * (char_speed_normal_times_v_plus_int.get(d) -
+                    char_speed_normal_times_v_minus_int.get(d)) +
+             char_speed_v_zero_int.get(d))
 
         );
   }
@@ -185,13 +185,13 @@ void SimplePenalty<Dim>::dg_boundary_terms(
         penalty_factor_ *
         (
 
-            0.5 * (get(char_speed_v_plus_ext) + get(char_speed_v_minus_ext)) +
-            get(char_speed_constraint_gamma2_v_psi_ext)
+            (0.5 * (get(char_speed_v_plus_ext) + get(char_speed_v_minus_ext)) +
+             get(char_speed_constraint_gamma2_v_psi_ext))
 
             -
 
-            0.5 * (get(char_speed_v_plus_int) + get(char_speed_v_minus_int)) +
-            get(char_speed_constraint_gamma2_v_psi_int)
+            (0.5 * (get(char_speed_v_plus_int) + get(char_speed_v_minus_int)) +
+             get(char_speed_constraint_gamma2_v_psi_int))
 
         );
 
@@ -200,15 +200,13 @@ void SimplePenalty<Dim>::dg_boundary_terms(
           penalty_factor_ *
           (
 
-              0.5 * (char_speed_minus_normal_times_v_plus_ext.get(i) -
-                     char_speed_minus_normal_times_v_minus_ext.get(i)) +
-              char_speed_v_zero_ext.get(i)
+              (0.5 * (char_speed_minus_normal_times_v_plus_ext.get(i) -
+                      char_speed_minus_normal_times_v_minus_ext.get(i)) +
+               char_speed_v_zero_ext.get(i)) -
 
-              -
-
-              0.5 * (char_speed_normal_times_v_plus_int.get(i) -
-                     char_speed_normal_times_v_minus_int.get(i)) +
-              char_speed_v_zero_int.get(i)
+              (0.5 * (char_speed_normal_times_v_plus_int.get(i) -
+                      char_speed_normal_times_v_minus_int.get(i)) +
+               char_speed_v_zero_int.get(i))
 
           );
     }
