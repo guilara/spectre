@@ -162,9 +162,8 @@ void SimplePenalty<Dim>::dg_boundary_terms(
           get(char_speed_constraint_gamma2_v_psi_int)
 
       );
-
   for (size_t d = 0; d < Dim; ++d) {
-    phi_boundary_correction->get(d) =
+    get(*pi_boundary_correction) +=
         penalty_factor_ *
         (
 
@@ -179,6 +178,40 @@ void SimplePenalty<Dim>::dg_boundary_terms(
             char_speed_v_zero_int.get(d)
 
         );
+  }
+
+  for (size_t d = 0; d < Dim; ++d) {
+    phi_boundary_correction->get(d) =
+        penalty_factor_ *
+        (
+
+            0.5 * (get(char_speed_v_plus_ext) + get(char_speed_v_minus_ext)) +
+            get(char_speed_constraint_gamma2_v_psi_ext)
+
+            -
+
+            0.5 * (get(char_speed_v_plus_int) + get(char_speed_v_minus_int)) +
+            get(char_speed_constraint_gamma2_v_psi_int)
+
+        );
+
+    for (size_t i = 0; i < Dim; ++i) {
+      phi_boundary_correction->get(d) +=
+          penalty_factor_ *
+          (
+
+              0.5 * (char_speed_minus_normal_times_v_plus_ext.get(i) -
+                     char_speed_minus_normal_times_v_minus_ext.get(i)) +
+              char_speed_v_zero_ext.get(i)
+
+              -
+
+              0.5 * (char_speed_normal_times_v_plus_int.get(i) -
+                     char_speed_normal_times_v_minus_int.get(i)) +
+              char_speed_v_zero_int.get(i)
+
+          );
+    }
   }
 }
 
