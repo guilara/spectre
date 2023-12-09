@@ -59,3 +59,18 @@ target_link_libraries(
   ApparentHorizonFinder
   ControlSystem
   )
+
+set(BBH_EXECUTABLE EvolveFixedDecoupledScalarBinaryBlackHole)
+add_spectre_executable(
+  ${BBH_EXECUTABLE}
+  EXCLUDE_FROM_ALL
+  EvolveFixedDecoupledScalarBinaryBlackHole.cpp
+  )
+target_link_libraries(
+  ${BBH_EXECUTABLE}
+  PRIVATE
+  ${LIBS_TO_LINK}
+  Cce
+  Deadlock
+  EvolutionTriggers
+  )
