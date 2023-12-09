@@ -2,8 +2,10 @@
 # See LICENSE.txt for details.
 
 set(LIBS_TO_LINK
+  ApparentHorizonFinder
   Charmxx::main
   CoordinateMaps
+  ControlSystem
   DiscontinuousGalerkin
   Domain
   DomainCreators
@@ -56,8 +58,6 @@ target_link_libraries(
   ${SINGLE_BH_EXECUTABLE}
   PRIVATE
   ${LIBS_TO_LINK}
-  ApparentHorizonFinder
-  ControlSystem
   )
 
 set(BBH_EXECUTABLE EvolveFixedDecoupledScalarBinaryBlackHole)
