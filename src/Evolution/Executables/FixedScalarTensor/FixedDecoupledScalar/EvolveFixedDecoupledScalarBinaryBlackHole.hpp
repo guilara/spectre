@@ -50,6 +50,23 @@
 #include "Evolution/Systems/CurvedScalarWave/PsiSquared.hpp"
 #include "Evolution/Systems/CurvedScalarWave/System.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/ProductOfConditions.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/ProductOfCorrections.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Initialize.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/System.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Constraints.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Diagnostics.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Initialize.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/PsiSquared.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/System.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Actions/SetInitialData.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Bjorhus.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
@@ -150,6 +167,7 @@
 #include "ParallelAlgorithms/Interpolation/Protocols/InterpolationTargetTag.hpp"
 #include "ParallelAlgorithms/Interpolation/Tags.hpp"
 #include "ParallelAlgorithms/Interpolation/Targets/Sphere.hpp"
+#include "PointwiseFunctions/AnalyticData/GhFixedScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticData/GhScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
@@ -494,11 +512,23 @@ struct EvolutionMetavars {
               CurvedScalarWave::Tags::ConstraintGamma1>,
           ScalarTensor::Tags::CswCompute<
               CurvedScalarWave::Tags::ConstraintGamma2>,
+          fe::ScalarDriver::Tags::ConstraintGamma1,
+          fe::ScalarDriver::Tags::ConstraintGamma2,
+          // Scalar Driver parameters
+          fe::ScalarDriver::Tags::ScalarSigmaParameter,
+          fe::ScalarDriver::Tags::ScalarTauParameter,
           // Sources
           ScalarTensor::Tags::TraceReversedStressEnergyCompute,
           ScalarTensor::Tags::ScalarSource,
           ScalarTensor::Tags::GBScalarCompute<DataVector>,
           ScalarTensor::Tags::CouplingFunctionDerivativeCompute<DataVector>,
+          // Driver quantities
+          fe::ScalarDriver::Tags::TargetPsi,
+          fe::ScalarDriver::Tags::ScalarDriverSource,
+          fe::ScalarDriver::Tags::TrackingDiagnosticCompute<Frame::Inertial,
+                                                            DataVector>,
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarDriver::Tags::TrackingDiagnostic>,
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
@@ -613,13 +643,19 @@ struct EvolutionMetavars {
                                                                    Frame::Grid>,
       ScalarTensor::ConstraintDamping::Tags::DampingFunctionGamma2<volume_dim,
                                                                    Frame::Grid>,
+      fe::DecoupledScalar::ConstraintDamping::Tags::DampingFunctionGamma1<
+          volume_dim, Frame::Grid>,
+      fe::DecoupledScalar::ConstraintDamping::Tags::DampingFunctionGamma2<
+          volume_dim, Frame::Grid>,
+      // Scalar driver parameters
+      fe::DecoupledScalar::ConstraintDamping::Tags::
+          DampingFunctionScalarSigmaParameter<volume_dim, Frame::Grid>,
+      fe::DecoupledScalar::ConstraintDamping::Tags::
+          DampingFunctionScalarTauParameter<volume_dim, Frame::Grid>,
       // Source parameters
       ScalarTensor::Tags::ScalarMass,
       ScalarTensor::Tags::ScalarFirstCouplingParameter,
-      ScalarTensor::Tags::ScalarSecondCouplingParameter,
-      ScalarTensor::Tags::AmplitudeConstraintGamma2,
-      ScalarTensor::Tags::SigmaConstraintGamma2,
-      ScalarTensor::Tags::OffsetConstraintGamma2>;
+      ScalarTensor::Tags::ScalarSecondCouplingParameter>;
 
   using dg_registration_list =
       tmpl::list<observers::Actions::RegisterEventsWithObservers,
