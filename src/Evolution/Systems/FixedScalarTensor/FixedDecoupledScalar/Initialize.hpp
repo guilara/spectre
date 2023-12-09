@@ -6,9 +6,11 @@
 #include <cstddef>
 #include <optional>
 
+#include "DataStructures/DataBox/Protocols/Mutator.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/ConstraintGammas.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
@@ -38,6 +40,7 @@
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
+#include "Utilities/ProtocolHelpers.hpp"
 #include "Utilities/TMPL.hpp"
 
 namespace fe::DecoupledScalar::Initialization {
@@ -120,5 +123,33 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     // Tags for the scalar driver
     fe::ScalarDriver::Tags::TargetPsiCompute<Fr, DataVector>,
     fe::ScalarDriver::Tags::ScalarDriverSourceCompute<Fr, DataVector>>;
+
+struct InitializeEvolvedScalarVariables
+    : tt::ConformsTo<db::protocols::Mutator> {
+  using curved_variables_tag =
+      typename fe::DecoupledScalar::System::variables_tag;
+  using return_tags = tmpl::list<curved_variables_tag>;
+  using argument_tags = tmpl::list<gr::Tags::Lapse<DataVector>>;
+  static void apply(
+      const gsl::not_null<typename curved_variables_tag::type*> evolved_vars,
+      [[maybe_unused]] const Scalar<DataVector>& lapse) {
+    get(get<CurvedScalarWave::Tags::Psi>(*evolved_vars)) = 0.0 * get(lapse);
+    auto& scalar_phi = get<CurvedScalarWave::Tags::Phi<3>>(*evolved_vars);
+    for (size_t i = 0; i < 3; i++) {
+      scalar_phi.get(i) = 0.0 * get(lapse);
+    }
+    const auto ones_scalar = make_with_value<Scalar<DataVector>>(lapse, 1.0);
+    get(get<CurvedScalarWave::Tags::Pi>(*evolved_vars)) =
+        -1.0e-3 * (get(lapse) - get(ones_scalar));
+
+    // Driver values
+    get(get<fe::ScalarDriver::Tags::Psi>(*evolved_vars)) = 0.0 * get(lapse);
+    auto& driver_phi = get<fe::ScalarDriver::Tags::Phi<3>>(*evolved_vars);
+    for (size_t i = 0; i < 3; i++) {
+      driver_phi.get(i) = 0.0 * get(lapse);
+    }
+    get(get<fe::ScalarDriver::Tags::Pi>(*evolved_vars)) = 0.0 * get(lapse);
+  }
+};
 
 }  // namespace fe::DecoupledScalar::Initialization

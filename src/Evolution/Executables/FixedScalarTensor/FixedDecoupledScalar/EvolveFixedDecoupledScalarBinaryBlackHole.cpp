@@ -1,7 +1,7 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Evolution/Executables/FixedScalarTensor/FixedDecoupledScalar/EvolveScalarTensorBinaryBlackHole.hpp"
+#include "Evolution/Executables/FixedScalarTensor/FixedDecoupledScalar/EvolveFixedDecoupledScalarBinaryBlackHole.hpp"
 
 #include <vector>
 
