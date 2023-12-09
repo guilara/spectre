@@ -697,7 +697,7 @@ struct EvolutionMetavars {
           system::gh_system::scalar_system::variables_tag::tags_list>,
       dg::Actions::Filter<
           Filters::Exponential<2>,
-          system::scalar_system::scalar_system::variables_tag::tags_list>>;
+          system::scalar_system::variables_tag::tags_list>>;
 
   using initialization_actions = tmpl::list<
       Initialization::Actions::InitializeItems<
