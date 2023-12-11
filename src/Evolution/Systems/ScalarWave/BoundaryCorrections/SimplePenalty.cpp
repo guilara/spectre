@@ -162,22 +162,27 @@ void SimplePenalty<Dim>::dg_boundary_terms(
   get(*pi_boundary_correction) = penalty_factor_ * (get(char_speed_v_plus_ext) -
                                                     get(char_speed_v_plus_int));
 
-  for (size_t d = 0; d < Dim; ++d) {
-    get(*pi_boundary_correction) +=
-        penalty_factor_ *
-        (char_speed_v_zero_ext.get(d) - char_speed_v_zero_int.get(d));
-  }
+  // for (size_t d = 0; d < Dim; ++d) {
+  //   get(*pi_boundary_correction) +=
+  //       penalty_factor_ *
+  //       (char_speed_v_zero_ext.get(d) - char_speed_v_zero_int.get(d));
+  // }
 
   for (size_t d = 0; d < Dim; ++d) {
+
     phi_boundary_correction->get(d) =
         penalty_factor_ *
-        (get(char_speed_v_plus_ext) - get(char_speed_v_plus_int));
+        (char_speed_v_zero_ext.get(d) - char_speed_v_zero_int.get(d));
 
-    for (size_t i = 0; i < Dim; ++i) {
-      phi_boundary_correction->get(d) +=
-          penalty_factor_ *
-          (char_speed_v_zero_ext.get(i) - char_speed_v_zero_int.get(i));
-    }
+    // phi_boundary_correction->get(d) =
+    //     penalty_factor_ *
+    //     (get(char_speed_v_plus_ext) - get(char_speed_v_plus_int));
+
+    // for (size_t i = 0; i < Dim; ++i) {
+    //   phi_boundary_correction->get(d) +=
+    //       penalty_factor_ *
+    //       (char_speed_v_zero_ext.get(i) - char_speed_v_zero_int.get(i));
+    // }
   }
 }
 
