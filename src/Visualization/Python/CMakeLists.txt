@@ -8,7 +8,6 @@ spectre_python_add_module(
   PYTHON_FILES
   __init__.py
   GenerateXdmf.py
-  InterpolateToCoords.py
   InterpolateToMesh.py
   PlotAlongLine.py
   PlotDatFile.py
