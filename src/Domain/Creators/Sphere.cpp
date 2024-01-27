@@ -283,7 +283,7 @@ Sphere::Sphere(
                   // : std::optional<std::pair<double, double>>{
                   //       {radial_partitioning_.back(), outer_radius_}});
                   : std::optional<std::pair<double, double>>{
-                        {radial_partitioning_[radial_partitioning_.size() - 1],
+                        {radial_partitioning_[radial_partitioning_.size() - 2],
                          radial_partitioning_.back()}});
     }
   }
