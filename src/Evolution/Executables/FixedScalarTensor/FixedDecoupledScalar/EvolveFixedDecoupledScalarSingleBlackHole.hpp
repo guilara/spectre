@@ -101,11 +101,16 @@ struct EvolutionMetavars
   template <typename Frame>
   struct Ah : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
+    // using tags_to_observe =
+    //     tmpl::push_back<::ah::tags_for_observing<Frame>,
+    //                     gr::surfaces::Tags::SurfaceIntegralCompute<
+    //                         CurvedScalarWave::Tags::Psi, ::Frame::Inertial>>;
     using tags_to_observe = ::ah::tags_for_observing<Frame>;
     using surface_tags_to_observe = ::ah::surface_tags_for_observing;
     using compute_vars_to_interpolate = ah::ComputeHorizonVolumeQuantities;
     using vars_to_interpolate_to_target =
-        ::ah::vars_to_interpolate_to_target<volume_dim, Frame>;
+        tmpl::push_back<::ah::vars_to_interpolate_to_target<volume_dim, Frame>,
+                        ::CurvedScalarWave::Tags::Psi>;
     using compute_items_on_target =
         ::ah::compute_items_on_target<volume_dim, Frame>;
     using compute_target_points =
@@ -314,7 +319,9 @@ struct EvolutionMetavars
       AhA, ExcisionBoundaryA, SphericalSurface, SphericalSurface2,
       SphericalSurface3, SphericalSurface4, SphericalSurface5,
       SphericalSurface6>;
-  using interpolator_source_vars = ::ah::source_vars<volume_dim>;
+  using interpolator_source_vars =
+      tmpl::push_back<::ah::source_vars<volume_dim>,
+                      ::CurvedScalarWave::Tags::Psi>;
 
   using scalar_charge_interpolator_source_vars =
       detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
