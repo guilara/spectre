@@ -10,6 +10,7 @@ spectre_python_add_module(
   GenerateXdmf.py
   InterpolateToCoords.py
   InterpolateToMesh.py
+  PlotAlongLine.py
   PlotDatFile.py
   PlotPowerMonitors.py
   plots.mplstyle
