@@ -29,11 +29,13 @@ namespace domain::creators::sphere {
 
 TimeDependentMapOptions::TimeDependentMapOptions(
     const double initial_time, const ShapeMapOptions& shape_map_options,
-    const std::array<double, 3>& initial_translation_velocity)
+    const std::array<double, 3>& initial_translation_velocity,
+    const std::array<double, 3>& initial_translation_acceleration)
     : initial_time_(initial_time),
       initial_l_max_(shape_map_options.l_max),
       initial_shape_values_(shape_map_options.initial_values),
-      initial_translation_velocity_(initial_translation_velocity) {}
+      initial_translation_velocity_(initial_translation_velocity),
+      initial_translation_acceleration_(initial_translation_acceleration) {}
 
 std::unordered_map<std::string,
                    std::unique_ptr<domain::FunctionsOfTime::FunctionOfTime>>
@@ -106,18 +108,22 @@ TimeDependentMapOptions::create_functions_of_time(
       expiration_times.at(size_name));
 
   DataVector initial_translation_velocity_temp{3, 0.0};
+  DataVector initial_translation_acceleration_temp{3, 0.0};
   for (size_t i = 0; i < 3; i++) {
     initial_translation_velocity_temp[i] =
         gsl::at(initial_translation_velocity_, i);
+    initial_translation_acceleration_temp[i] =
+        gsl::at(initial_translation_acceleration_, i);
   }
 
   // TranslationMap FunctionOfTime
   result[translation_name] =
-      std::make_unique<FunctionsOfTime::PiecewisePolynomial<2>>(
+      std::make_unique<FunctionsOfTime::PiecewisePolynomial<3>>(
           initial_time_,
-          std::array<DataVector, 3>{
+          std::array<DataVector, 4>{
               {{3, 0.0},
                std::move(initial_translation_velocity_temp),
+               std::move(initial_translation_acceleration_temp),
                {3, 0.0}}},
           expiration_times.at(translation_name));
 
