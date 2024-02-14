@@ -114,7 +114,7 @@ TimeDependentMapOptions::create_functions_of_time(
         gsl::at(initial_translation_values_.back(), i);
   }
 
-  // TranslationMap FunctionOfTime
+  // RotScaleTransMap translation map in FunctionOfTime
   result[translation_name] =
       std::make_unique<FunctionsOfTime::PiecewisePolynomial<2>>(
           initial_time_,
