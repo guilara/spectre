@@ -318,7 +318,7 @@ template <size_t VolumeDim>
 struct GeneralizedHarmonicTemplateBase {
   static constexpr size_t volume_dim = VolumeDim;
   using system = gh::System<volume_dim>;
-  using TimeStepperBase = TimeStepper;
+  using TimeStepperBase = LtsTimeStepper;
 
   static constexpr bool local_time_stepping =
       TimeStepperBase::local_time_stepping;
@@ -372,12 +372,18 @@ struct GeneralizedHarmonicTemplateBase {
           volume_dim, system, AllStepChoosers, local_time_stepping>,
       tmpl::conditional_t<
           local_time_stepping,
-          tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
-                         ::domain::CheckFunctionsOfTimeAreReadyPostprocessor,
-                         evolution::dg::ApplyBoundaryCorrections<
-                             local_time_stepping, system, volume_dim, true>>>,
-                     evolution::dg::Actions::ApplyLtsBoundaryCorrections<
-                         system, volume_dim, false>>,
+          tmpl::list<
+              evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
+                  ::domain::CheckFunctionsOfTimeAreReadyPostprocessor,
+                  evolution::dg::ApplyBoundaryCorrections<
+                      local_time_stepping, system, volume_dim, true>>>,
+              evolution::dg::Actions::ApplyLtsBoundaryCorrections<
+                  system, volume_dim, false>,
+              dg::Actions::Filter<
+                  Filters::Exponential<0>,
+                  tmpl::list<gr::Tags::SpacetimeMetric<DataVector, volume_dim>,
+                             gh::Tags::Pi<DataVector, volume_dim>,
+                             gh::Tags::Phi<DataVector, volume_dim>>>>,
           tmpl::list<
               evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
                   system, volume_dim, false>,
