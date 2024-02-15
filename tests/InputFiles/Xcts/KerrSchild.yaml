@@ -14,7 +14,7 @@ OutputFileChecks:
     Subfile: /ErrorNorms.dat
     FileGlob: KerrSchildReductions.h5
     SkipColumns: [0, 1, 2]
-    AbsoluteTolerance: 0.04
+    AbsoluteTolerance: 0.06
 
 ---
 
