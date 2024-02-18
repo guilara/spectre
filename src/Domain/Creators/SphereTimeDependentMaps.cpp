@@ -21,6 +21,8 @@
 #include "Domain/FunctionsOfTime/FunctionOfTime.hpp"
 #include "Domain/FunctionsOfTime/PiecewisePolynomial.hpp"
 #include "Domain/FunctionsOfTime/QuaternionFunctionOfTime.hpp"
+#include "Domain/FunctionsOfTime/SettleToConstant.hpp"
+#include "Domain/FunctionsOfTime/SettleToConstantQuaternion.hpp"
 #include "NumericalAlgorithms/SphericalHarmonics/Spherepack.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrHorizon.hpp"
 #include "Utilities/ErrorHandling/Error.hpp"
@@ -36,7 +38,10 @@ TimeDependentMapOptions::TimeDependentMapOptions(
       initial_l_max_(shape_map_options.l_max),
       initial_shape_values_(shape_map_options.initial_values),
       initial_angular_velocity_(rotation_map_options.initial_angular_velocity),
+      decay_timescale_rotation_(rotation_map_options.decay_timescale_rotation),
       initial_expansion_values_(expansion_map_options.initial_values),
+      decay_timescale_expansion_(
+          expansion_map_options.decay_timescale_expansion),
       initial_translation_values_(translation_map_options.initial_values) {}
 
 std::unordered_map<std::string,
@@ -113,13 +118,12 @@ TimeDependentMapOptions::create_functions_of_time(
       expiration_times.at(size_name));
 
   // ExpansionMap FunctionOfTime
-  result[expansion_name] =
-      std::make_unique<FunctionsOfTime::PiecewisePolynomial<2>>(
-          initial_time_,
-          std::array<DataVector, 3>{{{gsl::at(initial_expansion_values_, 0)},
-                                     {gsl::at(initial_expansion_values_, 1)},
-                                     {0.0}}},
-          expiration_times.at(expansion_name));
+  // Note: Missing expiration times in SettleToConstant
+  result[expansion_name] = std::make_unique<FunctionsOfTime::SettleToConstant>(
+      std::array<DataVector, 3>{{{gsl::at(initial_expansion_values_, 0)},
+                                 {gsl::at(initial_expansion_values_, 1)},
+                                 {0.0}}},
+      initial_time_, decay_timescale_expansion_);
 
   // ExpansionMap in the Outer regionFunctionOfTime
   result[expansion_outer_name] =
@@ -128,17 +132,16 @@ TimeDependentMapOptions::create_functions_of_time(
           expiration_times.at(expansion_outer_name));
 
   // RotationMap FunctionOfTime
+  // Note: Missing expiration times in SettleToConstantQuaternion
   result[rotation_name] =
-      std::make_unique<FunctionsOfTime::QuaternionFunctionOfTime<3>>(
-          initial_time_,
-          std::array<DataVector, 1>{DataVector{1.0, 0.0, 0.0, 0.0}},
-          std::array<DataVector, 4>{{{3, 0.0},
-                                     {gsl::at(initial_angular_velocity_, 0),
-                                      gsl::at(initial_angular_velocity_, 1),
-                                      gsl::at(initial_angular_velocity_, 2)},
-                                     {3, 0.0},
-                                     {3, 0.0}}},
-          expiration_times.at(rotation_name));
+      std::make_unique<FunctionsOfTime::SettleToConstantQuaternion>(
+          std::array<DataVector, 3>{
+              DataVector{1.0, 0.0, 0.0, 0.0},
+              DataVector{0.0, gsl::at(initial_angular_velocity_, 0),
+                         gsl::at(initial_angular_velocity_, 1),
+                         gsl::at(initial_angular_velocity_, 2)},
+              {4, 0.0}},
+          initial_time_, decay_timescale_rotation_);
 
   DataVector initial_translation_center_temp{3, 0.0};
   DataVector initial_translation_velocity_temp{3, 0.0};

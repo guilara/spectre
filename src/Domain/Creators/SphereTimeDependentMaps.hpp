@@ -153,25 +153,44 @@ struct TimeDependentMapOptions {
       static constexpr Options::String help = {"The initial angular velocity."};
     };
 
-    using options = tmpl::list<InitialAngularVelocity>;
+    struct DecayTimescaleRotation {
+      using type = double;
+      static constexpr Options::String help = {
+          "The timescale for how fast the angular velocity approaches "
+          "its asymptotic value."};
+    };
+
+    using options = tmpl::list<InitialAngularVelocity, DecayTimescaleRotation>;
 
     std::array<double, 3> initial_angular_velocity{};
+    double decay_timescale_rotation{
+        std::numeric_limits<double>::signaling_NaN()};
   };
 
   struct ExpansionMapOptions {
     using type = ExpansionMapOptions;
     static std::string name() { return "ExpansionMap"; }
     static constexpr Options::String help = {"Options for the expansion map."};
+
     struct InitialValues {
       using type = std::array<double, 2>;
       static constexpr Options::String help = {
           "Initial value and deriv of expansion."};
     };
 
-    using options = tmpl::list<InitialValues>;
+    struct DecayTimescaleExpansion {
+      using type = double;
+      static constexpr Options::String help = {
+          "The timescale for how fast the angular velocity approaches "
+          "its asymptotic value."};
+    };
+
+    using options = tmpl::list<InitialValues, DecayTimescaleExpansion>;
 
     std::array<double, 2> initial_values{
         std::numeric_limits<double>::signaling_NaN(),
+        std::numeric_limits<double>::signaling_NaN()};
+    double decay_timescale_expansion{
         std::numeric_limits<double>::signaling_NaN()};
   };
 
@@ -284,7 +303,11 @@ struct TimeDependentMapOptions {
   std::optional<std::variant<KerrSchildFromBoyerLindquist>>
       initial_shape_values_{};
   std::array<double, 3> initial_angular_velocity_{};
+  double decay_timescale_rotation_{
+      std::numeric_limits<double>::signaling_NaN()};
   std::array<double, 2> initial_expansion_values_{};
+  double decay_timescale_expansion_{
+      std::numeric_limits<double>::signaling_NaN()};
   std::array<std::array<double, 3>, 2> initial_translation_values_{};
 };
 }  // namespace domain::creators::sphere
