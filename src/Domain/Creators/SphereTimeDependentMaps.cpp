@@ -124,7 +124,7 @@ TimeDependentMapOptions::create_functions_of_time(
   // ExpansionMap in the Outer regionFunctionOfTime
   result[expansion_outer_name] =
       std::make_unique<FunctionsOfTime::PiecewisePolynomial<2>>(
-          initial_time_, std::array<DataVector, 3>{{{0.0}, {0.0}, {0.0}}},
+          initial_time_, std::array<DataVector, 3>{{{1.0}, {0.0}, {0.0}}},
           expiration_times.at(expansion_outer_name));
 
   // RotationMap FunctionOfTime
