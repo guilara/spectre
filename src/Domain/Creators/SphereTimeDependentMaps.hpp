@@ -142,12 +142,45 @@ struct TimeDependentMapOptions {
     std::optional<std::variant<KerrSchildFromBoyerLindquist>> initial_values{};
   };
 
+  struct RotationMapOptions {
+    using type = Options::Auto<RotationMapOptions, Options::AutoLabel::None>;
+    static std::string name() { return "RotationMap"; }
+    static constexpr Options::String help = {
+        "Options for a time-dependent rotation map about an arbitrary axis."};
+
+    struct InitialAngularVelocity {
+      using type = std::array<double, 3>;
+      static constexpr Options::String help = {"The initial angular velocity."};
+    };
+
+    using options = tmpl::list<InitialAngularVelocity>;
+
+    std::array<double, 3> initial_angular_velocity{};
+  };
+
+  struct ExpansionMapOptions {
+    using type = Options::Auto<ExpansionMapOptions, Options::AutoLabel::None>;
+    static std::string name() { return "ExpansionMap"; }
+    static constexpr Options::String help = {"Options for the expansion map."};
+    struct InitialValues {
+      using type = std::array<double, 2>;
+      static constexpr Options::String help = {
+          "Initial value and deriv of expansion."};
+    };
+
+    using options = tmpl::list<InitialValues>;
+
+    std::array<double, 2> initial_values{
+        std::numeric_limits<double>::signaling_NaN(),
+        std::numeric_limits<double>::signaling_NaN()};
+  };
+
   struct TranslationMapOptions {
     using type = TranslationMapOptions;
     static std::string name() { return "TranslationMap"; }
     static constexpr Options::String help = {
-        "Options for a time-dependent translation map in that keeps the outer "
-        "boundary fixed."};
+        "Options for a time-dependent translation map in that keeps the "
+        "outer boundary fixed."};
 
     struct InitialValues {
       using type = std::array<std::array<double, 3>, 2>;
@@ -160,16 +193,18 @@ struct TimeDependentMapOptions {
     std::array<std::array<double, 3>, 2> initial_values{};
   };
 
-  using options =
-      tmpl::list<InitialTime, ShapeMapOptions, TranslationMapOptions>;
+  using options = tmpl::list<InitialTime, ShapeMapOptions, RotationMapOptions,
+                             ExpansionMapOptions, TranslationMapOptions>;
   static constexpr Options::String help{
-      "The options for all the hard-coded time dependent maps in the Sphere "
-      "domain."};
+      "The options for all the hard-coded time dependent maps in the "
+      "Sphere domain."};
 
   TimeDependentMapOptions() = default;
 
   TimeDependentMapOptions(double initial_time,
                           const ShapeMapOptions& shape_map_options,
+                          const RotationMapOptions& rotation_map_options,
+                          const ExpansionMapOptions& expansion_map_options,
                           const TranslationMapOptions& translation_map_options);
 
   /*!
@@ -196,10 +231,9 @@ struct TimeDependentMapOptions {
    * - Shape: `Shape` (with a size function of time)
    * - Translation: `Translation`
    */
-  void build_maps(
-      const std::array<double, 3>& center, double inner_radius,
-      double outer_radius,
-      std::pair<double, double> translation_transition_radii);
+  void build_maps(const std::array<double, 3>& center, double inner_radius,
+                  double outer_radius,
+                  std::pair<double, double> translation_transition_radii);
 
   /*!
    * \brief This will construct the map from `Frame::Distorted` to
@@ -223,17 +257,20 @@ struct TimeDependentMapOptions {
       bool include_distorted_map) const;
 
   /*!
-   * \brief This will construct the map from `Frame::Grid` to `Frame::Inertial`.
+   * \brief This will construct the map from `Frame::Grid` to
+   * `Frame::Inertial`.
    *
-   * If the argument `include_distorted_map` is true, then this map will have a
-   * `Shape` map (with a size function of time). If it is false, then there will
-   * only be an identity map.
+   * If the argument `include_distorted_map` is true, then this map will
+   * have a `Shape` map (with a size function of time). If it is false, then
+   * there will only be an identity map.
    */
   MapType<Frame::Grid, Frame::Inertial> grid_to_inertial_map(
       bool include_distorted_map, bool use_rigid_translation) const;
 
   inline static const std::string size_name{"Size"};
   inline static const std::string shape_name{"Shape"};
+  inline static const std::string rotation_name{"Rotation"};
+  inline static const std::string expansion_name{"Expansion"};
   inline static const std::string translation_name{"Translation"};
 
  private:
@@ -245,6 +282,8 @@ struct TimeDependentMapOptions {
 
   std::optional<std::variant<KerrSchildFromBoyerLindquist>>
       initial_shape_values_{};
+  std::array<double, 3> initial_angular_velocity_{};
+  std::array<double, 2> initial_expansion_values_{};
   std::array<std::array<double, 3>, 2> initial_translation_values_{};
 };
 }  // namespace domain::creators::sphere

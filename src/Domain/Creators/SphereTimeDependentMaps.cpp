@@ -29,10 +29,14 @@ namespace domain::creators::sphere {
 
 TimeDependentMapOptions::TimeDependentMapOptions(
     const double initial_time, const ShapeMapOptions& shape_map_options,
+    const RotationMapOptions& rotation_map_options,
+    const ExpansionMapOptions& expansion_map_options,
     const TranslationMapOptions& translation_map_options)
     : initial_time_(initial_time),
       initial_l_max_(shape_map_options.l_max),
       initial_shape_values_(shape_map_options.initial_values),
+      initial_angular_velocity_(rotation_map_options.initial_angular_velocity),
+      initial_expansion_values_(expansion_map_options.initial_values),
       initial_translation_values_(translation_map_options.initial_values) {}
 
 std::unordered_map<std::string,
@@ -50,6 +54,8 @@ TimeDependentMapOptions::create_functions_of_time(
   std::unordered_map<std::string, double> expiration_times{
       {size_name, std::numeric_limits<double>::infinity()},
       {shape_name, std::numeric_limits<double>::infinity()},
+      {expansion_name, std::numeric_limits<double>::infinity()},
+      {rotation_name, std::numeric_limits<double>::infinity()},
       {translation_name, std::numeric_limits<double>::infinity()}};
 
   // If we have control systems, overwrite these expiration times with the ones
@@ -105,6 +111,30 @@ TimeDependentMapOptions::create_functions_of_time(
                                  {0.0}}},
       expiration_times.at(size_name));
 
+  // ExpansionMap FunctionOfTime
+  result[expansion_name] =
+      std::make_unique<FunctionsOfTime::PiecewisePolynomial<2>>(
+          initial_time_,
+          std::array<DataVector, 3>{
+              {{gsl::at(expansion_map_options_.value().initial_values, 0)},
+               {gsl::at(expansion_map_options_.value().initial_values, 1)},
+               {0.0}}},
+          expiration_times.at(expansion_name));
+
+  // RotationMap FunctionOfTime
+  result[rotation_name] =
+      std::make_unique<FunctionsOfTime::QuaternionFunctionOfTime<3>>(
+          initial_time_,
+          std::array<DataVector, 1>{DataVector{1.0, 0.0, 0.0, 0.0}},
+          std::array<DataVector, 4>{
+              {{3, 0.0},
+               {gsl::at(rotation_options_.value().initial_angular_velocity, 0),
+                gsl::at(rotation_options_.value().initial_angular_velocity, 1),
+                gsl::at(rotation_options_.value().initial_angular_velocity, 2)},
+               {3, 0.0},
+               {3, 0.0}}},
+          expiration_times.at(rotation_name));
+
   DataVector initial_translation_center_temp{3, 0.0};
   DataVector initial_translation_velocity_temp{3, 0.0};
   for (size_t i = 0; i < 3; i++) {
@@ -114,7 +144,7 @@ TimeDependentMapOptions::create_functions_of_time(
         gsl::at(initial_translation_values_.back(), i);
   }
 
-  // RotScaleTransMap translation map in FunctionOfTime
+  // Translation FunctionOfTime
   result[translation_name] =
       std::make_unique<FunctionsOfTime::PiecewisePolynomial<2>>(
           initial_time_,
@@ -141,8 +171,8 @@ void TimeDependentMapOptions::build_maps(
                         shape_name,     size_name};
 
   inner_rot_scale_trans_map_ =
-      RotScaleTransMap{std::nullopt,
-                       std::nullopt,
+      RotScaleTransMap{rotation_name,
+                       expansion_name,
                        translation_name,
                        translation_transition_radii.first,
                        translation_transition_radii.second,
@@ -150,8 +180,8 @@ void TimeDependentMapOptions::build_maps(
                            3>::BlockRegion::Inner};
 
   transition_rot_scale_trans_map_ =
-      RotScaleTransMap{std::nullopt,
-                       std::nullopt,
+      RotScaleTransMap{rotation_name,
+                       expansion_name,
                        translation_name,
                        translation_transition_radii.first,
                        translation_transition_radii.second,
