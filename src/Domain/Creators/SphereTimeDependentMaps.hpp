@@ -163,7 +163,7 @@ struct TimeDependentMapOptions {
     using options = tmpl::list<InitialAngularVelocity, DecayTimescaleRotation>;
 
     std::array<double, 3> initial_angular_velocity{};
-    double decay_timescale_rotation{
+    double decay_timescale{
         std::numeric_limits<double>::signaling_NaN()};
   };
 
@@ -190,8 +190,7 @@ struct TimeDependentMapOptions {
     std::array<double, 2> initial_values{
         std::numeric_limits<double>::signaling_NaN(),
         std::numeric_limits<double>::signaling_NaN()};
-    double decay_timescale_expansion{
-        std::numeric_limits<double>::signaling_NaN()};
+    double decay_timescale{std::numeric_limits<double>::signaling_NaN()};
   };
 
   struct TranslationMapOptions {
@@ -295,19 +294,13 @@ struct TimeDependentMapOptions {
 
  private:
   double initial_time_{std::numeric_limits<double>::signaling_NaN()};
-  size_t initial_l_max_{};
   ShapeMap shape_map_{};
   RotScaleTransMap inner_rot_scale_trans_map_{};
   RotScaleTransMap transition_rot_scale_trans_map_{};
 
-  std::optional<std::variant<KerrSchildFromBoyerLindquist>>
-      initial_shape_values_{};
-  std::array<double, 3> initial_angular_velocity_{};
-  double decay_timescale_rotation_{
-      std::numeric_limits<double>::signaling_NaN()};
-  std::array<double, 2> initial_expansion_values_{};
-  double decay_timescale_expansion_{
-      std::numeric_limits<double>::signaling_NaN()};
-  std::array<std::array<double, 3>, 2> initial_translation_values_{};
+  ShapeMapOptions shape_map_options_{};
+  RotationMapOptions rotation_map_options_{};
+  ExpansionMapOptions expansion_map_options_{};
+  TranslationMapOptions translation_map_options_{};
 };
 }  // namespace domain::creators::sphere

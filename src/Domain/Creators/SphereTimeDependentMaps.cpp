@@ -35,14 +35,10 @@ TimeDependentMapOptions::TimeDependentMapOptions(
     const ExpansionMapOptions& expansion_map_options,
     const TranslationMapOptions& translation_map_options)
     : initial_time_(initial_time),
-      initial_l_max_(shape_map_options.l_max),
-      initial_shape_values_(shape_map_options.initial_values),
-      initial_angular_velocity_(rotation_map_options.initial_angular_velocity),
-      decay_timescale_rotation_(rotation_map_options.decay_timescale_rotation),
-      initial_expansion_values_(expansion_map_options.initial_values),
-      decay_timescale_expansion_(
-          expansion_map_options.decay_timescale_expansion),
-      initial_translation_values_(translation_map_options.initial_values) {}
+      shape_map_options_(shape_map_options),
+      rotation_map_options_(rotation_map_options),
+      expansion_map_options_(expansion_map_options),
+      translation_map_options_(translation_map_options) {}
 
 std::unordered_map<std::string,
                    std::unique_ptr<domain::FunctionsOfTime::FunctionOfTime>>
@@ -71,16 +67,19 @@ TimeDependentMapOptions::create_functions_of_time(
   }
 
   DataVector shape_zeros{
-      ylm::Spherepack::spectral_size(initial_l_max_, initial_l_max_), 0.0};
+      ylm::Spherepack::spectral_size(shape_map_options_.l_max,
+                                     shape_map_options_.l_max),
+      0.0};
   DataVector shape_func{};
   DataVector size_func{1, 0.0};
 
-  if (initial_shape_values_.has_value()) {
+  if (shape_map_options_.initial_values.has_value()) {
     if (std::holds_alternative<KerrSchildFromBoyerLindquist>(
-            initial_shape_values_.value())) {
-      const ylm::Spherepack ylm{initial_l_max_, initial_l_max_};
-      const auto& mass_and_spin =
-          std::get<KerrSchildFromBoyerLindquist>(initial_shape_values_.value());
+            shape_map_options_.initial_values.value())) {
+      const ylm::Spherepack ylm{shape_map_options_.l_max,
+                                shape_map_options_.l_max};
+      const auto& mass_and_spin = std::get<KerrSchildFromBoyerLindquist>(
+          shape_map_options_.initial_values.value());
       const DataVector radial_distortion =
           1.0 - get(gr::Solutions::kerr_schild_radius_from_boyer_lindquist(
                     inner_radius, ylm.theta_phi_points(), mass_and_spin.mass,
@@ -120,10 +119,11 @@ TimeDependentMapOptions::create_functions_of_time(
   // ExpansionMap FunctionOfTime
   // Note: Missing expiration times in SettleToConstant
   result[expansion_name] = std::make_unique<FunctionsOfTime::SettleToConstant>(
-      std::array<DataVector, 3>{{{gsl::at(initial_expansion_values_, 0)},
-                                 {gsl::at(initial_expansion_values_, 1)},
-                                 {0.0}}},
-      initial_time_, decay_timescale_expansion_);
+      std::array<DataVector, 3>{
+          {{gsl::at(expansion_map_options_.initial_values, 0)},
+           {gsl::at(expansion_map_options_.initial_values, 1)},
+           {0.0}}},
+      initial_time_, expansion_map_options_.decay_timescale);
 
   // ExpansionMap in the Outer regionFunctionOfTime
   result[expansion_outer_name] =
@@ -137,19 +137,21 @@ TimeDependentMapOptions::create_functions_of_time(
       std::make_unique<FunctionsOfTime::SettleToConstantQuaternion>(
           std::array<DataVector, 3>{
               DataVector{1.0, 0.0, 0.0, 0.0},
-              DataVector{0.0, gsl::at(initial_angular_velocity_, 0),
-                         gsl::at(initial_angular_velocity_, 1),
-                         gsl::at(initial_angular_velocity_, 2)},
+              DataVector{
+                  0.0,
+                  gsl::at(rotation_map_options_.initial_angular_velocity, 0),
+                  gsl::at(rotation_map_options_.initial_angular_velocity, 1),
+                  gsl::at(rotation_map_options_.initial_angular_velocity, 2)},
               {4, 0.0}},
-          initial_time_, decay_timescale_rotation_);
+          initial_time_, rotation_map_options_.decay_timescale);
 
   DataVector initial_translation_center_temp{3, 0.0};
   DataVector initial_translation_velocity_temp{3, 0.0};
   for (size_t i = 0; i < 3; i++) {
     initial_translation_center_temp[i] =
-        gsl::at(initial_translation_values_.front(), i);
+        gsl::at(translation_map_options_.initial_values.front(), i);
     initial_translation_velocity_temp[i] =
-        gsl::at(initial_translation_values_.back(), i);
+        gsl::at(translation_map_options_.initial_values.back(), i);
   }
 
   // Translation FunctionOfTime
@@ -174,9 +176,12 @@ void TimeDependentMapOptions::build_maps(
       transition_func =
           std::make_unique<domain::CoordinateMaps::ShapeMapTransitionFunctions::
                                SphereTransition>(inner_radius, outer_radius);
-  shape_map_ = ShapeMap{center,         initial_l_max_,
-                        initial_l_max_, std::move(transition_func),
-                        shape_name,     size_name};
+  shape_map_ = ShapeMap{center,
+                        shape_map_options_.l_max,
+                        shape_map_options_.l_max,
+                        std::move(transition_func),
+                        shape_name,
+                        size_name};
 
   inner_rot_scale_trans_map_ = RotScaleTransMap{
       std::pair<std::string, std::string>{expansion_name, expansion_outer_name},
