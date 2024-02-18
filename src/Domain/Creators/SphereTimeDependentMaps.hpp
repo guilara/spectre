@@ -143,7 +143,7 @@ struct TimeDependentMapOptions {
   };
 
   struct RotationMapOptions {
-    using type = Options::Auto<RotationMapOptions, Options::AutoLabel::None>;
+    using type = RotationMapOptions;
     static std::string name() { return "RotationMap"; }
     static constexpr Options::String help = {
         "Options for a time-dependent rotation map about an arbitrary axis."};
@@ -159,7 +159,7 @@ struct TimeDependentMapOptions {
   };
 
   struct ExpansionMapOptions {
-    using type = Options::Auto<ExpansionMapOptions, Options::AutoLabel::None>;
+    using type = ExpansionMapOptions;
     static std::string name() { return "ExpansionMap"; }
     static constexpr Options::String help = {"Options for the expansion map."};
     struct InitialValues {
@@ -271,6 +271,7 @@ struct TimeDependentMapOptions {
   inline static const std::string shape_name{"Shape"};
   inline static const std::string rotation_name{"Rotation"};
   inline static const std::string expansion_name{"Expansion"};
+  inline static const std::string expansion_outer_name{"ExpansionOuter"};
   inline static const std::string translation_name{"Translation"};
 
  private:

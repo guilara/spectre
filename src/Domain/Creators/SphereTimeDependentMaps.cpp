@@ -55,6 +55,7 @@ TimeDependentMapOptions::create_functions_of_time(
       {size_name, std::numeric_limits<double>::infinity()},
       {shape_name, std::numeric_limits<double>::infinity()},
       {expansion_name, std::numeric_limits<double>::infinity()},
+      {expansion_outer_name, std::numeric_limits<double>::infinity()},
       {rotation_name, std::numeric_limits<double>::infinity()},
       {translation_name, std::numeric_limits<double>::infinity()}};
 
@@ -115,24 +116,28 @@ TimeDependentMapOptions::create_functions_of_time(
   result[expansion_name] =
       std::make_unique<FunctionsOfTime::PiecewisePolynomial<2>>(
           initial_time_,
-          std::array<DataVector, 3>{
-              {{gsl::at(expansion_map_options_.value().initial_values, 0)},
-               {gsl::at(expansion_map_options_.value().initial_values, 1)},
-               {0.0}}},
+          std::array<DataVector, 3>{{{gsl::at(initial_expansion_values_, 0)},
+                                     {gsl::at(initial_expansion_values_, 1)},
+                                     {0.0}}},
           expiration_times.at(expansion_name));
+
+  // ExpansionMap in the Outer regionFunctionOfTime
+  result[expansion_outer_name] =
+      std::make_unique<FunctionsOfTime::PiecewisePolynomial<2>>(
+          initial_time_, std::array<DataVector, 3>{{{0.0}, {0.0}, {0.0}}},
+          expiration_times.at(expansion_outer_name));
 
   // RotationMap FunctionOfTime
   result[rotation_name] =
       std::make_unique<FunctionsOfTime::QuaternionFunctionOfTime<3>>(
           initial_time_,
           std::array<DataVector, 1>{DataVector{1.0, 0.0, 0.0, 0.0}},
-          std::array<DataVector, 4>{
-              {{3, 0.0},
-               {gsl::at(rotation_options_.value().initial_angular_velocity, 0),
-                gsl::at(rotation_options_.value().initial_angular_velocity, 1),
-                gsl::at(rotation_options_.value().initial_angular_velocity, 2)},
-               {3, 0.0},
-               {3, 0.0}}},
+          std::array<DataVector, 4>{{{3, 0.0},
+                                     {gsl::at(initial_angular_velocity_, 0),
+                                      gsl::at(initial_angular_velocity_, 1),
+                                      gsl::at(initial_angular_velocity_, 2)},
+                                     {3, 0.0},
+                                     {3, 0.0}}},
           expiration_times.at(rotation_name));
 
   DataVector initial_translation_center_temp{3, 0.0};
@@ -170,24 +175,23 @@ void TimeDependentMapOptions::build_maps(
                         initial_l_max_, std::move(transition_func),
                         shape_name,     size_name};
 
-  inner_rot_scale_trans_map_ =
-      RotScaleTransMap{rotation_name,
-                       expansion_name,
-                       translation_name,
-                       translation_transition_radii.first,
-                       translation_transition_radii.second,
-                       domain::CoordinateMaps::TimeDependent::RotScaleTrans<
-                           3>::BlockRegion::Inner};
+  inner_rot_scale_trans_map_ = RotScaleTransMap{
+      std::pair<std::string, std::string>{expansion_name, expansion_outer_name},
+      rotation_name,
+      translation_name,
+      translation_transition_radii.first,
+      translation_transition_radii.second,
+      domain::CoordinateMaps::TimeDependent::RotScaleTrans<
+          3>::BlockRegion::Inner};
 
-  transition_rot_scale_trans_map_ =
-      RotScaleTransMap{rotation_name,
-                       expansion_name,
-                       translation_name,
-                       translation_transition_radii.first,
-                       translation_transition_radii.second,
-                       domain::CoordinateMaps::TimeDependent::RotScaleTrans<
-                           3>::BlockRegion::Transition};
-
+  transition_rot_scale_trans_map_ = RotScaleTransMap{
+      std::pair<std::string, std::string>{expansion_name, expansion_outer_name},
+      rotation_name,
+      translation_name,
+      translation_transition_radii.first,
+      translation_transition_radii.second,
+      domain::CoordinateMaps::TimeDependent::RotScaleTrans<
+          3>::BlockRegion::Transition};
 }
 
 // If you edit any of the functions below, be sure to update the documentation
