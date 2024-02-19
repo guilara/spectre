@@ -214,6 +214,28 @@ namespace Solutions {
  *
  * Right now we use (\f$\ref{eq:sphertocartsimple}\f$), but we may
  * wish to use the other transformation in the future.
+ *
+ * ## Boost of the Kerr-Schild solution
+ *
+ * We add initial momentum to the solution by applying a Lorentz boost to the
+ * metric. Since the Kerr-Schild metric can be expressed covariantly in terms of
+ * the Minkowski metric, a scalar function and a one form, we constructing the
+ * metric by boosting the these objects individually. Notice that we also need
+ * to appropriately boost the coordinates to the boosted frame.
+ *
+ * \warning While technically the boosted Kerr-Schild metric is dependent on
+ * both the time and space coordinates, we have implemented it only at $t = 0$
+ * as in SpEC. Therefore it is technically not an analytic solution and should
+ * not be used to compute errors with respect to it.
+ *
+ * Moreover, since the boosted solution is intended for use as initial data,
+ * we do not compute the time derivatives of the lapse and shift in the boosted
+ * frame. We use gauge freedom to set them to zero.
+ *
+ * Consequently, the gr::Tags::SpacetimeChristoffelSecondKind computed here,
+ * corresponds to the boosted Kerr-Schild for the gauge where lapse and shift
+ * have vanishing derivatives.
+ *
  */
 class KerrSchild : public AnalyticSolution<3_st>,
                    public MarkAsAnalyticSolution {

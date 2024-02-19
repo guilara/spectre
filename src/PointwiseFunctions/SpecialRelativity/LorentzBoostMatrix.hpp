@@ -70,9 +70,9 @@ tnsr::Ab<double, SpatialDim, Frame::NoFrame> lorentz_boost_matrix(
  */
 template <typename DataType, size_t SpatialDim, typename Frame>
 void lorentz_boost(
-    const gsl::not_null<tnsr::I<DataType, SpatialDim, Frame>*> result,
-    const tnsr::I<DataType, SpatialDim, Frame>& vector,
-    const double vector_component_0,
+    gsl::not_null<tnsr::I<DataType, SpatialDim, Frame>*> result,
+    const tnsr::I<DataType, SpatialDim, Frame>& one_form,
+    double one_form_component_0,
     const std::array<double, SpatialDim>& velocity);
 /// @}
 
@@ -80,20 +80,18 @@ void lorentz_boost(
 /*!
  * \ingroup SpecialRelativityGroup
  * \brief Apply a Lorentz boost to a one form.
- *
- * Note that the Lorentz matrix is symmetric.
  */
 template <typename DataType, size_t SpatialDim, typename Frame>
 void lorentz_boost(
-    const gsl::not_null<tnsr::a<DataType, SpatialDim, Frame>*> result,
-    const tnsr::a<DataType, SpatialDim, Frame>& vector,
+    gsl::not_null<tnsr::a<DataType, SpatialDim, Frame>*> result,
+    const tnsr::a<DataType, SpatialDim, Frame>& one_form,
     const std::array<double, SpatialDim>& velocity);
 /// @}
 
 /// @{
 /*!
  * \ingroup SpecialRelativityGroup
- * \brief Apply a Lorentz boosts for each index of a rank-2 tensor with
+ * \brief Apply a Lorentz boost to each component of a rank-2 tensor with
  * lower or covariant indices.
  * \note In the future we might want to write a single function capable to boost
  * a tensor of arbitrary rank.
