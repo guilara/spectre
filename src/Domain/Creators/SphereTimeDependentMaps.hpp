@@ -112,13 +112,6 @@ struct TimeDependentMapOptions {
         "The initial time of the functions of time"};
   };
 
-  struct TranslationMapOptions {
-    static std::string name() { return "TranslationMap"; }
-    static constexpr Options::String help = {
-        "Options for a time-dependent translation map in the inner-most shell "
-        "of the domain."};
-  };
-
   struct ShapeMapOptions {
     using type = ShapeMapOptions;
     static std::string name() { return "ShapeMap"; }
@@ -146,24 +139,36 @@ struct TimeDependentMapOptions {
     std::optional<std::variant<KerrSchildFromBoyerLindquist>> initial_values{};
   };
 
-  struct InitialVelocity {
-    static std::string name() { return "InitialVelocity"; }
-    using type = std::array<double, 3>;
+  struct TranslationMapOptions {
+    using type = TranslationMapOptions;
+    static std::string name() { return "TranslationMap"; }
     static constexpr Options::String help = {
-        "Velocity of the translation map."};
-    using group = TranslationMapOptions;
+        "Options for a time-dependent translation map in that keeps the "
+        "outer boundary fixed. Specify 'None' to not use this map."};
+
+    struct InitialValues {
+      using type = std::array<std::array<double, 3>, 3>;
+      static constexpr Options::String help = {
+          "Initial values for the translation map, its velocity and "
+          "acceleration."};
+    };
+
+    using options = tmpl::list<InitialValues>;
+
+    std::array<std::array<double, 3>, 3> initial_values{};
   };
 
-  using options = tmpl::list<InitialTime, ShapeMapOptions, InitialVelocity>;
+  using options =
+      tmpl::list<InitialTime, ShapeMapOptions, TranslationMapOptions>;
   static constexpr Options::String help{
       "The options for all the hard-coded time dependent maps in the Sphere "
       "domain."};
 
   TimeDependentMapOptions() = default;
 
-  TimeDependentMapOptions(
-      double initial_time, const ShapeMapOptions& shape_map_options,
-      const std::array<double, 3>& initial_translation_velocity);
+  TimeDependentMapOptions(double initial_time,
+                          const ShapeMapOptions& shape_map_options,
+                          const TranslationMapOptions& translation_map_options);
 
   /*!
    * \brief Create the function of time map using the options that were
@@ -237,7 +242,6 @@ struct TimeDependentMapOptions {
   TranslationMap translation_map_{};
   std::optional<std::variant<KerrSchildFromBoyerLindquist>>
       initial_shape_values_{};
-  std::array<double, 3> initial_translation_velocity_{
-      std::numeric_limits<std::array<double, 3>>::signaling_NaN()};
+  TranslationMapOptions translation_map_options_{};
 };
 }  // namespace domain::creators::sphere

@@ -29,11 +29,11 @@ namespace domain::creators::sphere {
 
 TimeDependentMapOptions::TimeDependentMapOptions(
     const double initial_time, const ShapeMapOptions& shape_map_options,
-    const std::array<double, 3>& initial_translation_velocity)
+    const TranslationMapOptions& translation_map_options)
     : initial_time_(initial_time),
       initial_l_max_(shape_map_options.l_max),
       initial_shape_values_(shape_map_options.initial_values),
-      initial_translation_velocity_(initial_translation_velocity) {}
+      translation_map_options_(translation_map_options) {}
 
 std::unordered_map<std::string,
                    std::unique_ptr<domain::FunctionsOfTime::FunctionOfTime>>
@@ -105,20 +105,27 @@ TimeDependentMapOptions::create_functions_of_time(
                                  {0.0}}},
       expiration_times.at(size_name));
 
-  DataVector initial_translation_velocity_temp{3, 0.0};
-  for (size_t i = 0; i < 3; i++) {
-    initial_translation_velocity_temp[i] =
-        gsl::at(initial_translation_velocity_, i);
-  }
 
+
+  DataVector initial_translation_center{3, 0.0};
+  DataVector initial_translation_velocity{3, 0.0};
+  DataVector initial_translation_acceleration{3, 0.0};
   // TranslationMap FunctionOfTime
+  for (size_t i = 0; i < 3; i++) {
+    initial_translation_center[i] =
+        gsl::at(gsl::at(translation_map_options_.initial_values, 0), i);
+    initial_translation_velocity[i] =
+        gsl::at(gsl::at(translation_map_options_.initial_values, 1), i);
+    initial_translation_acceleration[i] =
+        gsl::at(gsl::at(translation_map_options_.initial_values, 2), i);
+  }
   result[translation_name] =
       std::make_unique<FunctionsOfTime::PiecewisePolynomial<2>>(
           initial_time_,
           std::array<DataVector, 3>{
-              {{3, 0.0},
-               std::move(initial_translation_velocity_temp),
-               {3, 0.0}}},
+              {std::move(initial_translation_center),
+               std::move(initial_translation_velocity),
+               std::move(initial_translation_acceleration)}},
           expiration_times.at(translation_name));
 
   return result;
