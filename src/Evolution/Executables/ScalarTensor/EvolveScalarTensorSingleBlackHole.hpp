@@ -182,7 +182,8 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
             tmpl::flatten<tmpl::list<
                 intrp::Events::Interpolate<volume_dim, AhA,
                                            interpolator_source_vars>,
-                control_system::control_system_events<control_systems>,
+                control_system::metafunctions::control_system_events<
+                    control_systems>,
                 intrp::Events::InterpolateWithoutInterpComponent<
                     volume_dim, ExcisionBoundaryA, interpolator_source_vars>,
                 intrp::Events::InterpolateWithoutInterpComponent<

@@ -118,13 +118,6 @@ struct TimeDependentMapOptions {
         "The initial time of the functions of time"};
   };
 
-  struct TranslationMapOptions {
-    static std::string name() { return "TranslationMap"; }
-    static constexpr Options::String help = {
-        "Options for a time-dependent translation map in the inner-most shell "
-        "of the domain."};
-  };
-
   struct ShapeMapOptions {
     using type = ShapeMapOptions;
     static std::string name() { return "ShapeMap"; }
