@@ -6,8 +6,10 @@
 #include <cstddef>
 #include <vector>
 
+#include "ControlSystem/Actions/LimitTimeStep.hpp"
 #include "DataStructures/DataBox/PrefixHelpers.hpp"
 #include "DataStructures/DataBox/Tag.hpp"
+#include "DataStructures/Tensor/EagerMath/RaiseOrLowerIndex.hpp"
 #include "Domain/Creators/Factory1D.hpp"
 #include "Domain/Creators/Factory2D.hpp"
 #include "Domain/Creators/Factory3D.hpp"
@@ -157,7 +159,6 @@
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/ConstraintGammas.hpp"
-#include "PointwiseFunctions/GeneralRelativity/IndexManipulation.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Psi4Real.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Ricci.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Surfaces/Tags.hpp"
@@ -576,7 +577,10 @@ struct FixedScalarTensorTemplateBase<
   //   using system_scalar = CurvedScalarWave::System<volume_dim>;
   //   using system_combined = ScalarTensor::System;
   using system = fe::DecoupledScalar::System;
-  static constexpr bool local_time_stepping = true;
+  using TimeStepperBase = TimeStepper;
+
+  static constexpr bool local_time_stepping =
+      TimeStepperBase::local_time_stepping;
 
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}
@@ -664,6 +668,7 @@ struct FixedScalarTensorTemplateBase<
   static constexpr auto default_phase_order =
       detail::make_default_phase_order<UseNumericalInitialData>();
 
+  template <typename ControlSystems>
   using step_actions = tmpl::list<
       evolution::dg::Actions::ComputeTimeDerivative<
           volume_dim, system, AllStepChoosers, local_time_stepping>,
@@ -692,6 +697,7 @@ struct FixedScalarTensorTemplateBase<
                   system, volume_dim, false>,
               Actions::RecordTimeStepperData<system>,
               evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<>>,
+              control_system::Actions::LimitTimeStep<ControlSystems>,
               Actions::UpdateU<system>,
               // We allow for separate filtering of the system variables
               dg::Actions::Filter<
@@ -712,7 +718,7 @@ struct FixedScalarTensorTemplateBase<
   template <bool UseControlSystems>
   using initialization_actions = tmpl::list<
       Initialization::Actions::InitializeItems<
-          Initialization::TimeStepping<derived_metavars, local_time_stepping>,
+          Initialization::TimeStepping<derived_metavars, TimeStepperBase>,
           evolution::dg::Initialization::Domain<volume_dim, UseControlSystems>,
           Initialization::TimeStepperHistory<derived_metavars>>,
       Initialization::Actions::NonconservativeSystem<system>,
