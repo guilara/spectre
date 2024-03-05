@@ -7,11 +7,12 @@
 #include <vector>
 
 #include "ControlSystem/Actions/InitializeMeasurements.hpp"
+#include "ControlSystem/Actions/LimitTimeStep.hpp"
 #include "ControlSystem/Actions/PrintCurrentMeasurement.hpp"
 #include "ControlSystem/Component.hpp"
 #include "ControlSystem/ControlErrors/Size/RegisterDerivedWithCharm.hpp"
-#include "ControlSystem/Event.hpp"
 #include "ControlSystem/Measurements/BothHorizons.hpp"
+#include "ControlSystem/Metafunctions.hpp"
 #include "ControlSystem/Systems/Expansion.hpp"
 #include "ControlSystem/Systems/Rotation.hpp"
 #include "ControlSystem/Systems/Shape.hpp"
@@ -19,6 +20,7 @@
 #include "ControlSystem/Trigger.hpp"
 #include "DataStructures/DataBox/PrefixHelpers.hpp"
 #include "DataStructures/DataBox/Tag.hpp"
+#include "DataStructures/Tensor/EagerMath/RaiseOrLowerIndex.hpp"
 #include "Domain/Creators/BinaryCompactObject.hpp"
 #include "Domain/Creators/CylindricalBinaryCompactObject.hpp"
 #include "Domain/Creators/RegisterDerivedWithCharm.hpp"
@@ -57,6 +59,7 @@
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/RegisterDerived.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/Characteristics.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/RegisterDerivedWithCharm.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Equations.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/GaugeSourceFunctions/Factory.hpp"
@@ -154,7 +157,6 @@
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/ConstraintGammas.hpp"
-#include "PointwiseFunctions/GeneralRelativity/IndexManipulation.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Psi4Real.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Ricci.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Surfaces/Tags.hpp"
@@ -253,7 +255,10 @@ struct EvolutionMetavars {
   static constexpr dg::Formulation dg_formulation =
       dg::Formulation::StrongInertial;
   using temporal_id = Tags::TimeStepId;
-  static constexpr bool local_time_stepping = true;
+  using TimeStepperBase = LtsTimeStepper;
+
+  static constexpr bool local_time_stepping =
+      TimeStepperBase::local_time_stepping;
 
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
       // For now we initially set the scalar variables to analytic values
@@ -299,8 +304,8 @@ struct EvolutionMetavars {
     }
   };
 
-  using AhA = Ah<::domain::ObjectLabel::A, ::Frame::Grid>;
-  using AhB = Ah<::domain::ObjectLabel::B, ::Frame::Grid>;
+  using AhA = Ah<::domain::ObjectLabel::A, ::Frame::Distorted>;
+  using AhB = Ah<::domain::ObjectLabel::B, ::Frame::Distorted>;
   using AhC = Ah<::domain::ObjectLabel::C, ::Frame::Inertial>;
 
   template <::domain::ObjectLabel Excision>
@@ -309,21 +314,12 @@ struct EvolutionMetavars {
     using temporal_id = ::Tags::Time;
     using tags_to_observe =
         tmpl::list<gr::Tags::Lapse<DataVector>,
-                   gh::ConstraintDamping::Tags::ConstraintGamma1,
-                   gh::CharacteristicSpeedsOnStrahlkorper<Frame::Grid>>;
+                   gr::Tags::Shift<DataVector, 3, Frame::Grid>>;
     using compute_vars_to_interpolate =
         ah::ComputeExcisionBoundaryVolumeQuantities;
-    using vars_to_interpolate_to_target =
-        tmpl::list<gr::Tags::Lapse<DataVector>,
-                   gr::Tags::Shift<DataVector, 3, Frame::Grid>,
-                   gr::Tags::SpatialMetric<DataVector, 3, Frame::Grid>,
-                   gh::ConstraintDamping::Tags::ConstraintGamma1>;
+    using vars_to_interpolate_to_target = tags_to_observe;
     using compute_items_on_source = tmpl::list<>;
-    using compute_items_on_target = tmpl::append<tmpl::list<
-        gr::Tags::DetAndInverseSpatialMetricCompute<DataVector, 3, Frame::Grid>,
-        ylm::Tags::OneOverOneFormMagnitudeCompute<DataVector, 3, Frame::Grid>,
-        ylm::Tags::UnitNormalOneFormCompute<Frame::Grid>,
-        gh::CharacteristicSpeedsOnStrahlkorperCompute<3, Frame::Grid>>>;
+    using compute_items_on_target = tmpl::list<>;
     using compute_target_points =
         intrp::TargetPoints::Sphere<ExcisionBoundary<Excision>, ::Frame::Grid>;
     using post_interpolation_callbacks =
@@ -567,7 +563,8 @@ struct EvolutionMetavars {
                 Events::MonitorMemory<3>, Events::Completion,
                 dg::Events::field_observations<volume_dim, observe_fields,
                                                non_tensor_compute_tags>,
-                control_system::control_system_events<control_systems>,
+                control_system::metafunctions::control_system_events<
+                    control_systems>,
                 Events::time_events<system>>>>,
         tmpl::pair<
             ScalarTensor::BoundaryConditions::BoundaryCondition,
@@ -644,6 +641,7 @@ struct EvolutionMetavars {
               Actions::RecordTimeStepperData<system>,
               evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
                   ::domain::CheckFunctionsOfTimeAreReadyPostprocessor>>,
+              control_system::Actions::LimitTimeStep<control_systems>,
               Actions::UpdateU<system>>>,
       dg::Actions::Filter<
           Filters::Exponential<0>,
@@ -655,7 +653,7 @@ struct EvolutionMetavars {
 
   using initialization_actions = tmpl::list<
       Initialization::Actions::InitializeItems<
-          Initialization::TimeStepping<EvolutionMetavars, local_time_stepping>,
+          Initialization::TimeStepping<EvolutionMetavars, TimeStepperBase>,
           evolution::dg::Initialization::Domain<volume_dim,
                                                 use_control_systems>,
           Initialization::TimeStepperHistory<EvolutionMetavars>>,
