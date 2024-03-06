@@ -87,9 +87,9 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     internal_tags::x_minus_center<DataType, Frame> /*meta*/) const {
   const auto& x_minus_center = cache->get_var(
       *this, internal_tags::x_minus_center_unboosted<DataType, Frame>{});
-  // Inverse-boost because the coordinates are given in the boosted frame
+  // Boost the coordinates to the rest frame
   sr::lorentz_boost(x_minus_center_boosted, x_minus_center, 0.,
-                    -solution_.boost_velocity());
+                    solution_.boost_velocity());
 }
 
 template <typename DataType, typename Frame>
@@ -416,7 +416,7 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
   // Inverse-boost the first index, because it represents the derivative which
   // is given in the boosted frame
   sr::lorentz_boost(deriv_null_form_boosted, deriv_null_form,
-                    -solution_.boost_velocity(), -solution_.boost_velocity());
+                    -solution_.boost_velocity());
 }
 
 template <typename DataType, typename Frame>
@@ -424,12 +424,11 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<Scalar<DataType>*> lapse_squared,
     const gsl::not_null<CachedBuffer*> cache,
     internal_tags::lapse_squared<DataType> /*meta*/) const {
-  // TODO: Check this
-  // if (solution_.zero_spin()) {
-  //   const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
-  //   get(*lapse_squared) = 1.0 / (1.0 + 2.0 * solution_.mass() / r);
-  //   return;
-  // }
+  if (solution_.zero_spin() and solution_.zero_velocity()) {
+    const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
+    get(*lapse_squared) = 1.0 / (1.0 + 2.0 * solution_.mass() / r);
+    return;
+  }
   const auto& H = get(cache->get_var(*this, internal_tags::H<DataType>{}));
   const auto& null_form =
       cache->get_var(*this, internal_tags::null_form<DataType, Frame>{});
@@ -476,20 +475,19 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::I<DataType, 3, Frame>*> shift,
     const gsl::not_null<CachedBuffer*> cache,
     gr::Tags::Shift<DataType, 3, Frame> /*meta*/) const {
-  // if (solution_.zero_spin()) {
-  //   const auto& x_minus_center =
-  //       cache->get_var(*this, internal_tags::x_minus_center<DataType,
-  //       Frame>{});
-  //   const auto& r_squared =
-  //       get(cache->get_var(*this, internal_tags::r_squared<DataType>{}));
-  //   const auto& lapse_squared =
-  //       get(cache->get_var(*this, internal_tags::lapse_squared<DataType>{}));
-  //   for (size_t i = 0; i < 3; ++i) {
-  //     shift->get(i) = 2.0 * solution_.mass() * x_minus_center.get(i) *
-  //                     lapse_squared / r_squared;
-  //   }
-  //   return;
-  // }
+  if (solution_.zero_spin() and solution_.zero_velocity()) {
+    const auto& x_minus_center =
+        cache->get_var(*this, internal_tags::x_minus_center<DataType, Frame>{});
+    const auto& r_squared =
+        get(cache->get_var(*this, internal_tags::r_squared<DataType>{}));
+    const auto& lapse_squared =
+        get(cache->get_var(*this, internal_tags::lapse_squared<DataType>{}));
+    for (size_t i = 0; i < 3; ++i) {
+      shift->get(i) = 2.0 * solution_.mass() * x_minus_center.get(i) *
+                      lapse_squared / r_squared;
+    }
+    return;
+  }
   const auto& null_form =
       cache->get_var(*this, internal_tags::null_form<DataType, Frame>{});
   const auto& shift_multiplier =
@@ -505,28 +503,27 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::iJ<DataType, 3, Frame>*> deriv_shift,
     const gsl::not_null<CachedBuffer*> cache,
     DerivShift<DataType, Frame> /*meta*/) const {
-  // if (solution_.zero_spin()) {
-  //   const auto& x_minus_center =
-  //       cache->get_var(*this, internal_tags::x_minus_center<DataType,
-  //       Frame>{});
-  //   const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
-  //   const auto& r_squared =
-  //       get(cache->get_var(*this, internal_tags::r_squared<DataType>{}));
-  //   const auto& lapse_squared =
-  //       get(cache->get_var(*this, internal_tags::lapse_squared<DataType>{}));
-  //   for (size_t i = 0; i < 3; ++i) {
-  //     for (size_t j = 0; j < 3; ++j) {
-  //       deriv_shift->get(i, j) =
-  //           (-4.0 * solution_.mass() * x_minus_center.get(i) *
-  //            x_minus_center.get(j) * lapse_squared *
-  //            (1 - solution_.mass() * lapse_squared / r)) /
-  //           square(r_squared);
-  //     }
-  //     deriv_shift->get(i, i) +=
-  //         2.0 * solution_.mass() * lapse_squared / r_squared;
-  //   }
-  //   return;
-  // }
+  if (solution_.zero_spin() and solution_.zero_velocity()) {
+    const auto& x_minus_center =
+        cache->get_var(*this, internal_tags::x_minus_center<DataType, Frame>{});
+    const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
+    const auto& r_squared =
+        get(cache->get_var(*this, internal_tags::r_squared<DataType>{}));
+    const auto& lapse_squared =
+        get(cache->get_var(*this, internal_tags::lapse_squared<DataType>{}));
+    for (size_t i = 0; i < 3; ++i) {
+      for (size_t j = 0; j < 3; ++j) {
+        deriv_shift->get(i, j) =
+            (-4.0 * solution_.mass() * x_minus_center.get(i) *
+             x_minus_center.get(j) * lapse_squared *
+             (1 - solution_.mass() * lapse_squared / r)) /
+            square(r_squared);
+      }
+      deriv_shift->get(i, i) +=
+          2.0 * solution_.mass() * lapse_squared / r_squared;
+    }
+    return;
+  }
   const auto& H = get(cache->get_var(*this, internal_tags::H<DataType>{}));
   const auto& null_form =
       cache->get_var(*this, internal_tags::null_form<DataType, Frame>{});
@@ -557,23 +554,22 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::ii<DataType, 3, Frame>*> spatial_metric,
     const gsl::not_null<CachedBuffer*> cache,
     gr::Tags::SpatialMetric<DataType, 3, Frame> /*meta*/) const {
-  // if (solution_.zero_spin()) {
-  //   const auto& x_minus_center =
-  //       cache->get_var(*this, internal_tags::x_minus_center<DataType,
-  //       Frame>{});
-  //   const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
-  //   const auto& r_squared =
-  //       get(cache->get_var(*this, internal_tags::r_squared<DataType>{}));
-  //   for (size_t i = 0; i < 3; ++i) {
-  //     for (size_t j = i; j < 3; ++j) {
-  //       spatial_metric->get(i, j) = 2.0 * solution_.mass() *
-  //                                   x_minus_center.get(i) *
-  //                                   x_minus_center.get(j) / r_squared / r;
-  //     }
-  //     spatial_metric->get(i, i) += 1.0;
-  //   }
-  //   return;
-  // }
+  if (solution_.zero_spin() and solution_.zero_velocity()) {
+    const auto& x_minus_center =
+        cache->get_var(*this, internal_tags::x_minus_center<DataType, Frame>{});
+    const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
+    const auto& r_squared =
+        get(cache->get_var(*this, internal_tags::r_squared<DataType>{}));
+    for (size_t i = 0; i < 3; ++i) {
+      for (size_t j = i; j < 3; ++j) {
+        spatial_metric->get(i, j) = 2.0 * solution_.mass() *
+                                    x_minus_center.get(i) *
+                                    x_minus_center.get(j) / r_squared / r;
+      }
+      spatial_metric->get(i, i) += 1.0;
+    }
+    return;
+  }
   const auto& H = get(cache->get_var(*this, internal_tags::H<DataType>{}));
   const auto& null_form =
       cache->get_var(*this, internal_tags::null_form<DataType, Frame>{});
@@ -598,25 +594,23 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
       get(cache->get_var(*this, internal_tags::lapse_squared<DataType>{}));
   const auto& null_form =
       cache->get_var(*this, internal_tags::null_form<DataType, Frame>{});
-  // TODO: Check this
-  // if (solution_.zero_spin()) {
-  //   const auto& x_minus_center =
-  //       cache->get_var(*this, internal_tags::x_minus_center<DataType,
-  //       Frame>{});
-  //   const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
-  //   const auto& r_squared =
-  //       get(cache->get_var(*this, internal_tags::r_squared<DataType>{}));
-  //   for (size_t i = 0; i < 3; ++i) {
-  //     for (size_t j = i; j < 3; ++j) {
-  //       inverse_spatial_metric->get(i, j) =
-  //           -2.0 * solution_.mass() * x_minus_center.get(i) *
-  //           x_minus_center.get(j) /
-  //           (2 * solution_.mass() * r_squared + r_squared * r);
-  //     }
-  //     inverse_spatial_metric->get(i, i) += 1.0;
-  //   }
-  //   return;
-  // }
+  if (solution_.zero_spin() and solution_.zero_velocity()) {
+    const auto& x_minus_center =
+        cache->get_var(*this, internal_tags::x_minus_center<DataType, Frame>{});
+    const auto& r = get(cache->get_var(*this, internal_tags::r<DataType>{}));
+    const auto& r_squared =
+        get(cache->get_var(*this, internal_tags::r_squared<DataType>{}));
+    for (size_t i = 0; i < 3; ++i) {
+      for (size_t j = i; j < 3; ++j) {
+        inverse_spatial_metric->get(i, j) =
+            -2.0 * solution_.mass() * x_minus_center.get(i) *
+            x_minus_center.get(j) /
+            (2 * solution_.mass() * r_squared + r_squared * r);
+      }
+      inverse_spatial_metric->get(i, i) += 1.0;
+    }
+    return;
+  }
 
   for (size_t i = 0; i < 3; ++i) {
     for (size_t j = i; j < 3; ++j) {  // Symmetry
@@ -655,15 +649,15 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
   }
 }
 
-// This is probably wrong, since the time derivative of the spatial metric was
-// set to zero above. However, it is not zero as the boosted black hole solution
-// depends on both x and t.
 template <typename DataType, typename Frame>
 void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::ii<DataType, 3, Frame>*> dt_spatial_metric,
     const gsl::not_null<CachedBuffer*> cache,
     ::Tags::dt<gr::Tags::SpatialMetric<DataType, 3, Frame>> /*meta*/) const {
-  // std::fill(dt_spatial_metric->begin(), dt_spatial_metric->end(), 0.);
+  if (solution_.zero_velocity()) {
+    std::fill(dt_spatial_metric->begin(), dt_spatial_metric->end(), 0.);
+    return;
+  }
   const auto& ex_curvature =
       cache->get_var(*this, gr::Tags::ExtrinsicCurvature<DataType, 3, Frame>{});
   const auto& lapse = cache->get_var(*this, gr::Tags::Lapse<DataType>{});
@@ -675,14 +669,10 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
       cache->get_var(*this, gr::Tags::SpatialMetric<DataType, 3, Frame>{});
   const auto& deriv_spatial_metric =
       cache->get_var(*this, DerivSpatialMetric<DataType, Frame>{});
-  if (solution_.zero_velocity()) {
-    std::fill(dt_spatial_metric->begin(), dt_spatial_metric->end(), 0.);
-  } else {
     // Reconstruct from the extrinsic curvature and shift
     gr::time_derivative_of_spatial_metric(dt_spatial_metric, lapse, shift,
                                           deriv_shift, spatial_metric,
                                           deriv_spatial_metric, ex_curvature);
-  }
 }
 
 template <typename DataType, typename Frame>
@@ -700,7 +690,6 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
   }
 }
 
-// Check which index corresponds to the derivative
 template <typename DataType, typename Frame>
 void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::i<DataType, 3, Frame>*>
@@ -721,12 +710,6 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
   }
 }
 
-// This is probably wrong, since the time derivative of the spatial metric was
-// set to zero above. However, it is not zero as the boosted black hole solution
-// depends on both x and t.
-// In SpEC this the extrinsic curvature is computed from expressions given
-// in terms of l, H and their derivatives. If properly boosted, they should
-// give the right terms coming from the time derivative of the spatial metric.
 template <typename DataType, typename Frame>
 void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::ii<DataType, 3, Frame>*> extrinsic_curvature,
@@ -750,8 +733,7 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
   // KerrSchild metric.
   const double l0_relative_sign = -1.0;
   for (size_t i = 0; i < 3; ++i) {
-    for (size_t j = i; j < 3; ++j) {  // Check symmetry
-      // Implemented the as in SpEC
+    for (size_t j = i; j < 3; ++j) {
       extrinsic_curvature->get(i, j) =
           (-1.0 / get(lapse)) *
               (null_form.get(i + 1) * null_form.get(j + 1) * get<0>(deriv_H) +
@@ -814,24 +796,24 @@ tnsr::i<DataType, 3, Frame>
 KerrSchild::IntermediateVars<DataType, Frame>::get_var(
     const IntermediateComputer<DataType, Frame>& computer,
     DerivLapse<DataType, Frame> /*meta*/) {
-  // if (computer.solution().zero_spin()) {
-  //   const auto& x_minus_center =
-  //       get_var(computer, internal_tags::x_minus_center<DataType, Frame>{});
-  //   const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
-  //   const auto& r_squared =
-  //       get(get_var(computer, internal_tags::r_squared<DataType>{}));
+  if (computer.solution().zero_spin() and computer.solution().zero_velocity()) {
+    const auto& x_minus_center =
+        get_var(computer, internal_tags::x_minus_center<DataType, Frame>{});
+    const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
+    const auto& r_squared =
+        get(get_var(computer, internal_tags::r_squared<DataType>{}));
 
-  //   const auto& lapse = get(get_var(computer, gr::Tags::Lapse<DataType>{}));
-  //   const auto& lapse_squared =
-  //       get(get_var(computer, internal_tags::lapse_squared<DataType>{}));
+    const auto& lapse = get(get_var(computer, gr::Tags::Lapse<DataType>{}));
+    const auto& lapse_squared =
+        get(get_var(computer, internal_tags::lapse_squared<DataType>{}));
 
-  //   tnsr::i<DataType, 3, Frame> d_lapse(get_size(r));
-  //   for (size_t i = 0; i < 3; ++i) {
-  //     d_lapse.get(i) = computer.solution().mass() * x_minus_center.get(i) *
-  //                      lapse * lapse_squared / r_squared / r;
-  //   }
-  //   return d_lapse;
-  // }
+    tnsr::i<DataType, 3, Frame> d_lapse(get_size(r));
+    for (size_t i = 0; i < 3; ++i) {
+      d_lapse.get(i) = computer.solution().mass() * x_minus_center.get(i) *
+                       lapse * lapse_squared / r_squared / r;
+    }
+    return d_lapse;
+  }
   tnsr::i<DataType, 3, Frame> result{};
   const auto& H = get_var(computer, internal_tags::H<DataType>{});
   const auto& deriv_H =
@@ -900,15 +882,15 @@ template <typename DataType, typename Frame>
 Scalar<DataType> KerrSchild::IntermediateVars<DataType, Frame>::get_var(
     const IntermediateComputer<DataType, Frame>& computer,
     gr::Tags::TraceExtrinsicCurvature<DataType> /*meta*/) {
-  // if (computer.solution().zero_spin()) {
-  //   const double m = computer.solution().mass();
-  //   const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
-  //   Scalar<DataType> result(get_size(r));
-  //   get(result) = 1. / ((2. * m + r) * r);
-  //   get(result) = sqrt(cube(result.get()));
-  //   get(result) *= 2. * m * (3. * m + r);
-  //   return result;
-  // }
+  if (computer.solution().zero_spin() and computer.solution().zero_velocity()) {
+    const double m = computer.solution().mass();
+    const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
+    Scalar<DataType> result(get_size(r));
+    get(result) = 1. / ((2. * m + r) * r);
+    get(result) = sqrt(cube(result.get()));
+    get(result) *= 2. * m * (3. * m + r);
+    return result;
+  }
   return trace(
       get_var(computer, gr::Tags::ExtrinsicCurvature<DataType, 3, Frame>{}),
       get_var(computer, gr::Tags::InverseSpatialMetric<DataType, 3, Frame>{}));
@@ -919,20 +901,20 @@ tnsr::I<DataType, 3, Frame>
 KerrSchild::IntermediateVars<DataType, Frame>::get_var(
     const IntermediateComputer<DataType, Frame>& computer,
     gr::Tags::TraceSpatialChristoffelSecondKind<DataType, 3, Frame> /*meta*/) {
-  // if (computer.solution().zero_spin()) {
-  //   const double m = computer.solution().mass();
-  //   const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
-  //   const auto& r_squared =
-  //       get(get_var(computer, internal_tags::r_squared<DataType>{}));
-  //   const auto& x_minus_center =
-  //       get_var(computer, internal_tags::x_minus_center<DataType, Frame>{});
-  //   DataType factor = m * (8. * m + 3. * r) / square(2. * m + r) / r_squared;
-  //   tnsr::I<DataType, 3, Frame> result(get_size(r));
-  //   for (size_t i = 0; i < 3; ++i) {
-  //     result.get(i) = factor * x_minus_center.get(i);
-  //   }
-  //   return result;
-  // }
+  if (computer.solution().zero_spin() and computer.solution().zero_velocity()) {
+    const double m = computer.solution().mass();
+    const auto& r = get(get_var(computer, internal_tags::r<DataType>{}));
+    const auto& r_squared =
+        get(get_var(computer, internal_tags::r_squared<DataType>{}));
+    const auto& x_minus_center =
+        get_var(computer, internal_tags::x_minus_center<DataType, Frame>{});
+    DataType factor = m * (8. * m + 3. * r) / square(2. * m + r) / r_squared;
+    tnsr::I<DataType, 3, Frame> result(get_size(r));
+    for (size_t i = 0; i < 3; ++i) {
+      result.get(i) = factor * x_minus_center.get(i);
+    }
+    return result;
+  }
   const auto& inverse_spatial_metric =
       get_var(computer, gr::Tags::InverseSpatialMetric<DataType, 3, Frame>{});
   const auto& spatial_christoffel_second_kind = get_var(

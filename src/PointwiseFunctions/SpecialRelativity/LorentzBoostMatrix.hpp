@@ -62,70 +62,43 @@ tnsr::Ab<double, SpatialDim, Frame::NoFrame> lorentz_boost_matrix(
     const std::array<double, SpatialDim>& velocity);
 /// @}
 
-template <typename DataType, size_t SpatialDim, typename SourceFrame,
-          typename TargetFrame, typename DataTypeComponent0>
-void lorentz_boost(
-    const gsl::not_null<tnsr::I<DataType, SpatialDim, TargetFrame>*> result,
-    const tnsr::I<DataType, SpatialDim, SourceFrame>& vector,
-    const DataTypeComponent0& vector_component_0,
-    const std::array<double, SpatialDim>& velocity) {
-  if (velocity == make_array<SpatialDim>(0.)) {
-    *result = vector;
-    return;
-  }
-  const auto boost_matrix = lorentz_boost_matrix(velocity);
-  for (size_t i = 0; i < SpatialDim; ++i) {
-    result->get(i) = boost_matrix.get(i + 1, 0) * vector_component_0;
-    for (size_t j = 0; j < SpatialDim; ++j) {
-      result->get(i) += boost_matrix.get(i + 1, j + 1) * vector.get(j);
-    }
-  }
-}
+/// @{
+/*!
+ * \ingroup SpecialRelativityGroup
+ * \brief Apply a Lorentz boost to the spatial part of a vector.
+ * \details This requires passing the 0th component of the vector as an
+ * additional argument.
+ */
+template <typename DataType, size_t SpatialDim, typename Frame>
+void lorentz_boost(gsl::not_null<tnsr::I<DataType, SpatialDim, Frame>*> result,
+                   const tnsr::I<DataType, SpatialDim, Frame>& vector,
+                   double vector_component_0,
+                   const std::array<double, SpatialDim>& velocity);
+/// @}
 
-template <typename DataType, size_t SpatialDim, typename SourceFrame,
-          typename TargetFrame>
+/// @{
+/*!
+ * \ingroup SpecialRelativityGroup
+ * \brief Apply a Lorentz boost to a one form.
+ */
+template <typename DataType, size_t SpatialDim, typename Frame>
 void lorentz_boost(
-    const gsl::not_null<tnsr::a<DataType, SpatialDim, TargetFrame>*> result,
-    const tnsr::a<DataType, SpatialDim, SourceFrame>& vector,
-    const std::array<double, SpatialDim>& velocity) {
-  if (velocity == make_array<SpatialDim>(0.)) {
-    *result = vector;
-    return;
-  }
-  const auto boost_matrix = lorentz_boost_matrix(velocity);
-  for (size_t i = 0; i < SpatialDim + 1; ++i) {
-    result->get(i) = 0.;
-    for (size_t j = 0; j < SpatialDim + 1; ++j) {
-      result->get(i) += boost_matrix.get(i, j) * vector.get(j);
-    }
-  }
-}
+    gsl::not_null<tnsr::a<DataType, SpatialDim, Frame>*> result,
+    const tnsr::a<DataType, SpatialDim, Frame>& one_form,
+    const std::array<double, SpatialDim>& velocity);
+/// @}
 
-template <typename DataType, size_t SpatialDim, typename SourceFrame,
-          typename TargetFrame>
-void lorentz_boost(
-    const gsl::not_null<tnsr::ab<DataType, SpatialDim, TargetFrame>*> result,
-    const tnsr::ab<DataType, SpatialDim, SourceFrame>& tensor,
-    const std::array<double, SpatialDim>& velocity_first_index,
-    const std::array<double, SpatialDim>& velocity_second_index) {
-  if (velocity_first_index == make_array<SpatialDim>(0.) and
-      velocity_second_index == make_array<SpatialDim>(0.)) {
-    *result = tensor;
-    return;
-  }
-  const auto boost_matrix_1 = lorentz_boost_matrix(velocity_first_index);
-  const auto boost_matrix_2 = lorentz_boost_matrix(velocity_second_index);
-  for (size_t i = 0; i < SpatialDim + 1; ++i) {
-    for (size_t k = 0; k < SpatialDim + 1; ++k) {
-      result->get(i, k) = 0.;
-      for (size_t j = 0; j < SpatialDim + 1; ++j) {
-        for (size_t l = 0; l < SpatialDim + 1; ++l) {
-          result->get(i, k) += boost_matrix_1.get(i, j) *
-                               boost_matrix_2.get(k, l) * tensor.get(j, l);
-        }
-      }
-    }
-  }
-}
-
+/// @{
+/*!
+ * \ingroup SpecialRelativityGroup
+ * \brief Apply a Lorentz boost to each component of a rank-2 tensor with
+ * lower or covariant indices.
+ * \note In the future we might want to write a single function capable to boost
+ * a tensor of arbitrary rank.
+ */
+template <typename DataType, size_t SpatialDim, typename Frame>
+void lorentz_boost(gsl::not_null<tnsr::ab<DataType, SpatialDim, Frame>*> result,
+                   const tnsr::ab<DataType, SpatialDim, Frame>& tensor,
+                   const std::array<double, SpatialDim>& velocity);
+/// @}
 }  // namespace sr
