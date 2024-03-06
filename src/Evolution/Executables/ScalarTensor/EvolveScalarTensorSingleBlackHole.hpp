@@ -236,6 +236,15 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
           Parallel::PhaseActions<Parallel::Phase::Initialization,
                                  initialization_actions>,
           Parallel::PhaseActions<
+              Parallel::Phase::RegisterWithElementDataReader,
+              tmpl::list<importers::Actions::RegisterWithElementDataReader,
+                         Parallel::Actions::TerminatePhase>>,
+          Parallel::PhaseActions<
+              Parallel::Phase::ImportInitialData,
+              tmpl::list<ScalarTensor::Actions::SetInitialData,
+                         ScalarTensor::Actions::ReceiveNumericInitialData,
+                         Parallel::Actions::TerminatePhase>>,
+          Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
               initialize_initial_data_dependent_quantities_actions>,
           Parallel::PhaseActions<
@@ -265,6 +274,7 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
       mem_monitor::MemoryMonitor<EvolutionMetavars>,
+      importers::ElementDataReader<EvolutionMetavars>,
       st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
       control_system::control_components<EvolutionMetavars, control_systems>,
       tmpl::transform<interpolation_target_tags,

@@ -171,6 +171,8 @@ struct ScalarTensorTemplateBase;
 namespace detail {
 constexpr auto make_default_phase_order() {
   return std::array{Parallel::Phase::Initialization,
+                    Parallel::Phase::RegisterWithElementDataReader,
+                    Parallel::Phase::ImportInitialData,
                     Parallel::Phase::InitializeInitialDataDependentQuantities,
                     Parallel::Phase::Register,
                     Parallel::Phase::InitializeTimeStepperHistory,
@@ -362,7 +364,12 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
           ScalarTensor::BoundaryConditions::BoundaryCondition,
           ScalarTensor::BoundaryConditions::standard_boundary_conditions>,
       tmpl::pair<gh::gauges::GaugeCondition, gh::gauges::all_gauges>,
-      tmpl::pair<evolution::initial_data::InitialData, initial_data_list>,
+      tmpl::pair<evolution::initial_data::InitialData,
+                 tmpl::append<initial_data_list,
+                              tmpl::conditional_t<
+                                  volume_dim == 3,
+                                  tmpl::list<ScalarTensor::NumericInitialData>,
+                                  tmpl::list<>>>>,
       tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
       tmpl::pair<PhaseChange, PhaseControl::factory_creatable_classes>,
       tmpl::pair<StepChooser<StepChooserUse::LtsStep>,
