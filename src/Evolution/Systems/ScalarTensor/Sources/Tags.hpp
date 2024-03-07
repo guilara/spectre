@@ -25,6 +25,30 @@ struct GBScalar : db::SimpleTag {
   static std::string name() { return "GBScalar"; }
 };
 
+/*!
+ * \brief Rhs of the Psi equation.
+ */
+struct RhsPsi : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "Rhs(Csw(Psi))"; }
+};
+
+/*!
+ * \brief Rhs of the Pi equation.
+ */
+struct RhsPi : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "Rhs(Csw(Pi))"; }
+};
+
+/*!
+ * \brief Rhs of the Pi equation.
+ */
+struct RhsPhi : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "Rhs(Csw(Phi))"; }
+};
+
 }  // namespace Tags
 
 namespace OptionTags {
