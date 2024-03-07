@@ -494,8 +494,8 @@ struct ScalarTensorTemplateBase {
           evolution::dg::Initialization::Domain<volume_dim, UseControlSystems>,
           Initialization::TimeStepperHistory<derived_metavars>>,
       Initialization::Actions::NonconservativeSystem<system>,
-      evolution::Initialization::Actions::SetVariables<
-          domain::Tags::Coordinates<volume_dim, Frame::ElementLogical>>,
+      //   evolution::Initialization::Actions::SetVariables<
+      //       domain::Tags::Coordinates<volume_dim, Frame::ElementLogical>>,
       // Random noise system::variables_tag
       //   Actions::RandomizeVariables<typename system::variables_tag,
       //                               RandomizeInitialGuess>,
