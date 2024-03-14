@@ -42,8 +42,10 @@ class DampingFunction : public PUP::able {
  public:
   using creatable_classes = tmpl::conditional_t<
       (VolumeDim == 3 and std::is_same<Fr, Frame::Grid>::value),
-      tmpl::list<fe::DecoupledScalar::ConstraintDamping::GaussianPlusConstant<
-          VolumeDim, Fr>>,
+      tmpl::list<
+          fe::DecoupledScalar::ConstraintDamping::GaussianPlusConstant<
+              VolumeDim, Fr>,
+          fe::DecoupledScalar::ConstraintDamping::TimeDependentTripleGaussian>,
       tmpl::list<fe::DecoupledScalar::ConstraintDamping::GaussianPlusConstant<
           VolumeDim, Fr>>>;
   constexpr static size_t volume_dim = VolumeDim;
@@ -84,3 +86,4 @@ class DampingFunction : public PUP::able {
 }  // namespace fe::DecoupledScalar::ConstraintDamping
 
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/GaussianPlusConstant.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/TimeDependentTripleGaussian.hpp"
