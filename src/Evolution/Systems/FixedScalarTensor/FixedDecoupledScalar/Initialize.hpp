@@ -129,10 +129,14 @@ struct InitializeEvolvedScalarVariables
   using curved_variables_tag =
       typename fe::DecoupledScalar::System::variables_tag;
   using return_tags = tmpl::list<curved_variables_tag>;
-  using argument_tags = tmpl::list<gr::Tags::Lapse<DataVector>>;
+  using argument_tags =
+      tmpl::list<gr::Tags::Lapse<DataVector>,
+                 domain::Tags::Coordinates<3, Frame::Inertial>>;
   static void apply(
       const gsl::not_null<typename curved_variables_tag::type*> evolved_vars,
-      [[maybe_unused]] const Scalar<DataVector>& lapse) {
+      [[maybe_unused]] const Scalar<DataVector>& lapse,
+      [[maybe_unused]] const tnsr::I<DataVector, 3, Frame::Inertial>&
+          inertial_coords) {
     get(get<CurvedScalarWave::Tags::Psi>(*evolved_vars)) = 0.0 * get(lapse);
     auto& scalar_phi = get<CurvedScalarWave::Tags::Phi<3>>(*evolved_vars);
     for (size_t i = 0; i < 3; i++) {
@@ -140,7 +144,7 @@ struct InitializeEvolvedScalarVariables
     }
     const auto ones_scalar = make_with_value<Scalar<DataVector>>(lapse, 1.0);
     get(get<CurvedScalarWave::Tags::Pi>(*evolved_vars)) =
-        -1.0e-3 * (get(lapse) - get(ones_scalar));
+        -1.0e-4 * get<0>(inertial_coords) * (get(lapse) - get(ones_scalar));
 
     // Driver values
     get(get<fe::ScalarDriver::Tags::Psi>(*evolved_vars)) = 0.0 * get(lapse);
