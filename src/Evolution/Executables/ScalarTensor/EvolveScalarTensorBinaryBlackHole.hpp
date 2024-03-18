@@ -412,10 +412,11 @@ struct EvolutionMetavars {
   using source_vars_no_deriv =
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, volume_dim>,
                  gh::Tags::Pi<DataVector, volume_dim>,
-                 gh::Tags::Phi<DataVector, volume_dim>,
-                 // To be replaced for compute tags KGPsi, KGdtPsi
-                 CurvedScalarWave::Tags::Psi,
-                 CurvedScalarWave::Tags::Pi
+                 gh::Tags::Phi<DataVector, volume_dim>
+                //  ,
+                //  // To be replaced for compute tags KGPsi, KGdtPsi
+                //  CurvedScalarWave::Tags::Psi,
+                //  CurvedScalarWave::Tags::Pi
                  >;
 
   using observe_fields = tmpl::append<
