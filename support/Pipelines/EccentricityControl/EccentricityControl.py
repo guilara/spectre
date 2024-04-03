@@ -192,6 +192,7 @@ def eccentricity_control_updates(
     dadot = -amplitude / initial_separation * np.cos(phase)
     ecc = amplitude / initial_separation / omega
 
+    fit_results["eccentricity"] = ecc
     fit_results["xcts updates"] = dict(
         [("omega update", dOmg), ("expansion update", dadot)]
     )
@@ -214,129 +215,81 @@ def eccentricity_control_updates(
     return fit_results
 
 
-def eccentricity_control_updates_digest(
-    x, y, F, inparams, name, style, initial_separation, initial_xcts_values=None
-):
-    """Compute updates for eccentricity control"""
-    fit_updates = eccentricity_control_updates(
-        x=x,
-        y=y,
-        F=F,
-        inparams=inparams,
-        initial_separation=initial_separation,
-        initial_xcts_values=initial_xcts_values,
-    )
+def eccentricity_control_digest(x, functions, output=None):
+    """Plot ooutput for eccentricity control"""
 
-    print(
-        f"==== Function fitted to dOmega/dt: {name:30s},  rms = {rms:4.3g} "
-        " ===="
-    )
+    for func in functions.items():
+        name = func["label"]
+        rms = func["fit result"]["rms"]
 
-    # Plot dD/dt
-    plt.subplot(2, 2, 1)
-    plt.plot(
-        x,
-        F(p, x),
-        style,
-        label=f"{name:s} \n rms = {rms:2.1e}, ecc = {ecc:4.5f}",
-    )
-    plt.legend(loc=(1.1, -1.3))
-
-    # Plot residual
-    plt.subplot(2, 2, 3)
-    plt.plot(x, errfunc(p, x, y), style, label=name)
-    plt.title("Residual")
-
-    # Print fit parameters
-    print("Fit parameters:")
-    if np.size(p) == 3:
-        print(
-            f"Oscillatory part: (B, w)=({p[0]:4.3g}, {p[1]:7.4f}), ",
-            f"Polynomial part: ({p[2]:4.2g})",
+        logger.info(
+            f"==== Function fitted to dOmega/dt: {name:30s},  rms = {rms:4.3g} "
+            " ===="
         )
-    else:
-        print(
-            (
+
+        style = "--"
+        F = func["function"]
+        ecc = func["fit result"]["eccentricity"]
+
+        errfunc = lambda p, x, y: F(p, x) - y
+
+        if output is not None:
+            # Plot dD/dt
+            plt.subplot(2, 2, 1)
+            plt.plot(
+                x,
+                F(p, x),
+                style,
+                label=f"{name:s} \n rms = {rms:2.1e}, ecc = {ecc:4.5f}",
+            )
+            plt.legend(loc=(1.1, -1.3))
+
+            # Plot residual
+            plt.subplot(2, 2, 3)
+            plt.plot(x, errfunc(p, x, y), style, label=name)
+            plt.title("Residual")
+
+        # Print fit parameters
+        p = func["fit result"]["parameters"]
+        logger.info("Fit parameters:")
+        if np.size(p) == 3:
+            logger.info(
+                f"Oscillatory part: (B, w)=({p[0]:4.3g}, {p[1]:7.4f}), ",
+                f"Polynomial part: ({p[2]:4.2g})",
+            )
+        else:
+            logger.info(
                 f"Oscillatory part: (B, w, phi)=({p[0]:4.3g}, {p[1]:6.4f},"
                 f" {p[2]:6.4f}), "
-            ),
-            end="",
-        )
-        if np.size(p) >= 4:
-            print(f"Polynomial part: ({p[3]:4.2g}, ", end="")
-            for q in p[4:]:
-                print(f"{q:4.2g}", end="")
-            print(")")
+            )
+            if np.size(p) >= 4:
+                logger.info(f"Polynomial part: ({p[3]:4.2g}, ")
+                for q in p[4:]:
+                    logger.info(f"{q:4.2g}")
+                logger.info(")")
 
-    # Print eccentricity
-    print(f"Eccentricity based on fit: {ecc:9.6f}")
-    # Print suggested updates based on fit
-    print("Suggested updates based on fit:")
-    print(f"(dOmega, dadot) = ({dOmg:+13.10f}, {dadot:+8.6g})")
+        # Print eccentricity
+        logger.info(f"Eccentricity based on fit: {ecc:9.6f}")
+        # Print suggested updates based on fit
+        xcts_updates = func["fit result"]["xcts updates"]
+        dOmg = xcts_updates["omega update"]
+        dadot = xcts_updates["expansion update"]
+        logger.info("Suggested updates based on fit:")
+        logger.info(f"(dOmega, dadot) = ({dOmg:+13.10f}, {dadot:+8.6g})")
 
-    if initial_xcts_values is not None:
-        xcts_omega, xcts_expansion = initial_xcts_values
-        print("Updated Xcts values based on fit:")
-        print(
-            f"(Omega, adot) = ({(xcts_omega + dOmg):13.10f},"
-            f" {(xcts_expansion + dadot):13.10g})"
-        )
+        if "updated xcts values" in func:
+            xcts_omega = func["updated xcts values"]["omega"]
+            xcts_expansion = func["updated xcts values"]["expansion"]
+            logger.info("Updated Xcts values based on fit:")
+            logger.info(
+                f"(Omega, adot) = ({(xcts_omega + dOmg):13.10f},"
+                f" {(xcts_expansion + dadot):13.10g})"
+            )
 
-    return p
+    return
 
 
-@click.command(name="ecc-remove")
-@click.argument(
-    "h5_file",
-    type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
-)
-@click.option(
-    "--subfile-name-aha",
-    "-A",
-    help=(
-        "Name of subfile containing the apparent horizon centers for object A."
-    ),
-)
-@click.option(
-    "--subfile-name-ahb",
-    "-B",
-    help=(
-        "Name of subfile containing the apparent horizon centers for object B."
-    ),
-)
-@click.option(
-    "--tmin",
-    type=float,
-    nargs=1,
-    help=(
-        "The lower time bound to start the fit. Used to remove initial junk and"
-        "transients in the coordinate separations."
-    ),
-)
-@click.option(
-    "--tmax",
-    type=float,
-    nargs=1,
-    help=(
-        "The upper time bound to start the fit. A reasonable value would"
-        " include 2-3 orbits."
-    ),
-)
-@click.option(
-    "--angular-velocity-from-xcts",
-    type=float,
-    nargs=1,
-    help="Value of the angular velocity used in the Xcts file.",
-)
-@click.option(
-    "--expansion-from-xcts",
-    type=float,
-    nargs=1,
-    help="Value of the expansion velocity (adot) used in the Xcts file.",
-)
-@apply_stylesheet_command()
-@show_or_save_plot_command()
-def eccentricity_control_command(
+def eccentricity_control(
     h5_file,
     subfile_name_aha,
     subfile_name_ahb,
@@ -344,38 +297,11 @@ def eccentricity_control_command(
     tmax,
     angular_velocity_from_xcts,
     expansion_from_xcts,
+    output=None,
 ):
     """Compute updates based on fits to the coordinate separation for manual
-    eccentricity control
+    eccentricity control"""
 
-    Usage:
-
-    Select an appropriate time window without large initial transients and about
-    2 to 3 orbits of data. This script uses the coordinate separations between
-    Objects A and B to compute a finite difference approximation to the time
-    derivative of the orbital velocity (Omega). It then fits different models
-    to it.
-
-    For each model, the suggested updates dOmega and dadot based on Newtonian
-    estimates are printed. Note that when all models fit the data adequately,
-    their updates are similar. When they differ, examine the output plot to
-    find a model that is good fit and has small residuals (especially at early
-    times).
-
-    Finally, add the selected dOmega and dadot updates to the angular velocity
-    and expansion parameters (respectively) in the Xcts input file.
-
-    See ArXiv:gr-qc/0702106 and ArXiv:0710.0158 for more details.
-
-    Limitations:
-
-    1) These eccentricity updates work only for non-precessing binaries.
-    2) The time window is manually specified by the user.
-    3) The coordinate separation is used, instead of the proper distance.
-
-    See OmegaDoEccRemoval.py in SpEC for improved eccentricity control.
-
-    """
     data = compute_separation(
         h5_file=h5_file,
         subfile_name_aha=subfile_name_aha,
@@ -472,7 +398,7 @@ def eccentricity_control_command(
     )
 
     # ==== Restricted fit ====
-    fit_results = eccentricity_control_updates(
+    functions["F1"]["fit results"] = eccentricity_control_updates(
         x=t,
         y=dsdt,
         model=functions["F1"],
@@ -481,7 +407,7 @@ def eccentricity_control_command(
     )
 
     # ==== const + cos ====
-    fit_results = eccentricity_control_updates(
+    functions["F2"]["fit results"] = eccentricity_control_updates(
         x=t,
         y=dsdt,
         model=functions["F2"],
@@ -490,7 +416,7 @@ def eccentricity_control_command(
     )
 
     # ==== linear + cos ====
-    fit_results = eccentricity_control_updates(
+    functions["F3"]["fit results"] = eccentricity_control_updates(
         x=t,
         y=dsdt,
         model=functions["F3"],
@@ -501,11 +427,11 @@ def eccentricity_control_command(
     # ==== quadratic + cos ====
     # Replace the initial guess with that of the previous solve
     iguess_len = len(functions["F4"]["initial guess"])
-    functions["F4"]["initial guess"] = fit_results["parameters"][
-        0 : len(iguess_len)
-    ]
+    functions["F4"]["initial guess"] = functions["F3"]["fit results"][
+        "parameters"
+    ][0 : len(iguess_len)]
 
-    fit_results = eccentricity_control_updates(
+    functions["F4"]["fit_results"] = eccentricity_control_updates(
         x=t,
         y=dsdt,
         model=functions["F4"],
@@ -513,8 +439,113 @@ def eccentricity_control_command(
         initial_xcts_values=initial_xcts_values,
     )
 
-    if output is not None:
-        # Do something
-        return
+    # Print results and plot
+    eccentricity_control_digest(x=t, functions=functions, output=output)
+
+    return functions
+
+
+@click.command(name="eccentricity-control")
+@click.argument(
+    "h5_file",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
+)
+@click.option(
+    "--subfile-name-aha",
+    "-A",
+    help=(
+        "Name of subfile containing the apparent horizon centers for object A."
+    ),
+)
+@click.option(
+    "--subfile-name-ahb",
+    "-B",
+    help=(
+        "Name of subfile containing the apparent horizon centers for object B."
+    ),
+)
+@click.option(
+    "--tmin",
+    type=float,
+    nargs=1,
+    help=(
+        "The lower time bound to start the fit. Used to remove initial junk and"
+        "transients in the coordinate separations."
+    ),
+)
+@click.option(
+    "--tmax",
+    type=float,
+    nargs=1,
+    help=(
+        "The upper time bound to start the fit. A reasonable value would"
+        " include 2-3 orbits."
+    ),
+)
+@click.option(
+    "--angular-velocity-from-xcts",
+    type=float,
+    nargs=1,
+    help="Value of the angular velocity used in the Xcts file.",
+)
+@click.option(
+    "--expansion-from-xcts",
+    type=float,
+    nargs=1,
+    help="Value of the expansion velocity (adot) used in the Xcts file.",
+)
+@apply_stylesheet_command()
+@show_or_save_plot_command()
+def eccentricity_control_command(
+    h5_file,
+    subfile_name_aha,
+    subfile_name_ahb,
+    tmin,
+    tmax,
+    angular_velocity_from_xcts,
+    expansion_from_xcts,
+    output,
+):
+    """Compute updates based on fits to the coordinate separation for manual
+    eccentricity control
+
+    Usage:
+
+    Select an appropriate time window without large initial transients and about
+    2 to 3 orbits of data. This script uses the coordinate separations between
+    Objects A and B to compute a finite difference approximation to the time
+    derivative of the orbital velocity (Omega). It then fits different models
+    to it.
+
+    For each model, the suggested updates dOmega and dadot based on Newtonian
+    estimates are printed. Note that when all models fit the data adequately,
+    their updates are similar. When they differ, examine the output plot to
+    find a model that is good fit and has small residuals (especially at early
+    times).
+
+    Finally, add the selected dOmega and dadot updates to the angular velocity
+    and expansion parameters (respectively) in the Xcts input file.
+
+    See ArXiv:gr-qc/0702106 and ArXiv:0710.0158 for more details.
+
+    Limitations:
+
+    1) These eccentricity updates work only for non-precessing binaries.
+    2) The time window is manually specified by the user.
+    3) The coordinate separation is used, instead of the proper distance.
+
+    See OmegaDoEccRemoval.py in SpEC for improved eccentricity control.
+
+    """
+    functions = eccentricity_control(
+        h5_file=h5_file,
+        subfile_name_aha=subfile_name_aha,
+        subfile_name_ahb=subfile_name_ahb,
+        tmin=tmin,
+        tmax=tmax,
+        angular_velocity_from_xcts=angular_velocity_from_xcts,
+        expansion_from_xcts=expansion_from_xcts,
+        output=output,
+    )
 
     return
