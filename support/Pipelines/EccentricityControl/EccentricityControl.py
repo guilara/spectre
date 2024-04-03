@@ -217,9 +217,23 @@ def eccentricity_control_updates(
 
 
 def coordinate_separation_eccentricity_control_digest(
-    x, functions, output=None
+    x, y, data, functions, output=None
 ):
     """Plot output for eccentricity control"""
+
+    if output is not None:
+        traw = data[:, 0]
+        sraw = data[:, 1]
+        # Plot coordinate separation
+        plt.figtext(0.5, 0.95, h5_file, color="b", size="large", ha="center")
+        plt.subplot(2, 2, 2)
+        plt.plot(traw, sraw, "k", label="s", linewidth=2)
+        plt.title("coordinate separation " + r"$ D $")
+
+        # Plot derivative of coordinate separation
+        plt.subplot(2, 2, 1)
+        plt.plot(x, y, "k", label=r"$ dD/dt $", linewidth=2)
+        plt.title(r"$ dD/dt $")
 
     for func in functions.items():
         name = func["label"]
@@ -233,27 +247,6 @@ def coordinate_separation_eccentricity_control_digest(
         style = "--"
         F = func["function"]
         eccentricity = func["fit result"]["eccentricity"]
-
-        errfunc = lambda p, x, y: F(p, x) - y
-
-        if output is not None:
-            # Plot dD/dt
-            plt.subplot(2, 2, 1)
-            plt.plot(
-                x,
-                F(p, x),
-                style,
-                label=(
-                    f"{name:s} \n rms = {rms:2.1e}, eccentricity ="
-                    f" {eccentricity:4.5f}"
-                ),
-            )
-            plt.legend(loc=(1.1, -1.3))
-
-            # Plot residual
-            plt.subplot(2, 2, 3)
-            plt.plot(x, errfunc(p, x, y), style, label=name)
-            plt.title("Residual")
 
         # Print fit parameters
         p = func["fit result"]["parameters"]
@@ -291,6 +284,27 @@ def coordinate_separation_eccentricity_control_digest(
                 f"(Omega, adot) = ({(xcts_omega + dOmg):13.10f},"
                 f" {(xcts_expansion + dadot):13.10g})"
             )
+
+        # Plot
+        if output is not None:
+            errfunc = lambda p, x, y: F(p, x) - y
+            # Plot dD/dt
+            plt.subplot(2, 2, 1)
+            plt.plot(
+                x,
+                F(p, x),
+                style,
+                label=(
+                    f"{name:s} \n rms = {rms:2.1e}, eccentricity ="
+                    f" {eccentricity:4.5f}"
+                ),
+            )
+            plt.legend(loc=(1.1, -1.3))
+
+            # Plot residual
+            plt.subplot(2, 2, 3)
+            plt.plot(x, errfunc(p, x, y), style, label=name)
+            plt.title("Residual")
 
     return
 
@@ -434,7 +448,7 @@ def coordinate_separation_eccentricity_control(
 
     # Print results and plot
     coordinate_separation_eccentricity_control_digest(
-        x=t, functions=functions, output=output
+        x=t, y=dsdt, data=data, functions=functions, output=output
     )
 
     return functions
