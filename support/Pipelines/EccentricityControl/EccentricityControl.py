@@ -138,10 +138,37 @@ def compute_separation(h5_file, subfile_name_aha, subfile_name_ahb):
     return separation_norm
 
 
-def fit(
-    x, y, F, inparams, name, style, initial_separation, initial_xcts_values=None
-):
-    """Fit and plot coordinate separation"""
+def windowed_time_derivative_of_separation(data, tmin=None, tmax=None):
+    traw = data[:, 0]
+    sraw = data[:, 1]
+
+    # Compute separation derivative
+    dsdtraw = (sraw[2:] - sraw[0:-2]) / (traw[2:] - traw[0:-2])
+
+    trawcut = traw[1:-1]
+
+    # Apply time window: select values in [tmin, tmax]
+    if tmin == None and tmax == None:
+        if traw[-1] < 200:
+            which_indices = trawcut > 20
+        else:
+            which_indices = trawcut > 60
+    elif tmax == None:
+        which_indices = trawcut > tmin
+    else:
+        which_indices = np.logical_and(trawcut > tmin, trawcut < tmax)
+
+    dsdt = dsdtraw[which_indices]
+    t = trawcut[which_indices]
+
+    return t, dsdt
+
+
+def fit(x, y, model):
+    """Fit coordinate separation"""
+    F = model["function"]
+    inparams = model["initial guess"]
+
     errfunc = lambda p, x, y: F(p, x) - y
     p, success = optimize.leastsq(errfunc, inparams[:], args=(x, y))
 
@@ -149,12 +176,56 @@ def fit(
     e2 = (errfunc(p, x, y)) ** 2
     rms = np.sqrt(sum(e2) / np.size(e2))
 
-    amplitude, omega, phase = p[:3]
+    return dict([("parameters", p), ("rms", rms), ("success", success)])
+
+
+def eccentricity_control_updates(
+    x, y, model, initial_separation, initial_xcts_values=None
+):
+    """Compute updates for eccentricity control"""
+    fit_results = fit(x=x, y=y, model=model)
+
+    amplitude, omega, phase = fit_results["parameters"][:3]
 
     # Compute updates for Omega and expansion and compute eccentricity
     dOmg = amplitude / 2.0 / initial_separation * np.sin(phase)
     dadot = -amplitude / initial_separation * np.cos(phase)
     ecc = amplitude / initial_separation / omega
+
+    fit_results["xcts updates"] = dict(
+        [("omega update", dOmg), ("expansion update", dadot)]
+    )
+
+    # Update xcts parameters if given
+    if initial_xcts_values is not None:
+        xcts_omega, xcts_expansion = initial_xcts_values
+        fit_results["previous xcts values"] = dict(
+            [("omega", xcts_omega), ("expansion", xcts_expansion)]
+        )
+        updated_xcts_omega = xcts_omega + dOmg
+        updated_xcts_expansion = xcts_expansion + dadot
+        fit_results["updated xcts values"] = dict(
+            [
+                ("omega", updated_xcts_omega),
+                ("expansion", updated_xcts_expansion),
+            ]
+        )
+
+    return fit_results
+
+
+def eccentricity_control_updates_digest(
+    x, y, F, inparams, name, style, initial_separation, initial_xcts_values=None
+):
+    """Compute updates for eccentricity control"""
+    fit_updates = eccentricity_control_updates(
+        x=x,
+        y=y,
+        F=F,
+        inparams=inparams,
+        initial_separation=initial_separation,
+        initial_xcts_values=initial_xcts_values,
+    )
 
     print(
         f"==== Function fitted to dOmega/dt: {name:30s},  rms = {rms:4.3g} "
@@ -310,40 +381,16 @@ def eccentricity_control_command(
         subfile_name_aha=subfile_name_aha,
         subfile_name_ahb=subfile_name_ahb,
     )
-    traw = data[:, 0]
+
+    # Separation data (unwindowed)
     sraw = data[:, 1]
 
-    # Compute separation derivative
-    dsdtraw = (sraw[2:] - sraw[0:-2]) / (traw[2:] - traw[0:-2])
+    # Compute derivative in time window
+    t, dsdt = windowed_time_derivative_of_separation(
+        data=data, tmin=tmin, tmax=tmax
+    )
 
-    trawcut = traw[1:-1]
-
-    # Select values in [tmin, tmax]
-    if tmin == None and tmax == None:
-        if traw[-1] < 200:
-            which_indices = trawcut > 20
-        else:
-            which_indices = trawcut > 60
-    elif tmax == None:
-        which_indices = trawcut > tmin
-    else:
-        which_indices = np.logical_and(trawcut > tmin, trawcut < tmax)
-
-    dsdt = dsdtraw[which_indices]
-    t = trawcut[which_indices]
-
-    # Plot coordinate separation
-    plt.figtext(0.5, 0.95, h5_file, color="b", size="large", ha="center")
-    plt.subplot(2, 2, 2)
-    plt.plot(traw, sraw, "k", label="s", linewidth=2)
-    plt.title("coordinate separation " + r"$ D $")
-
-    # Plot derivative of coordinate separation
-    plt.subplot(2, 2, 1)
-    plt.plot(t, dsdt, "k", label=r"$ dD/dt $", linewidth=2)
-    plt.title(r"$ dD/dt $")
-
-    # Compute and plot fits
+    # Collect initial xcts values
     if (
         angular_velocity_from_xcts is not None
         and expansion_from_xcts is not None
@@ -355,65 +402,119 @@ def eccentricity_control_command(
     else:
         initial_xcts_values = None
 
+    # Define functions to fit
+    functions = dict([])
+
     # ==== Restricted fit ====
-    p = fit(
-        x=t,
-        y=dsdt,
-        F=lambda p, t: p[0] * np.cos(p[1] * t + np.pi / 2) + p[3],
-        inparams=[0, 0.010, np.pi / 2, 0],
-        name="B*cos(w*t+np.pi/2)+const",
-        style="--",
-        initial_separation=sraw[0],
+    functions["F1"] = dict(
+        [
+            ("label", "B*cos(w*t+np.pi/2)+const"),
+            (
+                "function",
+                lambda p, t: p[0] * np.cos(p[1] * t + np.pi / 2) + p[3],
+            ),
+            ("initial guess", [0, 0.010, np.pi / 2, 0]),
+        ]
     )
 
     # ==== const + cos ====
-    p = fit(
+    functions["F2"] = dict(
+        [
+            ("label", "B*cos(w*t+phi)+const"),
+            ("function", lambda p, t: p[0] * np.cos(p[1] * t + p[2]) + p[3]),
+            ("initial guess", [0, 0.010, 0, 0]),
+        ]
+    )
+
+    # ==== linear + cos ====
+    functions["F3"] = dict(
+        [
+            ("label", "B*cos(w*t+phi)+linear"),
+            (
+                "function",
+                lambda p, t: p[3] + p[4] * t + p[0] * np.cos(p[1] * t + p[2]),
+            ),
+            (
+                "initial guess",
+                [
+                    0,
+                    0.017,
+                    0,
+                    0,
+                    0,
+                ],
+            ),
+        ]
+    )
+
+    # ==== quadratic + cos ====
+    functions["F4"] = dict(
+        [
+            ("label", "B*cos(w*t+phi)+quadratic"),
+            (
+                "function",
+                lambda p, t: p[3]
+                + p[4] * t
+                + p[5] * t**2
+                + p[0] * np.cos(p[1] * t + p[2]),
+            ),
+            (
+                "initial guess",
+                [
+                    0,
+                    0.017,
+                    0,
+                    0,
+                    0,
+                ],
+            ),
+        ]
+    )
+
+    # ==== Restricted fit ====
+    fit_results = eccentricity_control_updates(
         x=t,
         y=dsdt,
-        F=lambda p, t: p[0] * np.cos(p[1] * t + p[2]) + p[3],
-        inparams=[0, 0.010, 0, 0],
-        name="B*cos(w*t+phi)+const",
-        style="-",
+        model=functions["F1"],
+        initial_separation=sraw[0],
+        initial_xcts_values=initial_xcts_values,
+    )
+
+    # ==== const + cos ====
+    fit_results = eccentricity_control_updates(
+        x=t,
+        y=dsdt,
+        model=functions["F2"],
         initial_separation=sraw[0],
         initial_xcts_values=initial_xcts_values,
     )
 
     # ==== linear + cos ====
-    p = fit(
+    fit_results = eccentricity_control_updates(
         x=t,
         y=dsdt,
-        F=lambda p, t: p[3] + p[4] * t + p[0] * np.cos(p[1] * t + p[2]),
-        inparams=[
-            0,
-            0.017,
-            0,
-            0,
-            0,
-        ],
-        name="B*cos(w*t+phi)+linear",
-        style="-",
+        model=functions["F3"],
         initial_separation=sraw[0],
         initial_xcts_values=initial_xcts_values,
     )
 
     # ==== quadratic + cos ====
-    p = fit(
+    # Replace the initial guess with that of the previous solve
+    iguess_len = len(functions["F4"]["initial guess"])
+    functions["F4"]["initial guess"] = fit_results["parameters"][
+        0 : len(iguess_len)
+    ]
+
+    fit_results = eccentricity_control_updates(
         x=t,
         y=dsdt,
-        F=lambda p, t: p[3]
-        + p[4] * t
-        + p[5] * t**2
-        + p[0] * np.cos(p[1] * t + p[2]),
-        inparams=[
-            p[0],
-            p[1],
-            p[2],
-            p[3],
-            p[4],
-            0,
-        ],
-        name="B*cos(w*t+phi)+quadratic",
-        style="-",
+        model=functions["F4"],
         initial_separation=sraw[0],
         initial_xcts_values=initial_xcts_values,
     )
+
+    if output is not None:
+        # Do something
+        return
+
+    return
