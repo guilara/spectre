@@ -139,6 +139,7 @@ def compute_separation(h5_file, subfile_name_aha, subfile_name_ahb):
 
 
 def windowed_time_derivative_of_separation(data, tmin=None, tmax=None):
+    """Compute time derivative of separation on time window"""
     traw = data[:, 0]
     sraw = data[:, 1]
 
@@ -164,7 +165,7 @@ def windowed_time_derivative_of_separation(data, tmin=None, tmax=None):
     return t, dsdt
 
 
-def fit(x, y, model):
+def fit_model(x, y, model):
     """Fit coordinate separation"""
     F = model["function"]
     inparams = model["initial guess"]
@@ -183,16 +184,16 @@ def eccentricity_control_updates(
     x, y, model, initial_separation, initial_xcts_values=None
 ):
     """Compute updates for eccentricity control"""
-    fit_results = fit(x=x, y=y, model=model)
+    fit_results = fit_model(x=x, y=y, model=model)
 
     amplitude, omega, phase = fit_results["parameters"][:3]
 
     # Compute updates for Omega and expansion and compute eccentricity
     dOmg = amplitude / 2.0 / initial_separation * np.sin(phase)
     dadot = -amplitude / initial_separation * np.cos(phase)
-    ecc = amplitude / initial_separation / omega
+    eccentricity = amplitude / initial_separation / omega
 
-    fit_results["eccentricity"] = ecc
+    fit_results["eccentricity"] = eccentricity
     fit_results["xcts updates"] = dict(
         [("omega update", dOmg), ("expansion update", dadot)]
     )
@@ -215,8 +216,10 @@ def eccentricity_control_updates(
     return fit_results
 
 
-def eccentricity_control_digest(x, functions, output=None):
-    """Plot ooutput for eccentricity control"""
+def coordinate_separation_eccentricity_control_digest(
+    x, functions, output=None
+):
+    """Plot output for eccentricity control"""
 
     for func in functions.items():
         name = func["label"]
@@ -229,7 +232,7 @@ def eccentricity_control_digest(x, functions, output=None):
 
         style = "--"
         F = func["function"]
-        ecc = func["fit result"]["eccentricity"]
+        eccentricity = func["fit result"]["eccentricity"]
 
         errfunc = lambda p, x, y: F(p, x) - y
 
@@ -240,7 +243,10 @@ def eccentricity_control_digest(x, functions, output=None):
                 x,
                 F(p, x),
                 style,
-                label=f"{name:s} \n rms = {rms:2.1e}, ecc = {ecc:4.5f}",
+                label=(
+                    f"{name:s} \n rms = {rms:2.1e}, eccentricity ="
+                    f" {eccentricity:4.5f}"
+                ),
             )
             plt.legend(loc=(1.1, -1.3))
 
@@ -269,7 +275,7 @@ def eccentricity_control_digest(x, functions, output=None):
                 logger.info(")")
 
         # Print eccentricity
-        logger.info(f"Eccentricity based on fit: {ecc:9.6f}")
+        logger.info(f"Eccentricity based on fit: {eccentricity:9.6f}")
         # Print suggested updates based on fit
         xcts_updates = func["fit result"]["xcts updates"]
         dOmg = xcts_updates["omega update"]
@@ -289,7 +295,7 @@ def eccentricity_control_digest(x, functions, output=None):
     return
 
 
-def eccentricity_control(
+def coordinate_separation_eccentricity_control(
     h5_file,
     subfile_name_aha,
     subfile_name_ahb,
@@ -308,15 +314,15 @@ def eccentricity_control(
         subfile_name_ahb=subfile_name_ahb,
     )
 
-    # Separation data (unwindowed)
-    sraw = data[:, 1]
+    # Get initial separation from data (unwindowed)
+    initial_separation = data[:, 1][0]
 
     # Compute derivative in time window
     t, dsdt = windowed_time_derivative_of_separation(
         data=data, tmin=tmin, tmax=tmax
     )
 
-    # Collect initial xcts values
+    # Collect initial xcts values (if given)
     if (
         angular_velocity_from_xcts is not None
         and expansion_from_xcts is not None
@@ -328,7 +334,7 @@ def eccentricity_control(
     else:
         initial_xcts_values = None
 
-    # Define functions to fit
+    # Define functions to model the time derivative of the separation
     functions = dict([])
 
     # ==== Restricted fit ====
@@ -397,35 +403,22 @@ def eccentricity_control(
         ]
     )
 
-    # ==== Restricted fit ====
-    functions["F1"]["fit results"] = eccentricity_control_updates(
-        x=t,
-        y=dsdt,
-        model=functions["F1"],
-        initial_separation=sraw[0],
-        initial_xcts_values=initial_xcts_values,
-    )
+    # Fit and compute updates
+    for func in functions.items():
+        # We will handle F4 separately
+        if func == "F4":
+            continue
 
-    # ==== const + cos ====
-    functions["F2"]["fit results"] = eccentricity_control_updates(
-        x=t,
-        y=dsdt,
-        model=functions["F2"],
-        initial_separation=sraw[0],
-        initial_xcts_values=initial_xcts_values,
-    )
-
-    # ==== linear + cos ====
-    functions["F3"]["fit results"] = eccentricity_control_updates(
-        x=t,
-        y=dsdt,
-        model=functions["F3"],
-        initial_separation=sraw[0],
-        initial_xcts_values=initial_xcts_values,
-    )
+        func["fit results"] = eccentricity_control_updates(
+            x=t,
+            y=dsdt,
+            model=func,
+            initial_separation=initial_separation,
+            initial_xcts_values=initial_xcts_values,
+        )
 
     # ==== quadratic + cos ====
-    # Replace the initial guess with that of the previous solve
+    # Replace the initial guess with that of the linear solve
     iguess_len = len(functions["F4"]["initial guess"])
     functions["F4"]["initial guess"] = functions["F3"]["fit results"][
         "parameters"
@@ -435,12 +428,14 @@ def eccentricity_control(
         x=t,
         y=dsdt,
         model=functions["F4"],
-        initial_separation=sraw[0],
+        initial_separation=initial_separation,
         initial_xcts_values=initial_xcts_values,
     )
 
     # Print results and plot
-    eccentricity_control_digest(x=t, functions=functions, output=output)
+    coordinate_separation_eccentricity_control_digest(
+        x=t, functions=functions, output=output
+    )
 
     return functions
 
@@ -537,7 +532,7 @@ def eccentricity_control_command(
     See OmegaDoEccRemoval.py in SpEC for improved eccentricity control.
 
     """
-    functions = eccentricity_control(
+    functions = coordinate_separation_eccentricity_control(
         h5_file=h5_file,
         subfile_name_aha=subfile_name_aha,
         subfile_name_ahb=subfile_name_ahb,
