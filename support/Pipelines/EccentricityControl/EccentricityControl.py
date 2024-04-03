@@ -225,7 +225,14 @@ def coordinate_separation_eccentricity_control_digest(
         traw = data[:, 0]
         sraw = data[:, 1]
         # Plot coordinate separation
-        plt.figtext(0.5, 0.95, h5_file, color="b", size="large", ha="center")
+        plt.figtext(
+            0.5,
+            0.95,
+            "Eccentricity control",
+            color="b",
+            size="large",
+            ha="center",
+        )
         plt.subplot(2, 2, 2)
         plt.plot(traw, sraw, "k", label="s", linewidth=2)
         plt.title("coordinate separation " + r"$ D $")
