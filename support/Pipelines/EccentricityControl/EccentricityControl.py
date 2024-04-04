@@ -242,13 +242,15 @@ def coordinate_separation_eccentricity_control_digest(
         plt.plot(x, y, "k", label=r"$ dD/dt $", linewidth=2)
         plt.title(r"$ dD/dt $")
 
-    for func in functions.items():
-        name = func["label"]
+    logger.info("Eccentricity control summary")
+
+    for name, func in functions.items():
+        expression = func["label"]
         rms = func["fit result"]["rms"]
 
         logger.info(
-            f"==== Function fitted to dOmega/dt: {name:30s},  rms = {rms:4.3g} "
-            " ===="
+            f"==== Function fitted to dOmega/dt: {expression:30s},  rms ="
+            f" {rms:4.3g}  ===="
         )
 
         style = "--"
@@ -283,9 +285,11 @@ def coordinate_separation_eccentricity_control_digest(
         logger.info("Suggested updates based on fit:")
         logger.info(f"(dOmega, dadot) = ({dOmg:+13.10f}, {dadot:+8.6g})")
 
-        if "updated xcts values" in func:
-            xcts_omega = func["updated xcts values"]["omega"]
-            xcts_expansion = func["updated xcts values"]["expansion"]
+        if "updated xcts values" in func["fit result"]:
+            xcts_omega = func["fit result"]["updated xcts values"]["omega"]
+            xcts_expansion = func["fit result"]["updated xcts values"][
+                "expansion"
+            ]
             logger.info("Updated Xcts values based on fit:")
             logger.info(
                 f"(Omega, adot) = ({(xcts_omega + dOmg):13.10f},"
@@ -302,7 +306,7 @@ def coordinate_separation_eccentricity_control_digest(
                 F(p, x),
                 style,
                 label=(
-                    f"{name:s} \n rms = {rms:2.1e}, eccentricity ="
+                    f"{expression:s} \n rms = {rms:2.1e}, ecc ="
                     f" {eccentricity:4.5f}"
                 ),
             )
@@ -310,8 +314,11 @@ def coordinate_separation_eccentricity_control_digest(
 
             # Plot residual
             plt.subplot(2, 2, 3)
-            plt.plot(x, errfunc(p, x, y), style, label=name)
+            plt.plot(x, errfunc(p, x, y), style, label=expression)
             plt.title("Residual")
+
+    if output is not None:
+        plt.savefig(output, format="pdf")
 
     return
 
@@ -419,6 +426,7 @@ def coordinate_separation_eccentricity_control(
                     0,
                     0,
                     0,
+                    0,
                 ],
             ),
         ]
@@ -430,7 +438,7 @@ def coordinate_separation_eccentricity_control(
         if name == "F4":
             continue
 
-        func["fit results"] = eccentricity_control_updates(
+        func["fit result"] = eccentricity_control_updates(
             x=t,
             y=dsdt,
             model=func,
@@ -440,12 +448,12 @@ def coordinate_separation_eccentricity_control(
 
     # ==== quadratic + cos ====
     # Replace the initial guess with that of the linear solve
-    iguess_len = len(functions["F4"]["initial guess"])
-    functions["F4"]["initial guess"] = functions["F3"]["fit results"][
-        "parameters"
-    ][0 : len(iguess_len)]
+    iguess_len = len(functions["F3"]["initial guess"])
+    functions["F4"]["initial guess"][0:iguess_len] = functions["F3"][
+        "fit result"
+    ]["parameters"][0:iguess_len]
 
-    functions["F4"]["fit_results"] = eccentricity_control_updates(
+    functions["F4"]["fit result"] = eccentricity_control_updates(
         x=t,
         y=dsdt,
         model=functions["F4"],
@@ -510,8 +518,20 @@ def coordinate_separation_eccentricity_control(
     nargs=1,
     help="Value of the expansion velocity (adot) used in the Xcts file.",
 )
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(file_okay=True, dir_okay=False, writable=True),
+    help=(
+        "Name of the output plot file. If unspecified, the plot is "
+        "shown interactively, which only works on machines with a "
+        "window server. If a filename is specified, its extension "
+        "determines the file format, e.g. 'plot.png' or 'plot.pdf'. "
+        "If no extension is given, the file format depends on the "
+        "system settings (see matplotlib.pyplot.savefig docs)."
+    ),
+)
 @apply_stylesheet_command()
-@show_or_save_plot_command()
 def eccentricity_control_command(
     h5_file,
     subfile_name_aha,
@@ -520,7 +540,7 @@ def eccentricity_control_command(
     tmax,
     angular_velocity_from_xcts,
     expansion_from_xcts,
-    output=None,
+    output,
 ):
     """Compute updates based on fits to the coordinate separation for manual
     eccentricity control
