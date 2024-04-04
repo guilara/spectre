@@ -138,10 +138,12 @@ def compute_separation(h5_file, subfile_name_aha, subfile_name_ahb):
     return separation_norm
 
 
-def compute_time_derivative_of_separation_in_window(data, tmin=None, tmax=None):
+def compute_time_derivative_of_separation_in_window(
+    separation_norm, tmin=None, tmax=None
+):
     """Compute time derivative of separation on time window"""
-    traw = data[:, 0]
-    sraw = data[:, 1]
+    traw = separation_norm[:, 0]
+    sraw = separation_norm[:, 1]
 
     # Compute separation derivative
     dsdtraw = (sraw[2:] - sraw[0:-2]) / (traw[2:] - traw[0:-2])
@@ -361,18 +363,18 @@ def coordinate_separation_eccentricity_control(
 
     """
 
-    data = compute_separation(
+    separation_norm = compute_separation(
         h5_file=h5_file,
         subfile_name_aha=subfile_name_aha,
         subfile_name_ahb=subfile_name_ahb,
     )
 
     # Get initial separation from data (unwindowed)
-    initial_separation = data[:, 1][0]
+    initial_separation = separation_norm[:, 1][0]
 
     # Compute derivative in time window
     t, dsdt = compute_time_derivative_of_separation_in_window(
-        data=data, tmin=tmin, tmax=tmax
+        separation_norm=separation_norm, tmin=tmin, tmax=tmax
     )
 
     # Collect initial xcts values (if given)
