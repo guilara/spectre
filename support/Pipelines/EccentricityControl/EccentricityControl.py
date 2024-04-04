@@ -520,7 +520,7 @@ def eccentricity_control_command(
     tmax,
     angular_velocity_from_xcts,
     expansion_from_xcts,
-    output,
+    output=None,
 ):
     """Compute updates based on fits to the coordinate separation for manual
     eccentricity control
