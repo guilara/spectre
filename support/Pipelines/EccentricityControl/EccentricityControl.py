@@ -131,19 +131,19 @@ def compute_separation(h5_file, subfile_name_aha, subfile_name_ahb):
     )
 
     # Compute separation norm
-    separation_norm = np.zeros((num_obs, 2))
-    separation_norm[:, 0] = ObjectA_centers[:, 0]
-    separation_norm[:, 1] = np.linalg.norm(separation_vec, axis=1)
+    separation_norm = np.zeros(num_obs)
+    time_vector = ObjectA_centers[:, 0]
+    separation_norm = np.linalg.norm(separation_vec, axis=1)
 
-    return separation_norm
+    return time_vector, separation_norm, separation_vec
 
 
 def compute_time_derivative_of_separation_in_window(
-    separation_norm, tmin=None, tmax=None
+    time_vector, separation_norm, tmin=None, tmax=None
 ):
     """Compute time derivative of separation on time window"""
-    traw = separation_norm[:, 0]
-    sraw = separation_norm[:, 1]
+    traw = time_vector
+    sraw = separation_norm
 
     # Compute separation derivative
     dsdtraw = (sraw[2:] - sraw[0:-2]) / (traw[2:] - traw[0:-2])
@@ -165,6 +165,54 @@ def compute_time_derivative_of_separation_in_window(
     t = trawcut[which_indices]
 
     return t, dsdt
+
+
+def compute_orbital_frequency_and_time_derivative(
+    time_vector, separation_norm, separation_vec, tmin=None, tmax=None
+):
+    """Compute an approximate orbital frequency in a time window"""
+    traw = time_vector
+    sraw = separation_norm
+    sraw_vec = separation_vec
+
+    # Compute separation derivative
+    # dsdtraw = (sraw[2:] - sraw[0:-2]) / (traw[2:] - traw[0:-2])
+    dsdtraw_vec = (sraw_vec[2:, :] - sraw_vec[0:-2, :]) / (
+        traw[2:] - traw[0:-2]
+    )
+
+    sraw2 = np.square(sraw)
+    Omegaraw_vec = np.cross(sraw_vec, dsdtraw_vec) / sraw2
+    Omegaraw_norm = np.linalg.norm(Omegaraw_vec, axis=1)
+
+    dOmegadtraw = (Omegaraw_norm[2:] - Omegaraw_norm[0:-2]) / (
+        traw[2:] - traw[0:-2]
+    )
+
+    trawcut = traw[1:-1]
+
+    # Apply time window: select values in [tmin, tmax]
+    if tmin == None and tmax == None:
+        if traw[-1] < 200:
+            which_indices = trawcut > 20
+        else:
+            which_indices = trawcut > 60
+    elif tmax == None:
+        which_indices = trawcut > tmin
+    else:
+        which_indices = np.logical_and(trawcut > tmin, trawcut < tmax)
+
+    # s = sraw[which_indices]
+    # s_vec = sraw_vec[which_indices]
+    # dsdt = dsdtraw[which_indices]
+    # dsdt_vec = dsdtraw_vec[which_indices]
+
+    t = trawcut[which_indices]
+    Omega_vec = Omegaraw_vec[which_indices]
+    Omega_norm = Omega_norm[which_indices]
+    dOmegadt = dOmegadtraw[which_indices]
+
+    return t, Omega_vec, Omega_norm, dOmegadt
 
 
 def fit_model(x, y, model):
@@ -363,18 +411,21 @@ def coordinate_separation_eccentricity_control(
 
     """
 
-    separation_norm = compute_separation(
+    time_vector, separation_norm, separation_vec = compute_separation(
         h5_file=h5_file,
         subfile_name_aha=subfile_name_aha,
         subfile_name_ahb=subfile_name_ahb,
     )
 
     # Get initial separation from data (unwindowed)
-    initial_separation = separation_norm[:, 1][0]
+    initial_separation = separation_norm[0]
 
     # Compute derivative in time window
     t, dsdt = compute_time_derivative_of_separation_in_window(
-        separation_norm=separation_norm, tmin=tmin, tmax=tmax
+        time_vector=time_vector,
+        separation_norm=separation_norm,
+        tmin=tmin,
+        tmax=tmax,
     )
 
     # Collect initial xcts values (if given)
