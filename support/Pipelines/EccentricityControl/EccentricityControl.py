@@ -138,7 +138,7 @@ def compute_separation(h5_file, subfile_name_aha, subfile_name_ahb):
     return separation_norm
 
 
-def windowed_time_derivative_of_separation(data, tmin=None, tmax=None):
+def compute_time_derivative_of_separation_in_window(data, tmin=None, tmax=None):
     """Compute time derivative of separation on time window"""
     traw = data[:, 0]
     sraw = data[:, 1]
@@ -180,7 +180,7 @@ def fit_model(x, y, model):
     return dict([("parameters", p), ("rms", rms), ("success", success)])
 
 
-def eccentricity_control_updates(
+def compute_coord_sep_updates(
     x, y, model, initial_separation, initial_xcts_values=None
 ):
     """Compute updates for eccentricity control"""
@@ -217,30 +217,29 @@ def eccentricity_control_updates(
 
 
 def coordinate_separation_eccentricity_control_digest(
-    x, y, data, functions, output=None
+    h5_file, x, y, data, functions, output=None
 ):
-    """Plot output for eccentricity control"""
+    """Print and output for eccentricity control"""
 
     if output is not None:
         traw = data[:, 0]
         sraw = data[:, 1]
         # Plot coordinate separation
-        plt.figtext(
-            0.5,
-            0.95,
-            "Eccentricity control",
+        fig, axes = plt.subplots(2, 2)
+        ((ax1, ax2), (ax3, ax4)) = axes
+        fig.suptitle(
+            h5_file,
             color="b",
             size="large",
-            ha="center",
         )
-        plt.subplot(2, 2, 2)
-        plt.plot(traw, sraw, "k", label="s", linewidth=2)
-        plt.title("coordinate separation " + r"$ D $")
+        ax2.plot(traw, sraw, "k", label="s", linewidth=2)
+        ax2.set_title("coordinate separation " + r"$ D $")
 
         # Plot derivative of coordinate separation
-        plt.subplot(2, 2, 1)
-        plt.plot(x, y, "k", label=r"$ dD/dt $", linewidth=2)
-        plt.title(r"$ dD/dt $")
+        ax1.plot(x, y, "k", label=r"$ dD/dt $", linewidth=2)
+        ax1.set_title(r"$ dD/dt $")
+
+        ax4.set_axis_off()
 
     logger.info("Eccentricity control summary")
 
@@ -249,7 +248,7 @@ def coordinate_separation_eccentricity_control_digest(
         rms = func["fit result"]["rms"]
 
         logger.info(
-            f"==== Function fitted to dOmega/dt: {expression:30s},  rms ="
+            f"==== Function fitted to dD/dt: {expression:30s},  rms ="
             f" {rms:4.3g}  ===="
         )
 
@@ -300,8 +299,7 @@ def coordinate_separation_eccentricity_control_digest(
         if output is not None:
             errfunc = lambda p, x, y: F(p, x) - y
             # Plot dD/dt
-            plt.subplot(2, 2, 1)
-            plt.plot(
+            ax1.plot(
                 x,
                 F(p, x),
                 style,
@@ -310,12 +308,15 @@ def coordinate_separation_eccentricity_control_digest(
                     f" {eccentricity:4.5f}"
                 ),
             )
-            plt.legend(loc=(1.1, -1.3))
+            ax_handles, ax_labels = ax1.get_legend_handles_labels()
 
             # Plot residual
-            plt.subplot(2, 2, 3)
-            plt.plot(x, errfunc(p, x, y), style, label=expression)
-            plt.title("Residual")
+            ax3.plot(x, errfunc(p, x, y), style, label=expression)
+            ax3.set_title("Residual")
+
+            ax4.legend(ax_handles, ax_labels)
+
+            plt.tight_layout()
 
     if output is not None:
         plt.savefig(output, format="pdf")
@@ -334,7 +335,31 @@ def coordinate_separation_eccentricity_control(
     output=None,
 ):
     """Compute updates based on fits to the coordinate separation for manual
-    eccentricity control"""
+    eccentricity control
+
+    This routine applies a time window. (To avoid large initial transients
+    and to allow the user to specify about 2 to 3 orbits of data.)
+
+    Computes the coordinate separations between Objects A and B, as well as
+    a finite difference approximation to the time derivative.
+
+    It fits different models to the time derivative. (The amplitude of the
+    oscillations is related to the eccentricity.)
+
+    This function returns a dictionary containing data for the fits to all
+    the models considered below. For each model, the results of the fit as
+    well as the suggested updates for omega and the expansion provided.
+
+    The updates are computed using Newtonian estimates.
+    See ArXiv:gr-qc/0702106 and ArXiv:0710.0158 for more details.
+
+    A summary is printed to screen and if an output file is provided, a plot
+    is generated. The latter is useful to decide between the updates of
+    different models (look for small residuals at early times).
+
+    See OmegaDoEccRemoval.py in SpEC for improved eccentricity control.
+
+    """
 
     data = compute_separation(
         h5_file=h5_file,
@@ -346,7 +371,7 @@ def coordinate_separation_eccentricity_control(
     initial_separation = data[:, 1][0]
 
     # Compute derivative in time window
-    t, dsdt = windowed_time_derivative_of_separation(
+    t, dsdt = compute_time_derivative_of_separation_in_window(
         data=data, tmin=tmin, tmax=tmax
     )
 
@@ -366,7 +391,7 @@ def coordinate_separation_eccentricity_control(
     functions = dict([])
 
     # ==== Restricted fit ====
-    functions["F1"] = dict(
+    functions["H1"] = dict(
         [
             ("label", "B*cos(w*t+np.pi/2)+const"),
             (
@@ -378,7 +403,7 @@ def coordinate_separation_eccentricity_control(
     )
 
     # ==== const + cos ====
-    functions["F2"] = dict(
+    functions["H2"] = dict(
         [
             ("label", "B*cos(w*t+phi)+const"),
             ("function", lambda p, t: p[0] * np.cos(p[1] * t + p[2]) + p[3]),
@@ -387,7 +412,7 @@ def coordinate_separation_eccentricity_control(
     )
 
     # ==== linear + cos ====
-    functions["F3"] = dict(
+    functions["H3"] = dict(
         [
             ("label", "B*cos(w*t+phi)+linear"),
             (
@@ -408,7 +433,7 @@ def coordinate_separation_eccentricity_control(
     )
 
     # ==== quadratic + cos ====
-    functions["F4"] = dict(
+    functions["H4"] = dict(
         [
             ("label", "B*cos(w*t+phi)+quadratic"),
             (
@@ -434,11 +459,11 @@ def coordinate_separation_eccentricity_control(
 
     # Fit and compute updates
     for name, func in functions.items():
-        # We will handle F4 separately
-        if name == "F4":
+        # We will handle H4 separately
+        if name == "H4":
             continue
 
-        func["fit result"] = eccentricity_control_updates(
+        func["fit result"] = compute_coord_sep_updates(
             x=t,
             y=dsdt,
             model=func,
@@ -448,22 +473,27 @@ def coordinate_separation_eccentricity_control(
 
     # ==== quadratic + cos ====
     # Replace the initial guess with that of the linear solve
-    iguess_len = len(functions["F3"]["initial guess"])
-    functions["F4"]["initial guess"][0:iguess_len] = functions["F3"][
+    iguess_len = len(functions["H3"]["initial guess"])
+    functions["H4"]["initial guess"][0:iguess_len] = functions["H3"][
         "fit result"
     ]["parameters"][0:iguess_len]
 
-    functions["F4"]["fit result"] = eccentricity_control_updates(
+    functions["H4"]["fit result"] = compute_coord_sep_updates(
         x=t,
         y=dsdt,
-        model=functions["F4"],
+        model=functions["H4"],
         initial_separation=initial_separation,
         initial_xcts_values=initial_xcts_values,
     )
 
     # Print results and plot
     coordinate_separation_eccentricity_control_digest(
-        x=t, y=dsdt, data=data, functions=functions, output=output
+        h5_file=h5_file,
+        x=t,
+        y=dsdt,
+        data=data,
+        functions=functions,
+        output=output,
     )
 
     return functions
@@ -493,8 +523,9 @@ def coordinate_separation_eccentricity_control(
     type=float,
     nargs=1,
     help=(
-        "The lower time bound to start the fit. Used to remove initial junk and"
-        "transients in the coordinate separations."
+        "The lower time bound to start the fit. Used to remove initial junk"
+        " andtransients in the coordinate separations. Default tmin=20 (or 60)"
+        " for tmax<200 (or >200)."
     ),
 )
 @click.option(
@@ -548,10 +579,11 @@ def eccentricity_control_command(
     Usage:
 
     Select an appropriate time window without large initial transients and about
-    2 to 3 orbits of data. This script uses the coordinate separations between
-    Objects A and B to compute a finite difference approximation to the time
-    derivative of the orbital velocity (Omega). It then fits different models
-    to it.
+    2 to 3 orbits of data.
+
+    This script uses the coordinate separations between Objects A and B to
+    compute a finite difference approximation to the time derivative.
+    It then fits different models to it.
 
     For each model, the suggested updates dOmega and dadot based on Newtonian
     estimates are printed. Note that when all models fit the data adequately,
@@ -559,8 +591,9 @@ def eccentricity_control_command(
     find a model that is good fit and has small residuals (especially at early
     times).
 
-    Finally, add the selected dOmega and dadot updates to the angular velocity
-    and expansion parameters (respectively) in the Xcts input file.
+    Finally, replace the updated values to the angular velocity and expansion
+    parameters (respectively) in the Xcts input file, or use the suggested
+    updates to compute them (if the initial xcts parameters were not provided).
 
     See ArXiv:gr-qc/0702106 and ArXiv:0710.0158 for more details.
 
