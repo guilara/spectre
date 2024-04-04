@@ -425,9 +425,9 @@ def coordinate_separation_eccentricity_control(
     )
 
     # Fit and compute updates
-    for func in functions.items():
+    for name, func in functions.items():
         # We will handle F4 separately
-        if func == "F4":
+        if name == "F4":
             continue
 
         func["fit results"] = eccentricity_control_updates(
