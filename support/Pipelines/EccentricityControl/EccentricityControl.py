@@ -212,7 +212,14 @@ def compute_orbital_frequency_and_time_derivative(
     Omega_norm = Omega_norm[which_indices]
     dOmegadt = dOmegadtraw[which_indices]
 
-    return t, Omega_vec, Omega_norm, dOmegadt
+    return dict(
+        [
+            ("Time", t),
+            ("Omega vector", Omega_vec),
+            ("Omega norm", Omega_norm),
+            ("dOmegadt", dOmegadt),
+        ]
+    )
 
 
 def fit_model(x, y, model):
@@ -374,6 +381,40 @@ def coordinate_separation_eccentricity_control_digest(
     return
 
 
+def plot_omega(Omega_dic, output=None):
+    if output is not None:
+        fig, axes = plt.subplots(2, 2)
+        ((ax1, ax2), (ax3, ax4)) = axes
+        fig.suptitle(
+            "Omega quantities",
+            color="b",
+            size="large",
+        )
+        ax1.plot(
+            Omega_dic["Time"],
+            Omega_dic["Omega norm"],
+            color="black",
+            label="s",
+            linewidth=2,
+        )
+        ax1.set_title(r"$ \lvert \Omega \rvert $")
+
+        ax2.plot(Omega_dic["Time"], Omega_dic["Omega vector"][0], label="x")
+        ax2.plot(Omega_dic["Time"], Omega_dic["Omega vector"][1], label="y")
+        ax2.plot(Omega_dic["Time"], Omega_dic["Omega vector"][2], label="z")
+        ax2.set_title("Omega components")
+
+        ax3.plot(Omega_dic["Time"], Omega_dic["dOmegadt"])
+        ax3.set_title(r"$ d \Omega / dt $")
+
+        ax4.set_axis_off()
+
+        plt.tight_layout()
+        plt.savefig("Omega_" + output, format="pdf")
+
+    return
+
+
 def coordinate_separation_eccentricity_control(
     h5_file,
     subfile_name_aha,
@@ -426,6 +467,14 @@ def coordinate_separation_eccentricity_control(
         separation_norm=separation_norm,
         tmin=tmin,
         tmax=tmax,
+    )
+
+    Omega_dic = compute_orbital_frequency_and_time_derivative(
+        time_vector=time_vector,
+        separation_norm=separation_norm,
+        separation_vec=separation_vec,
+        tmin=None,
+        tmax=None,
     )
 
     # Collect initial xcts values (if given)
@@ -548,6 +597,8 @@ def coordinate_separation_eccentricity_control(
         functions=functions,
         output=output,
     )
+
+    plot_omega(Omega_dic=Omega_dic, output=output)
 
     return functions
 
