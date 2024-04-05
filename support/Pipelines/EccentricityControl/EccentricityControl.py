@@ -282,7 +282,27 @@ def extract_masses(h5_file, subfile_name_aha, subfile_name_ahb):
     )
 
 
+def find_nearest(array, value):
+    idx = (np.abs(array - value)).argmin()
+    return idx
+
+
 def fit_model(x, y, model):
+    """Fit coordinate separation"""
+    F = model["function"]
+    inparams = model["initial guess"]
+
+    errfunc = lambda p, x, y: F(p, x) - y
+    p, success = optimize.leastsq(errfunc, inparams[:], args=(x, y))
+
+    # Compute rms error of fit
+    e2 = (errfunc(p, x, y)) ** 2
+    rms = np.sqrt(sum(e2) / np.size(e2))
+
+    return dict([("parameters", p), ("rms", rms), ("success", success)])
+
+
+def new_fit_model(x, y, model):
     """Fit coordinate separation"""
     F = model["function"]
     inparams = model["initial guess"]
@@ -329,6 +349,17 @@ def compute_coord_sep_updates(
                 ("expansion", updated_xcts_expansion),
             ]
         )
+
+    return fit_results
+
+
+def compute_omega_dot_updates(
+    x, y, model, initial_separation, initial_xcts_values=None
+):
+    """Compute updates for eccentricity control"""
+    fit_results = new_fit_model(x=x, y=y, model=model)
+
+    # Here do the updates
 
     return fit_results
 
@@ -441,7 +472,7 @@ def coordinate_separation_eccentricity_control_digest(
     return
 
 
-def plot_omega(Omega_dic, masses_dic, output=None):
+def plot_omega(Omega_dic, masses_dic, functions, output=None):
     if output is not None:
         fig, axes = plt.subplots(2, 2)
         ((ax1, ax2), (ax3, ax4)) = axes
@@ -483,6 +514,36 @@ def plot_omega(Omega_dic, masses_dic, output=None):
         ax3.plot(Omega_dic["time"], Omega_dic["dOmegadt"])
         ax3.set_title(r"$ d | \Omega | / dt $")
 
+        for name, func in functions.items():
+            expression = func["label"]
+            rms = func["fit result"]["rms"]
+
+            logger.info(
+                f"==== Function fitted to dOmega/dt: {expression:30s},  rms ="
+                f" {rms:4.3g}  ===="
+            )
+
+            style = "--"
+            F = func["function"]
+            # eccentricity = func["fit result"]["eccentricity"]
+
+            # Print fit parameters
+            p = func["fit result"]["parameters"]
+
+            errfunc = lambda p, x, y: F(p, x) - y
+            # Plot dD/dt
+            ax3.plot(
+                Omega_dic["time"],
+                F(p, Omega_dic["time"]),
+                style,
+                label=f"{name:s} \n rms = {rms:2.1e}",
+            )
+            # ax_handles, ax_labels = ax1.get_legend_handles_labels()
+
+            # Plot residual
+            # ax3.plot(x, errfunc(p, x, y), style, label=expression)
+            # ax3.set_title("Residual")
+
         # ax4.set_axis_off()
         ax4.plot(
             masses_dic["time"], masses_dic["mA"], label="mA", linestyle="dashed"
@@ -495,6 +556,114 @@ def plot_omega(Omega_dic, masses_dic, output=None):
 
         plt.tight_layout()
         plt.savefig("Omega_" + output, format="pdf")
+
+    return
+
+
+def omega_dot_eccentricity_control_digest(
+    h5_file, x, y, data_t, data_s, functions, output=None
+):
+    """Print and output for eccentricity control"""
+
+    if output is not None:
+        traw = data_t
+        sraw = data_s
+        # Plot coordinate separation
+        fig, axes = plt.subplots(2, 2)
+        ((ax1, ax2), (ax3, ax4)) = axes
+        fig.suptitle(
+            h5_file,
+            color="b",
+            size="large",
+        )
+        ax2.plot(traw, sraw, "k", label="s", linewidth=2)
+        ax2.set_title("coordinate separation " + r"$ D $")
+
+        # Plot derivative of coordinate separation
+        ax1.plot(x, y, "k", label=r"$ dD/dt $", linewidth=2)
+        ax1.set_title(r"$ dD/dt $")
+
+        ax4.set_axis_off()
+
+    logger.info("Eccentricity control summary")
+
+    for name, func in functions.items():
+        expression = func["label"]
+        rms = func["fit result"]["rms"]
+
+        logger.info(
+            f"==== Function fitted to dD/dt: {expression:30s},  rms ="
+            f" {rms:4.3g}  ===="
+        )
+
+        style = "--"
+        F = func["function"]
+        eccentricity = func["fit result"]["eccentricity"]
+
+        # Print fit parameters
+        p = func["fit result"]["parameters"]
+        logger.info("Fit parameters:")
+        if np.size(p) == 3:
+            logger.info(
+                f"Oscillatory part: (B, w)=({p[0]:4.3g}, {p[1]:7.4f}), ",
+                f"Polynomial part: ({p[2]:4.2g})",
+            )
+        else:
+            logger.info(
+                f"Oscillatory part: (B, w, phi)=({p[0]:4.3g}, {p[1]:6.4f},"
+                f" {p[2]:6.4f}), "
+            )
+            if np.size(p) >= 4:
+                logger.info(f"Polynomial part: ({p[3]:4.2g}, ")
+                for q in p[4:]:
+                    logger.info(f"{q:4.2g}")
+                logger.info(")")
+
+        # Print eccentricity
+        logger.info(f"Eccentricity based on fit: {eccentricity:9.6f}")
+        # Print suggested updates based on fit
+        xcts_updates = func["fit result"]["xcts updates"]
+        dOmg = xcts_updates["omega update"]
+        dadot = xcts_updates["expansion update"]
+        logger.info("Suggested updates based on fit:")
+        logger.info(f"(dOmega, dadot) = ({dOmg:+13.10f}, {dadot:+8.6g})")
+
+        if "updated xcts values" in func["fit result"]:
+            xcts_omega = func["fit result"]["updated xcts values"]["omega"]
+            xcts_expansion = func["fit result"]["updated xcts values"][
+                "expansion"
+            ]
+            logger.info("Updated Xcts values based on fit:")
+            logger.info(
+                f"(Omega, adot) = ({(xcts_omega + dOmg):13.10f},"
+                f" {(xcts_expansion + dadot):13.10g})"
+            )
+
+        # Plot
+        if output is not None:
+            errfunc = lambda p, x, y: F(p, x) - y
+            # Plot dD/dt
+            ax1.plot(
+                x,
+                F(p, x),
+                style,
+                label=(
+                    f"{expression:s} \n rms = {rms:2.1e}, ecc ="
+                    f" {eccentricity:4.5f}"
+                ),
+            )
+            ax_handles, ax_labels = ax1.get_legend_handles_labels()
+
+            # Plot residual
+            ax3.plot(x, errfunc(p, x, y), style, label=expression)
+            ax3.set_title("Residual")
+
+            ax4.legend(ax_handles, ax_labels)
+
+            plt.tight_layout()
+
+    if output is not None:
+        plt.savefig(output, format="pdf")
 
     return
 
@@ -698,6 +867,191 @@ def coordinate_separation_eccentricity_control(
     return functions
 
 
+def omega_dot_eccentricity_control(
+    h5_file,
+    subfile_name_aha,
+    subfile_name_ahb,
+    tmin,
+    tmax,
+    angular_velocity_from_xcts,
+    expansion_from_xcts,
+    output=None,
+):
+    """Compute updates based on fits to Omega dot"""
+
+    time_vector, separation_norm, separation_vec = compute_separation(
+        h5_file=h5_file,
+        subfile_name_aha=subfile_name_aha,
+        subfile_name_ahb=subfile_name_ahb,
+    )
+
+    # Get initial separation from data (unwindowed)
+    initial_separation = separation_norm[0]
+
+    # Compute derivative in time window
+    # t, dsdt = compute_time_derivative_of_separation_in_window(
+    #     time_vector=time_vector,
+    #     separation_norm=separation_norm,
+    #     tmin=tmin,
+    #     tmax=tmax,
+    # )
+
+    Omega_dic = compute_orbital_frequency_and_time_derivative(
+        time_vector=time_vector,
+        separation_norm=separation_norm,
+        separation_vec=separation_vec,
+        tmin=tmin,
+        tmax=tmax,
+    )
+
+    subfile_name_aha_masses = "/ObservationAhA.dat"
+    subfile_name_ahb_masses = "/ObservationAhB.dat"
+    christodoulou_masses = extract_masses(
+        h5_file=h5_file,
+        subfile_name_aha=subfile_name_aha_masses,
+        subfile_name_ahb=subfile_name_ahb_masses,
+    )
+
+    mA_idx = find_nearest(array=christodoulou_masses["mA"], value=tmin)
+    mB_idx = find_nearest(array=christodoulou_masses["mB"], value=tmin)
+    mA = christodoulou_masses["mA"][mA_idx]
+    mB = christodoulou_masses["mB"][mB_idx]
+
+    q = max(mA / mB, mB / mA)  # q > 1 by convention
+    Tmerger_OPN = 5.0 / (
+        64.0
+        * (1.0 - ((q - 1.0) / (q + 1.0)) ** 2.0)
+        * angular_velocity_from_xcts ** (8.0 / 3.0)
+    )
+
+    logger.info("Relaxed masses closer to tmin:")
+    logger.info("mA : ")
+    logger.info(mA)
+    logger.info("mB : ")
+    logger.info(mB)
+    logger.info("q : ")
+    logger.info(q)
+    logger.info("Tmerger guess : ")
+    logger.info(Tmerger_OPN)
+
+    # Collect initial xcts values (if given)
+    if (
+        angular_velocity_from_xcts is not None
+        and expansion_from_xcts is not None
+    ):
+        initial_xcts_values = (
+            angular_velocity_from_xcts,
+            expansion_from_xcts,
+        )
+    else:
+        initial_xcts_values = None
+
+    # Define functions to model the time derivative of the separation
+    functions = dict([])
+
+    functions["F1"] = dict(
+        [
+            ("label", "(Tm-t)^(-11/8)"),
+            (
+                "function",
+                lambda p, t: p[1] * (p[0] - t) ** (-11 / 8),
+            ),
+            ("initial guess", [Tmerger_OPN, 1e-5]),
+        ]
+    )
+
+    functions["F1cos1"] = dict(
+        [
+            ("label", "(Tm-t)^(-11/8) + B*cos(w*t+p)"),
+            (
+                "function",
+                lambda p, t: p[1] * (p[0] - t) ** (-11 / 8)
+                + p[2] * np.cos(p[3] * t + p[4]),
+            ),
+            # Replace by F1 fit results and try few guesses for phase
+            ("initial guess", [Tmerger_OPN, 1e-5, 0, 0.17, 0]),
+        ]
+    )
+
+    # Fit and compute updates
+    functions["F1"]["fit result"] = compute_omega_dot_updates(
+        x=Omega_dic["time"],
+        y=Omega_dic["dOmegadt"],
+        model=functions["F1"],
+        initial_separation=initial_separation,
+        initial_xcts_values=initial_xcts_values,
+    )
+
+    logger.info("Fit info")
+    logger.info(functions["F1"]["fit result"]["parameters"])
+    logger.info(functions["F1"]["fit result"]["rms"])
+
+    # Replace the initial guess with that of the linear solve
+    iguess_len = len(functions["F1"]["initial guess"])
+    functions["F1cos1"]["initial guess"][0:iguess_len] = functions["F1"][
+        "fit result"
+    ]["parameters"][0:iguess_len]
+
+    functions["F1cos1"]["fit result"] = compute_omega_dot_updates(
+        x=Omega_dic["time"],
+        y=Omega_dic["dOmegadt"],
+        model=functions["F1cos1"],
+        initial_separation=initial_separation,
+        initial_xcts_values=initial_xcts_values,
+    )
+
+    logger.info("Fit info")
+    logger.info(functions["F1cos1"]["fit result"]["parameters"])
+    logger.info(functions["F1cos1"]["fit result"]["rms"])
+    # for name, func in functions.items():
+    #     func["fit result"] = compute_omega_dot_updates(
+    #         x=Omega_dic["time"],
+    #         y=Omega_dic["dOmegadt"],
+    #         model=func,
+    #         initial_separation=initial_separation,
+    #         initial_xcts_values=initial_xcts_values,
+    #     )
+
+    #     logger.info("Fit info")
+    #     logger.info(func["fit result"]["parameters"])
+    #     logger.info(func["fit result"]["rms"])
+
+    # # ==== quadratic + cos ====
+    # # Replace the initial guess with that of the linear solve
+    # iguess_len = len(functions["H3"]["initial guess"])
+    # functions["H4"]["initial guess"][0:iguess_len] = functions["H3"][
+    #     "fit result"
+    # ]["parameters"][0:iguess_len]
+
+    # functions["H4"]["fit result"] = compute_coord_sep_updates(
+    #     x=t,
+    #     y=dsdt,
+    #     model=functions["H4"],
+    #     initial_separation=initial_separation,
+    #     initial_xcts_values=initial_xcts_values,
+    # )
+
+    # Print results and plot
+    # omega_dot_eccentricity_control_digest(
+    #     h5_file=h5_file,
+    #     x=t,
+    #     y=dsdt,
+    #     data_t=time_vector,
+    #     data_s=separation_norm,
+    #     functions=functions,
+    #     output=output,
+    # )
+
+    plot_omega(
+        Omega_dic=Omega_dic,
+        masses_dic=christodoulou_masses,
+        functions=functions,
+        output=output,
+    )
+
+    return functions
+
+
 @click.command(name="eccentricity-control")
 @click.argument(
     "h5_file",
@@ -798,7 +1152,8 @@ def eccentricity_control_command(
     See OmegaDoEccRemoval.py in SpEC for improved eccentricity control.
 
     """
-    functions = coordinate_separation_eccentricity_control(
+    # functions = coordinate_separation_eccentricity_control(
+    functions = omega_dot_eccentricity_control(
         h5_file=h5_file,
         subfile_name_aha=subfile_name_aha,
         subfile_name_ahb=subfile_name_ahb,
