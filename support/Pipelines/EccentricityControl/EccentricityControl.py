@@ -176,19 +176,24 @@ def compute_orbital_frequency_and_time_derivative(
     sraw_vec = separation_vec
 
     # Compute separation derivative
-    # dsdtraw = (sraw[2:] - sraw[0:-2]) / (traw[2:] - traw[0:-2])
-    dsdtraw_vec = (sraw_vec[2:, :] - sraw_vec[0:-2, :]) / (
-        traw[2:] - traw[0:-2]
-    )
+    dsdtraw_vec = np.zeros((len(sraw) - 2, 3))
+    for i in range(0, 3):
+        dsdtraw_vec[:, i] = (sraw_vec[2:, i] - sraw_vec[0:-2, i]) / (
+            traw[2:] - traw[0:-2]
+        )
 
     sraw2 = np.square(sraw)
-    Omegaraw_vec = np.cross(sraw_vec, dsdtraw_vec) / sraw2
+    Omegaraw_vec = (
+        np.cross(sraw_vec[1:-1], dsdtraw_vec) / sraw2[1:-1, np.newaxis]
+    )
     Omegaraw_norm = np.linalg.norm(Omegaraw_vec, axis=1)
 
-    dOmegadtraw = (Omegaraw_norm[2:] - Omegaraw_norm[0:-2]) / (
-        traw[2:] - traw[0:-2]
+    dOmegadtraw = np.zeros(len(sraw) - 2)
+    dOmegadtraw[1:-1] = (Omegaraw_norm[2:] - Omegaraw_norm[0:-2]) / (
+        traw[4:] - traw[0:-4]
     )
 
+    # We 2 points at the begining and end because of how we compute derivatives
     trawcut = traw[1:-1]
 
     # Apply time window: select values in [tmin, tmax]
@@ -202,22 +207,77 @@ def compute_orbital_frequency_and_time_derivative(
     else:
         which_indices = np.logical_and(trawcut > tmin, trawcut < tmax)
 
-    # s = sraw[which_indices]
-    # s_vec = sraw_vec[which_indices]
-    # dsdt = dsdtraw[which_indices]
-    # dsdt_vec = dsdtraw_vec[which_indices]
-
     t = trawcut[which_indices]
     Omega_vec = Omegaraw_vec[which_indices]
-    Omega_norm = Omega_norm[which_indices]
+    Omega_norm = Omegaraw_norm[which_indices]
     dOmegadt = dOmegadtraw[which_indices]
 
     return dict(
         [
-            ("Time", t),
+            ("time", t),
             ("Omega vector", Omega_vec),
             ("Omega norm", Omega_norm),
             ("dOmegadt", dOmegadt),
+        ]
+    )
+
+
+def extract_masses(h5_file, subfile_name_aha, subfile_name_ahb):
+    """Extract masses and compute related quantities"""
+
+    functions = [
+        ["ChristodoulouMass", "mChrist"],
+    ]
+    x_axis = "Time"
+
+    # Extract data
+    ObjectA_masses = extract_data_from_file(
+        h5_file=h5_file,
+        subfile_name=subfile_name_aha,
+        functions=functions,
+        x_axis=x_axis,
+    )
+
+    ObjectB_masses = extract_data_from_file(
+        h5_file=h5_file,
+        subfile_name=subfile_name_ahb,
+        functions=functions,
+        x_axis=x_axis,
+    )
+
+    if (
+        subfile_name_aha is None
+        or subfile_name_ahb is None
+        or subfile_name_aha == subfile_name_ahb
+    ):
+        raise click.UsageError(
+            f"Dat files '{subfile_name_aha}' and '{subfile_name_aha}' are the"
+            " same or at least one of them is missing. Choose files for"
+            " different objects. Available files are:\n"
+            f" {available_subfiles(h5_file, extension='.dat')}"
+        )
+
+    # Compute separation
+    num_obs = len(ObjectA_masses[:, 0])
+
+    if len(ObjectB_masses[:, 0]) < num_obs:
+        num_obs = len(ObjectB_masses[:, 0])
+
+    ChristodoulouMass_time = ObjectA_masses[:num_obs, 0]
+    ChristodoulouMass_A = ObjectA_masses[:num_obs, 1]
+    ChristodoulouMass_B = ObjectB_masses[:num_obs, 1]
+
+    logger.info("Masses")
+    logger.info("A")
+    logger.info(ChristodoulouMass_A)
+    logger.info("B")
+    logger.info(ChristodoulouMass_B)
+
+    return dict(
+        [
+            ("time", ChristodoulouMass_time),
+            ("mA", ChristodoulouMass_A),
+            ("mB", ChristodoulouMass_B),
         ]
     )
 
@@ -274,13 +334,13 @@ def compute_coord_sep_updates(
 
 
 def coordinate_separation_eccentricity_control_digest(
-    h5_file, x, y, data, functions, output=None
+    h5_file, x, y, data_t, data_s, functions, output=None
 ):
     """Print and output for eccentricity control"""
 
     if output is not None:
-        traw = data[:, 0]
-        sraw = data[:, 1]
+        traw = data_t
+        sraw = data_s
         # Plot coordinate separation
         fig, axes = plt.subplots(2, 2)
         ((ax1, ax2), (ax3, ax4)) = axes
@@ -381,7 +441,7 @@ def coordinate_separation_eccentricity_control_digest(
     return
 
 
-def plot_omega(Omega_dic, output=None):
+def plot_omega(Omega_dic, masses_dic, output=None):
     if output is not None:
         fig, axes = plt.subplots(2, 2)
         ((ax1, ax2), (ax3, ax4)) = axes
@@ -391,23 +451,47 @@ def plot_omega(Omega_dic, output=None):
             size="large",
         )
         ax1.plot(
-            Omega_dic["Time"],
+            Omega_dic["time"],
             Omega_dic["Omega norm"],
             color="black",
             label="s",
             linewidth=2,
         )
-        ax1.set_title(r"$ \lvert \Omega \rvert $")
+        ax1.set_title(r"$ | \Omega | $")
 
-        ax2.plot(Omega_dic["Time"], Omega_dic["Omega vector"][0], label="x")
-        ax2.plot(Omega_dic["Time"], Omega_dic["Omega vector"][1], label="y")
-        ax2.plot(Omega_dic["Time"], Omega_dic["Omega vector"][2], label="z")
+        ax2.plot(
+            Omega_dic["time"],
+            Omega_dic["Omega vector"][:, 0],
+            label="x",
+            linestyle="dashed",
+        )
+        ax2.plot(
+            Omega_dic["time"],
+            Omega_dic["Omega vector"][:, 1],
+            label="y",
+            linestyle="dotted",
+        )
+        ax2.plot(
+            Omega_dic["time"],
+            Omega_dic["Omega vector"][:, 2],
+            label="z",
+            linestyle="dashdot",
+        )
         ax2.set_title("Omega components")
+        ax2.legend()
 
-        ax3.plot(Omega_dic["Time"], Omega_dic["dOmegadt"])
-        ax3.set_title(r"$ d \Omega / dt $")
+        ax3.plot(Omega_dic["time"], Omega_dic["dOmegadt"])
+        ax3.set_title(r"$ d | \Omega | / dt $")
 
-        ax4.set_axis_off()
+        # ax4.set_axis_off()
+        ax4.plot(
+            masses_dic["time"], masses_dic["mA"], label="mA", linestyle="dashed"
+        )
+        ax4.plot(
+            masses_dic["time"], masses_dic["mB"], label="mB", linestyle="dotted"
+        )
+        ax4.legend()
+        ax4.set_title("Christodoulou masses")
 
         plt.tight_layout()
         plt.savefig("Omega_" + output, format="pdf")
@@ -473,8 +557,16 @@ def coordinate_separation_eccentricity_control(
         time_vector=time_vector,
         separation_norm=separation_norm,
         separation_vec=separation_vec,
-        tmin=None,
-        tmax=None,
+        tmin=tmin,
+        tmax=tmax,
+    )
+
+    subfile_name_aha_masses = "/ObservationAhA.dat"
+    subfile_name_ahb_masses = "/ObservationAhB.dat"
+    christodoulou_masses = extract_masses(
+        h5_file=h5_file,
+        subfile_name_aha=subfile_name_aha_masses,
+        subfile_name_ahb=subfile_name_ahb_masses,
     )
 
     # Collect initial xcts values (if given)
@@ -593,12 +685,15 @@ def coordinate_separation_eccentricity_control(
         h5_file=h5_file,
         x=t,
         y=dsdt,
-        data=data,
+        data_t=time_vector,
+        data_s=separation_norm,
         functions=functions,
         output=output,
     )
 
-    plot_omega(Omega_dic=Omega_dic, output=output)
+    plot_omega(
+        Omega_dic=Omega_dic, masses_dic=christodoulou_masses, output=output
+    )
 
     return functions
 
