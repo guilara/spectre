@@ -969,7 +969,7 @@ def omega_dot_eccentricity_control(
                 + p[2] * np.cos(p[3] * t + p[4]),
             ),
             # Replace by F1 fit results and try few guesses for phase
-            ("initial guess", [Tmerger_OPN, 1e-5, 0, 0.17, 0]),
+            ("initial guess", [Tmerger_OPN, 1e-5, 0, 0.017, 0]),
         ]
     )
 
@@ -991,6 +991,9 @@ def omega_dot_eccentricity_control(
     functions["F1cos1"]["initial guess"][0:iguess_len] = functions["F1"][
         "fit result"
     ]["parameters"][0:iguess_len]
+    functions["F1cos1"]["initial guess"][2] = (
+        2 * functions["F1"]["fit result"]["rms"]
+    )
 
     functions["F1cos1"]["fit result"] = compute_omega_dot_updates(
         x=Omega_dic["time"],
