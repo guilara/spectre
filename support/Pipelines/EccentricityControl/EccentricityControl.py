@@ -538,6 +538,7 @@ def plot_omega(Omega_dic, masses_dic, functions, output=None):
                 style,
                 label=f"{name:s} \n rms = {rms:2.1e}",
             )
+            ax3.legend()
             # ax_handles, ax_labels = ax1.get_legend_handles_labels()
 
             # Plot residual
@@ -956,6 +957,13 @@ def omega_dot_eccentricity_control(
                 "function",
                 lambda p, t: p[1] * (p[0] - t) ** (-11 / 8),
             ),
+            (
+                "jacobian",
+                lambda p, t: [
+                    (-11 / 8) * p[1] * (p[0] - t) ** (-19 / 8),
+                    (p[0] - t) ** (-11 / 8),
+                ],
+            ),
             ("initial guess", [Tmerger_OPN, 1e-5]),
         ]
     )
@@ -968,8 +976,95 @@ def omega_dot_eccentricity_control(
                 lambda p, t: p[1] * (p[0] - t) ** (-11 / 8)
                 + p[2] * np.cos(p[3] * t + p[4]),
             ),
+            (
+                "jacobian",
+                lambda p, t: [
+                    (-11 / 8) * p[1] * (p[0] - t) ** (-19 / 8),
+                    (p[0] - t) ** (-11 / 8),
+                    np.cos(p[3] * t + p[4]),
+                    -p[2] * np.sin(p[3] * t + p[4]) * t,
+                    -p[2] * np.sin(p[3] * t + p[4]),
+                ],
+            ),
             # Replace by F1 fit results and try few guesses for phase
             ("initial guess", [Tmerger_OPN, 1e-5, 0, 0.017, 0]),
+        ]
+    )
+
+    functions["F1cos2"] = dict(
+        [
+            ("label", "(Tm-t)^(-11/8) + B*cos(w*t+p+Ct^2)"),
+            (
+                "function",
+                lambda p, t: p[1] * (p[0] - t) ** (-11 / 8)
+                + p[2] * np.cos(p[3] * t + p[4] + p[5] * t * t),
+            ),
+            (
+                "jacobian",
+                lambda p, t: [
+                    (-11 / 8) * p[1] * (p[0] - t) ** (-19 / 8),
+                    (p[0] - t) ** (-11 / 8),
+                    np.cos(p[3] * t + p[4] + p[5] * t * t),
+                    -p[2] * np.sin(p[3] * t + p[4] + p[5] * t * t) * t,
+                    -p[2] * np.sin(p[3] * t + p[4] + p[5] * t * t),
+                    -p[2] * np.sin(p[3] * t + p[4] + p[5] * t * t) * t * t,
+                ],
+            ),
+            # Replace by F1 fit results and try few guesses for phase
+            ("initial guess", [Tmerger_OPN, 1e-5, 0, 0.017, 0, 0]),
+        ]
+    )
+
+    functions["F2cos1"] = dict(
+        [
+            ("label", "(Tm-t)^(-11/8) + (Tm-t)^(-13/8) + B*cos(w*t+p)"),
+            (
+                "function",
+                lambda p, t: p[1] * (p[0] - t) ** (-11 / 8)
+                + p[2] * (p[0] - t) ** (-13 / 8)
+                + p[3] * np.cos(p[4] * t + p[5]),
+            ),
+            (
+                "jacobian",
+                lambda p, t: [
+                    (-11 / 8) * p[1] * (p[0] - t) ** (-19 / 8)
+                    + (-13 / 8) * p[2] * (p[0] - t) ** (-21 / 8),
+                    (p[0] - t) ** (-11 / 8),
+                    (p[0] - t) ** (-13 / 8),
+                    np.cos(p[4] * t + p[5]),
+                    -p[3] * np.sin(p[4] * t + p[5]) * t,
+                    -p[3] * np.sin(p[4] * t + p[5]),
+                ],
+            ),
+            # Replace by F1 fit results and try few guesses for phase
+            ("initial guess", [Tmerger_OPN, 1e-5, 0, 0, 0.017, 0]),
+        ]
+    )
+
+    functions["F2cos2"] = dict(
+        [
+            ("label", "(Tm-t)^(-11/8) + (Tm-t)^(-13/8) + B*cos(w*t+p+Ct^2)"),
+            (
+                "function",
+                lambda p, t: p[1] * (p[0] - t) ** (-11 / 8)
+                + p[2] * (p[0] - t) ** (-13 / 8)
+                + p[3] * np.cos(p[4] * t + p[5] + p[6] * t * t),
+            ),
+            (
+                "jacobian",
+                lambda p, t: [
+                    (-11 / 8) * p[1] * (p[0] - t) ** (-19 / 8)
+                    + (-13 / 8) * p[2] * (p[0] - t) ** (-21 / 8),
+                    (p[0] - t) ** (-11 / 8),
+                    (p[0] - t) ** (-13 / 8),
+                    np.cos(p[4] * t + p[5] + p[6] * t * t),
+                    -p[3] * np.sin(p[4] * t + p[5] + p[6] * t * t) * t,
+                    -p[3] * np.sin(p[4] * t + p[5] + p[6] * t * t),
+                    -p[3] * np.sin(p[4] * t + p[5] + p[6] * t * t) * t * t,
+                ],
+            ),
+            # Replace by F1 fit results and try few guesses for phase
+            ("initial guess", [Tmerger_OPN, 1e-5, 0, 0, 0.017, 0, 0]),
         ]
     )
 
@@ -1006,6 +1101,43 @@ def omega_dot_eccentricity_control(
     logger.info("Fit info")
     logger.info(functions["F1cos1"]["fit result"]["parameters"])
     logger.info(functions["F1cos1"]["fit result"]["rms"])
+
+    functions["F1cos2"]["fit result"] = compute_omega_dot_updates(
+        x=Omega_dic["time"],
+        y=Omega_dic["dOmegadt"],
+        model=functions["F1cos2"],
+        initial_separation=initial_separation,
+        initial_xcts_values=initial_xcts_values,
+    )
+
+    logger.info("Fit info")
+    logger.info(functions["F1cos2"]["fit result"]["parameters"])
+    logger.info(functions["F1cos2"]["fit result"]["rms"])
+
+    functions["F2cos1"]["fit result"] = compute_omega_dot_updates(
+        x=Omega_dic["time"],
+        y=Omega_dic["dOmegadt"],
+        model=functions["F2cos1"],
+        initial_separation=initial_separation,
+        initial_xcts_values=initial_xcts_values,
+    )
+
+    logger.info("Fit info")
+    logger.info(functions["F2cos1"]["fit result"]["parameters"])
+    logger.info(functions["F2cos1"]["fit result"]["rms"])
+
+    functions["F2cos2"]["fit result"] = compute_omega_dot_updates(
+        x=Omega_dic["time"],
+        y=Omega_dic["dOmegadt"],
+        model=functions["F2cos2"],
+        initial_separation=initial_separation,
+        initial_xcts_values=initial_xcts_values,
+    )
+
+    logger.info("Fit info")
+    logger.info(functions["F2cos2"]["fit result"]["parameters"])
+    logger.info(functions["F2cos2"]["fit result"]["rms"])
+
     # for name, func in functions.items():
     #     func["fit result"] = compute_omega_dot_updates(
     #         x=Omega_dic["time"],
