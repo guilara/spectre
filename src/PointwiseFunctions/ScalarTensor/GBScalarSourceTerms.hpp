@@ -8,6 +8,7 @@
 #include "DataStructures/DataBox/Tag.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
+#include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
@@ -38,13 +39,14 @@ namespace ScalarTensor {
  * where \f$ T^{(\Psi, \mathrm{TR})}_{ab}\f$ is the canonical trace reversed
  * stress energy tensor.
  */
-template <typename Frame>
+// template <typename Frame>
 void order_reduced_gb_scalar_with_tenex(
     const gsl::not_null<Scalar<DataVector>*> result,
-    const Scalar<DataVector> weyl_electric_scalar,
-    const Scalar<DataVector> weyl_magnetic_scalar,
-    const tnsr::aa<DataVector, 3, Frame> trace_reversed_stress_energy,
-    const tnsr::AA<DataType, 3, Frame> inverse_spacetime_metric);
+    const Scalar<DataVector>& weyl_electric_scalar,
+    const Scalar<DataVector>& weyl_magnetic_scalar,
+    const tnsr::aa<DataVector, 3, Frame::Inertial>&
+        trace_reversed_stress_energy,
+    const tnsr::AA<DataVector, 3, Frame::Inertial>& inverse_spacetime_metric);
 
 namespace Tags {
 
@@ -72,21 +74,22 @@ namespace Tags {
  * stress energy tensor.
  * \note Should replace with a function including the couplings.
  */
-template <typename Frame = Frame::Inertial>
-struct GBScalarCompute : GBScalar, db::ComputeTag {
-  using argument_tags =
-      tmpl::list<gr::Tags::WeylElectricScalar<DataVector>,
-                 gr::Tags::WeylMagneticScalar<DataVector>,
-                 ScalarTensor::Tags::TraceReversedStressEnergy<Frame>,
-                 gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>>;
+// template <typename Frame>
+struct OrderReducedGBScalarCompute : OrderReducedGBScalar, db::ComputeTag {
+  using argument_tags = tmpl::list<
+      gr::Tags::WeylElectricScalar<DataVector>,
+      gr::Tags::WeylMagneticScalar<DataVector>,
+      ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3,
+                                                    Frame::Inertial>,
+      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame::Inertial>>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<Scalar<DataVector>*> result,
       const Scalar<DataVector>&, const Scalar<DataVector>&,
-      const tnsr::aa<DataVector, 3, Frame>&,
-      const tnsr::AA<DataType, 3, Frame>&) =
-      &order_reduced_gb_scalar_with_tenex<Frame>;
-  using base = GBScalar;
+      const tnsr::aa<DataVector, 3, Frame::Inertial>&,
+      const tnsr::AA<DataVector, 3, Frame::Inertial>&) =
+      &order_reduced_gb_scalar_with_tenex;
+  using base = OrderReducedGBScalar;
 };
 }  // namespace Tags
 
