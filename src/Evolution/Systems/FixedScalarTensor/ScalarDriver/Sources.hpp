@@ -97,7 +97,7 @@ struct TargetPsiCompute : TargetPsi, db::ComputeTag {
       const Scalar<DataType>&, const Scalar<DataType>&, const double,
       const double, const double) =
       &ScalarTensor::compute_scalar_curvature_source;
-  using base = ScalarDriverSource;
+  using base = TargetPsi;
 };
 
 }  // namespace fe::ScalarDriver::Tags
