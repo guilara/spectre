@@ -126,6 +126,30 @@ struct nnDDKGCompute : nnDDKG, db::ComputeTag {
       const Scalar<DataVector>&) = &DDKG_normal_normal_projection;
   using base = nnDDKG;
 };
+
+/*!
+ * \brief Compute tag for normal-normal projection of the second covariant
+ * derivative of the scalar.
+ */
+template <typename Frame>
+struct nsDDKGCompute : nsDDKG, db::ComputeTag {
+  using argument_tags = tmpl::list<
+      gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3, Frame>,
+      gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
+      gr::Tags::ExtrinsicCurvature<DataVector, 3, Frame>,
+      CurvedScalarWave::Tags::Phi<3>,
+      ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>, Frame>,
+      ScalarTensor::Tags::RhsPhi>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::i<DataVector, 3>*> result,
+      const Scalar<DataVector>&, const tnsr::I<DataVector, 3>&,
+      const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&, const tnsr::ij<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&) = &DDKG_normal_spatial_projection;
+  using base = nsDDKG;
+};
+
 }  // namespace Tags
 
 }  // namespace ScalarTensor
