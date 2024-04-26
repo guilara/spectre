@@ -268,6 +268,8 @@ struct ObserverTags {
           ScalarTensor::Tags::CouplingFunctionDerivativeCompute<DataVector>,
           // BR
           ScalarTensor::Tags::OrderReducedGBScalarCompute<Frame::Inertial>,
+          ScalarTensor::Tags::RhsPsiCompute, ScalarTensor::Tags::RhsPiCompute,
+          ScalarTensor::Tags::RhsPhiCompute,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
