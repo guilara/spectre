@@ -128,6 +128,7 @@
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialData.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/Tags/InitialData.hpp"
+#include "PointwiseFunctions/ScalarTensor/GBScalarSourceTerms.hpp"
 #include "PointwiseFunctions/ScalarTensor/ScalarCharge.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/ChangeSlabSize.hpp"
@@ -267,6 +268,8 @@ struct ObserverTags {
           ScalarTensor::Tags::ScalarSource,
           ScalarTensor::Tags::GBScalarCompute<DataVector>,
           ScalarTensor::Tags::CouplingFunctionDerivativeCompute<DataVector>,
+          // BR
+          ScalarTensor::Tags::OrderReducedGBScalarCompute,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
