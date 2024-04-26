@@ -39,7 +39,7 @@ void gb_scalar(
   Scalar<DataVector> trace_of_trace_reversed_stress_energy =
       make_with_value<Scalar<DataVector>>(get<0, 0>(inverse_spacetime_metric),
                                           0.0);
-  for (size_t a = 0; a < 4, ++a) {
+  for (size_t a = 0; a < 4; ++a) {
     get(trace_of_trace_reversed_stress_energy) +=
         trace_reversed_stress_energy_up_down.get(a, a);
   }
@@ -79,6 +79,8 @@ void gb_scalar_with_tenex(
                       // Square of the trace of the trace reversed stress energy
                       + two_over_three * square(kappa) *
                             trace_reversed_stress_energy(ti::a, ti::b) *
-                            inverse_spacetime_metric(ti::B, ti::A))
+                            inverse_spacetime_metric(ti::B, ti::A) *
+                            trace_reversed_stress_energy(ti::c, ti::d) *
+                            inverse_spacetime_metric(ti::D, ti::C))
 
 }  // namespace ScalarTensor
