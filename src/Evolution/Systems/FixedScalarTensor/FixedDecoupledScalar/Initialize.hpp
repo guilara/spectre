@@ -143,8 +143,10 @@ struct InitializeEvolvedScalarVariables
       scalar_phi.get(i) = 0.0 * get(lapse);
     }
     const auto ones_scalar = make_with_value<Scalar<DataVector>>(lapse, 1.0);
+    // get(get<CurvedScalarWave::Tags::Pi>(*evolved_vars)) =
+    //     -1.0e-4 * get<0>(inertial_coords) * (get(lapse) - get(ones_scalar));
     get(get<CurvedScalarWave::Tags::Pi>(*evolved_vars)) =
-        -1.0e-4 * get<0>(inertial_coords) * (get(lapse) - get(ones_scalar));
+        -1.0e-3 * (get(lapse) - get(ones_scalar));
 
     // Driver values
     get(get<fe::ScalarDriver::Tags::Psi>(*evolved_vars)) = 0.0 * get(lapse);
