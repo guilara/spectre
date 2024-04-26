@@ -274,6 +274,7 @@ struct ObserverTags {
           ScalarTensor::Tags::RhsPsiCompute, ScalarTensor::Tags::RhsPiCompute,
           ScalarTensor::Tags::RhsPhiCompute,
           ScalarTensor::Tags::nnDDKGCompute<Frame::Inertial>,
+          ScalarTensor::Tags::nsDDKGCompute<Frame::Inertial>,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
