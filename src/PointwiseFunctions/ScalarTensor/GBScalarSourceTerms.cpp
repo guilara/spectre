@@ -13,7 +13,7 @@
 namespace ScalarTensor {
 
 template <typename Frame>
-void gb_scalar_with_tenex(
+void order_reduced_gb_scalar_with_tenex(
     const gsl::not_null<Scalar<DataVector>*> result,
     const Scalar<DataVector> weyl_electric_scalar,
     const Scalar<DataVector> weyl_magnetic_scalar,
