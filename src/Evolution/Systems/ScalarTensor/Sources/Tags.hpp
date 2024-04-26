@@ -25,6 +25,14 @@ struct GBScalar : db::SimpleTag {
   static std::string name() { return "GBScalar"; }
 };
 
+/*!
+ * \brief The GB scalar term with nonvaccuum contributions from the scalar.
+ */
+struct OrderReducedGBScalar : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "OrderReducedGBScalar"; }
+};
+
 }  // namespace Tags
 
 namespace OptionTags {
