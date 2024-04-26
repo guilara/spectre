@@ -34,6 +34,33 @@ struct OrderReducedGBScalar : db::SimpleTag {
 };
 
 /*!
+ * \brief Normal normal projection of the second covariant derivative of the
+ * scalar.
+ */
+struct nnDDKG : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "nnDDKG"; }
+};
+
+/*!
+ * \brief Normal spatial projection of the second covariant derivative of the
+ * scalar.
+ */
+struct nsDDKG : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "nsDDKG"; }
+};
+
+/*!
+ * \brief Spatial spatial projection of the second covariant derivative of the
+ * scalar.
+ */
+struct ssDDKG : db::SimpleTag {
+  using type = tnsr::ij<DataVector, 3>;
+  static std::string name() { return "ssDDKG"; }
+};
+
+/*!
  * \brief Rhs of the Psi equation.
  */
 struct RhsPsi : db::SimpleTag {
