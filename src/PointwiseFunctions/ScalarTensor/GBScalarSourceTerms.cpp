@@ -12,14 +12,13 @@
 
 namespace ScalarTensor {
 
-// template <typename Frame>
+template <typename Frame>
 void order_reduced_gb_scalar_with_tenex(
     const gsl::not_null<Scalar<DataVector>*> result,
     const Scalar<DataVector>& weyl_electric_scalar,
     const Scalar<DataVector>& weyl_magnetic_scalar,
-    const tnsr::aa<DataVector, 3, Frame::Inertial>&
-        trace_reversed_stress_energy,
-    const tnsr::AA<DataVector, 3, Frame::Inertial>& inverse_spacetime_metric) {
+    const tnsr::aa<DataVector, 3, Frame>& trace_reversed_stress_energy,
+    const tnsr::AA<DataVector, 3, Frame>& inverse_spacetime_metric) {
   static constexpr double kappa = 8.0 * M_PI;
   static constexpr double two_over_three = 2.0 / 3.0;
   tenex::evaluate(result,
@@ -41,3 +40,19 @@ void order_reduced_gb_scalar_with_tenex(
 }
 
 }  // namespace ScalarTensor
+
+#define FRAME(data) BOOST_PP_TUPLE_ELEM(0, data)
+
+#define INSTANTIATE(_, data)                                      \
+  template void ScalarTensor::order_reduced_gb_scalar_with_tenex( \
+      const gsl::not_null<Scalar<DataVector>*> result,            \
+      const Scalar<DataVector>& weyl_electric_scalar,             \
+      const Scalar<DataVector>& weyl_magnetic_scalar,             \
+      const tnsr::aa<DataVector, 3, FRAME(data)>&                 \
+          trace_reversed_stress_energy,                           \
+      const tnsr::AA<DataVector, 3, FRAME(data)>& inverse_spacetime_metric);
+
+GENERATE_INSTANTIATIONS(INSTANTIATE, (Frame::Grid, Frame::Inertial))
+
+#undef FRAME
+#undef INSTANTIATE
