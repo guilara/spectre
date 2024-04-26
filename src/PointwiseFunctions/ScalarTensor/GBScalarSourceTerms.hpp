@@ -39,7 +39,7 @@ namespace ScalarTensor {
  * stress energy tensor.
  */
 template <typename Frame>
-void gb_scalar_with_tenex(
+void order_reduced_gb_scalar_with_tenex(
     const gsl::not_null<Scalar<DataVector>*> result,
     const Scalar<DataVector> weyl_electric_scalar,
     const Scalar<DataVector> weyl_magnetic_scalar,
@@ -84,7 +84,8 @@ struct GBScalarCompute : GBScalar, db::ComputeTag {
       const gsl::not_null<Scalar<DataVector>*> result,
       const Scalar<DataVector>&, const Scalar<DataVector>&,
       const tnsr::aa<DataVector, 3, Frame>&,
-      const tnsr::AA<DataType, 3, Frame>&) = &gb_scalar_with_tenex<Frame>;
+      const tnsr::AA<DataType, 3, Frame>&) =
+      &order_reduced_gb_scalar_with_tenex<Frame>;
   using base = GBScalar;
 };
 }  // namespace Tags
