@@ -130,6 +130,7 @@
 #include "PointwiseFunctions/InitialDataUtilities/InitialData.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/Tags/InitialData.hpp"
 #include "PointwiseFunctions/ScalarTensor/GBScalarSourceTerms.hpp"
+#include "PointwiseFunctions/ScalarTensor/GBTensorSourceTerms.hpp"
 #include "PointwiseFunctions/ScalarTensor/ScalarCharge.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/CleanHistory.hpp"
@@ -273,6 +274,7 @@ struct ObserverTags {
           ScalarTensor::Tags::OrderReducedGBScalarCompute<Frame::Inertial>,
           ScalarTensor::Tags::RhsPsiCompute, ScalarTensor::Tags::RhsPiCompute,
           ScalarTensor::Tags::RhsPhiCompute,
+          ScalarTensor::Tags::nnDDKGCompute<Frame::Inertial>,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,

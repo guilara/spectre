@@ -8,6 +8,78 @@
 
 namespace ScalarTensor {
 
+void DDKG_normal_normal_projection(
+    const gsl::not_null<Scalar<DataVector>*> DDKG_normal_normal_result,
+
+    // Metric quantities
+    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+
+    // Scalar quantities
+
+    // Scalar gradients
+    const tnsr::i<DataVector, 3>& d_pi_scalar,
+
+    // Provide them with RHS compute tags or from dt<> prefixes
+    const Scalar<DataVector>& dt_pi_scalar) {
+  // = - L_n Pi from the equations of motion
+  tenex::evaluate(
+      DDKG_normal_normal_result,
+      -(1.0 / lapse()) * (dt_pi_scalar() - shift(ti::I) * d_pi_scalar(ti::i)));
+}
+
+void DDKG_normal_spatial_projection(
+    const gsl::not_null<tnsr::i<DataVector, 3>*> DDKG_normal_spatial_result,
+
+    // Metric quantities
+    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const tnsr::ii<DataVector, 3>& extrinsic_curvature,
+
+    // Scalar quantities
+    const tnsr::i<DataVector, 3>& phi_scalar,
+
+    // Scalar gradients
+    const tnsr::ij<DataVector, 3>& d_phi_scalar,
+
+    // Provide them with RHS compute tags or from dt<> prefixes
+    const tnsr::i<DataVector, 3>& dt_phi_scalar) {
+  tenex::evaluate<ti::i>(
+      DDKG_normal_spatial_result,
+      extrinsic_curvature(ti::i, ti::j) * inverse_spatial_metric(ti::J, ti::K) *
+              phi_scalar(ti::k)
+          // + L_n Phi from the equations of motion
+          + (1.0 / lapse()) * (dt_phi_scalar(ti::i) -
+                               shift(ti::J) * d_phi_scalar(ti::j, ti::i)));
+}
+
+void DDKG_spatial_spatial_projection(
+    const gsl::not_null<tnsr::ij<DataVector, 3>*> DDKG_spatial_spatial_result,
+
+    // Metric quantities
+
+    const tnsr::ii<DataVector, 3>& extrinsic_curvature,
+    const tnsr::Ijj<DataVector, 3>& spatial_christoffel_second_kind,
+
+    // Scalar quantities
+    const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
+
+    // Scalar gradients
+    const tnsr::ij<DataVector, 3>& d_phi_scalar
+
+    // Provide them with RHS compute tags or from dt<> prefixes
+) {
+  // Note that D_phi is the covariant derivative and has Christoffel symbols
+  tenex::evaluate<ti::i, ti::j>(
+      DDKG_spatial_spatial_result,
+      -pi_scalar() * extrinsic_curvature(ti::i, ti::j)
+          // Note covariant derivative
+          + d_phi_scalar(ti::i, ti::j) -
+          spatial_christoffel_second_kind(ti::K, ti::i, ti::j) *
+              phi_scalar(ti::k));
+}
+
 // template <typename Frame>
 void DDKG_tensor_from_projections(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
@@ -33,28 +105,20 @@ void DDKG_tensor_from_projections(
     const Scalar<DataVector>& dt_pi_scalar,
     const tnsr::i<DataVector, 3>& dt_phi_scalar) {
   // Compute projections of the second derivative tensor
-  // (All with down indices)
-
   // nn
-  // = - L_n Pi from the equations of motion
-  const auto nnDDKG = tenex::evaluate(
-      -(1.0 / lapse()) * (dt_pi_scalar() - shift(ti::I) * d_pi_scalar(ti::i)));
-
+  Scalar<DataVector> nnDDKG;
+  DDKG_normal_normal_projection(make_not_null(&nnDDKG), lapse, shift,
+                                d_pi_scalar, dt_pi_scalar);
   // ns
-  const auto nsDDKG = tenex::evaluate<ti::i>(
-      extrinsic_curvature(ti::i, ti::j) * inverse_spatial_metric(ti::J, ti::K) *
-          phi_scalar(ti::k)
-      // + L_n Phi from the equations of motion
-      + (1.0 / lapse()) *
-            (dt_phi_scalar(ti::i) - shift(ti::J) * d_phi_scalar(ti::j, ti::i)));
-
+  tnsr::i<DataVector, 3> nsDDKG;
+  DDKG_normal_spatial_projection(make_not_null(&nsDDKG), lapse, shift,
+                                 inverse_spatial_metric, extrinsic_curvature,
+                                 phi_scalar, d_phi_scalar, dt_phi_scalar);
   // ss
-  // Note that D_phi is the covariant derivative and has Christoffel symbols
-  const auto ssDDKG = tenex::evaluate<ti::i, ti::j>(
-      -pi_scalar() * extrinsic_curvature(ti::i, ti::j)
-      // Note covariant derivative
-      + d_phi_scalar(ti::i, ti::j) -
-      spatial_christoffel_second_kind(ti::K, ti::i, ti::j) * phi_scalar(ti::k));
+  tnsr::ij<DataVector, 3> ssDDKG;
+  DDKG_spatial_spatial_projection(make_not_null(&ssDDKG), extrinsic_curvature,
+                                  spatial_christoffel_second_kind, pi_scalar,
+                                  phi_scalar, d_phi_scalar);
 
   // Assemble in symmetric rank-2 4-tensor with lower indices
   get<0, 0>(*DDKG_tensor_result) = square(get(lapse)) * get(nnDDKG);
