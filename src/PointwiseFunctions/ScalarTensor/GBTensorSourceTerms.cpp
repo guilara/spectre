@@ -28,7 +28,7 @@ void DDKG_tensor_from_projections(
     const tnsr::i<DataVector, 3>& d_pi_scalar,
     const tnsr::ij<DataVector, 3>& d_phi_scalar,
 
-    // Provide them with RHS compute tags
+    // Provide them with RHS compute tags or from dt<> prefixes
     const Scalar<DataVector>& dt_psi_scalar,
     const Scalar<DataVector>& dt_pi_scalar,
     const tnsr::i<DataVector, 3>& dt_phi_scalar) {
