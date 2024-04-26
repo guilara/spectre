@@ -17,6 +17,56 @@
 
 namespace ScalarTensor {
 
+void DDKG_normal_normal_projection(
+    const gsl::not_null<Scalar<DataVector>*> DDKG_normal_normal_result,
+
+    // Metric quantities
+    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+
+    // Scalar quantities
+
+    // Scalar gradients
+    const tnsr::i<DataVector, 3>& d_pi_scalar,
+
+    // Provide them with RHS compute tags or from dt<> prefixes
+    const Scalar<DataVector>& dt_pi_scalar);
+
+void DDKG_normal_spatial_projection(
+    const gsl::not_null<tnsr::i<DataVector, 3>*> DDKG_normal_spatial_result,
+
+    // Metric quantities
+    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const tnsr::ii<DataVector, 3>& extrinsic_curvature,
+
+    // Scalar quantities
+    const tnsr::i<DataVector, 3>& phi_scalar,
+
+    // Scalar gradients
+    const tnsr::ij<DataVector, 3>& d_phi_scalar,
+
+    // Provide them with RHS compute tags or from dt<> prefixes
+    const tnsr::i<DataVector, 3>& dt_phi_scalar);
+
+void DDKG_spatial_spatial_projection(
+    const gsl::not_null<tnsr::ij<DataVector, 3>*> DDKG_spatial_spatial_result,
+
+    // Metric quantities
+
+    const tnsr::ii<DataVector, 3>& extrinsic_curvature,
+    const tnsr::Ijj<DataVector, 3>& spatial_christoffel_second_kind,
+
+    // Scalar quantities
+    const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
+
+    // Scalar gradients
+    const tnsr::ij<DataVector, 3>& d_phi_scalar
+
+    // Provide them with RHS compute tags or from dt<> prefixes
+);
+
 // template <typename Frame>
 void DDKG_tensor_from_projections(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
@@ -55,5 +105,27 @@ void order_reduced_gb_H_tensor(
     const tnsr::a<DataVector, 3>& normal_spacetime_one_form,
     const tnsr::aa<DataVector, 3>& dd_coupling_function);
 */
+
+namespace Tags {
+
+/*!
+ * \brief Compute tag for normal-normal projection of the second covariant
+ * derivative of the scalar.
+ */
+template <typename Frame>
+struct nnDDKGCompute : nnDDKG, db::ComputeTag {
+  using argument_tags = tmpl::list<
+      gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3, Frame>,
+      ::Tags::deriv<CurvedScalarWave::Tags::Pi, tmpl::size_t<3>, Frame>,
+      ScalarTensor::Tags::RhsPi>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<Scalar<DataVector>*> result,
+      const Scalar<DataVector>&, const tnsr::I<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&,
+      const Scalar<DataVector>&) = &DDKG_normal_normal_projection;
+  using base = nnDDKG;
+};
+}  // namespace Tags
 
 }  // namespace ScalarTensor
