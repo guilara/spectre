@@ -120,7 +120,7 @@ struct SCrossB : db::SimpleTag {
  * \brief j cross B for spatial spatial projection of order reduced H tensor.
  */
 struct JCrossB : db::SimpleTag {
-  using type = tnsr::i<DataVector, 3>;
+  using type = tnsr::ij<DataVector, 3>;
   static std::string name() { return "JCrossB"; }
 };
 
