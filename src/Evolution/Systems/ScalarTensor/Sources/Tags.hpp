@@ -93,6 +93,14 @@ struct OrderReducednnH : db::SimpleTag {
 };
 
 /*!
+ * \brief Normal spatial projection of the order reduced H tensor.
+ */
+struct OrderReducednsH : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "OrderReducednsH"; }
+};
+
+/*!
  * \brief S cross B for normal spatial projection of order reduced H tensor.
  */
 struct SCrossB : db::SimpleTag {

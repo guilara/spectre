@@ -111,6 +111,14 @@ void compute_j_cross_B(
     const tnsr::ii<DataVector, 3>& weyl_magnetic,
     const tnsr::i<DataVector, 3>& nsDDKG);
 
+void order_reduced_gb_H_normal_spatial_projection(
+    const gsl::not_null<tnsr::i<DataVector, 3>*> nsH_result,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const Scalar<DataVector>& sqrt_det_spatial_metric,
+    const tnsr::ii<DataVector, 3>& weyl_electric,
+    const tnsr::i<DataVector, 3>& nsDDKG,
+    const tnsr::i<DataVector, 3>& S_cross_B);
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
@@ -159,7 +167,7 @@ struct nsDDKGCompute : nsDDKG, db::ComputeTag {
       CurvedScalarWave::Tags::Phi<3>,
       ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>, Frame>,
       ScalarTensor::Tags::RhsPhi>;
-  using return_type = tnsr::i<DataVector, 3>;
+  using return_type = tnsr::i<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::i<DataVector, 3>*> result,
       const Scalar<DataVector>&, const tnsr::I<DataVector, 3>&,
@@ -180,7 +188,7 @@ struct ssDDKGCompute : ssDDKG, db::ComputeTag {
       gr::Tags::SpatialChristoffelSecondKind<DataVector, 3, Frame>,
       CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
       ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>, Frame>>;
-  using return_type = tnsr::ij<DataVector, 3>;
+  using return_type = tnsr::ij<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::ij<DataVector, 3>*> result,
       const tnsr::ii<DataVector, 3>&, const tnsr::Ijj<DataVector, 3>&,
@@ -190,8 +198,8 @@ struct ssDDKGCompute : ssDDKG, db::ComputeTag {
 };
 
 /*!
- * \brief Compute tag for normal-spatial projection of the second covariant
- * derivative of the scalar.
+ * \brief Compute tag for normal-spatial projection of the order reduced H
+ * tensor.
  */
 template <typename Frame>
 struct OrderReducednnHCompute : OrderReducednnH, db::ComputeTag {
@@ -217,7 +225,7 @@ struct SCrossBCompute : SCrossB, db::ComputeTag {
       tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
                  gr::Tags::WeylMagnetic<DataVector, 3, Frame>,
                  ScalarTensor::Tags::ssDDKG>;
-  using return_type = tnsr::i<DataVector, 3>;
+  using return_type = tnsr::i<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::i<DataVector, 3>*> result,
       const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
@@ -234,12 +242,33 @@ struct JCrossBCompute : JCrossB, db::ComputeTag {
       tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
                  gr::Tags::WeylMagnetic<DataVector, 3, Frame>,
                  ScalarTensor::Tags::nsDDKG>;
-  using return_type = tnsr::ij<DataVector, 3>;
+  using return_type = tnsr::ij<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::ij<DataVector, 3>*> result,
       const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
       const tnsr::i<DataVector, 3>&) = &compute_j_cross_B;
   using base = JCrossB;
+};
+
+/*!
+ * \brief Compute tag for normal-spatial projection of the order reduced H
+ * tensor.
+ */
+template <typename Frame>
+struct OrderReducednsHCompute : OrderReducednsH, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
+                 gr::Tags::SqrtDetSpatialMetric<DataVector>,
+                 gr::Tags::WeylElectric<DataVector, 3, Frame>,
+                 ScalarTensor::Tags::nsDDKG, ScalarTensor::Tags::SCrossB>;
+  using return_type = tnsr::i<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::i<DataVector, 3>*> result,
+      const tnsr::II<DataVector, 3>&, const Scalar<DataVector>&,
+      const tnsr::ii<DataVector, 3>&, const tnsr::i<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&) =
+      &order_reduced_gb_H_normal_spatial_projection;
+  using base = OrderReducednsH;
 };
 
 }  // namespace Tags

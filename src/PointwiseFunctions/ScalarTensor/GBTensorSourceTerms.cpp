@@ -193,6 +193,20 @@ void compute_j_cross_B(
   }
 }
 
+void order_reduced_gb_H_normal_spatial_projection(
+    const gsl::not_null<tnsr::i<DataVector, 3>*> nsH_result,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const Scalar<DataVector>& sqrt_det_spatial_metric,
+    const tnsr::ii<DataVector, 3>& weyl_electric,
+    const tnsr::i<DataVector, 3>& nsDDKG,
+    const tnsr::i<DataVector, 3>& S_cross_B) {
+  tenex::evaluate<ti::i>(
+      nsH_result, weyl_electric(ti::i, ti::j) *
+                          inverse_spatial_metric(ti::J, ti::K) * nsDDKG(ti::k) +
+                      // sqrt(gamma) * epsilon_{ijk} B_{l}^{k} S^{jl}
+                      sqrt_det_spatial_metric() * S_cross_B(ti::i));
+}
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> gb_H_tensor_result,
