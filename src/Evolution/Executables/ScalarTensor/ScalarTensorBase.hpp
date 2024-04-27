@@ -279,6 +279,7 @@ struct ObserverTags {
           ScalarTensor::Tags::ssDDKGCompute<Frame::Inertial>,
           ScalarTensor::Tags::OrderReducednnHCompute<Frame::Inertial>,
           ScalarTensor::Tags::SCrossBCompute<Frame::Inertial>,
+          ScalarTensor::Tags::JCrossBCompute<Frame::Inertial>,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
