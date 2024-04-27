@@ -147,6 +147,52 @@ void order_reduced_gb_H_normal_normal_projection(
                                   inverse_spatial_metric(ti::L, ti::I));
 }
 
+void compute_S_cross_B(
+    const gsl::not_null<tnsr::i<DataVector, 3>*> S_cross_B_result,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const tnsr::ii<DataVector, 3>& weyl_magnetic,
+    const tnsr::ii<DataVector, 3>& ssDDKG) {
+  // Raise indices
+  const auto weyl_magnetic_down_up = tenex::evaluate<ti::i, ti::J>(
+      weyl_magnetic(ti::i, ti::l) * inverse_spatial_metric(ti::L, ti::J));
+
+  const auto ssDDKGuu = tenex::evaluate<ti::I, ti::J>(
+      inverse_spatial_metric(ti::I, ti::K) * ssDDKG(ti::k, ti::l) *
+      inverse_spatial_metric(ti::L, ti::J));
+
+  for (LeviCivitaIterator<3> levi_civita_it; levi_civita_it; ++levi_civita_it) {
+    const auto [i, j, k] = levi_civita_it();
+    // S cross B
+    // epsilon_{ijk} B_{l}^{k} S^{jl}
+    for (size_t l = 0; l < 3; ++l) {
+      S_cross_B_result->get(i) += levi_civita_it.sign() * ssDDKGuu.get(j, l) *
+                                  weyl_magnetic_down_up.get(l, k);
+    }
+  }
+}
+
+void compute_j_cross_B(
+    const gsl::not_null<tnsr::ij<DataVector, 3>*> j_cross_B_result,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const tnsr::ii<DataVector, 3>& weyl_magnetic,
+    const tnsr::i<DataVector, 3>& nsDDKG) {
+  // Raise indices
+  const auto weyl_magnetic_down_up = tenex::evaluate<ti::i, ti::J>(
+      weyl_magnetic(ti::i, ti::l) * inverse_spatial_metric(ti::L, ti::J));
+  const auto nsDDKGu = tenex::evaluate<ti::I>(
+      inverse_spatial_metric(ti::I, ti::J) * nsDDKG(ti::j));
+
+  for (LeviCivitaIterator<3> levi_civita_it; levi_civita_it; ++levi_civita_it) {
+    const auto [i, j, k] = levi_civita_it();
+    for (size_t l = 0; l < 3; ++l) {
+      // j cross B
+      // Note: For now we don't impose symmetry of this quantity
+      j_cross_B_result->get(i, l) += levi_civita_it.sign() * nsDDKGu.get(j) *
+                                     weyl_magnetic_down_up.get(l, k);
+    }
+  }
+}
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> gb_H_tensor_result,
