@@ -85,12 +85,27 @@ struct RhsPhi : db::SimpleTag {
 };
 
 /*!
- * \brief Normal normal projection of the second covariant derivative of the
- * scalar.
+ * \brief Normal normal projection of the order reduced H tensor.
  */
 struct OrderReducednnH : db::SimpleTag {
   using type = Scalar<DataVector>;
   static std::string name() { return "OrderReducednnH"; }
+};
+
+/*!
+ * \brief S cross B for normal spatial projection of order reduced H tensor.
+ */
+struct SCrossB : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "SCrossB"; }
+};
+
+/*!
+ * \brief j cross B for spatial spatial projection of order reduced H tensor.
+ */
+struct JCrossB : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "JCrossB"; }
 };
 
 }  // namespace Tags
