@@ -117,6 +117,14 @@ struct OrderReducedHTensor : db::SimpleTag {
 };
 
 /*!
+ * \brief Order reduced Q tensor.
+ */
+struct OrderReducedQTensor : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "OrderReducedQTensor"; }
+};
+
+/*!
  * \brief S cross B for normal spatial projection of order reduced H tensor.
  */
 struct SCrossB : db::SimpleTag {

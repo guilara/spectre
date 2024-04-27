@@ -133,6 +133,12 @@ void order_reduced_gb_H_tensor(
     const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnH,
     const tnsr::i<DataVector, 3>& nsH, const tnsr::ij<DataVector, 3>& ssH);
 
+void order_reduced_Q_tensor(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> Q_tensor_result,
+    const tnsr::aa<DataVector, 3> spacetime_metric,
+    const Scalar<DataVector>& weyl_electric_scalar,
+    const Scalar<DataVector>& weyl_magnetic_scalar);
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
@@ -328,6 +334,24 @@ struct OrderReducedHTensorCompute : OrderReducedHTensor, db::ComputeTag {
       const tnsr::i<DataVector, 3>&,
       const tnsr::ij<DataVector, 3>&) = &order_reduced_gb_H_tensor;
   using base = OrderReducedHTensor;
+};
+
+/*!
+ * \brief Compute tag for spatial-spatial projection of the order reduced H
+ * tensor.
+ */
+template <typename Frame>
+struct OrderReducedQTensorCompute : OrderReducedQTensor, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3, Frame>,
+                 gr::Tags::WeylElectricScalar<DataVector>,
+                 gr::Tags::WeylMagneticScalar<DataVector>>;
+  using return_type = tnsr::aa<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::aa<DataVector, 3>*> Q_tensor_result,
+      const tnsr::aa<DataVector, 3>, const Scalar<DataVector>&,
+      const Scalar<DataVector>&) = &order_reduced_Q_tensor;
+  using base = OrderReducedQTensor;
 };
 
 }  // namespace Tags
