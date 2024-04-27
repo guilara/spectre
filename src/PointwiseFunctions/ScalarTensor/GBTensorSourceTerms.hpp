@@ -103,7 +103,7 @@ void compute_S_cross_B(
     const gsl::not_null<tnsr::i<DataVector, 3>*> S_cross_B_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_magnetic,
-    const tnsr::ii<DataVector, 3>& ssDDKG);
+    const tnsr::ij<DataVector, 3>& ssDDKG);
 
 void compute_j_cross_B(
     const gsl::not_null<tnsr::ij<DataVector, 3>*> j_cross_B_result,
@@ -238,7 +238,7 @@ struct SCrossBCompute : SCrossB, db::ComputeTag {
   static constexpr void (*function)(
       const gsl::not_null<tnsr::i<DataVector, 3>*> result,
       const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
-      const tnsr::ii<DataVector, 3>&) = &compute_S_cross_B;
+      const tnsr::ij<DataVector, 3>&) = &compute_S_cross_B;
   using base = SCrossB;
 };
 

@@ -151,7 +151,7 @@ void compute_S_cross_B(
     const gsl::not_null<tnsr::i<DataVector, 3>*> S_cross_B_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_magnetic,
-    const tnsr::ii<DataVector, 3>& ssDDKG) {
+    const tnsr::ij<DataVector, 3>& ssDDKG) {
   // Raise indices
   const auto weyl_magnetic_down_up = tenex::evaluate<ti::i, ti::J>(
       weyl_magnetic(ti::i, ti::l) * inverse_spatial_metric(ti::L, ti::J));
