@@ -251,6 +251,16 @@ void order_reduced_gb_H_tensor(
   }
 }
 
+void order_reduced_Q_tensor(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> Q_tensor_result,
+    const tnsr::aa<DataVector, 3> spacetime_metric,
+    const Scalar<DataVector>& weyl_electric_scalar,
+    const Scalar<DataVector>& weyl_magnetic_scalar) {
+  tenex::evaluate<ti::a, ti::b>(
+      Q_tensor_result, 2.0 * (weyl_electric_scalar() - weyl_magnetic_scalar()) *
+                           spacetime_metric(ti::a, ti::b));
+}
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> gb_H_tensor_result,
