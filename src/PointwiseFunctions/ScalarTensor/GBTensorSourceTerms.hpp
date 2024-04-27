@@ -119,6 +119,15 @@ void order_reduced_gb_H_normal_spatial_projection(
     const tnsr::i<DataVector, 3>& nsDDKG,
     const tnsr::i<DataVector, 3>& S_cross_B);
 
+void order_reduced_gb_H_spatial_spatial_projection(
+    const gsl::not_null<tnsr::ij<DataVector, 3>*> ssH_result,
+    const tnsr::ii<DataVector, 3>& spatial_metric,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const Scalar<DataVector>& sqrt_det_spatial_metric,
+    const tnsr::ii<DataVector, 3>& weyl_electric,
+    const Scalar<DataVector>& nnDDKG, const tnsr::ij<DataVector, 3>& ssDDKG,
+    const tnsr::ij<DataVector, 3>& j_cross_B, const Scalar<DataVector>& nnH);
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
@@ -269,6 +278,33 @@ struct OrderReducednsHCompute : OrderReducednsH, db::ComputeTag {
       const tnsr::i<DataVector, 3>&) =
       &order_reduced_gb_H_normal_spatial_projection;
   using base = OrderReducednsH;
+};
+
+/*!
+ * \brief Compute tag for normal-spatial projection of the order reduced H
+ * tensor.
+ */
+template <typename Frame>
+struct OrderReducedssHCompute : OrderReducedssH, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<gr::Tags::SpatialMetric<DataVector, 3, Frame>,
+                 gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
+                 gr::Tags::SqrtDetSpatialMetric<DataVector>,
+                 gr::Tags::WeylElectric<DataVector, 3, Frame>,
+                 ScalarTensor::Tags::nnDDKG, ScalarTensor::Tags::ssDDKG,
+                 ScalarTensor::Tags::JCrossB,
+                 ScalarTensor::Tags::OrderReducednnH>;
+  using return_type = tnsr::ij<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::ij<DataVector, 3>*> result,
+      const tnsr::ii<DataVector, 3>& spatial_metric,
+      const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+      const Scalar<DataVector>& sqrt_det_spatial_metric,
+      const tnsr::ii<DataVector, 3>& weyl_electric,
+      const Scalar<DataVector>& nnDDKG, const tnsr::ij<DataVector, 3>& ssDDKG,
+      const tnsr::ij<DataVector, 3>& j_cross_B, const Scalar<DataVector>& nnH) =
+      &order_reduced_gb_H_spatial_spatial_projection;
+  using base = OrderReducedssH;
 };
 
 }  // namespace Tags
