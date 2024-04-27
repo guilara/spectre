@@ -135,6 +135,18 @@ void DDKG_tensor_from_projections(
   }
 }
 
+void order_reduced_gb_H_normal_normal_projection(
+    const gsl::not_null<Scalar<DataVector>*> nnH_result,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const tnsr::ii<DataVector, 3>& weyl_electric,
+    const tnsr::ii<DataVector, 3>& ssDDKG) {
+  // Raise indices of the spatial part of the second derivative of the scalar
+  tenex::evaluate(nnH_result, weyl_electric(ti::i, ti::j) *
+                                  inverse_spatial_metric(ti::J, ti::K) *
+                                  ssDDKG(ti::k, ti::l) *
+                                  inverse_spatial_metric(ti::L, ti::I));
+}
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> gb_H_tensor_result,

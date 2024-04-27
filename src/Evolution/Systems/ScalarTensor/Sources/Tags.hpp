@@ -84,6 +84,15 @@ struct RhsPhi : db::SimpleTag {
   static std::string name() { return "Rhs(Csw(Phi))"; }
 };
 
+/*!
+ * \brief Normal normal projection of the second covariant derivative of the
+ * scalar.
+ */
+struct OrderReducednnH : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "OrderReducednnH"; }
+};
+
 }  // namespace Tags
 
 namespace OptionTags {

@@ -67,6 +67,7 @@ void DDKG_spatial_spatial_projection(
     // Provide them with RHS compute tags or from dt<> prefixes
 );
 
+// Not really needed, but for a comparison with full Riemann computation
 // template <typename Frame>
 void DDKG_tensor_from_projections(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
@@ -91,6 +92,12 @@ void DDKG_tensor_from_projections(
     const Scalar<DataVector>& dt_psi_scalar,
     const Scalar<DataVector>& dt_pi_scalar,
     const tnsr::i<DataVector, 3>& dt_phi_scalar);
+
+void order_reduced_gb_H_normal_normal_projection(
+    const gsl::not_null<Scalar<DataVector>*> nnH_result,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const tnsr::ii<DataVector, 3>& weyl_electric,
+    const tnsr::ii<DataVector, 3>& ssDDK);
 
 /*
 void order_reduced_gb_H_tensor(
@@ -168,6 +175,25 @@ struct ssDDKGCompute : ssDDKG, db::ComputeTag {
       const Scalar<DataVector>&, const tnsr::i<DataVector, 3>&,
       const tnsr::ij<DataVector, 3>&) = &DDKG_spatial_spatial_projection;
   using base = ssDDKG;
+};
+
+/*!
+ * \brief Compute tag for normal-spatial projection of the second covariant
+ * derivative of the scalar.
+ */
+template <typename Frame>
+struct OrderReducednnHCompute : OrderReducednnH, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
+                 gr::Tags::WeylElectric<DataVector, 3, Frame>,
+                 ScalarTensor::Tags::ssDDKG>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<Scalar<DataVector>*> result,
+      const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
+      const tnsr::ii<DataVector, 3>&) =
+      &order_reduced_gb_H_normal_normal_projection;
+  using base = OrderReducednnH;
 };
 
 }  // namespace Tags
