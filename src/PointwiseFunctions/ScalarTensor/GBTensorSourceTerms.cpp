@@ -139,7 +139,7 @@ void order_reduced_gb_H_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> nnH_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_electric,
-    const tnsr::ii<DataVector, 3>& ssDDKG) {
+    const tnsr::ij<DataVector, 3>& ssDDKG) {
   // Raise indices of the spatial part of the second derivative of the scalar
   tenex::evaluate(nnH_result, weyl_electric(ti::i, ti::j) *
                                   inverse_spatial_metric(ti::J, ti::K) *
