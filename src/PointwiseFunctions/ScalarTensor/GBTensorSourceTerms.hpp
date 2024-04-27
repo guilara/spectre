@@ -99,6 +99,18 @@ void order_reduced_gb_H_normal_normal_projection(
     const tnsr::ii<DataVector, 3>& weyl_electric,
     const tnsr::ii<DataVector, 3>& ssDDK);
 
+void compute_S_cross_B(
+    const gsl::not_null<tnsr::i<DataVector, 3>*> S_cross_B_result,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const tnsr::ii<DataVector, 3>& weyl_magnetic,
+    const tnsr::ii<DataVector, 3>& ssDDKG);
+
+void compute_j_cross_B(
+    const gsl::not_null<tnsr::ij<DataVector, 3>*> j_cross_B_result,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const tnsr::ii<DataVector, 3>& weyl_magnetic,
+    const tnsr::i<DataVector, 3>& nsDDKG);
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
@@ -194,6 +206,40 @@ struct OrderReducednnHCompute : OrderReducednnH, db::ComputeTag {
       const tnsr::ii<DataVector, 3>&) =
       &order_reduced_gb_H_normal_normal_projection;
   using base = OrderReducednnH;
+};
+
+/*!
+ * \brief Compute S cross B.
+ */
+template <typename Frame>
+struct SCrossBCompute : SCrossB, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
+                 gr::Tags::WeylMagnetic<DataVector, 3, Frame>,
+                 ScalarTensor::Tags::ssDDKG>;
+  using return_type = tnsr::i<DataVector, 3>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::i<DataVector, 3>*> result,
+      const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
+      const tnsr::ii<DataVector, 3>&) = &compute_S_cross_B;
+  using base = SCrossB;
+};
+
+/*!
+ * \brief Compute S cross B.
+ */
+template <typename Frame>
+struct JCrossBCompute : JCrossB, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
+                 gr::Tags::WeylMagnetic<DataVector, 3, Frame>,
+                 ScalarTensor::Tags::nsDDKG>;
+  using return_type = tnsr::ij<DataVector, 3>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::ij<DataVector, 3>*> result,
+      const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
+      const tnsr::i<DataVector, 3>&) = &compute_j_cross_B;
+  using base = JCrossB;
 };
 
 }  // namespace Tags
