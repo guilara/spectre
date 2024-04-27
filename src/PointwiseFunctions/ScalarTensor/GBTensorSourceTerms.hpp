@@ -128,7 +128,7 @@ void order_reduced_gb_H_spatial_spatial_projection(
     const Scalar<DataVector>& nnDDKG, const tnsr::ij<DataVector, 3>& ssDDKG,
     const tnsr::ij<DataVector, 3>& j_cross_B, const Scalar<DataVector>& nnH);
 
-void order_reduced_gb_H_tensor(
+void order_reduced_gb_H_tensor_weyl_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
     const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnH,
     const tnsr::i<DataVector, 3>& nsH, const tnsr::ij<DataVector, 3>& ssH);
@@ -332,7 +332,7 @@ struct OrderReducedHTensorCompute : OrderReducedHTensor, db::ComputeTag {
       const gsl::not_null<tnsr::aa<DataVector, 3>*> result,
       const Scalar<DataVector>&, const Scalar<DataVector>&,
       const tnsr::i<DataVector, 3>&,
-      const tnsr::ij<DataVector, 3>&) = &order_reduced_gb_H_tensor;
+      const tnsr::ij<DataVector, 3>&) = &order_reduced_gb_H_tensor_weyl_part;
   using base = OrderReducedHTensor;
 };
 
