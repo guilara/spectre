@@ -97,7 +97,7 @@ void order_reduced_gb_H_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> nnH_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_electric,
-    const tnsr::ii<DataVector, 3>& ssDDK);
+    const tnsr::ij<DataVector, 3>& ssDDK);
 
 void compute_S_cross_B(
     const gsl::not_null<tnsr::i<DataVector, 3>*> S_cross_B_result,
@@ -220,7 +220,7 @@ struct OrderReducednnHCompute : OrderReducednnH, db::ComputeTag {
   static constexpr void (*function)(
       const gsl::not_null<Scalar<DataVector>*> result,
       const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
-      const tnsr::ii<DataVector, 3>&) =
+      const tnsr::ij<DataVector, 3>&) =
       &order_reduced_gb_H_normal_normal_projection;
   using base = OrderReducednnH;
 };
