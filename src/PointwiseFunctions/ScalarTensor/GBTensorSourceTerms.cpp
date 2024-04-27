@@ -232,6 +232,25 @@ void order_reduced_gb_H_spatial_spatial_projection(
           + spatial_metric(ti::i, ti::j) * nnH());
 }
 
+void order_reduced_gb_H_tensor(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+    const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnH,
+    const tnsr::i<DataVector, 3>& nsH, const tnsr::ij<DataVector, 3>& ssH) {
+  // Assemble in symmetric rank-2 4-tensor with lower indices
+  get<0, 0>(*gb_H_tensor_result) = square(get(lapse)) * get(nnH);
+  for (size_t i = 0; i < 3; ++i) {
+    // nsH with lower indices
+    // Check sign
+    gb_H_tensor_result->get(0, i + 1) = get(lapse) * nsH.get(i);
+  }
+  for (size_t i = 0; i < 3; ++i) {
+    for (size_t j = i; j < 3; ++j) {
+      // ssH with lower indices
+      gb_H_tensor_result->get(i + 1, j + 1) = ssH.get(i, j);
+    }
+  }
+}
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> gb_H_tensor_result,
