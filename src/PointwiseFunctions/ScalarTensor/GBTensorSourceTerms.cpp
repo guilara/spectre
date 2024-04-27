@@ -232,7 +232,7 @@ void order_reduced_gb_H_spatial_spatial_projection(
           + spatial_metric(ti::i, ti::j) * nnH());
 }
 
-void order_reduced_gb_H_tensor(
+void order_reduced_gb_H_tensor_weyl_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
     const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnH,
     const tnsr::i<DataVector, 3>& nsH, const tnsr::ij<DataVector, 3>& ssH) {
