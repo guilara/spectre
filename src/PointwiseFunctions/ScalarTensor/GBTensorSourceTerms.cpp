@@ -207,6 +207,31 @@ void order_reduced_gb_H_normal_spatial_projection(
                       sqrt_det_spatial_metric() * S_cross_B(ti::i));
 }
 
+void order_reduced_gb_H_spatial_spatial_projection(
+    const gsl::not_null<tnsr::ij<DataVector, 3>*> ssH_result,
+    const tnsr::ii<DataVector, 3>& spatial_metric,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const Scalar<DataVector>& sqrt_det_spatial_metric,
+    const tnsr::ii<DataVector, 3>& weyl_electric,
+    const Scalar<DataVector>& nnDDKG, const tnsr::ij<DataVector, 3>& ssDDKG,
+    const tnsr::ij<DataVector, 3>& j_cross_B, const Scalar<DataVector>& nnH) {
+  const auto trace_ssDDKG = tenex::evaluate(
+      ssDDKG(ti::i, ti::j) * inverse_spatial_metric(ti::J, ti::I));
+  tenex::evaluate<ti::i, ti::j>(
+      ssH_result,
+      (trace_ssDDKG() + nnDDKG()) * weyl_electric(ti::i, ti::j)
+          // -2 * 2 symmetric part E ssDDKG
+          - (ssDDKG(ti::j, ti::k) * inverse_spatial_metric(ti::K, ti::L) *
+                 weyl_electric(ti::l, ti::i) +
+             ssDDKG(ti::i, ti::k) * inverse_spatial_metric(ti::K, ti::L) *
+                 weyl_electric(ti::l, ti::j))
+          // +2 sqrt(gamma) symmetric part cross prod
+          + sqrt_det_spatial_metric() *
+                (j_cross_B(ti::i, ti::j) + j_cross_B(ti::j, ti::i))
+          // Sum the trace part
+          + spatial_metric(ti::i, ti::j) * nnH());
+}
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> gb_H_tensor_result,
