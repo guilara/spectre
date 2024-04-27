@@ -128,6 +128,11 @@ void order_reduced_gb_H_spatial_spatial_projection(
     const Scalar<DataVector>& nnDDKG, const tnsr::ij<DataVector, 3>& ssDDKG,
     const tnsr::ij<DataVector, 3>& j_cross_B, const Scalar<DataVector>& nnH);
 
+void order_reduced_gb_H_tensor(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+    const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnH,
+    const tnsr::i<DataVector, 3>& nsH, const tnsr::ij<DataVector, 3>& ssH);
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
@@ -281,7 +286,7 @@ struct OrderReducednsHCompute : OrderReducednsH, db::ComputeTag {
 };
 
 /*!
- * \brief Compute tag for normal-spatial projection of the order reduced H
+ * \brief Compute tag for spatial-spatial projection of the order reduced H
  * tensor.
  */
 template <typename Frame>
@@ -305,6 +310,24 @@ struct OrderReducedssHCompute : OrderReducedssH, db::ComputeTag {
       const tnsr::ij<DataVector, 3>& j_cross_B, const Scalar<DataVector>& nnH) =
       &order_reduced_gb_H_spatial_spatial_projection;
   using base = OrderReducedssH;
+};
+
+/*!
+ * \brief Compute tag for spatial-spatial projection of the order reduced H
+ * tensor.
+ */
+template <typename Frame>
+struct OrderReducedHTensorCompute : OrderReducedHTensor, db::ComputeTag {
+  using argument_tags = tmpl::list<
+      gr::Tags::Lapse<DataVector>, ScalarTensor::Tags::OrderReducednnH,
+      ScalarTensor::Tags::OrderReducednsH, ScalarTensor::Tags::OrderReducedssH>;
+  using return_type = tnsr::aa<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::aa<DataVector, 3>*> result,
+      const Scalar<DataVector>&, const Scalar<DataVector>&,
+      const tnsr::i<DataVector, 3>&,
+      const tnsr::ij<DataVector, 3>&) = &order_reduced_gb_H_tensor;
+  using base = OrderReducedHTensor;
 };
 
 }  // namespace Tags
