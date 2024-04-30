@@ -11,6 +11,7 @@ spectre_target_sources(
   GBScalarSourceTerms.cpp
   GBTensorSourceTerms.cpp
   ScalarCharge.cpp
+  WeylElectricRicciPart.cpp
   )
 
 spectre_target_headers(
@@ -20,6 +21,7 @@ spectre_target_headers(
   GBScalarSourceTerms.hpp
   GBTensorSourceTerms.hpp
   ScalarCharge.hpp
+  WeylElectricRicciPart.hpp
   )
 
 target_link_libraries(
