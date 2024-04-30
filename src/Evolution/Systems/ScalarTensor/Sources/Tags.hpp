@@ -140,6 +140,24 @@ struct JCrossB : db::SimpleTag {
   static std::string name() { return "JCrossB"; }
 };
 
+/*!
+ * \brief All extra 4-Ricci terms in the electric part scalar.
+ */
+ template <typename DataType>
+struct WeylElectricRicciScalarComplement : db::SimpleTag {
+  using type = Scalar<DataType>;
+  static std::string name() { return "WeylElectricRicciScalarComplement"; }
+};
+
+/*!
+ * \brief 4-Ricci terms in the electric part of the Weyl tensor.
+ */
+template <typename DataType, size_t SpatialDim, typename Frame>
+struct WeylElectricRicci : db::SimpleTag {
+  using type = tnsr::ii<DataType, SpatialDim, Frame>;
+  static std::string name() { return "WeylElectricRicci"; }
+};
+
 }  // namespace Tags
 
 namespace OptionTags {
