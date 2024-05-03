@@ -45,7 +45,8 @@ void order_reduced_gb_scalar_with_tenex(
     const Scalar<DataVector>& weyl_electric_scalar,
     const Scalar<DataVector>& weyl_magnetic_scalar,
     const tnsr::aa<DataVector, 3, Frame>& trace_reversed_stress_energy,
-    const tnsr::AA<DataVector, 3, Frame>& inverse_spacetime_metric);
+    const tnsr::AA<DataVector, 3, Frame>& inverse_spacetime_metric,
+    const Scalar<DataVector>& weyl_electric_scalar_complement);
 
 namespace Tags {
 
@@ -79,14 +80,15 @@ struct OrderReducedGBScalarCompute : OrderReducedGBScalar, db::ComputeTag {
       gr::Tags::WeylElectricScalar<DataVector>,
       gr::Tags::WeylMagneticScalar<DataVector>,
       ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3, Frame>,
-      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>>;
+      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>,
+      ScalarTensor::Tags::WeylElectricRicciScalarComplement<DataVector>>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<Scalar<DataVector>*> result,
       const Scalar<DataVector>&, const Scalar<DataVector>&,
       const tnsr::aa<DataVector, 3, Frame>&,
-      const tnsr::AA<DataVector, 3, Frame>&) =
-      &order_reduced_gb_scalar_with_tenex;
+      const tnsr::AA<DataVector, 3, Frame>&,
+      const Scalar<DataVector>&) = &order_reduced_gb_scalar_with_tenex;
   using base = OrderReducedGBScalar;
 };
 }  // namespace Tags
