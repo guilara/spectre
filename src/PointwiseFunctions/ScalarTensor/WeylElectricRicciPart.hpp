@@ -36,6 +36,17 @@ void contract_electric_parts(
     const tnsr::ii<DataType, SpatialDim, Frame>& weyl_electric_ricci_part,
     const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric);
 
+template <typename DataType, size_t SpatialDim, typename Frame>
+void weyl_electric_full(
+    const gsl::not_null<tnsr::ii<DataType, SpatialDim, Frame>*>
+        weyl_electric_full,
+    const tnsr::ii<DataType, SpatialDim, Frame>& spatial_ricci,
+    const tnsr::ii<DataType, SpatialDim, Frame>& extrinsic_curvature,
+    const Scalar<DataType>& pi_scalar,
+    const tnsr::i<DataType, SpatialDim, Frame>& phi_scalar,
+    const tnsr::ii<DataType, SpatialDim, Frame>& spatial_metric,
+    const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric);
+
 namespace Tags {
 /// Compute item for the 4-Ricci part of the electric part of the weyl tensor
 ///
