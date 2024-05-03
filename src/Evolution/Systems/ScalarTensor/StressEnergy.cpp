@@ -15,10 +15,11 @@ void add_stress_energy_term_to_dt_pi(
     const gsl::not_null<tnsr::aa<DataVector, 3_st>*> dt_pi,
     const tnsr::aa<DataVector, 3_st>& trace_reversed_stress_energy,
     const Scalar<DataVector>& lapse) {
+  // We move the M_PI factor to the trace reversed computation
   for (size_t a = 0; a < 4; ++a) {
     for (size_t b = a; b < 4; ++b) {
       dt_pi->get(a, b) -= 0.0 *  // We turn off the backreaction
-                          16.0 * M_PI * get(lapse) *
+                          2.0 * get(lapse) *
                           trace_reversed_stress_energy.get(a, b);
     }
   }
