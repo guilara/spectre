@@ -158,6 +158,15 @@ struct WeylElectricRicci : db::SimpleTag {
   static std::string name() { return "WeylElectricRicci"; }
 };
 
+/*!
+ * \brief 4-Ricci terms in the electric part of the Weyl tensor.
+ */
+template <typename DataType, size_t SpatialDim, typename Frame>
+struct WeylElectricFull : db::SimpleTag {
+  using type = tnsr::ii<DataType, SpatialDim, Frame>;
+  static std::string name() { return "WeylElectricFull"; }
+};
+
 }  // namespace Tags
 
 namespace OptionTags {
