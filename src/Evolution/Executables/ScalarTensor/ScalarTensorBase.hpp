@@ -131,6 +131,7 @@
 #include "PointwiseFunctions/ScalarTensor/GBScalarSourceTerms.hpp"
 #include "PointwiseFunctions/ScalarTensor/GBTensorSourceTerms.hpp"
 #include "PointwiseFunctions/ScalarTensor/ScalarCharge.hpp"
+#include "PointwiseFunctions/ScalarTensor/WeylElectricRicciPart.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/ChangeSlabSize.hpp"
 #include "Time/Actions/RecordTimeStepperData.hpp"
@@ -270,6 +271,10 @@ struct ObserverTags {
           ScalarTensor::Tags::GBScalarCompute<DataVector>,
           ScalarTensor::Tags::CouplingFunctionDerivativeCompute<DataVector>,
           // BR
+          ScalarTensor::Tags::WeylElectricRicciCompute<DataVector, 3,
+                                                       Frame::Inertial>,
+          ScalarTensor::Tags::WeylElectricRicciScalarComplementCompute<
+              DataVector, 3, Frame::Inertial>,
           ScalarTensor::Tags::OrderReducedGBScalarCompute<Frame::Inertial>,
           ScalarTensor::Tags::RhsPsiCompute, ScalarTensor::Tags::RhsPiCompute,
           ScalarTensor::Tags::RhsPhiCompute,

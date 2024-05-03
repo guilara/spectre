@@ -77,6 +77,7 @@ struct WeylElectricRicciScalarComplementCompute
   static constexpr auto function =
       static_cast<void (*)(gsl::not_null<Scalar<DataType>*>,
                            const tnsr::ii<DataType, SpatialDim, Frame>&,
+                           const tnsr::ii<DataType, SpatialDim, Frame>&,
                            const tnsr::II<DataType, SpatialDim, Frame>&)>(
           &ScalarTensor::contract_electric_parts<DataType, SpatialDim, Frame>);
 
