@@ -95,5 +95,33 @@ struct WeylElectricRicciScalarComplementCompute
   using base = WeylElectricRicciScalarComplement<DataType>;
 };
 
+/// Compute item for the 4-Ricci part of the electric part of the weyl tensor
+///
+/// Can be retrieved using gr::Tags::WeylElectricRicci
+template <typename DataType, size_t SpatialDim, typename Frame>
+struct WeylElectricFullCompute : WeylElectricFull<DataType, SpatialDim, Frame>,
+                                 db::ComputeTag {
+  using argument_tags =
+      tmpl::list<gr::Tags::SpatialRicci<DataType, SpatialDim, Frame>,
+                 gr::Tags::ExtrinsicCurvature<DataType, SpatialDim, Frame>,
+                 CurvedScalarWave::Tags::Pi,
+                 CurvedScalarWave::Tags::Phi<SpatialDim>,
+                 gr::Tags::SpatialMetric<DataType, SpatialDim, Frame>,
+                 gr::Tags::InverseSpatialMetric<DataType, SpatialDim, Frame>>;
+
+  using return_type = tnsr::ii<DataType, SpatialDim, Frame>;
+
+  static constexpr auto function = static_cast<void (*)(
+      gsl::not_null<tnsr::ii<DataType, SpatialDim, Frame>*> result,
+      const tnsr::ii<DataType, SpatialDim, Frame>&,
+      const tnsr::ii<DataType, SpatialDim, Frame>&, const Scalar<DataType>&,
+      const tnsr::i<DataType, SpatialDim, Frame>&,
+      const tnsr::ii<DataType, SpatialDim, Frame>&,
+      const tnsr::II<DataType, SpatialDim, Frame>&)>(
+      &weyl_electric_full<DataType, SpatialDim, Frame>);
+
+  using base = WeylElectricFull<DataType, SpatialDim, Frame>;
+};
+
 }  // namespace Tags
 }  // namespace ScalarTensor
