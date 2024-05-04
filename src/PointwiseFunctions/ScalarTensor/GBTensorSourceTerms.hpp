@@ -102,6 +102,7 @@ void DDKG_tensor_from_projections(
     const Scalar<DataVector>& dt_pi_scalar,
     const tnsr::i<DataVector, 3>& dt_phi_scalar);
 
+// TODO: Compute projections as well
 void DDFPsi_tensor_from_DDKG_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDFPsi_tensor_result,
     const tnsr::aa<DataVector, 3>& DDKG,
