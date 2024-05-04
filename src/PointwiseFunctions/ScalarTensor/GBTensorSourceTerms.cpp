@@ -5,6 +5,7 @@
 
 #include "DataStructures/LeviCivitaIterator.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
+#include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
 
 namespace ScalarTensor {
 
@@ -170,6 +171,29 @@ void DDKG_tensor_from_projections(
       DDKG_tensor_result->get(i + 1, j + 1) = ssDDKG.get(i, j);
     }
   }
+}
+
+void DDFPsi_tensor_from_DDKG_tensor(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> DDFPsi_tensor_result,
+    const tnsr::aa<DataVector, 3>& DDKG,
+    const tnsr::a<DataVector, 3>& spacetime_derivative_scalar,
+    const Scalar<DataVector>& psi, const double first_coupling_psi,
+    const double second_coupling_psi) {
+  // Define scalars
+  Scalar<DataVector> f_prime = make_with_value<Scalar<DataVector>>(psi, 1.0);
+  Scalar<DataVector> f_double_prime =
+      make_with_value<Scalar<DataVector>>(psi, 1.0);
+  // Multiply by coupling function
+  ScalarTensor::multiply_by_coupling_function_prime_quartic(
+      &f_prime, psi, first_coupling_psi, second_coupling_psi);
+  ScalarTensor::multiply_by_coupling_function_double_prime_quartic(
+      &f_double_prime, psi, first_coupling_psi, second_coupling_psi);
+  // Construct tensor
+  tenex::evaluate<ti::a, ti::b>(DDFPsi_tensor_result,
+                                f_double_prime() *
+                                        spacetime_derivative_scalar(ti::a) *
+                                        spacetime_derivative_scalar(ti::b) +
+                                    f_prime() * DDKG(ti::a, ti::b));
 }
 
 void order_reduced_gb_H_normal_normal_projection(

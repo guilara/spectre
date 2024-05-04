@@ -102,6 +102,13 @@ void DDKG_tensor_from_projections(
     const Scalar<DataVector>& dt_pi_scalar,
     const tnsr::i<DataVector, 3>& dt_phi_scalar);
 
+void DDFPsi_tensor_from_DDKG_tensor(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> DDFPsi_tensor_result,
+    const tnsr::aa<DataVector, 3>& DDKG,
+    const tnsr::a<DataVector, 3>& spacetime_derivative_scalar,
+    const Scalar<DataVector>& psi, const double first_coupling_psi,
+    const double second_coupling_psi);
+
 void order_reduced_gb_H_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> nnH_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
@@ -249,8 +256,7 @@ struct ssDDKGCompute : ssDDKG, db::ComputeTag {
 };
 
 /*!
- * \brief Compute tag for normal-spatial projection of the second covariant
- * derivative of the scalar.
+ * \brief Compute tag for second covariant derivative of the scalar.
  */
 template <typename Frame>
 struct DDKGTensorCompute : DDKGTensor, db::ComputeTag {
@@ -263,6 +269,27 @@ struct DDKGTensorCompute : DDKGTensor, db::ComputeTag {
       const Scalar<DataVector>&, Scalar<DataVector>, tnsr::i<DataVector, 3>,
       tnsr::ii<DataVector, 3>) = &DDKG_tensor_from_projections;
   using base = DDKGTensor;
+};
+
+/*!
+ * \brief Compute tag for second covariant derivative of the scalar.
+ */
+template <typename Frame>
+struct DDFPsiTensorCompute : DDFPsiTensor, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<ScalarTensor::Tags::DDKGTensor,
+                 ScalarTensor::Tags::SpacetimeDerivScalar,
+                 CurvedScalarWave::Tags::Psi,
+                 ScalarTensor::Tags::ScalarFirstCouplingParameter,
+                 ScalarTensor::Tags::ScalarSecondCouplingParameter>;
+  using return_type = tnsr::aa<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::aa<DataVector, 3>*> DDFPsi_tensor_result,
+      const tnsr::aa<DataVector, 3>& DDKG,
+      const tnsr::a<DataVector, 3>& spacetime_derivative_scalar,
+      const Scalar<DataVector>& psi, const double first_coupling_psi,
+      const double second_coupling_psi) = &DDFPsi_tensor_from_DDKG_tensor;
+  using base = DDFPsiTensor;
 };
 
 /*!
