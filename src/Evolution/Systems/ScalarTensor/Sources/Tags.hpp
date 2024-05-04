@@ -77,6 +77,14 @@ struct DDKGTensor : db::SimpleTag {
 };
 
 /*!
+ * \brief Second covariant derivative tensor of the scalar.
+ */
+struct DDFPsiTensor : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "DDFPsiTensor"; }
+};
+
+/*!
  * \brief Rhs of the Psi equation.
  */
 struct RhsPsi : db::SimpleTag {
