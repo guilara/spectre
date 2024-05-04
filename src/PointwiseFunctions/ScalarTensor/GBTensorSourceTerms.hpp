@@ -142,6 +142,11 @@ void order_reduced_Q_tensor(
     const Scalar<DataVector>& weyl_electric_scalar,
     const Scalar<DataVector>& weyl_magnetic_scalar);
 
+void order_reduced_gb_H_tensor_ricci_part(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+    const tnsr::aa<DataVector, 3> g, const tnsr::AA<DataVector, 3> inv_g,
+    const tnsr::aa<DataVector, 3> T, const tnsr::aa<DataVector, 3> DDKG);
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
@@ -372,6 +377,27 @@ struct OrderReducedQTensorCompute : OrderReducedQTensor, db::ComputeTag {
       const tnsr::aa<DataVector, 3>, const Scalar<DataVector>&,
       const Scalar<DataVector>&) = &order_reduced_Q_tensor;
   using base = OrderReducedQTensor;
+};
+
+/*!
+ * \brief Compute tag for spatial-spatial projection of the order reduced H
+ * tensor.
+ */
+template <typename Frame>
+struct OrderReducedHTensorRicciPartCompute : OrderReducedHTensorRicciPart,
+                                             db::ComputeTag {
+  using argument_tags = tmpl::list<
+      gr::Tags::SpacetimeMetric<DataVector, 3, Frame>,
+      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>,
+      ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3, Frame>,
+      ScalarTensor::Tags::DDKGTensor>;
+  using return_type = tnsr::aa<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+      const tnsr::aa<DataVector, 3> g, const tnsr::AA<DataVector, 3> inv_g,
+      const tnsr::aa<DataVector, 3> T, const tnsr::aa<DataVector, 3> DDKG) =
+      &order_reduced_gb_H_tensor_ricci_part;
+  using base = OrderReducedHTensorRicciPart;
 };
 
 }  // namespace Tags
