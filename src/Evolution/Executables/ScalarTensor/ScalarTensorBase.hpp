@@ -282,6 +282,7 @@ struct ObserverTags {
           ScalarTensor::Tags::OrderReducedGBScalarCompute<Frame::Inertial>,
           ScalarTensor::Tags::RhsPsiCompute, ScalarTensor::Tags::RhsPiCompute,
           ScalarTensor::Tags::RhsPhiCompute,
+          ScalarTensor::Tags::SpacetimeDerivScalarCompute<Frame::Inertial>,
           ScalarTensor::Tags::nnDDKGCompute<Frame::Inertial>,
           ScalarTensor::Tags::nsDDKGCompute<Frame::Inertial>,
           ScalarTensor::Tags::ssDDKGCompute<Frame::Inertial>,

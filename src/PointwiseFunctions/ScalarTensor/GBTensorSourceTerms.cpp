@@ -8,6 +8,20 @@
 
 namespace ScalarTensor {
 
+void spacetime_derivative_scalar(const gsl::not_null<tnsr::a<DataVector, 3>*>
+                                     spacetime_derivative_scalar_result,
+                                 const Scalar<DataVector>& lapse,
+                                 const Scalar<DataVector>& pi_scalar,
+                                 const tnsr::i<DataVector, 3>& phi_scalar) {
+  // Assemble in symmetric rank-2 4-tensor with lower indices
+  // partial_a = Phi_a + n_a Pi
+  // with n_0 = - lapse and n_i = 0
+  get<0>(*spacetime_derivative_scalar_result) = -get(lapse) * get(pi_scalar);
+  for (size_t i = 0; i < 3; ++i) {
+    spacetime_derivative_scalar_result->get(i + 1) = phi_scalar.get(i);
+  }
+}
+
 void DDKG_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> DDKG_normal_normal_result,
 
@@ -291,6 +305,7 @@ void order_reduced_gb_H_tensor_ricci_part(
   // g: spacetime metric
   // inv_g: inverse spacetime metric
   // T: trace reversed stress energy
+  // 8.0 * M_PI factor in T definition
   const double one_over_four = 1.0 / 4.0;
   const double two_over_three = 2.0 / 3.0;
   const auto trace_T = tenex::evaluate(T(ti::a, ti::b) * inv_g(ti::B, ti::A));
