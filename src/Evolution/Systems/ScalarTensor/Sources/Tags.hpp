@@ -34,6 +34,14 @@ struct OrderReducedGBScalar : db::SimpleTag {
 };
 
 /*!
+ * \brief Spacetime derivative of the scalar.
+ */
+struct SpacetimeDerivScalar : db::SimpleTag {
+  using type = tnsr::a<DataVector, 3>;
+  static std::string name() { return "SpacetimeDerivPsi"; }
+};
+
+/*!
  * \brief Normal normal projection of the second covariant derivative of the
  * scalar.
  */

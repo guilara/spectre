@@ -16,6 +16,12 @@
 
 namespace ScalarTensor {
 
+void spacetime_derivative_scalar(const gsl::not_null<tnsr::a<DataVector, 3>*>
+                                     spacetime_derivative_scalar_result,
+                                 const Scalar<DataVector>& lapse,
+                                 const Scalar<DataVector>& pi_scalar,
+                                 const tnsr::i<DataVector, 3>& phi_scalar);
+
 void DDKG_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> DDKG_normal_normal_result,
 
@@ -162,6 +168,23 @@ void order_reduced_gb_H_tensor(
 */
 
 namespace Tags {
+
+/*!
+ * \brief Compute the spacetime derivative of the scalar.
+ */
+template <typename Frame>
+struct SpacetimeDerivScalarCompute : SpacetimeDerivScalar, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<gr::Tags::Lapse<DataVector>, CurvedScalarWave::Tags::Pi,
+                 CurvedScalarWave::Tags::Phi<3>>;
+  using return_type = tnsr::a<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::a<DataVector, 3>*>
+          spacetime_derivative_scalar_result,
+      const Scalar<DataVector>& lapse, const Scalar<DataVector>& pi_scalar,
+      const tnsr::i<DataVector, 3>& d_pi_scalar) = &spacetime_derivative_scalar;
+  using base = SpacetimeDerivScalar;
+};
 
 /*!
  * \brief Compute tag for normal-normal projection of the second covariant
