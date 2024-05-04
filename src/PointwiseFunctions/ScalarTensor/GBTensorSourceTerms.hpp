@@ -49,7 +49,7 @@ void DDKG_normal_spatial_projection(
     const tnsr::i<DataVector, 3>& dt_phi_scalar);
 
 void DDKG_spatial_spatial_projection(
-    const gsl::not_null<tnsr::ij<DataVector, 3>*> DDKG_spatial_spatial_result,
+    const gsl::not_null<tnsr::ii<DataVector, 3>*> DDKG_spatial_spatial_result,
 
     // Metric quantities
 
@@ -66,7 +66,11 @@ void DDKG_spatial_spatial_projection(
     // Provide them with RHS compute tags or from dt<> prefixes
 );
 
-// Not really needed, but for a comparison with full Riemann computation
+void DDKG_tensor_from_projections(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
+    const Scalar<DataVector>& lapse, Scalar<DataVector> nnDDKG,
+    tnsr::i<DataVector, 3> nsDDKG, tnsr::ii<DataVector, 3> ssDDKG);
+
 // template <typename Frame>
 void DDKG_tensor_from_projections(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
@@ -96,13 +100,13 @@ void order_reduced_gb_H_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> nnH_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_electric,
-    const tnsr::ij<DataVector, 3>& ssDDK);
+    const tnsr::ii<DataVector, 3>& ssDDKG);
 
 void compute_S_cross_B(
     const gsl::not_null<tnsr::i<DataVector, 3>*> S_cross_B_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_magnetic,
-    const tnsr::ij<DataVector, 3>& ssDDKG);
+    const tnsr::ii<DataVector, 3>& ssDDKG);
 
 void compute_j_cross_B(
     const gsl::not_null<tnsr::ij<DataVector, 3>*> j_cross_B_result,
@@ -124,7 +128,7 @@ void order_reduced_gb_H_spatial_spatial_projection(
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const Scalar<DataVector>& sqrt_det_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_electric,
-    const Scalar<DataVector>& nnDDKG, const tnsr::ij<DataVector, 3>& ssDDKG,
+    const Scalar<DataVector>& nnDDKG, const tnsr::ii<DataVector, 3>& ssDDKG,
     const tnsr::ij<DataVector, 3>& j_cross_B, const Scalar<DataVector>& nnH);
 
 void order_reduced_gb_H_tensor_weyl_part(
@@ -207,13 +211,30 @@ struct ssDDKGCompute : ssDDKG, db::ComputeTag {
       gr::Tags::SpatialChristoffelSecondKind<DataVector, 3, Frame>,
       CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
       ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>, Frame>>;
-  using return_type = tnsr::ij<DataVector, 3, Frame>;
+  using return_type = tnsr::ii<DataVector, 3, Frame>;
   static constexpr void (*function)(
-      const gsl::not_null<tnsr::ij<DataVector, 3>*> result,
+      const gsl::not_null<tnsr::ii<DataVector, 3>*> result,
       const tnsr::ii<DataVector, 3>&, const tnsr::Ijj<DataVector, 3>&,
       const Scalar<DataVector>&, const tnsr::i<DataVector, 3>&,
       const tnsr::ij<DataVector, 3>&) = &DDKG_spatial_spatial_projection;
   using base = ssDDKG;
+};
+
+/*!
+ * \brief Compute tag for normal-spatial projection of the second covariant
+ * derivative of the scalar.
+ */
+template <typename Frame>
+struct DDKGTensorCompute : DDKGTensor, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<gr::Tags::Lapse<DataVector>, ScalarTensor::Tags::nnDDKG,
+                 ScalarTensor::Tags::nsDDKG, ScalarTensor::Tags::ssDDKG>;
+  using return_type = tnsr::aa<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::aa<DataVector, 3>*> result,
+      const Scalar<DataVector>&, Scalar<DataVector>, tnsr::i<DataVector, 3>,
+      tnsr::ii<DataVector, 3>) = &DDKG_tensor_from_projections;
+  using base = DDKGTensor;
 };
 
 /*!
@@ -230,7 +251,7 @@ struct OrderReducednnHCompute : OrderReducednnH, db::ComputeTag {
   static constexpr void (*function)(
       const gsl::not_null<Scalar<DataVector>*> result,
       const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
-      const tnsr::ij<DataVector, 3>&) =
+      const tnsr::ii<DataVector, 3>&) =
       &order_reduced_gb_H_normal_normal_projection;
   using base = OrderReducednnH;
 };
@@ -248,7 +269,7 @@ struct SCrossBCompute : SCrossB, db::ComputeTag {
   static constexpr void (*function)(
       const gsl::not_null<tnsr::i<DataVector, 3>*> result,
       const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
-      const tnsr::ij<DataVector, 3>&) = &compute_S_cross_B;
+      const tnsr::ii<DataVector, 3>&) = &compute_S_cross_B;
   using base = SCrossB;
 };
 
@@ -311,7 +332,7 @@ struct OrderReducedssHCompute : OrderReducedssH, db::ComputeTag {
       const tnsr::II<DataVector, 3>& inverse_spatial_metric,
       const Scalar<DataVector>& sqrt_det_spatial_metric,
       const tnsr::ii<DataVector, 3>& weyl_electric,
-      const Scalar<DataVector>& nnDDKG, const tnsr::ij<DataVector, 3>& ssDDKG,
+      const Scalar<DataVector>& nnDDKG, const tnsr::ii<DataVector, 3>& ssDDKG,
       const tnsr::ij<DataVector, 3>& j_cross_B, const Scalar<DataVector>& nnH) =
       &order_reduced_gb_H_spatial_spatial_projection;
   using base = OrderReducedssH;

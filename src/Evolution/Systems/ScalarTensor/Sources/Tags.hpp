@@ -56,8 +56,16 @@ struct nsDDKG : db::SimpleTag {
  * scalar.
  */
 struct ssDDKG : db::SimpleTag {
-  using type = tnsr::ij<DataVector, 3>;
+  using type = tnsr::ii<DataVector, 3>;
   static std::string name() { return "ssDDKG"; }
+};
+
+/*!
+ * \brief Second covariant derivative tensor of the scalar.
+ */
+struct DDKGTensor : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "DDKGTensor"; }
 };
 
 /*!
