@@ -65,7 +65,7 @@ void multiply_by_coupling_function_double_prime_quartic(
     gsl::not_null<Scalar<DataVector>*> scalar_source,
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi) {
-  ones_scalar = make_with_value<Scalar<DataVector>>(psi, 1.0);
+  const auto ones_scalar = make_with_value<Scalar<DataVector>>(psi, 1.0);
   *scalar_source->get() *=
       -(first_coupling_psi / 4.0) * ones_scalar.get() -
       (3.0 * second_coupling_psi / 4.0) * square(psi.get());
