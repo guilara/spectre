@@ -54,7 +54,7 @@ void DDKG_normal_spatial_projection(
 }
 
 void DDKG_spatial_spatial_projection(
-    const gsl::not_null<tnsr::ij<DataVector, 3>*> DDKG_spatial_spatial_result,
+    const gsl::not_null<tnsr::ii<DataVector, 3>*> DDKG_spatial_spatial_result,
 
     // Metric quantities
 
@@ -75,9 +75,32 @@ void DDKG_spatial_spatial_projection(
       DDKG_spatial_spatial_result,
       -pi_scalar() * extrinsic_curvature(ti::i, ti::j)
           // Note covariant derivative
-          + d_phi_scalar(ti::i, ti::j) -
+          // and symmetrize partial derivative of scalar
+          + 0.5 * (d_phi_scalar(ti::i, ti::j) + d_phi_scalar(ti::j, ti::i)) -
           spatial_christoffel_second_kind(ti::K, ti::i, ti::j) *
               phi_scalar(ti::k));
+}
+
+void DDKG_tensor_from_projections(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
+    // Metric quantities
+    const Scalar<DataVector>& lapse,
+    // Projections
+    Scalar<DataVector> nnDDKG, tnsr::i<DataVector, 3> nsDDKG,
+    tnsr::ii<DataVector, 3> ssDDKG) {
+  // Assemble in symmetric rank-2 4-tensor with lower indices
+  get<0, 0>(*DDKG_tensor_result) = square(get(lapse)) * get(nnDDKG);
+  for (size_t i = 0; i < 3; ++i) {
+    // nsH with lower indices
+    // Check sign
+    DDKG_tensor_result->get(0, i + 1) = get(lapse) * nsDDKG.get(i);
+  }
+  for (size_t i = 0; i < 3; ++i) {
+    for (size_t j = i; j < 3; ++j) {
+      // ssH with lower indices
+      DDKG_tensor_result->get(i + 1, j + 1) = ssDDKG.get(i, j);
+    }
+  }
 }
 
 // template <typename Frame>
@@ -115,7 +138,7 @@ void DDKG_tensor_from_projections(
                                  inverse_spatial_metric, extrinsic_curvature,
                                  phi_scalar, d_phi_scalar, dt_phi_scalar);
   // ss
-  tnsr::ij<DataVector, 3> ssDDKG;
+  tnsr::ii<DataVector, 3> ssDDKG;
   DDKG_spatial_spatial_projection(make_not_null(&ssDDKG), extrinsic_curvature,
                                   spatial_christoffel_second_kind, pi_scalar,
                                   phi_scalar, d_phi_scalar);
@@ -139,7 +162,7 @@ void order_reduced_gb_H_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> nnH_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_electric,
-    const tnsr::ij<DataVector, 3>& ssDDKG) {
+    const tnsr::ii<DataVector, 3>& ssDDKG) {
   // Raise indices of the spatial part of the second derivative of the scalar
   tenex::evaluate(nnH_result, weyl_electric(ti::i, ti::j) *
                                   inverse_spatial_metric(ti::J, ti::K) *
@@ -151,7 +174,7 @@ void compute_S_cross_B(
     const gsl::not_null<tnsr::i<DataVector, 3>*> S_cross_B_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_magnetic,
-    const tnsr::ij<DataVector, 3>& ssDDKG) {
+    const tnsr::ii<DataVector, 3>& ssDDKG) {
   // Raise indices
   const auto weyl_magnetic_down_up = tenex::evaluate<ti::i, ti::J>(
       weyl_magnetic(ti::i, ti::l) * inverse_spatial_metric(ti::L, ti::J));
@@ -213,7 +236,7 @@ void order_reduced_gb_H_spatial_spatial_projection(
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const Scalar<DataVector>& sqrt_det_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_electric,
-    const Scalar<DataVector>& nnDDKG, const tnsr::ij<DataVector, 3>& ssDDKG,
+    const Scalar<DataVector>& nnDDKG, const tnsr::ii<DataVector, 3>& ssDDKG,
     const tnsr::ij<DataVector, 3>& j_cross_B, const Scalar<DataVector>& nnH) {
   const auto trace_ssDDKG = tenex::evaluate(
       ssDDKG(ti::i, ti::j) * inverse_spatial_metric(ti::J, ti::I));
