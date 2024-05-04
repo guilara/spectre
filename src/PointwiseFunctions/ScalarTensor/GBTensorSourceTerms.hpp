@@ -123,7 +123,7 @@ void order_reduced_gb_H_normal_spatial_projection(
     const tnsr::i<DataVector, 3>& S_cross_B);
 
 void order_reduced_gb_H_spatial_spatial_projection(
-    const gsl::not_null<tnsr::ij<DataVector, 3>*> ssH_result,
+    const gsl::not_null<tnsr::ii<DataVector, 3>*> ssH_result,
     const tnsr::ii<DataVector, 3>& spatial_metric,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const Scalar<DataVector>& sqrt_det_spatial_metric,
@@ -134,7 +134,7 @@ void order_reduced_gb_H_spatial_spatial_projection(
 void order_reduced_gb_H_tensor_weyl_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
     const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnH,
-    const tnsr::i<DataVector, 3>& nsH, const tnsr::ij<DataVector, 3>& ssH);
+    const tnsr::i<DataVector, 3>& nsH, const tnsr::ii<DataVector, 3>& ssH);
 
 void order_reduced_Q_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> Q_tensor_result,
@@ -325,9 +325,9 @@ struct OrderReducedssHCompute : OrderReducedssH, db::ComputeTag {
                  ScalarTensor::Tags::nnDDKG, ScalarTensor::Tags::ssDDKG,
                  ScalarTensor::Tags::JCrossB,
                  ScalarTensor::Tags::OrderReducednnH>;
-  using return_type = tnsr::ij<DataVector, 3, Frame>;
+  using return_type = tnsr::ii<DataVector, 3, Frame>;
   static constexpr void (*function)(
-      const gsl::not_null<tnsr::ij<DataVector, 3>*> result,
+      const gsl::not_null<tnsr::ii<DataVector, 3>*> result,
       const tnsr::ii<DataVector, 3>& spatial_metric,
       const tnsr::II<DataVector, 3>& inverse_spatial_metric,
       const Scalar<DataVector>& sqrt_det_spatial_metric,
@@ -352,7 +352,7 @@ struct OrderReducedHTensorCompute : OrderReducedHTensor, db::ComputeTag {
       const gsl::not_null<tnsr::aa<DataVector, 3>*> result,
       const Scalar<DataVector>&, const Scalar<DataVector>&,
       const tnsr::i<DataVector, 3>&,
-      const tnsr::ij<DataVector, 3>&) = &order_reduced_gb_H_tensor_weyl_part;
+      const tnsr::ii<DataVector, 3>&) = &order_reduced_gb_H_tensor_weyl_part;
   using base = OrderReducedHTensor;
 };
 
