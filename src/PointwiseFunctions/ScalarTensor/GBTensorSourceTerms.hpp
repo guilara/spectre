@@ -11,7 +11,6 @@
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
-#include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
 #include "Utilities/Gsl.hpp"
 
@@ -225,7 +224,7 @@ template <typename Frame>
 struct OrderReducednnHCompute : OrderReducednnH, db::ComputeTag {
   using argument_tags =
       tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
-                 gr::Tags::WeylElectric<DataVector, 3, Frame>,
+                 ScalarTensor::Tags::WeylElectricFull<DataVector, 3, Frame>,
                  ScalarTensor::Tags::ssDDKG>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
@@ -279,7 +278,7 @@ struct OrderReducednsHCompute : OrderReducednsH, db::ComputeTag {
   using argument_tags =
       tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
                  gr::Tags::SqrtDetSpatialMetric<DataVector>,
-                 gr::Tags::WeylElectric<DataVector, 3, Frame>,
+                 ScalarTensor::Tags::WeylElectricFull<DataVector, 3, Frame>,
                  ScalarTensor::Tags::nsDDKG, ScalarTensor::Tags::SCrossB>;
   using return_type = tnsr::i<DataVector, 3, Frame>;
   static constexpr void (*function)(
@@ -301,7 +300,7 @@ struct OrderReducedssHCompute : OrderReducedssH, db::ComputeTag {
       tmpl::list<gr::Tags::SpatialMetric<DataVector, 3, Frame>,
                  gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
                  gr::Tags::SqrtDetSpatialMetric<DataVector>,
-                 gr::Tags::WeylElectric<DataVector, 3, Frame>,
+                 ScalarTensor::Tags::WeylElectricFull<DataVector, 3, Frame>,
                  ScalarTensor::Tags::nnDDKG, ScalarTensor::Tags::ssDDKG,
                  ScalarTensor::Tags::JCrossB,
                  ScalarTensor::Tags::OrderReducednnH>;
@@ -344,7 +343,7 @@ template <typename Frame>
 struct OrderReducedQTensorCompute : OrderReducedQTensor, db::ComputeTag {
   using argument_tags =
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3, Frame>,
-                 gr::Tags::WeylElectricScalar<DataVector>,
+                 ScalarTensor::Tags::WeylElectricFullScalar<DataVector>,
                  gr::Tags::WeylMagneticScalar<DataVector>>;
   using return_type = tnsr::aa<DataVector, 3, Frame>;
   static constexpr void (*function)(
