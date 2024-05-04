@@ -274,6 +274,8 @@ struct ObserverTags {
           // BR
           ScalarTensor::Tags::WeylElectricFullCompute<DataVector, 3,
                                                       Frame::Inertial>,
+          ScalarTensor::Tags::WeylElectricFullScalarCompute<DataVector, 3,
+                                                            Frame::Inertial>,
           ScalarTensor::Tags::WeylElectricRicciCompute<DataVector, 3,
                                                        Frame::Inertial>,
           ScalarTensor::Tags::WeylElectricRicciScalarComplementCompute<

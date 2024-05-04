@@ -167,6 +167,15 @@ struct WeylElectricFull : db::SimpleTag {
   static std::string name() { return "WeylElectricFull"; }
 };
 
+/*!
+ * \brief All extra 4-Ricci terms in the electric part scalar.
+ */
+template <typename DataType>
+struct WeylElectricFullScalar : db::SimpleTag {
+  using type = Scalar<DataType>;
+  static std::string name() { return "WeylElectricFullScalar"; }
+};
+
 }  // namespace Tags
 
 namespace OptionTags {

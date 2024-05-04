@@ -10,6 +10,7 @@
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 
 /// \cond
 namespace gsl {
@@ -121,6 +122,25 @@ struct WeylElectricFullCompute : WeylElectricFull<DataType, SpatialDim, Frame>,
       &weyl_electric_full<DataType, SpatialDim, Frame>);
 
   using base = WeylElectricFull<DataType, SpatialDim, Frame>;
+};
+
+/// Can be retrieved using ScalarTensor::Tags::WeylElectricFullScalar
+template <typename DataType, size_t SpatialDim, typename Frame>
+struct WeylElectricFullScalarCompute : WeylElectricFullScalar<DataType>,
+                                       db::ComputeTag {
+  using argument_tags = tmpl::list<
+      ScalarTensor::Tags::WeylElectricFull<DataType, SpatialDim, Frame>,
+      gr::Tags::InverseSpatialMetric<DataType, SpatialDim, Frame>>;
+
+  using return_type = Scalar<DataType>;
+
+  static constexpr auto function =
+      static_cast<void (*)(gsl::not_null<Scalar<DataType>*>,
+                           const tnsr::ii<DataType, SpatialDim, Frame>&,
+                           const tnsr::II<DataType, SpatialDim, Frame>&)>(
+          &gr::weyl_electric_scalar<DataType, SpatialDim, Frame>);
+
+  using base = WeylElectricFullScalar<DataType>;
 };
 
 }  // namespace Tags
