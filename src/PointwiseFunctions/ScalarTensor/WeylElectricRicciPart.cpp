@@ -56,15 +56,17 @@ void weyl_electric_full(
     const tnsr::i<DataType, SpatialDim, Frame>& phi_scalar,
     const tnsr::ii<DataType, SpatialDim, Frame>& spatial_metric,
     const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric) {
+  // Prefactor definitions
   const double kappa = 8 * M_PI;
   const double one_over_six = 1.0 / 6.0;
+  const double one_over_three = 1.0 / 3.0;
   const auto scalar_factor =
       tenex::evaluate(2.0 * pi_scalar() * pi_scalar() +
                       phi_scalar(ti::k) * inverse_spatial_metric(ti::K, ti::L) *
                           phi_scalar(ti::l));
+  // Compute the Weyl Electric scalar
   tenex::evaluate<ti::i, ti::j>(
       weyl_electric_full,
-      // TODO: Apply trace-free operator (I - (1/3) gamma * tr)
       // Weyl electric vacuum part
       spatial_ricci(ti::i, ti::j) +
           inverse_spatial_metric(ti::K, ti::L) *
@@ -76,6 +78,16 @@ void weyl_electric_full(
           - 0.5 * kappa * phi_scalar(ti::i) * phi_scalar(ti::j) -
           one_over_six * kappa * scalar_factor() *
               spatial_metric(ti::i, ti::j));
+  // Take the trace
+  const auto weyl_electric_trace =
+      tenex::evaluate(inverse_spatial_metric(ti::I, ti::J) *
+                      (*weyl_electric_full)(ti::i, ti::j));
+  // Remove the trace part
+  tenex::update<ti::i, ti::j>(weyl_electric_full,
+                              (*weyl_electric_full)(ti::i, ti::j)
+                                  // Remove trace
+                                  - one_over_three * weyl_electric_trace() *
+                                        spatial_metric(ti::i, ti::j));
 }
 
 }  // namespace ScalarTensor
