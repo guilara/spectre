@@ -95,6 +95,11 @@ void multiply_by_coupling_function_prime_quartic(
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi);
 
+void multiply_by_coupling_function_double_prime_quartic(
+    gsl::not_null<Scalar<DataVector>*> scalar_source,
+    const Scalar<DataVector>& psi, const double first_coupling_psi,
+    const double second_coupling_psi);
+
 // Extra functions for debugging
 void compute_coupling_function_derivative(
     gsl::not_null<Scalar<DataVector>*> result, const Scalar<DataVector>& psi,
