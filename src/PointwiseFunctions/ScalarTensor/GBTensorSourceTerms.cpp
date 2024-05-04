@@ -231,7 +231,7 @@ void order_reduced_gb_H_normal_spatial_projection(
 }
 
 void order_reduced_gb_H_spatial_spatial_projection(
-    const gsl::not_null<tnsr::ij<DataVector, 3>*> ssH_result,
+    const gsl::not_null<tnsr::ii<DataVector, 3>*> ssH_result,
     const tnsr::ii<DataVector, 3>& spatial_metric,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const Scalar<DataVector>& sqrt_det_spatial_metric,
@@ -258,7 +258,7 @@ void order_reduced_gb_H_spatial_spatial_projection(
 void order_reduced_gb_H_tensor_weyl_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
     const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnH,
-    const tnsr::i<DataVector, 3>& nsH, const tnsr::ij<DataVector, 3>& ssH) {
+    const tnsr::i<DataVector, 3>& nsH, const tnsr::ii<DataVector, 3>& ssH) {
   // Assemble in symmetric rank-2 4-tensor with lower indices
   get<0, 0>(*gb_H_tensor_result) = square(get(lapse)) * get(nnH);
   for (size_t i = 0; i < 3; ++i) {
