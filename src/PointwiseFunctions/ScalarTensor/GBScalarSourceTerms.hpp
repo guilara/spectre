@@ -13,6 +13,7 @@
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
+#include "PointwiseFunctions/ScalarTensor/WeylElectricRicciPart.hpp"
 #include "Utilities/Gsl.hpp"
 
 namespace ScalarTensor {
@@ -45,8 +46,7 @@ void order_reduced_gb_scalar_with_tenex(
     const Scalar<DataVector>& weyl_electric_scalar,
     const Scalar<DataVector>& weyl_magnetic_scalar,
     const tnsr::aa<DataVector, 3, Frame>& trace_reversed_stress_energy,
-    const tnsr::AA<DataVector, 3, Frame>& inverse_spacetime_metric,
-    const Scalar<DataVector>& weyl_electric_scalar_complement);
+    const tnsr::AA<DataVector, 3, Frame>& inverse_spacetime_metric);
 
 namespace Tags {
 
@@ -77,18 +77,17 @@ namespace Tags {
 template <typename Frame>
 struct OrderReducedGBScalarCompute : OrderReducedGBScalar, db::ComputeTag {
   using argument_tags = tmpl::list<
-      gr::Tags::WeylElectricScalar<DataVector>,
+      ScalarTensor::Tags::WeylElectricFullScalar<DataVector>,
       gr::Tags::WeylMagneticScalar<DataVector>,
       ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3, Frame>,
-      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>,
-      ScalarTensor::Tags::WeylElectricRicciScalarComplement<DataVector>>;
+      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<Scalar<DataVector>*> result,
       const Scalar<DataVector>&, const Scalar<DataVector>&,
       const tnsr::aa<DataVector, 3, Frame>&,
-      const tnsr::AA<DataVector, 3, Frame>&,
-      const Scalar<DataVector>&) = &order_reduced_gb_scalar_with_tenex;
+      const tnsr::AA<DataVector, 3, Frame>&) =
+      &order_reduced_gb_scalar_with_tenex;
   using base = OrderReducedGBScalar;
 };
 }  // namespace Tags
