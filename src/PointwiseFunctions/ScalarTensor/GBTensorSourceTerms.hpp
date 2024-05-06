@@ -110,6 +110,36 @@ void DDFPsi_tensor_from_DDKG_tensor(
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi);
 
+void DDFPsi_normal_normal_projection(
+    const gsl::not_null<Scalar<DataVector>*> DDFPsi_normal_normal_result,
+    // Scalar quantities
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
+    // DDKG projections
+    const Scalar<DataVector>& DDKG_normal_normal_projection,
+    // Coupling function parameters
+    const double first_coupling_psi, const double second_coupling_psi);
+
+void DDFPsi_spatial_normal_projection(
+    const gsl::not_null<tnsr::i<DataVector, 3>*> DDFPsi_spatial_normal_result,
+    // Scalar quantities
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
+    // DDKG projections
+    const tnsr::i<DataVector, 3>& DDKG_spatial_normal_projection,
+    // Coupling function parameters
+    const double first_coupling_psi, const double second_coupling_psi);
+
+void DDFPsi_spatial_spatial_projection(
+    const gsl::not_null<tnsr::ii<DataVector, 3>*> DDFPsi_spatial_spatial_result,
+    // Scalar quantities
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
+    // DDKG projections
+    const tnsr::ii<DataVector, 3>& DDKG_spatial_spatial_projection,
+    // Coupling function parameters
+    const double first_coupling_psi, const double second_coupling_psi);
+
 void order_reduced_gb_H_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> nnH_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
@@ -270,6 +300,73 @@ struct DDKGTensorCompute : DDKGTensor, db::ComputeTag {
       const Scalar<DataVector>&, Scalar<DataVector>, tnsr::i<DataVector, 3>,
       tnsr::ii<DataVector, 3>) = &DDKG_tensor_from_projections;
   using base = DDKGTensor;
+};
+
+/*!
+ * \brief Compute tag for normal-normal projection of the second covariant
+ * derivative of the scalar.
+ */
+template <typename Frame>
+struct nnDDFPsiCompute : nnDDFPsi, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
+                 CurvedScalarWave::Tags::Phi<3>, ScalarTensor::Tags::nnDDKG,
+                 ScalarTensor::Tags::ScalarFirstCouplingParameter,
+                 ScalarTensor::Tags::ScalarSecondCouplingParameter>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<Scalar<DataVector>*> DDFPsi_normal_normal_result,
+      const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+      const tnsr::i<DataVector, 3>& phi_scalar,
+      const Scalar<DataVector>& DDKG_normal_normal_projection,
+      const double first_coupling_psi,
+      const double second_coupling_psi) = &DDFPsi_normal_normal_projection;
+  using base = nnDDFPsi;
+};
+
+/*!
+ * \brief Compute tag for spatial-normal projection of the second covariant
+ * derivative of the scalar.
+ */
+template <typename Frame>
+struct nsDDFPsiCompute : nsDDFPsi, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
+                 CurvedScalarWave::Tags::Phi<3>, ScalarTensor::Tags::nsDDKG,
+                 ScalarTensor::Tags::ScalarFirstCouplingParameter,
+                 ScalarTensor::Tags::ScalarSecondCouplingParameter>;
+  using return_type = tnsr::i<DataVector, 3>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::i<DataVector, 3>*> DDFPsi_spatial_normal_result,
+      const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+      const tnsr::i<DataVector, 3>& phi_scalar,
+      const tnsr::i<DataVector, 3>& DDKG_spatial_normal_projection,
+      const double first_coupling_psi,
+      const double second_coupling_psi) = &DDFPsi_spatial_normal_projection;
+  using base = nsDDFPsi;
+};
+
+/*!
+ * \brief Compute tag for spatial-normal projection of the second covariant
+ * derivative of the scalar.
+ */
+template <typename Frame>
+struct ssDDFPsiCompute : ssDDFPsi, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
+                 CurvedScalarWave::Tags::Phi<3>, ScalarTensor::Tags::ssDDKG,
+                 ScalarTensor::Tags::ScalarFirstCouplingParameter,
+                 ScalarTensor::Tags::ScalarSecondCouplingParameter>;
+  using return_type = tnsr::ii<DataVector, 3>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::ii<DataVector, 3>*>
+          DDFPsi_spatial_spatial_result,
+      const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+      const tnsr::i<DataVector, 3>& phi_scalar,
+      const tnsr::ii<DataVector, 3>& DDKG_spatial_spatial_projection,
+      const double first_coupling_psi,
+      const double second_coupling_psi) = &DDFPsi_spatial_spatial_projection;
+  using base = ssDDFPsi;
 };
 
 /*!

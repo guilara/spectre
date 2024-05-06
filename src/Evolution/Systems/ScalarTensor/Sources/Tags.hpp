@@ -77,6 +77,33 @@ struct DDKGTensor : db::SimpleTag {
 };
 
 /*!
+ * \brief Normal normal projection of the second covariant derivative of the
+ * scalar.
+ */
+struct nnDDFPsi : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "nnDDFPsi"; }
+};
+
+/*!
+ * \brief Normal spatial projection of the second covariant derivative of the
+ * scalar.
+ */
+struct nsDDFPsi : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "nsDDFPsi"; }
+};
+
+/*!
+ * \brief Spatial spatial projection of the second covariant derivative of the
+ * scalar.
+ */
+struct ssDDFPsi : db::SimpleTag {
+  using type = tnsr::ii<DataVector, 3>;
+  static std::string name() { return "ssDDFPsi"; }
+};
+
+/*!
  * \brief Second covariant derivative tensor of the scalar.
  */
 struct DDFPsiTensor : db::SimpleTag {

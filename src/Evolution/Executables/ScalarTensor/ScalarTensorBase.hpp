@@ -298,6 +298,9 @@ struct ObserverTags {
           ScalarTensor::Tags::OrderReducedHTensorRicciPartCompute<
               Frame::Inertial>,
           ScalarTensor::Tags::DDFPsiTensorCompute<Frame::Inertial>,
+          ScalarTensor::Tags::nnDDFPsiCompute<Frame::Inertial>,
+          ScalarTensor::Tags::nsDDFPsiCompute<Frame::Inertial>,
+          ScalarTensor::Tags::ssDDFPsiCompute<Frame::Inertial>,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
