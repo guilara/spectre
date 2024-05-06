@@ -196,6 +196,79 @@ void DDFPsi_tensor_from_DDKG_tensor(
                                     f_prime() * DDKG(ti::a, ti::b));
 }
 
+void DDFPsi_normal_normal_projection(
+    const gsl::not_null<Scalar<DataVector>*> DDFPsi_normal_normal_result,
+    // Scalar quantities
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
+    // DDKG projections
+    const Scalar<DataVector>& DDKG_normal_normal_projection,
+    // Coupling function parameters
+    const double first_coupling_psi, const double second_coupling_psi) {
+  // Define scalars
+  Scalar<DataVector> f_prime = make_with_value<Scalar<DataVector>>(psi, 1.0);
+  Scalar<DataVector> f_double_prime =
+      make_with_value<Scalar<DataVector>>(psi, 1.0);
+  // Multiply by coupling function
+  ScalarTensor::multiply_by_coupling_function_prime_quartic(
+      &f_prime, psi, first_coupling_psi, second_coupling_psi);
+  ScalarTensor::multiply_by_coupling_function_double_prime_quartic(
+      &f_double_prime, psi, first_coupling_psi, second_coupling_psi);
+  // Construct projection
+  tenex::evaluate(DDFPsi_normal_normal_result,
+                  f_double_prime() * pi_scalar() * pi_scalar() +
+                      f_prime() * DDKG_normal_normal_projection());
+}
+
+void DDFPsi_spatial_normal_projection(
+    const gsl::not_null<tnsr::i<DataVector, 3>*> DDFPsi_spatial_normal_result,
+    // Scalar quantities
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
+    // DDKG projections
+    const tnsr::i<DataVector, 3>& DDKG_spatial_normal_projection,
+    // Coupling function parameters
+    const double first_coupling_psi, const double second_coupling_psi) {
+  // Define scalars
+  Scalar<DataVector> f_prime = make_with_value<Scalar<DataVector>>(psi, 1.0);
+  Scalar<DataVector> f_double_prime =
+      make_with_value<Scalar<DataVector>>(psi, 1.0);
+  // Multiply by coupling function
+  ScalarTensor::multiply_by_coupling_function_prime_quartic(
+      &f_prime, psi, first_coupling_psi, second_coupling_psi);
+  ScalarTensor::multiply_by_coupling_function_double_prime_quartic(
+      &f_double_prime, psi, first_coupling_psi, second_coupling_psi);
+  // Construct projection
+  tenex::evaluate<ti::i>(DDFPsi_spatial_normal_result,
+                         -f_double_prime() * pi_scalar() * phi_scalar(ti::i) +
+                             f_prime() * DDKG_spatial_normal_projection(ti::i));
+}
+
+void DDFPsi_spatial_spatial_projection(
+    const gsl::not_null<tnsr::ii<DataVector, 3>*> DDFPsi_spatial_spatial_result,
+    // Scalar quantities
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
+    // DDKG projections
+    const tnsr::ii<DataVector, 3>& DDKG_spatial_spatial_projection,
+    // Coupling function parameters
+    const double first_coupling_psi, const double second_coupling_psi) {
+  // Define scalars
+  Scalar<DataVector> f_prime = make_with_value<Scalar<DataVector>>(psi, 1.0);
+  Scalar<DataVector> f_double_prime =
+      make_with_value<Scalar<DataVector>>(psi, 1.0);
+  // Multiply by coupling function
+  ScalarTensor::multiply_by_coupling_function_prime_quartic(
+      &f_prime, psi, first_coupling_psi, second_coupling_psi);
+  ScalarTensor::multiply_by_coupling_function_double_prime_quartic(
+      &f_double_prime, psi, first_coupling_psi, second_coupling_psi);
+  // Construct projection
+  tenex::evaluate<ti::i, ti::j>(
+      DDFPsi_spatial_spatial_result,
+      f_double_prime() * phi_scalar(ti::i) * phi_scalar(ti::j) +
+          f_prime() * DDKG_spatial_spatial_projection(ti::i, ti::j));
+}
+
 void order_reduced_gb_H_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> nnH_result,
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
