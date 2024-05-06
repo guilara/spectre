@@ -286,6 +286,8 @@ void compute_S_cross_B(
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_magnetic,
     const tnsr::ii<DataVector, 3>& ssDDKG) {
+  *S_cross_B_result = make_with_value<tnsr::i<DataVector, 3>>(
+      get<0, 0>(inverse_spatial_metric), 0.0);
   // Raise indices
   const auto weyl_magnetic_down_up = tenex::evaluate<ti::i, ti::J>(
       weyl_magnetic(ti::i, ti::l) * inverse_spatial_metric(ti::L, ti::J));
@@ -310,6 +312,8 @@ void compute_j_cross_B(
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& weyl_magnetic,
     const tnsr::i<DataVector, 3>& nsDDKG) {
+  *j_cross_B_result = make_with_value<tnsr::ij<DataVector, 3>>(
+      get<0, 0>(inverse_spatial_metric), 0.0);
   // Raise indices
   const auto weyl_magnetic_down_up = tenex::evaluate<ti::i, ti::J>(
       weyl_magnetic(ti::i, ti::l) * inverse_spatial_metric(ti::L, ti::J));
