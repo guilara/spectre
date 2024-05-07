@@ -438,6 +438,8 @@ void order_reduced_trace_reversed_stress_energy(
   // Sum and take the trace-reverse
   // For the Weyl part the trace should be zero, and taking the trace-reverse
   // should not change it
+  // 8 pi factor needs to be added here since we absorbed it in the
+  // trace reversed part of the canonical stress energy tensor
   const double H_tensor_prefactor = -8.0 * (8.0 * M_PI);
   const auto trace_of_H =
       tenex::evaluate(inverse_spacetime_metric(ti::A, ti::B) *
