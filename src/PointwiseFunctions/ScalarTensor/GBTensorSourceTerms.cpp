@@ -427,6 +427,30 @@ void order_reduced_gb_H_tensor_ricci_part(
                               DDKG(ti::e, ti::f));
 }
 
+void order_reduced_trace_reversed_stress_energy(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*>
+        order_reduced_trace_reversed_stress_energy_result,
+    const tnsr::aa<DataVector, 3> spacetime_metric,
+    const tnsr::AA<DataVector, 3> inverse_spacetime_metric,
+    const tnsr::aa<DataVector, 3> gb_H_tensor_ricci_part,
+    const tnsr::aa<DataVector, 3> gb_H_tensor_weyl_part,
+    const tnsr::aa<DataVector, 3> trace_reversed_canonical_stress_energy) {
+  // Sum and take the trace-reverse
+  // For the Weyl part the trace should be zero, and taking the trace-reverse
+  // should not change it
+  const double H_tensor_prefactor = -8.0;
+  const auto trace_of_H =
+      tenex::evaluate(inverse_spacetime_metric(ti::A, ti::B) *
+                      (gb_H_tensor_ricci_part(ti::a, ti::b) +
+                       gb_H_tensor_weyl_part(ti::a, ti::b)));
+  tenex::evaluate<ti::a, ti::b>(
+      order_reduced_trace_reversed_stress_energy_result,
+      H_tensor_prefactor * (gb_H_tensor_ricci_part(ti::a, ti::b) +
+                            gb_H_tensor_weyl_part(ti::a, ti::b)) -
+          0.5 * H_tensor_prefactor * trace_of_H() *
+              spacetime_metric(ti::a, ti::b));
+}
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> gb_H_tensor_result,
