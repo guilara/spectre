@@ -3,3 +3,4 @@
 
 add_subdirectory(FixedDecoupledScalar)
 add_subdirectory(ScalarDriver)
+add_subdirectory(ScalarTensorDriver)
