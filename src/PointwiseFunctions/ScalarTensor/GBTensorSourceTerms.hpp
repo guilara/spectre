@@ -408,7 +408,7 @@ struct OrderReducednnHCompute : OrderReducednnH, db::ComputeTag {
   using argument_tags =
       tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
                  ScalarTensor::Tags::WeylElectricFull<DataVector, 3, Frame>,
-                 ScalarTensor::Tags::ssDDKG>;
+                 ScalarTensor::Tags::ssDDFPsi>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<Scalar<DataVector>*> result,
@@ -426,7 +426,7 @@ struct SCrossBCompute : SCrossB, db::ComputeTag {
   using argument_tags =
       tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
                  gr::Tags::WeylMagnetic<DataVector, 3, Frame>,
-                 ScalarTensor::Tags::ssDDKG>;
+                 ScalarTensor::Tags::ssDDFPsi>;
   using return_type = tnsr::i<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::i<DataVector, 3>*> result,
@@ -443,7 +443,7 @@ struct JCrossBCompute : JCrossB, db::ComputeTag {
   using argument_tags =
       tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
                  gr::Tags::WeylMagnetic<DataVector, 3, Frame>,
-                 ScalarTensor::Tags::nsDDKG>;
+                 ScalarTensor::Tags::nsDDFPsi>;
   using return_type = tnsr::ij<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::ij<DataVector, 3>*> result,
@@ -462,7 +462,7 @@ struct OrderReducednsHCompute : OrderReducednsH, db::ComputeTag {
       tmpl::list<gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
                  gr::Tags::SqrtDetSpatialMetric<DataVector>,
                  ScalarTensor::Tags::WeylElectricFull<DataVector, 3, Frame>,
-                 ScalarTensor::Tags::nsDDKG, ScalarTensor::Tags::SCrossB>;
+                 ScalarTensor::Tags::nsDDFPsi, ScalarTensor::Tags::SCrossB>;
   using return_type = tnsr::i<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::i<DataVector, 3>*> result,
@@ -484,7 +484,7 @@ struct OrderReducedssHCompute : OrderReducedssH, db::ComputeTag {
                  gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
                  gr::Tags::SqrtDetSpatialMetric<DataVector>,
                  ScalarTensor::Tags::WeylElectricFull<DataVector, 3, Frame>,
-                 ScalarTensor::Tags::nnDDKG, ScalarTensor::Tags::ssDDKG,
+                 ScalarTensor::Tags::nnDDFPsi, ScalarTensor::Tags::ssDDFPsi,
                  ScalarTensor::Tags::JCrossB,
                  ScalarTensor::Tags::OrderReducednnH>;
   using return_type = tnsr::ii<DataVector, 3, Frame>;
@@ -547,7 +547,7 @@ struct OrderReducedHTensorRicciPartCompute : OrderReducedHTensorRicciPart,
       gr::Tags::SpacetimeMetric<DataVector, 3, Frame>,
       gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>,
       ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3, Frame>,
-      ScalarTensor::Tags::DDKGTensor>;
+      ScalarTensor::Tags::DDFPsiTensor>;
   using return_type = tnsr::aa<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
