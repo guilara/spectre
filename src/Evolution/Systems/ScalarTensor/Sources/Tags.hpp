@@ -176,6 +176,14 @@ struct OrderReducedHTensorRicciPart : db::SimpleTag {
 };
 
 /*!
+ * \brief Order reduced H tensor.
+ */
+struct OrderReducedTraceReversedStressEnergy : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "OrderReducedTraceReversedStressEnergy"; }
+};
+
+/*!
  * \brief Order reduced Q tensor.
  */
 struct OrderReducedQTensor : db::SimpleTag {

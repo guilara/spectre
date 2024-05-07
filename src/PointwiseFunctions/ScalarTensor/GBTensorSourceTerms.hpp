@@ -191,6 +191,15 @@ void order_reduced_gb_H_tensor_ricci_part(
     const tnsr::aa<DataVector, 3> g, const tnsr::AA<DataVector, 3> inv_g,
     const tnsr::aa<DataVector, 3> T, const tnsr::aa<DataVector, 3> DDKG);
 
+void order_reduced_trace_reversed_stress_energy(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*>
+        order_reduced_trace_reversed_stress_energy_result,
+    const tnsr::aa<DataVector, 3> spacetime_metric,
+    const tnsr::AA<DataVector, 3> inverse_spacetime_metric,
+    const tnsr::aa<DataVector, 3> gb_H_tensor_ricci_part,
+    const tnsr::aa<DataVector, 3> gb_H_tensor_weyl_part,
+    const tnsr::aa<DataVector, 3> trace_reversed_canonical_stress_energy);
+
 /*
 void order_reduced_gb_H_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame>*> result,
@@ -546,6 +555,33 @@ struct OrderReducedHTensorRicciPartCompute : OrderReducedHTensorRicciPart,
       const tnsr::aa<DataVector, 3> T, const tnsr::aa<DataVector, 3> DDKG) =
       &order_reduced_gb_H_tensor_ricci_part;
   using base = OrderReducedHTensorRicciPart;
+};
+
+/*!
+ * \brief Compute tag for spatial-spatial projection of the order reduced H
+ * tensor.
+ */
+template <typename Frame>
+struct OrderReducedTraceReversedStressEnergyCompute
+    : OrderReducedTraceReversedStressEnergy,
+      db::ComputeTag {
+  using argument_tags = tmpl::list<
+      gr::Tags::SpacetimeMetric<DataVector, 3, Frame>,
+      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>,
+      ScalarTensor::Tags::OrderReducedHTensorRicciPart,
+      ScalarTensor::Tags::OrderReducedHTensor,
+      ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3, Frame>>;
+  using return_type = tnsr::aa<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::aa<DataVector, 3>*>
+          order_reduced_trace_reversed_stress_energy_result,
+      const tnsr::aa<DataVector, 3> spacetime_metric,
+      const tnsr::AA<DataVector, 3> inverse_spacetime_metric,
+      const tnsr::aa<DataVector, 3> gb_H_tensor_ricci_part,
+      const tnsr::aa<DataVector, 3> gb_H_tensor_weyl_part,
+      const tnsr::aa<DataVector, 3> trace_reversed_canonical_stress_energy) =
+      &order_reduced_trace_reversed_stress_energy;
+  using base = OrderReducedTraceReversedStressEnergy;
 };
 
 }  // namespace Tags

@@ -300,6 +300,8 @@ struct ObserverTags {
           ScalarTensor::Tags::nnDDFPsiCompute<Frame::Inertial>,
           ScalarTensor::Tags::nsDDFPsiCompute<Frame::Inertial>,
           ScalarTensor::Tags::ssDDFPsiCompute<Frame::Inertial>,
+          ScalarTensor::Tags::OrderReducedTraceReversedStressEnergyCompute<
+              Frame::Inertial>,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
