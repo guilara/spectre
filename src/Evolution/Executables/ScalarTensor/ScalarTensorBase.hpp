@@ -300,6 +300,12 @@ struct ObserverTags {
           ScalarTensor::Tags::ssDDFPsiCompute<Frame::Inertial>,
           ScalarTensor::Tags::OrderReducedTraceReversedStressEnergyCompute<
               Frame::Inertial>,
+          // Fixing diagnostics
+          ::Tags::PointwiseL2NormCompute<
+              ScalarTensor::Tags::TraceReversedStressEnergy<
+                  DataVector, volume_dim, Frame::Inertial>>,
+          ::Tags::PointwiseL2NormCompute<
+              ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy>,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
