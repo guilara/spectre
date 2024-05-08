@@ -15,4 +15,5 @@ spectre_target_headers(
   ObserveLineSegment.hpp
   ObserveSurfaceData.hpp
   ObserveTimeSeriesOnSurface.hpp
+  ObserveYlms.hpp
   )
