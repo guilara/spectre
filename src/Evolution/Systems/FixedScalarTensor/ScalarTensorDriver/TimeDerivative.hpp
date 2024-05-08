@@ -65,13 +65,14 @@ struct TimeDerivative {
       CurvedScalarWave::Tags::ConstraintGamma1,
       CurvedScalarWave::Tags::ConstraintGamma2,
       // Extra scalar driver temporary tags
-      ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, dim,
-                                                    ::Frame::Inertial>>;
+      fe::ScalarTensorDriver::Tags::TensorDriverSource<DataVector, dim,
+                                                       ::Frame::Inertial>>;
 
   using argument_tags = tmpl::list<
       // Tensor argument tags
-      gr::Tags::SpacetimeMetric<DataVector, Dim>, gh::Tags::Pi<DataVector, Dim>,
-      gh::Tags::Phi<DataVector, Dim>,
+      fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, Dim>,
+      fe::ScalarTensorDriver::Tags::Pi<DataVector, Dim>,
+      fe::ScalarTensorDriver::Tags::Phi<DataVector, Dim>,
       ::gh::ConstraintDamping::Tags::ConstraintGamma0,
       ::gh::ConstraintDamping::Tags::ConstraintGamma1,
       ::gh::ConstraintDamping::Tags::ConstraintGamma2,
@@ -81,8 +82,9 @@ struct TimeDerivative {
                                     Frame::Inertial>,
       domain::Tags::MeshVelocity<Dim, Frame::Inertial>,
       // Scalar argument tags
-      CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<Dim>,
-      gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, Dim>,
+      fe::ScalarTensorDriver::Tags::PiScalar,
+      fe::ScalarTensorDriver::Tags::PhiScalar<Dim>, gr::Tags::Lapse<DataVector>,
+      gr::Tags::Shift<DataVector, Dim>,
       ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<Dim>,
                     Frame::Inertial>,
       ::Tags::deriv<gr::Tags::Shift<DataVector, Dim>, tmpl::size_t<Dim>,
@@ -93,7 +95,9 @@ struct TimeDerivative {
       CurvedScalarWave::Tags::ConstraintGamma1,
       CurvedScalarWave::Tags::ConstraintGamma2,
       // Extra argument tags
-      ScalarTensor::Tags::ScalarSource>;
+      fe::ScalarTensorDriver::Tags::ScalarDriverSource
+      // TODO: Add sigma and tau parameters
+      >;
 
   static void apply(
       // GH dt variables
