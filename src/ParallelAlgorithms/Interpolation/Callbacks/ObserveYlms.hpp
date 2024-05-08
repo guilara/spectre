@@ -15,10 +15,10 @@
 #include "IO/Observer/ReductionActions.hpp"
 #include "IO/Observer/Tags.hpp"
 #include "IO/Observer/VolumeActions.hpp"
+#include "NumericalAlgorithms/SphericalHarmonics/Spherepack.hpp"
 #include "NumericalAlgorithms/SphericalHarmonics/SpherepackIterator.hpp"
 #include "NumericalAlgorithms/SphericalHarmonics/Strahlkorper.hpp"
 #include "NumericalAlgorithms/SphericalHarmonics/Tags.hpp"
-#include "NumericalAlgorithms/SphericalHarmonics/YlmSpherepack.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Invoke.hpp"
 #include "Parallel/Local.hpp"
@@ -47,7 +47,7 @@ struct ObserveYlms
   static void apply(const db::DataBox<DbTags>& box,
                     Parallel::GlobalCache<Metavariables>& cache,
                     const TemporalId& temporal_id) {
-    const auto& strahlkorper = get<StrahlkorperTags::Strahlkorper<Frame>>(box);
+    const auto& strahlkorper = get<ylm::Tags::Strahlkorper<Frame>>(box);
     const auto& ylm = strahlkorper.ylm_spherepack();
     const DataVector& collocation_values = get(get<TagToObserve>(box));
     const std::string& surface_name =
@@ -61,13 +61,13 @@ struct ObserveYlms
     const DataVector spectral_data = ylm.phys_to_spec(collocation_values);
     const size_t l_max_output = 10;
     const size_t num_coefficients =
-        YlmSpherepack::spectral_size(l_max_output, l_max_output) / 2;
+        ylm::Spherepack::spectral_size(l_max_output, l_max_output) / 2;
     const size_t num_columns = num_coefficients + 1;
     ylm_legend.reserve(num_columns);
     ylm_data.reserve(num_columns);
     ylm_legend.emplace_back("Time");
     ylm_data.emplace_back(time);
-    SpherepackIterator iter(strahlkorper.l_max(), strahlkorper.l_max());
+    ylm::SpherepackIterator iter(strahlkorper.l_max(), strahlkorper.l_max());
     for (size_t l = 0; l <= l_max_output; l++) {
       for (int m = -static_cast<int>(l); m <= static_cast<int>(l); m++) {
         ylm_legend.emplace_back(MakeString{} << db::tag_name<TagToObserve>()
