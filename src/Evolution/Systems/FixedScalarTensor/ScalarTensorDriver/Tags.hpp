@@ -83,8 +83,9 @@ struct ScalarTrackingDiagnostic : db::SimpleTag {
   using type = Scalar<DataVector>;
 };
 
+template <typename DataType, size_t Dim, typename Frame>
 struct TensorDriverSource : db::SimpleTag {
-  using type = tnsr::aa<DataVector, 3>;
+  using type = tnsr::aa<DataType, Dim, Frame>;
 };
 
 struct TensorTrackingDiagnostic : db::SimpleTag {
@@ -110,17 +111,17 @@ struct TauParameter : db::SimpleTag {
 /*!
  * \brief The target for the scalar driver field.
  */
-struct TargetPsi : db::SimpleTag {
+struct TargetScalar : db::SimpleTag {
   using type = Scalar<DataVector>;
-  static std::string name() { return "TargetPsi(ScalarDriver)"; }
+  static std::string name() { return "TargetScalar"; }
 };
 
 /*!
  * \brief The target for the scalar driver field.
  */
-struct TargetTensorDriver : db::SimpleTag {
+struct TargetTensor : db::SimpleTag {
   using type = tnsr::aa<DataVector, 3>;
-  static std::string name() { return "Target(TensorDriver)"; }
+  static std::string name() { return "TargetTensor"; }
 };
 
 }  // namespace fe::ScalarTensorDriver::Tags
