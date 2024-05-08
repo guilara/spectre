@@ -36,34 +36,9 @@ struct TimeDerivative {
 
   using temporary_tags = tmpl::list<
       // Tensor driver temporary tags
-      ::gh::ConstraintDamping::Tags::ConstraintGamma1,
-      ::gh::ConstraintDamping::Tags::ConstraintGamma2,
-      // gh::Tags::GaugeH<DataVector, Dim>,
-      // gh::Tags::SpacetimeDerivGaugeH<DataVector, Dim>,
-      // gh::Tags::Gamma1Gamma2, gh::Tags::HalfPiTwoNormals,
-      // gh::Tags::NormalDotOneIndexConstraint, gh::Tags::Gamma1Plus1,
-      // gh::Tags::PiOneNormal<Dim>, gh::Tags::GaugeConstraint<DataVector, Dim>,
-      // gh::Tags::HalfPhiTwoNormals<Dim>,
-      // gh::Tags::ShiftDotThreeIndexConstraint<Dim>,
-      // gh::Tags::MeshVelocityDotThreeIndexConstraint<Dim>,
-      // gh::Tags::PhiOneNormal<Dim>, gh::Tags::PiSecondIndexUp<Dim>,
-      // gh::Tags::ThreeIndexConstraint<DataVector, Dim>,
-      // gh::Tags::PhiFirstIndexUp<Dim>, gh::Tags::PhiThirdIndexUp<Dim>,
-      // gh::Tags::SpacetimeChristoffelFirstKindThirdIndexUp<Dim>,
       gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, Dim>,
       gr::Tags::InverseSpatialMetric<DataVector, Dim>,
       gr::Tags::DetSpatialMetric<DataVector>,
-      // gr::Tags::SqrtDetSpatialMetric<DataVector>,
-      // gr::Tags::InverseSpacetimeMetric<DataVector, Dim>,
-      // gr::Tags::SpacetimeChristoffelFirstKind<DataVector, Dim>,
-      // gr::Tags::SpacetimeChristoffelSecondKind<DataVector, Dim>,
-      // gr::Tags::TraceSpacetimeChristoffelFirstKind<DataVector, Dim>,
-      // gr::Tags::SpacetimeNormalVector<DataVector, Dim>,
-      // Scalar driver temporary tags
-      // gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, Dim>,
-      // gr::Tags::InverseSpatialMetric<DataVector, Dim>,
-      CurvedScalarWave::Tags::ConstraintGamma1,
-      CurvedScalarWave::Tags::ConstraintGamma2,
       // Extra scalar driver temporary tags
       fe::ScalarTensorDriver::Tags::TensorDriverSource<DataVector, dim,
                                                        ::Frame::Inertial>>;
@@ -95,9 +70,10 @@ struct TimeDerivative {
       CurvedScalarWave::Tags::ConstraintGamma1,
       CurvedScalarWave::Tags::ConstraintGamma2,
       // Extra argument tags
-      fe::ScalarTensorDriver::Tags::ScalarDriverSource
+      fe::ScalarTensorDriver::Tags::ScalarDriverSource,
       // TODO: Add sigma and tau parameters
-      >;
+      fe::ScalarTensorDriver::Tags::TauParameter,
+      fe::ScalarTensorDriver::Tags::SigmaParameter>;
 
   static void apply(
       // GH dt variables
@@ -110,42 +86,12 @@ struct TimeDerivative {
       gsl::not_null<tnsr::i<DataVector, dim, Frame::Inertial>*> dt_phi_scalar,
 
       // GH temporal variables
-      gsl::not_null<Scalar<DataVector>*> temp_gamma1,
-      gsl::not_null<Scalar<DataVector>*> temp_gamma2,
-      // gsl::not_null<tnsr::a<DataVector, dim>*> temp_gauge_function,
-      // gsl::not_null<tnsr::ab<DataVector, dim>*>
-      //     temp_spacetime_deriv_gauge_function,
-      // gsl::not_null<Scalar<DataVector>*> gamma1gamma2,
-      // gsl::not_null<Scalar<DataVector>*> half_half_pi_two_normals,
-      // gsl::not_null<Scalar<DataVector>*> normal_dot_gauge_constraint,
-      // gsl::not_null<Scalar<DataVector>*> gamma1_plus_1,
-      // gsl::not_null<tnsr::a<DataVector, dim>*> pi_one_normal,
-      // gsl::not_null<tnsr::a<DataVector, dim>*> gauge_constraint,
-      // gsl::not_null<tnsr::i<DataVector, dim>*> half_phi_two_normals,
-      // gsl::not_null<tnsr::aa<DataVector, dim>*>
-      //     shift_dot_three_index_constraint,
-      // gsl::not_null<tnsr::aa<DataVector, dim>*>
-      //     mesh_velocity_dot_three_index_constraint,
-      // gsl::not_null<tnsr::ia<DataVector, dim>*> phi_one_normal,
-      // gsl::not_null<tnsr::aB<DataVector, dim>*> pi_2_up,
-      // gsl::not_null<tnsr::iaa<DataVector, dim>*> three_index_constraint,
-      // gsl::not_null<tnsr::Iaa<DataVector, dim>*> phi_1_up,
-      // gsl::not_null<tnsr::iaB<DataVector, dim>*> phi_3_up,
-      // gsl::not_null<tnsr::abC<DataVector, dim>*> christoffel_first_kind_3_up,
       gsl::not_null<Scalar<DataVector>*> lapse,
       gsl::not_null<tnsr::I<DataVector, dim>*> shift,
       gsl::not_null<tnsr::II<DataVector, dim>*> inverse_spatial_metric,
       gsl::not_null<Scalar<DataVector>*> det_spatial_metric,
-      gsl::not_null<Scalar<DataVector>*> sqrt_det_spatial_metric,
-      // gsl::not_null<tnsr::AA<DataVector, dim>*> inverse_spacetime_metric,
-      // gsl::not_null<tnsr::abb<DataVector, dim>*> christoffel_first_kind,
-      // gsl::not_null<tnsr::Abb<DataVector, dim>*> christoffel_second_kind,
-      // gsl::not_null<tnsr::a<DataVector, dim>*> trace_christoffel,
-      // gsl::not_null<tnsr::A<DataVector, dim>*> normal_spacetime_vector,
 
       // Scalar temporal variables
-      gsl::not_null<Scalar<DataVector>*> result_gamma1_scalar,
-      gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar,
 
       // Extra temporal tags
       gsl::not_null<tnsr::aa<DataVector, dim>*> stress_energy,
@@ -186,6 +132,9 @@ struct TimeDerivative {
       const Scalar<DataVector>& gamma1_scalar,
       const Scalar<DataVector>& gamma2_scalar,
 
-      const Scalar<DataVector>& scalar_source);
+      const Scalar<DataVector>& scalar_source,
+
+      const Scalar<DataVector>& tau_parameter,
+      const Scalar<DataVector>& sigma_parameter);
 };
 }  // namespace fe::ScalarTensorDriver
