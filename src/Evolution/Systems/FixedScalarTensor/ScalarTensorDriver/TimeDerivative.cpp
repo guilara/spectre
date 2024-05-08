@@ -6,56 +6,54 @@
 namespace fe::ScalarTensorDriver {
 void TimeDerivative::apply(
     // GH dt variables
-    const gsl::not_null<tnsr::aa<DataVector, dim>*> dt_spacetime_metric,
-    const gsl::not_null<tnsr::aa<DataVector, dim>*> dt_pi,
-    const gsl::not_null<tnsr::iaa<DataVector, dim>*> dt_phi,
+    gsl::not_null<tnsr::aa<DataVector, dim>*> dt_spacetime_metric,
+    gsl::not_null<tnsr::aa<DataVector, dim>*> dt_pi,
+    gsl::not_null<tnsr::iaa<DataVector, dim>*> dt_phi,
     // Scalar dt variables
-    const gsl::not_null<Scalar<DataVector>*> dt_psi_scalar,
-    const gsl::not_null<Scalar<DataVector>*> dt_pi_scalar,
-    const gsl::not_null<tnsr::i<DataVector, dim, Frame::Inertial>*>
-        dt_phi_scalar,
+    gsl::not_null<Scalar<DataVector>*> dt_psi_scalar,
+    gsl::not_null<Scalar<DataVector>*> dt_pi_scalar,
+    gsl::not_null<tnsr::i<DataVector, dim, Frame::Inertial>*> dt_phi_scalar,
 
     // GH temporal variables
-    const gsl::not_null<Scalar<DataVector>*> temp_gamma1,
-    const gsl::not_null<Scalar<DataVector>*> temp_gamma2,
-    const gsl::not_null<tnsr::a<DataVector, dim>*> temp_gauge_function,
-    const gsl::not_null<tnsr::ab<DataVector, dim>*>
-        temp_spacetime_deriv_gauge_function,
-    const gsl::not_null<Scalar<DataVector>*> gamma1gamma2,
-    const gsl::not_null<Scalar<DataVector>*> half_half_pi_two_normals,
-    const gsl::not_null<Scalar<DataVector>*> normal_dot_gauge_constraint,
-    const gsl::not_null<Scalar<DataVector>*> gamma1_plus_1,
-    const gsl::not_null<tnsr::a<DataVector, dim>*> pi_one_normal,
-    const gsl::not_null<tnsr::a<DataVector, dim>*> gauge_constraint,
-    const gsl::not_null<tnsr::i<DataVector, dim>*> half_phi_two_normals,
-    const gsl::not_null<tnsr::aa<DataVector, dim>*>
-        shift_dot_three_index_constraint,
-    const gsl::not_null<tnsr::aa<DataVector, dim>*>
-        mesh_velocity_dot_three_index_constraint,
-    const gsl::not_null<tnsr::ia<DataVector, dim>*> phi_one_normal,
-    const gsl::not_null<tnsr::aB<DataVector, dim>*> pi_2_up,
-    const gsl::not_null<tnsr::iaa<DataVector, dim>*> three_index_constraint,
-    const gsl::not_null<tnsr::Iaa<DataVector, dim>*> phi_1_up,
-    const gsl::not_null<tnsr::iaB<DataVector, dim>*> phi_3_up,
-    const gsl::not_null<tnsr::abC<DataVector, dim>*>
-        christoffel_first_kind_3_up,
-    const gsl::not_null<Scalar<DataVector>*> lapse,
-    const gsl::not_null<tnsr::I<DataVector, dim>*> shift,
-    const gsl::not_null<tnsr::II<DataVector, dim>*> inverse_spatial_metric,
-    const gsl::not_null<Scalar<DataVector>*> det_spatial_metric,
-    const gsl::not_null<Scalar<DataVector>*> sqrt_det_spatial_metric,
-    const gsl::not_null<tnsr::AA<DataVector, dim>*> inverse_spacetime_metric,
-    const gsl::not_null<tnsr::abb<DataVector, dim>*> christoffel_first_kind,
-    const gsl::not_null<tnsr::Abb<DataVector, dim>*> christoffel_second_kind,
-    const gsl::not_null<tnsr::a<DataVector, dim>*> trace_christoffel,
-    const gsl::not_null<tnsr::A<DataVector, dim>*> normal_spacetime_vector,
+    gsl::not_null<Scalar<DataVector>*> temp_gamma1,
+    gsl::not_null<Scalar<DataVector>*> temp_gamma2,
+    // gsl::not_null<tnsr::a<DataVector, dim>*> temp_gauge_function,
+    // gsl::not_null<tnsr::ab<DataVector, dim>*>
+    //     temp_spacetime_deriv_gauge_function,
+    // gsl::not_null<Scalar<DataVector>*> gamma1gamma2,
+    // gsl::not_null<Scalar<DataVector>*> half_half_pi_two_normals,
+    // gsl::not_null<Scalar<DataVector>*> normal_dot_gauge_constraint,
+    // gsl::not_null<Scalar<DataVector>*> gamma1_plus_1,
+    // gsl::not_null<tnsr::a<DataVector, dim>*> pi_one_normal,
+    // gsl::not_null<tnsr::a<DataVector, dim>*> gauge_constraint,
+    // gsl::not_null<tnsr::i<DataVector, dim>*> half_phi_two_normals,
+    // gsl::not_null<tnsr::aa<DataVector, dim>*>
+    //     shift_dot_three_index_constraint,
+    // gsl::not_null<tnsr::aa<DataVector, dim>*>
+    //     mesh_velocity_dot_three_index_constraint,
+    // gsl::not_null<tnsr::ia<DataVector, dim>*> phi_one_normal,
+    // gsl::not_null<tnsr::aB<DataVector, dim>*> pi_2_up,
+    // gsl::not_null<tnsr::iaa<DataVector, dim>*> three_index_constraint,
+    // gsl::not_null<tnsr::Iaa<DataVector, dim>*> phi_1_up,
+    // gsl::not_null<tnsr::iaB<DataVector, dim>*> phi_3_up,
+    // gsl::not_null<tnsr::abC<DataVector, dim>*> christoffel_first_kind_3_up,
+    gsl::not_null<Scalar<DataVector>*> lapse,
+    gsl::not_null<tnsr::I<DataVector, dim>*> shift,
+    gsl::not_null<tnsr::II<DataVector, dim>*> inverse_spatial_metric,
+    gsl::not_null<Scalar<DataVector>*> det_spatial_metric,
+    gsl::not_null<Scalar<DataVector>*> sqrt_det_spatial_metric,
+    // gsl::not_null<tnsr::AA<DataVector, dim>*> inverse_spacetime_metric,
+    // gsl::not_null<tnsr::abb<DataVector, dim>*> christoffel_first_kind,
+    // gsl::not_null<tnsr::Abb<DataVector, dim>*> christoffel_second_kind,
+    // gsl::not_null<tnsr::a<DataVector, dim>*> trace_christoffel,
+    // gsl::not_null<tnsr::A<DataVector, dim>*> normal_spacetime_vector,
 
     // Scalar temporal variables
-    const gsl::not_null<Scalar<DataVector>*> result_gamma1_scalar,
-    const gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar,
+    gsl::not_null<Scalar<DataVector>*> result_gamma1_scalar,
+    gsl::not_null<Scalar<DataVector>*> result_gamma2_scalar,
 
     // Extra temporal tags
-    const gsl::not_null<tnsr::aa<DataVector, dim>*> stress_energy,
+    gsl::not_null<tnsr::aa<DataVector, dim>*> stress_energy,
 
     // GH spatial derivatives
     const tnsr::iaa<DataVector, dim>& d_spacetime_metric,
