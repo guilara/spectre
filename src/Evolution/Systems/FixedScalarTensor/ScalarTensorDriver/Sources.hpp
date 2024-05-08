@@ -5,13 +5,10 @@
 
 #include "DataStructures/DataBox/Tag.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
-#include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "Options/String.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
-#include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
-#include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
 #include "Utilities/Gsl.hpp"
 
 namespace fe::ScalarTensorDriver::Sources {
