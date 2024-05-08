@@ -42,6 +42,7 @@
 #include "ParallelAlgorithms/Interpolation/Actions/TryToInterpolate.hpp"
 #include "ParallelAlgorithms/Interpolation/Callbacks/ObserveSurfaceData.hpp"
 #include "ParallelAlgorithms/Interpolation/Callbacks/ObserveTimeSeriesOnSurface.hpp"
+#include "ParallelAlgorithms/Interpolation/Callbacks/ObserveYlms.hpp"
 #include "ParallelAlgorithms/Interpolation/Events/Interpolate.hpp"
 #include "ParallelAlgorithms/Interpolation/Events/InterpolateWithoutInterpComponent.hpp"
 #include "ParallelAlgorithms/Interpolation/InterpolationTarget.hpp"
@@ -131,8 +132,11 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
                                     ::Frame::Inertial>;
     using post_interpolation_callbacks =
         tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
-            detail::ObserverTags::scalar_charge_surface_obs_tags,
-            SphericalSurfaceTmp<SphereNumber>>>;
+                       detail::ObserverTags::scalar_charge_surface_obs_tags,
+                       SphericalSurfaceTmp<SphereNumber>>,
+                   intrp::callbacks::ObserveYlms<
+                       CurvedScalarWave::Tags::Psi,
+                       SphericalSurfaceTmp<SphereNumber>, ::Frame::Inertial>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::st_dg_element_array;
     static std::string name() {
