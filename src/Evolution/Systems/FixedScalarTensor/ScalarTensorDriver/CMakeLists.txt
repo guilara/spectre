@@ -9,6 +9,7 @@ spectre_target_sources(
   ${LIBRARY}
   PRIVATE
   Characteristics.cpp
+  Diagnostics.cpp
   Sources.cpp
   TimeDerivative.cpp
   )
@@ -18,6 +19,7 @@ spectre_target_headers(
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
   Characteristics.hpp
+  Diagnostics.hpp
   Sources.hpp
   System.hpp
   Tags.hpp
