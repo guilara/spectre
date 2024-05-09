@@ -48,10 +48,8 @@ struct TimeDerivative {
       fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, Dim>,
       fe::ScalarTensorDriver::Tags::Pi<DataVector, Dim>,
       fe::ScalarTensorDriver::Tags::Phi<DataVector, Dim>,
-      ::gh::ConstraintDamping::Tags::ConstraintGamma0,
-      ::gh::ConstraintDamping::Tags::ConstraintGamma1,
-      ::gh::ConstraintDamping::Tags::ConstraintGamma2,
-      gauges::Tags::GaugeCondition, domain::Tags::Mesh<Dim>, ::Tags::Time,
+
+      domain::Tags::Mesh<Dim>, ::Tags::Time,
       domain::Tags::Coordinates<Dim, Frame::Inertial>,
       domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
                                     Frame::Inertial>,
@@ -60,15 +58,7 @@ struct TimeDerivative {
       fe::ScalarTensorDriver::Tags::PiScalar,
       fe::ScalarTensorDriver::Tags::PhiScalar<Dim>, gr::Tags::Lapse<DataVector>,
       gr::Tags::Shift<DataVector, Dim>,
-      ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<Dim>,
-                    Frame::Inertial>,
-      ::Tags::deriv<gr::Tags::Shift<DataVector, Dim>, tmpl::size_t<Dim>,
-                    Frame::Inertial>,
-      gr::Tags::InverseSpatialMetric<DataVector, Dim>,
-      gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, Dim>,
-      gr::Tags::TraceExtrinsicCurvature<DataVector>,
-      CurvedScalarWave::Tags::ConstraintGamma1,
-      CurvedScalarWave::Tags::ConstraintGamma2,
+
       // Extra argument tags
       fe::ScalarTensorDriver::Tags::ScalarDriverSource,
       // TODO: Add sigma and tau parameters
@@ -110,9 +100,8 @@ struct TimeDerivative {
       const tnsr::aa<DataVector, dim>& spacetime_metric,
       const tnsr::aa<DataVector, dim>& pi,
       const tnsr::iaa<DataVector, dim>& phi, const Scalar<DataVector>& gamma0,
-      const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
-      const gh::gauges::GaugeCondition& gauge_condition, const Mesh<dim>& mesh,
-      double time,
+
+      const Mesh<dim>& mesh, double time,
       const tnsr::I<DataVector, dim, Frame::Inertial>& inertial_coords,
       const InverseJacobian<DataVector, dim, Frame::ElementLogical,
                             Frame::Inertial>& inverse_jacobian,
@@ -124,13 +113,6 @@ struct TimeDerivative {
       const tnsr::i<DataVector, dim>& phi_scalar,
       const Scalar<DataVector>& lapse_scalar,
       const tnsr::I<DataVector, dim>& shift_scalar,
-      const tnsr::i<DataVector, dim>& deriv_lapse,
-      const tnsr::iJ<DataVector, dim>& deriv_shift,
-      const tnsr::II<DataVector, dim>& upper_spatial_metric,
-      const tnsr::I<DataVector, dim>& trace_spatial_christoffel,
-      const Scalar<DataVector>& trace_extrinsic_curvature,
-      const Scalar<DataVector>& gamma1_scalar,
-      const Scalar<DataVector>& gamma2_scalar,
 
       const Scalar<DataVector>& scalar_source,
 
