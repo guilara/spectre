@@ -38,10 +38,8 @@ void TimeDerivative::apply(
     // GH argument variables
     const tnsr::aa<DataVector, dim>& spacetime_metric,
     const tnsr::aa<DataVector, dim>& pi, const tnsr::iaa<DataVector, dim>& phi,
-    const Scalar<DataVector>& gamma0, const Scalar<DataVector>& gamma1,
-    const Scalar<DataVector>& gamma2,
-    const gh::gauges::GaugeCondition& gauge_condition, const Mesh<dim>& mesh,
-    double time,
+
+    const Mesh<dim>& mesh, double time,
     const tnsr::I<DataVector, dim, Frame::Inertial>& inertial_coords,
     const InverseJacobian<DataVector, dim, Frame::ElementLogical,
                           Frame::Inertial>& inverse_jacobian,
@@ -53,13 +51,6 @@ void TimeDerivative::apply(
     const tnsr::i<DataVector, dim>& phi_scalar,
     const Scalar<DataVector>& lapse_scalar,
     const tnsr::I<DataVector, dim>& shift_scalar,
-    const tnsr::i<DataVector, dim>& deriv_lapse,
-    const tnsr::iJ<DataVector, dim>& deriv_shift,
-    const tnsr::II<DataVector, dim>& upper_spatial_metric,
-    const tnsr::I<DataVector, dim>& trace_spatial_christoffel,
-    const Scalar<DataVector>& trace_extrinsic_curvature,
-    const Scalar<DataVector>& gamma1_scalar,
-    const Scalar<DataVector>& gamma2_scalar,
 
     const Scalar<DataVector>& scalar_source,
 
