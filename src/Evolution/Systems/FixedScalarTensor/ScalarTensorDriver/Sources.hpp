@@ -4,6 +4,7 @@
 #pragma once
 
 #include "DataStructures/DataBox/Tag.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
@@ -39,6 +40,51 @@ void compute_target_tensor(
 }  // namespace fe::ScalarTensorDriver::Sources
 
 namespace fe::ScalarTensorDriver::Tags {
+
+/*!
+ * \brief Compute tag for the scalar driver source.
+ *
+ * \details Call compute_scalar_driver_source.
+ */
+template <typename Frame, typename DataType>
+struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<fe::ScalarTensorDriver::Tags::Psi,
+                 fe::ScalarTensorDriver::Tags::TargetScalar,
+                 fe::ScalarTensorDriver::Tags::TauParameter,
+                 fe::ScalarTensorDriver::Tags::SigmaParameter>;
+  using return_type = Scalar<DataType>;
+  static constexpr void (*function)(const gsl::not_null<return_type*> result,
+                                    const Scalar<DataType>&,
+                                    const Scalar<DataType>&,
+                                    const Scalar<DataType>&,
+                                    const Scalar<DataType>&) =
+      &fe::ScalarDriver::Sources::compute_scalar_driver_source;
+  using base = ScalarDriverSource;
+};
+
+/*!
+ * \brief Compute tag for the scalar driver source.
+ *
+ * \details Call compute_scalar_driver_source.
+ */
+template <typename Frame, typename DataType>
+struct TargetScalarCompute : TargetScalar, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<gr::Tags::WeylElectricScalar<DataType>,
+                 gr::Tags::WeylMagneticScalar<DataType>,
+                 CurvedScalarWave::Tags::Psi,
+                 ScalarTensor::Tags::ScalarFirstCouplingParameter,
+                 ScalarTensor::Tags::ScalarSecondCouplingParameter,
+                 ScalarTensor::Tags::ScalarMass>;
+  using return_type = Scalar<DataType>;
+  static constexpr void (*function)(
+      const gsl::not_null<return_type*> result, const Scalar<DataType>&,
+      const Scalar<DataType>&, const Scalar<DataType>&, const double,
+      const double,
+      const double) = &ScalarTensor::compute_scalar_curvature_source;
+  using base = TargetScalar;
+};
 
 /*!
  * \brief Compute tag for the tensor driver source.
