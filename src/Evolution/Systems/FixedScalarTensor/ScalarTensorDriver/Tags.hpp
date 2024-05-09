@@ -125,4 +125,47 @@ struct TargetTensor : db::SimpleTag {
   static std::string name() { return "TargetTensor"; }
 };
 
+/// @{
+/// \brief Tags corresponding to the characteristic fields.
+///
+/// \details For advection drivers, the characteristic fields are the same as
+/// the evolved fields
+template <typename DataType>
+struct VScalarDriver : db::SimpleTag {
+  using type = Scalar<DataType>;
+};
+template <typename DataType>
+struct VPiScalar : db::SimpleTag {
+  using type = Scalar<DataType>;
+};
+template <typename DataType, size_t Dim, typename Frame>
+struct VTensorDriver : db::SimpleTag {
+  using type = tnsr::aa<DataType, Dim, Frame>;
+};
+template <typename DataType, size_t Dim, typename Frame>
+struct VPi : db::SimpleTag {
+  using type = tnsr::aa<DataType, Dim, Frame>;
+};
+/// @}
+
+template <typename DataType, size_t Dim, typename Frame>
+struct CharacteristicSpeeds : db::SimpleTag {
+  using type = std::array<DataType, 4>;
+};
+
+template <typename DataType, size_t Dim, typename Frame>
+struct CharacteristicFields : db::SimpleTag {
+  using type =
+      Variables<tmpl::list<VScalarDriver<DataType>, VPiScalar<DataType>,
+                           VTensorDriver<DataType, Dim, Frame>,
+                           VPi<DataType, Dim, Frame>>>;
+};
+
+template <typename DataType, size_t Dim, typename Frame>
+struct EvolvedFieldsFromCharacteristicFields : db::SimpleTag {
+  using type = Variables<
+      tmpl::list<ScalarDriver<DataType>, PiScalar<DataType>,
+                 TensorDriver<DataType, Dim, Frame>, Pi<DataType, Dim, Frame>>>;
+};
+
 }  // namespace fe::ScalarTensorDriver::Tags
