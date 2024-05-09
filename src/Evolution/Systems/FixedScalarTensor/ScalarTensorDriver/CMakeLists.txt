@@ -35,4 +35,5 @@ target_link_libraries(
   CurvedScalarWave
   )
 
+  add_subdirectory(BoundaryConditions)
   add_subdirectory(BoundaryCorrections)
