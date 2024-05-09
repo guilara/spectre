@@ -119,8 +119,9 @@ struct TargetScalar : db::SimpleTag {
 /*!
  * \brief The target for the scalar driver field.
  */
+template <typename DataType, size_t Dim, typename Frame>
 struct TargetTensor : db::SimpleTag {
-  using type = tnsr::aa<DataVector, 3>;
+  using type = tnsr::aa<DataType, Dim, Frame>;
   static std::string name() { return "TargetTensor"; }
 };
 
