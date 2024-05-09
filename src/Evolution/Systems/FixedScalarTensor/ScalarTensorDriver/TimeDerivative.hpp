@@ -69,11 +69,12 @@ struct TimeDerivative {
       // GH dt variables
       gsl::not_null<tnsr::aa<DataVector, dim>*> dt_spacetime_metric,
       gsl::not_null<tnsr::aa<DataVector, dim>*> dt_pi,
-      gsl::not_null<tnsr::iaa<DataVector, dim>*> dt_phi,
+      //   gsl::not_null<tnsr::iaa<DataVector, dim>*> dt_phi,
       // Scalar dt variables
       gsl::not_null<Scalar<DataVector>*> dt_psi_scalar,
       gsl::not_null<Scalar<DataVector>*> dt_pi_scalar,
-      gsl::not_null<tnsr::i<DataVector, dim, Frame::Inertial>*> dt_phi_scalar,
+      //   gsl::not_null<tnsr::i<DataVector, dim, Frame::Inertial>*>
+      //   dt_phi_scalar,
 
       // GH temporal variables
       gsl::not_null<Scalar<DataVector>*> lapse,
@@ -89,17 +90,18 @@ struct TimeDerivative {
       // GH spatial derivatives
       const tnsr::iaa<DataVector, dim>& d_spacetime_metric,
       const tnsr::iaa<DataVector, dim>& d_pi,
-      const tnsr::ijaa<DataVector, dim>& d_phi,
+      //   const tnsr::ijaa<DataVector, dim>& d_phi,
 
       // scalar spatial derivatives
       const tnsr::i<DataVector, dim>& d_psi_scalar,
       const tnsr::i<DataVector, dim>& d_pi_scalar,
-      const tnsr::ij<DataVector, dim>& d_phi_scalar,
+      //   const tnsr::ij<DataVector, dim>& d_phi_scalar,
 
       // GH argument variables
       const tnsr::aa<DataVector, dim>& spacetime_metric,
       const tnsr::aa<DataVector, dim>& pi,
-      const tnsr::iaa<DataVector, dim>& phi, const Scalar<DataVector>& gamma0,
+      //   const tnsr::iaa<DataVector, dim>& phi,
+      const Scalar<DataVector>& gamma0,
 
       const Mesh<dim>& mesh, double time,
       const tnsr::I<DataVector, dim, Frame::Inertial>& inertial_coords,
@@ -110,7 +112,7 @@ struct TimeDerivative {
 
       // Scalar argument variables
       const Scalar<DataVector>& pi_scalar,
-      const tnsr::i<DataVector, dim>& phi_scalar,
+      //   const tnsr::i<DataVector, dim>& phi_scalar,
       const Scalar<DataVector>& lapse_scalar,
       const tnsr::I<DataVector, dim>& shift_scalar,
 
