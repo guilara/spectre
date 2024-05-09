@@ -84,10 +84,10 @@ void TimeDerivative::apply(
 
   tenex::evaluate<ti::i, ti::a, ti::b>(dt_phi, 0.0 * phi(ti::i, ti::a, ti::b));
 
-  // TODO: Add friction term
+  // Add friction term
   fe::ScalarTensorDriver::Sources::add_tensor_driver_friction_term_to_dt_pi(
       dt_pi, pi, lapse, shift, scalar_tau_parameter, scalar_sigma_parameter);
-  // TODO: Add source term
+  // Add source term
   fe::ScalarTensorDriver::Sources::add_tensor_driver_source_to_dt_pi(
       dt_pi, tensor_driver_source, lapse);
 
