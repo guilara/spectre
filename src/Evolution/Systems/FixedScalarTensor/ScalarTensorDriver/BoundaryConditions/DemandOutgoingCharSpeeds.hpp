@@ -55,8 +55,7 @@ class DemandOutgoingCharSpeeds final : public BoundaryCondition {
 
   using dg_interior_evolved_variables_tags = tmpl::list<>;
   using dg_interior_temporary_tags =
-      tmpl::list<::gh::ConstraintDamping::Tags::ConstraintGamma1,
-                 gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>>;
+      tmpl::list<gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>>;
   using dg_gridless_tags = tmpl::list<>;
   using dg_interior_primitive_variables_tags = tmpl::list<>;
 
@@ -68,7 +67,7 @@ class DemandOutgoingCharSpeeds final : public BoundaryCondition {
       const tnsr::I<DataVector, 3, Frame::Inertial>&
       /*outward_directed_normal_vector*/,
 
-      const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
+      const Scalar<DataVector>& lapse,
       const tnsr::I<DataVector, 3, Frame::Inertial>& shift);
 };
 }  // namespace fe::ScalarTensorDriver::BoundaryConditions
