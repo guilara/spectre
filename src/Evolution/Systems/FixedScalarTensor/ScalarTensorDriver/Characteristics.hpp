@@ -111,6 +111,22 @@ void characteristic_fields(
     const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form);
 
 template <size_t Dim, typename Frame>
+void characteristic_fields(
+    const gsl::not_null<Scalar<DataVector>*>& v_scalar_driver,
+    const gsl::not_null<Scalar<DataVector>*>& v_pi_scalar,
+    const gsl::not_null<tnsr::aa<DataVector, Dim, Frame>*>& v_tensor_driver,
+    const gsl::not_null<tnsr::aa<DataVector, Dim, Frame>*>& v_pi,
+    // const Scalar<DataVector>& gamma_2,
+    // const tnsr::II<DataVector, Dim, Frame>& inverse_spatial_metric,
+    // Scalar driver fields
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+    // Tensor driver fields
+    const tnsr::aa<DataVector, Dim, Frame>& spacetime_metric,
+    const tnsr::aa<DataVector, Dim, Frame>& pi,
+    // const tnsr::iaa<DataVector, Dim, Frame>& phi,
+    const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form);
+
+template <size_t Dim, typename Frame>
 struct CharacteristicFieldsCompute
     : Tags::CharacteristicFields<DataVector, Dim, Frame>,
       db::ComputeTag {
