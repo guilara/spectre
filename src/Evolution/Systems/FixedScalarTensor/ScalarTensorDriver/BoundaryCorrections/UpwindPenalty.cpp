@@ -63,9 +63,6 @@ double UpwindPenalty<Dim>::dg_package_data(
   // TODO: Add this function to Characteristics.hpp
   characteristic_fields(packaged_v_scalar_driver, packaged_v_pi_scalar,
                         packaged_v_tensor_driver, packaged_v_pi,
-                        // Dont have the inverse spatial metric
-                        inverse_spatial_metric,
-                        //
                         psi, pi_scalar, tensor_driver, pi, normal_covector);
 
   characteristic_speeds(packaged_char_speeds, lapse, shift, normal_covector,
