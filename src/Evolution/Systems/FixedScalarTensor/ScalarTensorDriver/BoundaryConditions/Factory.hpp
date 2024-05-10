@@ -14,6 +14,5 @@ namespace fe::ScalarTensorDriver::BoundaryConditions {
 /// Typelist of standard BoundaryConditions
 using standard_boundary_conditions =
     tmpl::list<AnalyticConstant, DemandOutgoingCharSpeeds,
-               //    ConstraintPreservingSphericalRadiation,
                domain::BoundaryConditions::Periodic<BoundaryCondition>>;
 }  // namespace fe::ScalarTensorDriver::BoundaryConditions
