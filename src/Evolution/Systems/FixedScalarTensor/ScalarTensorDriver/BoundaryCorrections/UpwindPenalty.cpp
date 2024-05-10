@@ -19,27 +19,21 @@
 #include "Utilities/TMPL.hpp"  // IWYU pragma: keep
 
 namespace fe::ScalarTensorDriver::BoundaryCorrections {
-template <size_t Dim>
-UpwindPenalty<Dim>::UpwindPenalty(CkMigrateMessage* msg)
-    : BoundaryCorrection<Dim>(msg) {}
 
-template <size_t Dim>
-std::unique_ptr<BoundaryCorrection<Dim>> UpwindPenalty<Dim>::get_clone() const {
+UpwindPenalty::UpwindPenalty(CkMigrateMessage* msg) : BoundaryCorrection(msg) {}
+
+std::unique_ptr<BoundaryCorrection> UpwindPenalty::get_clone() const {
   return std::make_unique<UpwindPenalty>(*this);
 }
 
-template <size_t Dim>
-void UpwindPenalty<Dim>::pup(PUP::er& p) {
-  BoundaryCorrection<Dim>::pup(p);
-}
+void UpwindPenalty::pup(PUP::er& p) { BoundaryCorrection::pup(p); }
 
-template <size_t Dim>
-double UpwindPenalty<Dim>::dg_package_data(
+double UpwindPenalty::dg_package_data(
     gsl::not_null<Scalar<DataVector>*> packaged_v_scalar_driver,
     gsl::not_null<Scalar<DataVector>*> packaged_v_pi_scalar,
-    gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+    gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         packaged_v_tensor_driver,
-    gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*> packaged_v_pi,
+    gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*> packaged_v_pi,
     //   gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
     //       packaged_interface_unit_normal,
     gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*>
@@ -47,16 +41,15 @@ double UpwindPenalty<Dim>::dg_package_data(
 
     const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
 
-    const tnsr::aa<DataVector, Dim, Frame::Inertial>& tensor_driver,
-    const tnsr::aa<DataVector, Dim, Frame::Inertial>& pi,
+    const tnsr::aa<DataVector, 3, Frame::Inertial>& tensor_driver,
+    const tnsr::aa<DataVector, 3, Frame::Inertial>& pi,
 
     const Scalar<DataVector>& lapse,
-    const tnsr::I<DataVector, Dim, Frame::Inertial>& shift,
+    const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
 
-    const tnsr::i<DataVector, Dim, Frame::Inertial>& normal_covector,
-    const tnsr::I<DataVector, Dim, Frame::Inertial>& normal_vector,
-    const std::optional<tnsr::I<DataVector, Dim, Frame::Inertial>>&
-        mesh_velocity,
+    const tnsr::i<DataVector, 3, Frame::Inertial>& normal_covector,
+    const tnsr::I<DataVector, 3, Frame::Inertial>& normal_vector,
+    const std::optional<tnsr::I<DataVector, 3, Frame::Inertial>>& mesh_velocity,
     const std::optional<Scalar<DataVector>>& normal_dot_mesh_velocity) const {
   // Compute the char speeds without the mesh movement, then add the mesh
   // movement.
@@ -79,30 +72,29 @@ double UpwindPenalty<Dim>::dg_package_data(
                  get<2>(*packaged_char_speeds), get<3>(*packaged_char_speeds)));
 }
 
-template <size_t Dim>
-void UpwindPenalty<Dim>::dg_boundary_terms(
-    gsl::not_null<Scalar<DataVector, Dim, Frame::Inertial>*>
+void UpwindPenalty::dg_boundary_terms(
+    gsl::not_null<Scalar<DataVector, 3, Frame::Inertial>*>
         boundary_correction_scalar_driver,
-    gsl::not_null<Scalar<DataVector, Dim, Frame::Inertial>*>
+    gsl::not_null<Scalar<DataVector, 3, Frame::Inertial>*>
         boundary_correction_pi_scalar,
-    gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+    gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         boundary_correction_tensor_driver,
-    gsl::not_null<tnsr::aa<DataVector, Dim, Frame::Inertial>*>
+    gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         boundary_correction_pi,
 
     const Scalar<DataVector>& char_speed_v_scalar_driver_int,
     const Scalar<DataVector>& char_speed_v_pi_scalar_int,
-    const tnsr::aa<DataVector, Dim, Frame::Inertial>&
+    const tnsr::aa<DataVector, 3, Frame::Inertial>&
         char_speed_v_tensor_driver_int,
-    const tnsr::aa<DataVector, Dim, Frame::Inertial>& char_speed_v_pi_int,
+    const tnsr::aa<DataVector, 3, Frame::Inertial>& char_speed_v_pi_int,
 
     const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int,
 
     const Scalar<DataVector>& char_speed_v_scalar_driver_ext,
     const Scalar<DataVector>& char_speed_v_pi_scalar_ext,
-    const tnsr::aa<DataVector, Dim, Frame::Inertial>&
+    const tnsr::aa<DataVector, 3, Frame::Inertial>&
         char_speed_v_tensor_driver_ext,
-    const tnsr::aa<DataVector, Dim, Frame::Inertial>& char_speed_v_pi_ext,
+    const tnsr::aa<DataVector, 3, Frame::Inertial>& char_speed_v_pi_ext,
 
     const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext,
     dg::Formulation /*dg_formulation*/) const {
@@ -146,8 +138,8 @@ void UpwindPenalty<Dim>::dg_boundary_terms(
       weighted_lambda_pi_scalar_ext * char_speed_v_pi_scalar_ext.get() -
       weighted_lambda_pi_scalar_int * char_speed_v_pi_scalar_int.get();
 
-  for (size_t a = 0; a < Dim + 1; ++a) {
-    for (size_t b = a; b < Dim + 1; ++b) {
+  for (size_t a = 0; a < 4; ++a) {
+    for (size_t b = a; b < 4; ++b) {
       boundary_correction_tensor_driver->get(a, b) =
           weighted_lambda_tensor_driver_ext *
               char_speed_v_tensor_driver_ext.get(a, b) -
@@ -160,32 +152,15 @@ void UpwindPenalty<Dim>::dg_boundary_terms(
   }
 }
 
-template <size_t Dim>
-bool operator==(const UpwindPenalty<Dim>& /*lhs*/,
-                const UpwindPenalty<Dim>& /*rhs*/) {
+bool operator==(const UpwindPenalty& /*lhs*/, const UpwindPenalty& /*rhs*/) {
   return true;
 }
 
-template <size_t Dim>
-bool operator!=(const UpwindPenalty<Dim>& lhs, const UpwindPenalty<Dim>& rhs) {
+bool operator!=(const UpwindPenalty& lhs, const UpwindPenalty& rhs) {
   return not(lhs == rhs);
 }
 
-template <size_t Dim>
 // NOLINTNEXTLINE
-PUP::able::PUP_ID UpwindPenalty<Dim>::my_PUP_ID = 0;
+PUP::able::PUP_ID UpwindPenalty::my_PUP_ID = 0;
 
-#define DIM(data) BOOST_PP_TUPLE_ELEM(0, data)
-
-#define INSTANTIATION(_, data)                                       \
-  template class UpwindPenalty<DIM(data)>;                           \
-  template bool operator==(const UpwindPenalty<DIM(data)>& /*lhs*/,  \
-                           const UpwindPenalty<DIM(data)>& /*rhs*/); \
-  template bool operator!=(const UpwindPenalty<DIM(data)>& /*lhs*/,  \
-                           const UpwindPenalty<DIM(data)>& /*rhs*/);
-
-GENERATE_INSTANTIATIONS(INSTANTIATION, (1, 2, 3))
-
-#undef INSTANTIATION
-#undef DIM
 }  // namespace fe::ScalarTensorDriver::BoundaryCorrections
