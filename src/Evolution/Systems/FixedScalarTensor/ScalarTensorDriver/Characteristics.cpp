@@ -80,6 +80,26 @@ void characteristic_fields(
   get<Tags::VPi<DataVector, Dim, Frame>>(*char_fields) = pi;
 }
 
+void characteristic_fields(
+    const gsl::not_null<Scalar<DataVector>*>& v_scalar_driver,
+    const gsl::not_null<Scalar<DataVector>*>& v_pi_scalar,
+    const gsl::not_null<tnsr::aa<DataVector, Dim, Frame>*>& v_tensor_driver,
+    const gsl::not_null<tnsr::aa<DataVector, Dim, Frame>*>& v_pi,
+    // const Scalar<DataVector>& gamma_2,
+    // const tnsr::II<DataVector, Dim, Frame>& inverse_spatial_metric,
+    // Scalar driver fields
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
+    // Tensor driver fields
+    const tnsr::aa<DataVector, Dim, Frame>& spacetime_metric,
+    const tnsr::aa<DataVector, Dim, Frame>& pi,
+    // const tnsr::iaa<DataVector, Dim, Frame>& phi,
+    const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form) {
+  *v_scalar_driver = psi;
+  *v_pi_scalar = pi_scalar;
+  *v_tensor_driver = spacetime_metric;
+  *v_pi = pi;
+}
+
 template <size_t Dim, typename Frame>
 typename Tags::CharacteristicFields<DataVector, Dim, Frame>::type
 characteristic_fields(
@@ -188,6 +208,18 @@ void Tags::ComputeLargestCharacteristicSpeed<Dim, Frame>::function(
           char_fields,                                                         \
       const tnsr::II<DataVector, DIM(data), FRAME(data)>&                      \
           inverse_spatial_metric,                                              \
+      const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,      \
+      const tnsr::aa<DataVector, DIM(data), FRAME(data)>& spacetime_metric,    \
+      const tnsr::aa<DataVector, DIM(data), FRAME(data)>& pi,                  \
+      const tnsr::i<DataVector, DIM(data), FRAME(data)>&                       \
+          unit_normal_one_form);                                               \
+  template void fe::ScalarTensorDriver::characteristic_fields(                 \
+      const gsl::not_null<Scalar<DataVector>*>& v_scalar_driver,               \
+      const gsl::not_null<Scalar<DataVector>*>& v_pi_scalar,                   \
+      const gsl::not_null<tnsr::aa<DataVector, DIM(data), FRAME(data)>*>&      \
+          v_tensor_driver,                                                     \
+      const gsl::not_null<tnsr::aa<DataVector, DIM(data), FRAME(data)>*>&      \
+          v_pi,                                                                \
       const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,      \
       const tnsr::aa<DataVector, DIM(data), FRAME(data)>& spacetime_metric,    \
       const tnsr::aa<DataVector, DIM(data), FRAME(data)>& pi,                  \
