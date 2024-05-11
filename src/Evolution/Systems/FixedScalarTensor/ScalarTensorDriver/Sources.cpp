@@ -30,7 +30,7 @@ void add_tensor_driver_friction_term_to_dt_pi(
 
 void compute_tensor_driver_source(
     gsl::not_null<tnsr::aa<DataVector, 3>*> tensor_driver_source,
-    const tnsr::aa<DataVector>& tensor_driver,
+    const tnsr::aa<DataVector, 3>& tensor_driver,
     const tnsr::aa<DataVector, 3>& target_tensor,
     const Scalar<DataVector>& scalar_tau_parameter,
     const Scalar<DataVector>& scalar_sigma_parameter) {

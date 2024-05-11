@@ -28,13 +28,13 @@ void add_tensor_driver_friction_term_to_dt_pi(
 
 void compute_tensor_driver_source(
     gsl::not_null<tnsr::aa<DataVector, 3>*> tensor_driver_source,
-    const tnsr::aa<DataVector>& tensor_driver,
+    const tnsr::aa<DataVector, 3>& tensor_driver,
     const tnsr::aa<DataVector, 3>& target_tensor,
     const Scalar<DataVector>& scalar_tau_parameter,
     const Scalar<DataVector>& scalar_sigma_parameter);
 
 void compute_target_tensor(
-    gsl::not_null<tnsr::aa<DataVector, a>*> target_tensor,
+    gsl::not_null<tnsr::aa<DataVector, 3>*> target_tensor,
     const tnsr::aa<DataVector, 3>& tensor_driver);
 
 }  // namespace fe::ScalarTensorDriver::Sources
@@ -102,7 +102,7 @@ struct TensorDriverSourceCompute
   using return_type = tnsr::aa<DataVector, 3, Frame::Inertial>;
   static constexpr void (*function)(
       gsl::not_null<tnsr::aa<DataVector, 3>*> tensor_driver_source,
-      const tnsr::aa<DataVector>& tensor_driver,
+      const tnsr::aa<DataVector, 3>& tensor_driver,
       const tnsr::aa<DataVector, 3>& target_tensor,
       const Scalar<DataVector>& scalar_tau_parameter,
       const Scalar<DataVector>& scalar_sigma_parameter) =
