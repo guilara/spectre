@@ -134,18 +134,19 @@ struct CharacteristicFieldsCompute
   using return_type = typename base::type;
   using argument_tags = tmpl::list<
       //   ::gh::ConstraintDamping::Tags::ConstraintGamma2,
-      gr::Tags::InverseSpatialMetric<DataVector, Dim, Frame>,
-      Tags::Psi<DataVector>, Tags::PiScalar<DataVector>,
-      Tags::TensorDriver<DataVector, Dim, Frame>,
+      gr::Tags::InverseSpatialMetric<DataVector, Dim, Frame>, Tags::Psi,
+      Tags::PiScalar, Tags::TensorDriver<DataVector, Dim, Frame>,
       Tags::Pi<DataVector, Dim, Frame>,
       //   Tags::Phi<DataVector, Dim, Frame>,
       ::Tags::Normalized<domain::Tags::UnnormalizedFaceNormal<Dim, Frame>>>;
 
   static constexpr auto function = static_cast<void (*)(
-      const gsl::not_null<return_type*>, const Scalar<DataVector>&,
+      const gsl::not_null<return_type*>,
+      const tnsr::II<DataVector, Dim, Frame>&, const Scalar<DataVector>&,
       const Scalar<DataVector>&, const tnsr::aa<DataVector, Dim, Frame>&,
       const tnsr::aa<DataVector, Dim, Frame>&,
-      const tnsr::i<DataVector, Dim, Frame>&)>(&characteristic_fields);
+      const tnsr::i<DataVector, Dim, Frame>&)>(
+      &characteristic_fields<Dim, Frame>);
 };
 /// @}
 
