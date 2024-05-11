@@ -6,6 +6,7 @@
 #include "PointwiseFunctions/AnalyticData/FixedScalarTensor/FixedDecoupledScalar/KerrSphericalHarmonic.hpp"
 #include "PointwiseFunctions/AnalyticData/FixedScalarTensor/FixedDecoupledScalar/MinkowskiZeroScalar.hpp"
 #include "PointwiseFunctions/AnalyticData/FixedScalarTensor/FixedDecoupledScalar/SphericalKerrSchildSH.hpp"
+#include "PointwiseFunctions/AnalyticData/FixedScalarTensor/FixedSGB/KerrSphericalHarmonic.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -22,3 +23,11 @@ using all_analytic_data =
                    ::fe::DecoupledScalar::AnalyticData::SphericalKerrSchildSH>>;
 
 }  // namespace gh::fe::DecoupledScalar::AnalyticData
+
+namespace gh::fe::sgb::AnalyticData {
+
+/// \brief List of all analytic solutions
+using all_analytic_data = tmpl::list<
+    gh::Solutions::WrappedGr<::fe::sgb::AnalyticData::KerrSphericalHarmonic>>;
+
+}  // namespace gh::fe::sgb::AnalyticData
