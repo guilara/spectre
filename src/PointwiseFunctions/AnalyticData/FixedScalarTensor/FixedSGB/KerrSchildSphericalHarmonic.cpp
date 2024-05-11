@@ -184,13 +184,12 @@ GENERATE_INSTANTIATIONS(INSTANTIATE_SCALARS, (DataVector),
 GENERATE_INSTANTIATIONS(INSTANTIATE_VECTORS, (DataVector),
                         (CurvedScalarWave::Tags::Phi<3_st>))
 
-#define INSTANTIATE_TENSORS(_, data)                                  \
-  template tuples::TaggedTuple < TAG(data) < DTYPE(data), 3,          \
-      Frame::Inertial >> KerrSphericalHarmonic::variables(            \
-                             const tnsr::I<DTYPE(data), 3>& x,        \
-                             tmpl::list < TAG(data) < DTYPE(data), 3, \
-                             Frame::Inertial >>                       \
-                             /*meta*/) const;
+#define INSTANTIATE_TENSORS(_, data)                      \
+  template tuples::TaggedTuple < TAG(data) < DTYPE(data), \
+      3 >> KerrSphericalHarmonic::variables(              \
+               const tnsr::I<DTYPE(data), 3>& x,          \
+               tmpl::list < TAG(data) < DTYPE(data), 3 >> \
+               /*meta*/) const;
 
 GENERATE_INSTANTIATIONS(INSTANTIATE_TENSORS, (DataVector),
                         (fe::ScalarTensorDriver::Tags::TensorDriver,
