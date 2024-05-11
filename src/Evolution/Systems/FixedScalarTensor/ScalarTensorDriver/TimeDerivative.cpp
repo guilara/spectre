@@ -24,7 +24,7 @@ void TimeDerivative::apply(
     // Scalar temporal variables
 
     // Extra temporal tags
-    gsl::not_null<tnsr::aa<DataVector, dim>*> stress_energy,
+    // gsl::not_null<tnsr::aa<DataVector, dim>*> stress_energy,
 
     // GH spatial derivatives
     const tnsr::iaa<DataVector, dim>& d_spacetime_metric,
@@ -39,8 +39,6 @@ void TimeDerivative::apply(
     // GH argument variables
     const tnsr::aa<DataVector, dim>& spacetime_metric,
     const tnsr::aa<DataVector, dim>& pi,
-    //   const tnsr::iaa<DataVector, dim>& phi,
-    const Scalar<DataVector>& gamma0,
 
     const Mesh<dim>& mesh, double time,
     const tnsr::I<DataVector, dim, Frame::Inertial>& inertial_coords,
@@ -50,11 +48,12 @@ void TimeDerivative::apply(
         mesh_velocity,
 
     // Scalar argument variables
-    const Scalar<DataVector>& pi_scalar,
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
     //   const tnsr::i<DataVector, dim>& phi_scalar,
     const Scalar<DataVector>& lapse_scalar,
     const tnsr::I<DataVector, dim>& shift_scalar,
 
+    const tnsr::aa<DataVector, dim>& tensor_driver_source,
     const Scalar<DataVector>& scalar_source,
 
     const Scalar<DataVector>& tau_parameter,
@@ -66,9 +65,9 @@ void TimeDerivative::apply(
   // *temp_gamma2 = gamma2;
 
   // Compute the spatial metric, determinant, inverse, lapse and shift
-  const tnsr::ii<DataVector, Dim> spatial_metric{};
-  for (size_t i = 0; i < Dim; ++i) {
-    for (size_t j = i; j < Dim; ++j) {
+  const tnsr::ii<DataVector, dim> spatial_metric{};
+  for (size_t i = 0; i < dim; ++i) {
+    for (size_t j = i; j < dim; ++j) {
       make_const_view(make_not_null(&spatial_metric.get(i, j)),
                       spacetime_metric.get(i + 1, j + 1), 0, number_of_points);
     }
