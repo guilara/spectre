@@ -163,9 +163,9 @@ struct CharacteristicFields : db::SimpleTag {
 
 template <typename DataType, size_t Dim, typename Frame>
 struct EvolvedFieldsFromCharacteristicFields : db::SimpleTag {
-  using type = Variables<
-      tmpl::list<ScalarDriver<DataType>, PiScalar<DataType>,
-                 TensorDriver<DataType, Dim, Frame>, Pi<DataType, Dim, Frame>>>;
+  using type =
+      Variables<tmpl::list<Psi, PiScalar, TensorDriver<DataType, Dim, Frame>,
+                           Pi<DataType, Dim, Frame>>>;
 };
 
 }  // namespace fe::ScalarTensorDriver::Tags
