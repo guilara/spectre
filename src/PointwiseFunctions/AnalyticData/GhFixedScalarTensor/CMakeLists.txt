@@ -23,6 +23,7 @@ target_link_libraries(
   PUBLIC
   GeneralRelativitySolutions
   FixedDecoupledScalarAnalyticData
+  FixedSgbAnalyticData
   PRIVATE
   DataStructures
   Utilities
