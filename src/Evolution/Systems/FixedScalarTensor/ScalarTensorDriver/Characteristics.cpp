@@ -80,6 +80,7 @@ void characteristic_fields(
   get<Tags::VPi<DataVector, Dim, Frame>>(*char_fields) = pi;
 }
 
+template <size_t Dim, typename Frame>
 void characteristic_fields(
     const gsl::not_null<Scalar<DataVector>*>& v_scalar_driver,
     const gsl::not_null<Scalar<DataVector>*>& v_pi_scalar,
@@ -112,7 +113,7 @@ characteristic_fields(
     const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form) {
   auto char_fields = make_with_value<
       typename Tags::CharacteristicFields<DataVector, Dim, Frame>::type>(
-      get(gamma_2), 0.);
+      get(pi_scalar), 0.);
   characteristic_fields(make_not_null(&char_fields),
                         //    gamma_2,
                         inverse_spatial_metric, psi, pi_scalar,
@@ -139,8 +140,8 @@ void evolved_fields_from_characteristic_fields(
     evolved_fields->initialize(number_of_grid_points);
   }
 
-  get<Tags::Psi<DataVector>>(*evolved_fields) = u_scalar_driver;
-  get<Tags::PiScalar<DataVector>>(*evolved_fields) = u_pi_scalar;
+  get<Tags::Psi>(*evolved_fields) = u_scalar_driver;
+  get<Tags::PiScalar>(*evolved_fields) = u_pi_scalar;
   get<Tags::TensorDriver<DataVector, Dim, Frame>>(*evolved_fields) =
       u_tensor_driver;
   get<Tags::Pi<DataVector, Dim, Frame>>(*evolved_fields) = u_pi;
@@ -199,8 +200,6 @@ void Tags::ComputeLargestCharacteristicSpeed<Dim, Frame>::function(
           mesh_velocity);                                                      \
   template struct fe::ScalarTensorDriver::CharacteristicSpeedsCompute<         \
       DIM(data), FRAME(data)>;                                                 \
-  template struct fe::ScalarTensorDriver::                                     \
-      CharacteristicSpeedsOnStrahlkorperCompute<DIM(data), FRAME(data)>;       \
   template void fe::ScalarTensorDriver::characteristic_fields(                 \
       const gsl::not_null<                                                     \
           typename fe::ScalarTensorDriver::Tags::CharacteristicFields<         \
@@ -264,7 +263,7 @@ void Tags::ComputeLargestCharacteristicSpeed<Dim, Frame>::function(
   template struct fe::ScalarTensorDriver::Tags::                               \
       ComputeLargestCharacteristicSpeed<DIM(data), FRAME(data)>;
 
-GENERATE_INSTANTIATIONS(INSTANTIATION, (1, 2, 3),
+GENERATE_INSTANTIATIONS(INSTANTIATION, (3),
                         (Frame::Inertial, Frame::Grid))
 
 #undef INSTANTIATION
