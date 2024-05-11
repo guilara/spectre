@@ -1,0 +1,61 @@
+# Distributed under the MIT License.
+# See LICENSE.txt for details.
+
+set(LIBS_TO_LINK
+  ApparentHorizonFinder
+  Charmxx::main
+  CoordinateMaps
+  ControlSystem
+  DiscontinuousGalerkin
+  Domain
+  DomainCreators
+  EventsAndDenseTriggers
+  EventsAndTriggers
+  Evolution
+  GeneralRelativity
+  GeneralRelativityAnalyticData
+  GeneralRelativitySolutions
+  GeneralizedHarmonic
+  Importers
+  Informer
+  Interpolation
+  LinearOperators
+  MathFunctions
+  Observer
+  Options
+  Parallel
+  ParallelInterpolation
+  PhaseControl
+  Serialization
+  Time
+  Utilities
+  #
+  CurvedScalarWave
+  CurvedWaveEquationAnalyticData
+  ScalarTensor
+  ScalarTensorPointwise
+  ScalarTensorAnalyticData
+  GhScalarTensorAnalyticData
+  ScalarTensorDriver
+  FixedSgb
+  FixedSgbAnalyticData
+  GhFixedScalarTensorAnalyticData
+  )
+
+set(SINGLE_BH_EXECUTABLE EvolveFixedSgbSingleBlackHole)
+add_spectre_executable(
+  ${SINGLE_BH_EXECUTABLE}
+  EXCLUDE_FROM_ALL
+  EvolveFixedDecoupledScalarSingleBlackHole.cpp
+  )
+target_compile_definitions(
+  ${SINGLE_BH_EXECUTABLE}
+  PRIVATE
+  DIM=3
+  USE_NUMERICAL_ID=false
+  )
+target_link_libraries(
+  ${SINGLE_BH_EXECUTABLE}
+  PRIVATE
+  ${LIBS_TO_LINK}
+  )
