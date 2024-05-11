@@ -46,7 +46,7 @@ set(SINGLE_BH_EXECUTABLE EvolveFixedSgbSingleBlackHole)
 add_spectre_executable(
   ${SINGLE_BH_EXECUTABLE}
   EXCLUDE_FROM_ALL
-  EvolveFixedDecoupledScalarSingleBlackHole.cpp
+  EvolveFixedSgbSingleBlackHole.cpp
   )
 target_compile_definitions(
   ${SINGLE_BH_EXECUTABLE}
