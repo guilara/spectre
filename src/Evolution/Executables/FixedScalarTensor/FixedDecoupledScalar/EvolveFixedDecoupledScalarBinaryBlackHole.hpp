@@ -163,6 +163,7 @@
 #include "ParallelAlgorithms/Interpolation/Actions/TryToInterpolate.hpp"
 #include "ParallelAlgorithms/Interpolation/Callbacks/ObserveSurfaceData.hpp"
 #include "ParallelAlgorithms/Interpolation/Callbacks/ObserveTimeSeriesOnSurface.hpp"
+#include "ParallelAlgorithms/Interpolation/Callbacks/ObserveYlms.hpp"
 #include "ParallelAlgorithms/Interpolation/Events/Interpolate.hpp"
 #include "ParallelAlgorithms/Interpolation/Events/InterpolateWithoutInterpComponent.hpp"
 #include "ParallelAlgorithms/Interpolation/InterpolationTarget.hpp"
@@ -393,8 +394,8 @@ struct EvolutionMetavars {
     using compute_target_points =
         intrp::TargetPoints::Sphere<SphericalSurfaceTmp<SphereNumber>,
                                     ::Frame::Inertial>;
-    using post_interpolation_callbacks =
-        tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
+    using post_interpolation_callbacks = tmpl::list<
+        intrp::callbacks::ObserveTimeSeriesOnSurface<
             tmpl::list<
                 gr::surfaces::Tags::SurfaceIntegralCompute<
                     ScalarTensor::StrahlkorperScalar::Tags::
@@ -404,7 +405,10 @@ struct EvolutionMetavars {
                     CurvedScalarWave::Tags::Psi, ::Frame::Inertial>,
                 gr::surfaces::Tags::SurfaceIntegralCompute<
                     CurvedScalarWave::Tags::PsiSquared, ::Frame::Inertial>>,
-            SphericalSurfaceTmp<SphereNumber>>>;
+            SphericalSurfaceTmp<SphereNumber>>,
+        intrp::callbacks::ObserveYlms<CurvedScalarWave::Tags::Psi,
+                                      SphericalSurfaceTmp<SphereNumber>,
+                                      ::Frame::Inertial>>;
     template <typename metavariables>
     using interpolating_component = typename metavariables::gh_dg_element_array;
     static std::string name() {
