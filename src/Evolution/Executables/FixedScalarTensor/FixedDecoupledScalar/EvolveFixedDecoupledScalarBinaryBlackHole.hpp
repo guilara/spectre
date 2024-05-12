@@ -413,6 +413,11 @@ struct EvolutionMetavars {
   };
 
   using SphericalSurface = SphericalSurfaceTmp<1>;
+  using SphericalSurface2 = SphericalSurfaceTmp<2>;
+  using SphericalSurface3 = SphericalSurfaceTmp<3>;
+  using SphericalSurface4 = SphericalSurfaceTmp<4>;
+  using SphericalSurface5 = SphericalSurfaceTmp<5>;
+  using SphericalSurface6 = SphericalSurfaceTmp<6>;
 
   using both_horizons = control_system::measurements::BothHorizons;
   using control_systems =
@@ -596,6 +601,21 @@ struct EvolutionMetavars {
                 intrp::Events::InterpolateWithoutInterpComponent<
                     3, SphericalSurface,
                     scalar_charge_interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    3, SphericalSurface2,
+                    scalar_charge_interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    3, SphericalSurface3,
+                    scalar_charge_interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    3, SphericalSurface4,
+                    scalar_charge_interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    3, SphericalSurface5,
+                    scalar_charge_interpolator_source_vars>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    3, SphericalSurface6,
+                    scalar_charge_interpolator_source_vars>,
                 Events::MonitorMemory<3>, Events::Completion,
                 dg::Events::field_observations<volume_dim, observe_fields,
                                                non_tensor_compute_tags>,
@@ -768,7 +788,8 @@ struct EvolutionMetavars {
   using interpolation_target_tags = tmpl::push_back<
       control_system::metafunctions::interpolation_target_tags<control_systems>,
       AhA, AhB, AhC, BondiSachs, ExcisionBoundaryA, ExcisionBoundaryB,
-      SphericalSurface>;
+      SphericalSurface, SphericalSurface2, SphericalSurface3, SphericalSurface4,
+      SphericalSurface5, SphericalSurface6>;
 
   using observed_reduction_data_tags = observers::collect_reduction_data_tags<
       tmpl::at<typename factory_creation::factory_classes, Event>>;
