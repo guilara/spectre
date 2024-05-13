@@ -234,16 +234,13 @@ ConstraintPreservingAnalyticConstant::dg_time_derivative(
       logical_dt_phi_scalar, d_psi_scalar, d_pi_scalar, d_phi_scalar);
 
   // Scalar Tensor Driver
-  get(*dt_psi_scalar_driver_correction) = 0.0;
-  get(*dt_pi_scalar_driver_correction) = 0.0;
-  for (size_t i = 0; i < 3; ++i) {
-    dt_phi_scalar_driver_correction->get(i) = 0.0;
-  }
+  get(*dt_psi_scalar_driver_correction) = 0.0 * get(lapse);
+  get(*dt_pi_scalar_driver_correction) = 0.0 * get(lapse);
 
   for (size_t a = 0; a < 4; ++a) {
     for (size_t b = a; b < 4; ++b) {
-      dt_tensor_driver_correction->get(a, b) = 0.0;
-      dt_pi_tensor_driver_correction->get(a, b) = 0.0;
+      dt_tensor_driver_correction->get(a, b) = 0.0 * get(lapse);
+      dt_pi_tensor_driver_correction->get(a, b) = 0.0 * get(lapse);
     }
   }
 

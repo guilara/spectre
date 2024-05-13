@@ -77,13 +77,9 @@
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/Tags.hpp"
 //
-#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Actions/InitializeConstraintGammas.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/BoundaryCorrections/Factory.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Constraints.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Diagnostics.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Initialize.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/PsiSquared.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Sources.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
@@ -388,7 +384,8 @@ struct ObserverTags {
           ScalarTensor::Tags::CouplingFunctionDerivativeCompute<DataVector>,
           // Driver quantities
           fe::ScalarTensorDriver::Tags::TargetScalar,
-          fe::ScalarTensorDriver::Tags::TensorDriverSource,
+          fe::ScalarTensorDriver::Tags::TensorDriverSource<
+              DataVector, volume_dim, Frame::Inertial>,
           fe::ScalarTensorDriver::Tags::ScalarDriverSource,
           fe::ScalarTensorDriver::Tags::TensorTrackingDiagnosticCompute<
               Frame::Inertial, DataVector>,

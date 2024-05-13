@@ -89,25 +89,23 @@ struct TargetScalarCompute : TargetScalar, db::ComputeTag {
 /*!
  * \brief Compute tag for the tensor driver source.
  */
-struct TensorDriverSourceCompute
-    : TensorDriverSource<DataVector, 3, Frame::Inertial>,
-      db::ComputeTag {
+template <typename Frame, typename DataType>
+struct TensorDriverSourceCompute : TensorDriverSource<DataType, 3, Frame>,
+                                   db::ComputeTag {
   using argument_tags =
-      tmpl::list<fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, 3,
-                                                            Frame::Inertial>,
-                 fe::ScalarTensorDriver::Tags::TargetTensor<DataVector, 3,
-                                                            Frame::Inertial>,
+      tmpl::list<fe::ScalarTensorDriver::Tags::TensorDriver<DataType, 3, Frame>,
+                 fe::ScalarTensorDriver::Tags::TargetTensor<DataType, 3, Frame>,
                  fe::ScalarTensorDriver::Tags::TauParameter,
                  fe::ScalarTensorDriver::Tags::SigmaParameter>;
-  using return_type = tnsr::aa<DataVector, 3, Frame::Inertial>;
+  using return_type = tnsr::aa<DataType, 3, Frame>;
   static constexpr void (*function)(
-      gsl::not_null<tnsr::aa<DataVector, 3>*> tensor_driver_source,
-      const tnsr::aa<DataVector, 3>& tensor_driver,
-      const tnsr::aa<DataVector, 3>& target_tensor,
-      const Scalar<DataVector>& scalar_tau_parameter,
-      const Scalar<DataVector>& scalar_sigma_parameter) =
+      gsl::not_null<tnsr::aa<DataType, 3, Frame>*> tensor_driver_source,
+      const tnsr::aa<DataType, 3, Frame>& tensor_driver,
+      const tnsr::aa<DataType, 3, Frame>& target_tensor,
+      const Scalar<DataType>& scalar_tau_parameter,
+      const Scalar<DataType>& scalar_sigma_parameter) =
       &fe::ScalarTensorDriver::Sources::compute_tensor_driver_source;
-  using base = TensorDriverSource<DataVector, 3, Frame::Inertial>;
+  using base = TensorDriverSource<DataType, 3, Frame>;
 };
 
 /*!
