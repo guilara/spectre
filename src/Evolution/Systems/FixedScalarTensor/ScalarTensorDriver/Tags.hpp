@@ -50,7 +50,7 @@ struct PhiScalar : db::SimpleTag {
 /*!
  * \brief Tensor driver.
  */
-template <typename DataType, size_t Dim, typename Frame>
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct TensorDriver : db::SimpleTag {
   using type = tnsr::aa<DataType, Dim, Frame>;
   static std::string name() { return "TensorDriver"; }
@@ -59,7 +59,7 @@ struct TensorDriver : db::SimpleTag {
 /*!
  * \brief Conjugate momentum to the tensor driver.
  */
-template <typename DataType, size_t Dim, typename Frame>
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct Pi : db::SimpleTag {
   using type = tnsr::aa<DataType, Dim, Frame>;
   static std::string name() { return "Phi(TensorDriver)"; }
@@ -69,7 +69,7 @@ struct Pi : db::SimpleTag {
  * \brief Auxiliary variable which is analytically the spatial derivative of the
  * tensor driver
  */
-template <typename DataType, size_t Dim, typename Frame>
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct Phi : db::SimpleTag {
   using type = tnsr::iaa<DataType, Dim, Frame>;
   static std::string name() { return "Phi(TensorDriver)"; }
@@ -83,7 +83,7 @@ struct ScalarTrackingDiagnostic : db::SimpleTag {
   using type = Scalar<DataVector>;
 };
 
-template <typename DataType, size_t Dim, typename Frame>
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct TensorDriverSource : db::SimpleTag {
   using type = tnsr::aa<DataType, Dim, Frame>;
 };
@@ -119,7 +119,7 @@ struct TargetScalar : db::SimpleTag {
 /*!
  * \brief The target for the scalar driver field.
  */
-template <typename DataType, size_t Dim, typename Frame>
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct TargetTensor : db::SimpleTag {
   using type = tnsr::aa<DataType, Dim, Frame>;
   static std::string name() { return "TargetTensor"; }
