@@ -11,7 +11,6 @@
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/BoundaryCorrections/BoundaryCorrection.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Characteristics.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/TimeDerivative.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/TMPL.hpp"
 
