@@ -1,7 +1,9 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Evolution/Systems/FixedDecoupledScalar/ScalarTensorDriver/TimeDerivative.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/TimeDerivative.hpp"
+
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Sources.hpp"
 
 namespace fe::ScalarTensorDriver {
 void TimeDerivative::apply(
@@ -54,7 +56,7 @@ void TimeDerivative::apply(
     const tnsr::I<DataVector, dim>& shift_scalar,
 
     const tnsr::aa<DataVector, dim>& tensor_driver_source,
-    const Scalar<DataVector>& scalar_source,
+    const Scalar<DataVector>& scalar_driver_source,
 
     const Scalar<DataVector>& tau_parameter,
     const Scalar<DataVector>& sigma_parameter) {
@@ -79,29 +81,31 @@ void TimeDerivative::apply(
 
   // Tensor advection driver
   tenex::evaluate<ti::a, ti::b>(
-      dt_spacetime_metric, -(*lapse)() * pi(ti::a, ti::b) +
-                               (*shift)(ti::J)*d_spacetime_metric(ti::j, a, b));
+      dt_spacetime_metric,
+      -(*lapse)() * pi(ti::a, ti::b) +
+          (*shift)(ti::J)*d_spacetime_metric(ti::j, ti::a, ti::b));
 
-  tenex::evaluate<ti::a, ti::b>(dt_pi, (*shift)(ti::J)*d_pi(ti::j, a, b));
+  tenex::evaluate<ti::a, ti::b>(dt_pi,
+                                (*shift)(ti::J)*d_pi(ti::j, ti::a, ti::b));
 
   // tenex::evaluate<ti::i, ti::a, ti::b>(dt_phi, 0.0 * phi(ti::i, ti::a,
   // ti::b));
 
   // Add friction term
   fe::ScalarTensorDriver::Sources::add_tensor_driver_friction_term_to_dt_pi(
-      dt_pi, pi, lapse, shift, scalar_tau_parameter, scalar_sigma_parameter);
+      dt_pi, pi, *lapse, *shift, tau_parameter, sigma_parameter);
   // Add source term
   fe::ScalarTensorDriver::Sources::add_tensor_driver_source_to_dt_pi(
-      dt_pi, tensor_driver_source, lapse);
+      dt_pi, tensor_driver_source, *lapse);
 
   // *result_gamma1_scalar = gamma1_scalar;
   // *result_gamma2_scalar = gamma2_scalar;
 
   // Scalar advection driver
-  tenex::evaluate(dt_psi_scalar,
-                  -lapse() * pi_scalar() + shift(ti::I) * d_psi_scalar(ti::i));
+  tenex::evaluate(dt_psi_scalar, -(*lapse)() * pi_scalar() +
+                                     (*shift)(ti::I)*d_psi_scalar(ti::i));
 
-  tenex::evaluate(dt_pi_scalar, shift(ti::I) * d_pi_scalar(ti::i));
+  tenex::evaluate(dt_pi_scalar, (*shift)(ti::I)*d_pi_scalar(ti::i));
 
   // for (size_t index = 0; index < 3_st; ++index) {
   //   dt_phi_scalar->get(index) = 0.0 * get(lapse) * phi_scalar.get(index);
@@ -109,11 +113,10 @@ void TimeDerivative::apply(
 
   // Add friction term
   fe::ScalarDriver::Sources::add_scalar_driver_friction_term_to_dt_pi_scalar(
-      dt_pi_scalar, pi_scalar, lapse, shift, scalar_tau_parameter,
-      scalar_sigma_parameter);
+      dt_pi_scalar, pi_scalar, *lapse, *shift, tau_parameter, sigma_parameter);
 
   // Add source
   fe::ScalarDriver::Sources::add_scalar_driver_source_to_dt_pi_scalar(
-      dt_pi_scalar, scalar_driver_source, lapse);
+      dt_pi_scalar, scalar_driver_source, *lapse);
 }
 }  // namespace fe::ScalarTensorDriver
