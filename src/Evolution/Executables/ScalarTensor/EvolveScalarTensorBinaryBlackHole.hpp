@@ -70,6 +70,7 @@
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Actions/InitializeConstraintGammas.hpp"
+#include "Evolution/Systems/ScalarTensor/Actions/SetInitialData.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/Factory.hpp"
@@ -263,8 +264,8 @@ struct EvolutionMetavars {
 
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
       // For now we initially set the scalar variables to analytic values
-      Initialization::Actions::AddSimpleTags<
-          ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
+      //   Initialization::Actions::AddSimpleTags<
+      //       ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
       Actions::MutateApply<gh::gauges::SetPiAndPhiFromConstraints<volume_dim>>,
       //   Initialization::Actions::AddSimpleTags<
       //       ScalarTensor::Initialization::
@@ -716,9 +717,12 @@ struct EvolutionMetavars {
                          Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::ImportInitialData,
-              tmpl::list<gh::Actions::SetInitialData,
-                         gh::Actions::ReceiveNumericInitialData,
-                         Parallel::Actions::TerminatePhase>>,
+              tmpl::list<
+                  //  gh::Actions::SetInitialData,
+                  //  gh::Actions::ReceiveNumericInitialData,
+                  ScalarTensor::Actions::SetInitialData,
+                  ScalarTensor::Actions::ReceiveNumericInitialData,
+                  Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
               initialize_initial_data_dependent_quantities_actions>,
