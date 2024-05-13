@@ -7,7 +7,11 @@
 
 #include "DataStructures/Tensor/EagerMath/Magnitude.hpp"
 #include "DataStructures/VariablesTag.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/BoundaryConditions/BoundaryCondition.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/BoundaryCorrections/BoundaryCorrection.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Characteristics.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/TimeDerivative.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -16,6 +20,9 @@
  * \brief Items related to the scalar tensor driver on a curved background
  */
 namespace fe::ScalarTensorDriver {
+/// \cond
+struct TimeDerivative;
+/// \endcond
 struct System {
   static constexpr bool is_in_flux_conservative_form = false;
   static constexpr bool has_primitive_and_conservative_vars = false;
@@ -29,7 +36,7 @@ struct System {
       ::Tags::Variables<tmpl::list<Tags::Psi, Tags::PiScalar,
                                    //   Tags::PhiScalar<3_st>,
                                    Tags::TensorDriver<DataVector, volume_dim>,
-                                   Tags::Pi<DataVector, volume_dim>,
+                                   Tags::Pi<DataVector, volume_dim>
                                    //   Tags::Phi<DataVector, volume_dim>
                                    >>;
   using flux_variables = tmpl::list<>;
@@ -37,7 +44,7 @@ struct System {
       tmpl::list<Tags::Psi, Tags::PiScalar,
                  //    Tags::PhiScalar<3_st>,
                  Tags::TensorDriver<DataVector, volume_dim>,
-                 Tags::Pi<DataVector, volume_dim>,
+                 Tags::Pi<DataVector, volume_dim>
                  //  Tags::Phi<DataVector, volume_dim>
                  >;
 
