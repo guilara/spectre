@@ -14,9 +14,12 @@
 #include "Domain/Tags.hpp"
 #include "Domain/TagsTimeDependent.hpp"
 #include "Evolution/Systems/CurvedScalarWave/TimeDerivative.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
 #include "NumericalAlgorithms/LinearOperators/PartialDerivatives.hpp"
-#include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
+#include "PointwiseFunctions/GeneralRelativity/InverseSpacetimeMetric.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Lapse.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Shift.hpp"
 #include "Time/Tags/Time.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/TMPL.hpp"
@@ -32,7 +35,7 @@ struct TimeDerivative {
   using dt_tags =
       db::wrap_tags_in<::Tags::dt, typename System::variables_tag::tags_list>;
 
-  using gradient_tags = typename System::variables_tag::gradients_tags;
+  using gradient_tags = typename System::gradients_tags;
 
   using temporary_tags = tmpl::list<
       // Tensor driver temporary tags
@@ -114,7 +117,7 @@ struct TimeDerivative {
       const tnsr::I<DataVector, dim>& shift_scalar,
 
       const tnsr::aa<DataVector, dim>& tensor_driver_source,
-      const Scalar<DataVector>& scalar_source,
+      const Scalar<DataVector>& scalar_driver_source,
 
       const Scalar<DataVector>& tau_parameter,
       const Scalar<DataVector>& sigma_parameter);
