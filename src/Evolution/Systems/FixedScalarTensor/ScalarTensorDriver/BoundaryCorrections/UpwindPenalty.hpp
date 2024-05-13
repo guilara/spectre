@@ -13,6 +13,7 @@
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Formulation.hpp"
 #include "Options/String.hpp"
+#include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/Serialization/CharmPupable.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -61,10 +62,8 @@ class UpwindPenalty final : public BoundaryCorrection {
   std::unique_ptr<BoundaryCorrection> get_clone() const override;
 
   using dg_package_field_tags =
-      tmpl::list<Tags::VScalarDriver<DataVector>, VPiScalar<DataVector>,
+      tmpl::list<Tags::VScalarDriver<DataVector>, Tags::VPiScalar<DataVector>,
                  Tags::VTensorDriver<DataVector, 3>, Tags::VPi<DataVector, 3>,
-                 //  ::Tags::Normalized<domain::Tags::UnnormalizedFaceNormal<
-                 //      3_st, Frame::Inertial>>,
                  CharSpeedsTensor>;
   using dg_package_data_temporary_tags =
       tmpl::list<gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>>;
@@ -97,10 +96,8 @@ class UpwindPenalty final : public BoundaryCorrection {
       const std::optional<Scalar<DataVector>>& normal_dot_mesh_velocity) const;
 
   void dg_boundary_terms(
-      gsl::not_null<Scalar<DataVector, 3, Frame::Inertial>*>
-          boundary_correction_scalar_driver,
-      gsl::not_null<Scalar<DataVector, 3, Frame::Inertial>*>
-          boundary_correction_pi_scalar,
+      gsl::not_null<Scalar<DataVector>*> boundary_correction_scalar_driver,
+      gsl::not_null<Scalar<DataVector>*> boundary_correction_pi_scalar,
       gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
           boundary_correction_tensor_driver,
       gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
