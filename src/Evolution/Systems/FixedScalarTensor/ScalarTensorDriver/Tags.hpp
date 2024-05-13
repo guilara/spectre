@@ -88,8 +88,9 @@ struct TensorDriverSource : db::SimpleTag {
   using type = tnsr::aa<DataType, Dim, Frame>;
 };
 
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct TensorTrackingDiagnostic : db::SimpleTag {
-  using type = tnsr::aa<DataVector, 3>;
+  using type = tnsr::aa<DataType, Dim, Frame>;
 };
 
 /*!
