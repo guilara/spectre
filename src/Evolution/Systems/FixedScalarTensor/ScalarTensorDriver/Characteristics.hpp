@@ -35,6 +35,15 @@ namespace fe::ScalarTensorDriver {
  * \brief Compute the characteristic speeds for the scalar tensor driver system.
  */
 template <size_t Dim, typename Frame>
+void characteristic_speeds(
+    const gsl::not_null<tnsr::a<DataVector, 3, Frame>*> char_speeds,
+    // const Scalar<DataVector>& gamma_1,
+    const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, Dim, Frame>& shift,
+    const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form,
+    const std::optional<tnsr::I<DataVector, Dim, Frame>>& mesh_velocity);
+
+template <size_t Dim, typename Frame>
 std::array<DataVector, 4> characteristic_speeds(
     // const Scalar<DataVector>& gamma_1,
     const Scalar<DataVector>& lapse,

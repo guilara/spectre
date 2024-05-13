@@ -24,6 +24,21 @@ namespace fe::ScalarTensorDriver {
 
 template <size_t Dim, typename Frame>
 void characteristic_speeds(
+    const gsl::not_null<tnsr::a<DataVector, 3, Frame>*> char_speeds,
+    // const Scalar<DataVector>& gamma_1,
+    const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, Dim, Frame>& shift,
+    const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form,
+    const std::optional<tnsr::I<DataVector, Dim, Frame>>& mesh_velocity) {
+  const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
+  get<0>(*char_speeds) = -shift_dot_normal;  // lambda(VScalarDriver)
+  get<1>(*char_speeds) = -shift_dot_normal;  // lambda(VPiScalar)
+  get<2>(*char_speeds) = -shift_dot_normal;  // lambda(VTensorDriver)
+  get<3>(*char_speeds) = -shift_dot_normal;  // lambda(VPi)
+}
+
+template <size_t Dim, typename Frame>
+void characteristic_speeds(
     const gsl::not_null<std::array<DataVector, 4>*> char_speeds,
     // const Scalar<DataVector>& gamma_1,
     const Scalar<DataVector>& lapse,
@@ -184,6 +199,14 @@ void Tags::ComputeLargestCharacteristicSpeed::function(
 #define FRAME(data) BOOST_PP_TUPLE_ELEM(1, data)
 
 #define INSTANTIATION(_, data)                                                 \
+  template void fe::ScalarTensorDriver::characteristic_speeds(                 \
+      const gsl::not_null<tnsr::a<DataVector, DIM(data), FRAME(data)>*>        \
+          char_speeds,                                                         \
+      const Scalar<DataVector>& lapse,                                         \
+      const tnsr::I<DataVector, DIM(data), FRAME(data)>& shift,                \
+      const tnsr::i<DataVector, DIM(data), FRAME(data)>& unit_normal_one_form, \
+      const std::optional<tnsr::I<DataVector, DIM(data), FRAME(data)>>&        \
+          mesh_velocity);                                                      \
   template void fe::ScalarTensorDriver::characteristic_speeds(                 \
       const gsl::not_null<std::array<DataVector, 4>*> char_speeds,             \
       const Scalar<DataVector>& lapse,                                         \
