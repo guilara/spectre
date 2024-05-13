@@ -1,7 +1,7 @@
 # Distributed under the MIT License.
 # See LICENSE.txt for details.
 
-set(LIBRARY Sgb)
+set(LIBRARY FixedSgb)
 
 add_spectre_library(${LIBRARY})
 

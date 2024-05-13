@@ -74,7 +74,7 @@ using subset_standard_boundary_conditions_gh =
             standard_boundary_conditions>;
 
 using subset_standard_boundary_conditions_scalar = tmpl::list<
-    fe::ScalarTensorDriver::BoundaryConditions::AnalyticConstant,
+    // fe::ScalarTensorDriver::BoundaryConditions::AnalyticConstant,
     fe::ScalarTensorDriver::BoundaryConditions::DemandOutgoingCharSpeeds>;
 
 using standard_boundary_conditions = tmpl::append<
