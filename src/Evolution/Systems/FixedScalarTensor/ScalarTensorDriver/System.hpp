@@ -31,21 +31,13 @@ struct System {
   using boundary_conditions_base = BoundaryConditions::BoundaryCondition;
   using boundary_correction_base = BoundaryCorrections::BoundaryCorrection;
 
-  using variables_tag =
-      ::Tags::Variables<tmpl::list<Tags::Psi, Tags::PiScalar,
-                                   //   Tags::PhiScalar<3_st>,
-                                   Tags::TensorDriver<DataVector, volume_dim>,
-                                   Tags::Pi<DataVector, volume_dim>
-                                   //   Tags::Phi<DataVector, volume_dim>
-                                   >>;
+  using variables_tag = ::Tags::Variables<
+      tmpl::list<Tags::TensorDriver<DataVector, volume_dim>,
+                 Tags::Pi<DataVector, volume_dim>, Tags::Psi, Tags::PiScalar>>;
   using flux_variables = tmpl::list<>;
   using gradient_variables =
-      tmpl::list<Tags::Psi, Tags::PiScalar,
-                 //    Tags::PhiScalar<3_st>,
-                 Tags::TensorDriver<DataVector, volume_dim>,
-                 Tags::Pi<DataVector, volume_dim>
-                 //  Tags::Phi<DataVector, volume_dim>
-                 >;
+      tmpl::list<Tags::TensorDriver<DataVector, volume_dim>,
+                 Tags::Pi<DataVector, volume_dim>, Tags::Psi, Tags::PiScalar>;
 
   // Relic alias: needs to be removed once all evolution systems
   // convert to using dg::ComputeTimeDerivative
