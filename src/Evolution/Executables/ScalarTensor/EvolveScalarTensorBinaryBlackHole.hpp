@@ -547,7 +547,8 @@ struct EvolutionMetavars {
         tmpl::pair<
             evolution::initial_data::InitialData,
             tmpl::flatten<tmpl::list<
-                gh::NumericInitialData,
+                // gh::NumericInitialData,
+                ScalarTensor::NumericInitialData
                 // We add the analytic data to be able to impose Dirichlet BCs
                 gh::ScalarTensor::AnalyticData::all_analytic_data,
                 tmpl::conditional_t<std::is_same_v<SpecInitialData, NoSuchType>,
