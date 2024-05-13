@@ -22,10 +22,11 @@ void add_tensor_driver_friction_term_to_dt_pi(
     const tnsr::I<DataVector, 3_st>& shift,
     const Scalar<DataVector>& scalar_tau_parameter,
     const Scalar<DataVector>& scalar_sigma_parameter) {
+  const auto tau_over_sigma =
+      tenex::evaluate(scalar_tau_parameter() / scalar_sigma_parameter());
   tenex::update<ti::a, ti::b>(
       dt_pi, (*dt_pi)(ti::a, ti::b) -
-                 1.0 * (scalar_tau_parameter() / scalar_sigma_parameter()) *
-                     lapse() * lapse() * pi(ti::a, ti::b));
+                 1.0 * tau_over_sigma() * lapse() * lapse() * pi(ti::a, ti::b));
 }
 
 void compute_tensor_driver_source(
@@ -41,7 +42,7 @@ void compute_tensor_driver_source(
 }
 
 void compute_target_tensor(
-    gsl::not_null<tnsr::aa<DataVector, a>*> target_tensor,
+    gsl::not_null<tnsr::aa<DataVector, 3>*> target_tensor,
     const tnsr::aa<DataVector, 3>& tensor_driver) {
   tenex::evaluate<ti::a, ti::b>(target_tensor, tensor_driver(ti::a, ti::b));
 }

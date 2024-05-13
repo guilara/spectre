@@ -115,17 +115,17 @@ struct TensorDriverSourceCompute
  * \details TODO : Replace with backreaction trace-reversed H tensor
  */
 template <typename Frame, typename DataType>
-struct TargetTensorCompute : TargetTensor<DataVector, 3, Frame::Inertial>,
-                             db::ComputeTag {
-  using argument_tags =
-      tmpl::list<fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, 3,
-                                                            Frame::Inertial>>;
-  using return_type = tnsr::aa<DataVector, 3, Frame::Inertial>;
+struct TargetTensorCompute
+    : TargetTensor<DataVector, 3, typename Frame::Inertial>,
+      db::ComputeTag {
+  using argument_tags = tmpl::list<fe::ScalarTensorDriver::Tags::TensorDriver<
+      DataVector, 3, typename Frame::Inertial>>;
+  using return_type = tnsr::aa<DataVector, 3, typename Frame::Inertial>;
   static constexpr void (*function)(
-      gsl::not_null<tnsr::aa<DataVector, a>*> target_tensor,
+      gsl::not_null<tnsr::aa<DataVector, 3>*> target_tensor,
       const tnsr::aa<DataVector, 3>& tensor_driver) =
       &fe::ScalarTensorDriver::Sources::compute_target_tensor;
-  using base = TargetTensor<DataVector, 3, Frame::Inertial>;
+  using base = TargetTensor<DataVector, 3, typename Frame::Inertial>;
 };
 
 }  // namespace fe::ScalarTensorDriver::Tags
