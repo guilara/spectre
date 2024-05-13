@@ -91,10 +91,8 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     // Frame::Grid>,
 
     // Scalar Tensor Driver parameters
-    fe::sgb::ConstraintDamping::Tags::ScalarSigmaParameterCompute<Dim,
-                                                                  Frame::Grid>,
-    fe::sgb::ConstraintDamping::Tags::ScalarTauParameterCompute<Dim,
-                                                                Frame::Grid>,
+    fe::sgb::ConstraintDamping::Tags::SigmaParameterCompute<Dim, Frame::Grid>,
+    fe::sgb::ConstraintDamping::Tags::TauParameterCompute<Dim, Frame::Grid>,
 
     // ScalarTensor::Tags::ScalarSourceCompute>;
     ScalarTensor::Tags::ScalarCurvatureSourceCompute<DataVector, Dim, Fr>,
@@ -158,9 +156,10 @@ struct InitializeEvolvedScalarVariables
         0.0 * get(lapse);
 
     auto& tensor_driver =
-        get<fe::ScalarTensorDriver::Tags::TensorDriver<3>>(*evolved_vars);
+        get<fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, 3>>(
+            *evolved_vars);
     auto& pi_tensor_driver =
-        get<fe::ScalarTensorDriver::Tags::Pi<3>>(*evolved_vars);
+        get<fe::ScalarTensorDriver::Tags::Pi<DataVector, 3>>(*evolved_vars);
     for (size_t a = 0; a < 4; a++) {
       for (size_t b = a; b < 4; b++) {
         tensor_driver.get(a, b) = 0.0 * get(lapse);
