@@ -22,7 +22,7 @@
 
 // IWYU pragma:  no_include "DataStructures/Tensor/TypeAliases.hpp"
 
-namespace fe::DecoupledScalar::AnalyticData {
+namespace fe::sgb::AnalyticData {
 
 KerrSphericalHarmonic::KerrSphericalHarmonic(
     const double mass, const std::array<double, 3>& dimensionless_spin,
@@ -200,4 +200,4 @@ GENERATE_INSTANTIATIONS(INSTANTIATE_TENSORS, (DataVector),
 #undef INSTANTIATE_SCALARS
 #undef INSTANTIATE_VECTORS
 #undef INSTANTIATE_TENSORS
-}  // namespace fe::DecoupledScalar::AnalyticData
+}  // namespace fe::sgb::AnalyticData
