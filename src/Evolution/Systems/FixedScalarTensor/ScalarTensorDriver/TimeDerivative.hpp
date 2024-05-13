@@ -25,6 +25,7 @@
 #include "Utilities/TMPL.hpp"
 
 namespace fe::ScalarTensorDriver {
+// struct System;
 /*!
  * \brief Compute the RHS terms of the evolution equations for the scalar tensor
  * driver system.
@@ -32,10 +33,12 @@ namespace fe::ScalarTensorDriver {
 struct TimeDerivative {
   static constexpr size_t dim = 3;
 
-  using dt_tags =
-      db::wrap_tags_in<::Tags::dt, typename System::variables_tag::tags_list>;
+  using dt_tags = db::wrap_tags_in<
+      ::Tags::dt,
+      typename ::fe::ScalarTensorDriver::System::variables_tag::tags_list>;
 
-  using gradient_tags = typename System::gradients_tags;
+  using gradient_tags =
+      typename ::fe::ScalarTensorDriver::System::gradients_tags;
 
   using temporary_tags = tmpl::list<
       // Tensor driver temporary tags
