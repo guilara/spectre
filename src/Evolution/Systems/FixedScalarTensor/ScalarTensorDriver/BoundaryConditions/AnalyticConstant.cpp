@@ -60,7 +60,7 @@ std::optional<std::string> AnalyticConstant::dg_ghost(
     const tnsr::I<DataVector, 3_st>& shift_interior) const {
   // Use the boundary condition from CurvedScalarWave
   *psi = make_with_value<Scalar<DataVector>>(lapse_interior, amplitude_);
-  *pi = make_with_value<Scalar<DataVector>>(lapse_interior, 0.0);
+  *pi_scalar = make_with_value<Scalar<DataVector>>(lapse_interior, 0.0);
   *lapse = lapse_interior;
   *shift = shift_interior;
   *inverse_spatial_metric = inverse_spatial_metric_interior;
