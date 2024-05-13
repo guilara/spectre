@@ -1,7 +1,7 @@
 // Distributed under the MIT License.
 // See LICENSE.txt for details.
 
-#include "Evolution/Executables/FixedScalarTensor/FixedSGB/EvolveFixedSgbScalarSingleBlackHole.hpp"
+#include "Evolution/Executables/FixedScalarTensor/FixedSGB/EvolveFixedSgbSingleBlackHole.hpp"
 
 #include <vector>
 

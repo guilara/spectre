@@ -21,6 +21,7 @@
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/BoundaryConditions/BoundaryCondition.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/BoundaryConditions/AnalyticConstant.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Bjorhus.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
@@ -87,8 +88,10 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>,
                  gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>,
                  CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
-                 CurvedScalarWave::Tags::Phi<3>, ScalarDriver::Tags::Psi,
-                 ScalarDriver::Tags::Pi, ScalarDriver::Tags::Phi<3>>;
+                 CurvedScalarWave::Tags::Phi<3>, ScalarTensorDriver::Tags::Psi,
+                 ScalarTensorDriver::Tags::PiScalar,
+                 ScalarTensorDriver::Tags::TensorDriver<DataVector, 3>,
+                 ScalarTensorDriver::Tags::Pi<DataVector, 3>>;
   using dg_interior_temporary_tags =
       tmpl::list<domain::Tags::Coordinates<3, Frame::Inertial>,
                  ::gh::ConstraintDamping::Tags::ConstraintGamma1,
@@ -291,7 +294,7 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
   CurvedScalarWave::BoundaryConditions::ConstraintPreservingSphericalRadiation<
       3>
       csw_constraint_preserving_{};
-  fe::ScalarDriver::BoundaryConditions::AnalyticConstant
+  fe::ScalarTensorDriver::BoundaryConditions::AnalyticConstant
       scalar_driver_analytic_constant_{};
 };
 }  // namespace fe::sgb::BoundaryConditions
