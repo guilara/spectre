@@ -138,22 +138,22 @@ template <typename DataType>
 struct VPiScalar : db::SimpleTag {
   using type = Scalar<DataType>;
 };
-template <typename DataType, size_t Dim, typename Frame>
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct VTensorDriver : db::SimpleTag {
   using type = tnsr::aa<DataType, Dim, Frame>;
 };
-template <typename DataType, size_t Dim, typename Frame>
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct VPi : db::SimpleTag {
   using type = tnsr::aa<DataType, Dim, Frame>;
 };
 /// @}
 
-template <typename DataType, size_t Dim, typename Frame>
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct CharacteristicSpeeds : db::SimpleTag {
   using type = std::array<DataType, 4>;
 };
 
-template <typename DataType, size_t Dim, typename Frame>
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct CharacteristicFields : db::SimpleTag {
   using type =
       Variables<tmpl::list<VScalarDriver<DataType>, VPiScalar<DataType>,
@@ -161,7 +161,7 @@ struct CharacteristicFields : db::SimpleTag {
                            VPi<DataType, Dim, Frame>>>;
 };
 
-template <typename DataType, size_t Dim, typename Frame>
+template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct EvolvedFieldsFromCharacteristicFields : db::SimpleTag {
   using type =
       Variables<tmpl::list<Psi, PiScalar, TensorDriver<DataType, Dim, Frame>,
