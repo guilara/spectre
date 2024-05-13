@@ -73,10 +73,8 @@ double UpwindPenalty::dg_package_data(
 }
 
 void UpwindPenalty::dg_boundary_terms(
-    gsl::not_null<Scalar<DataVector, 3, Frame::Inertial>*>
-        boundary_correction_scalar_driver,
-    gsl::not_null<Scalar<DataVector, 3, Frame::Inertial>*>
-        boundary_correction_pi_scalar,
+    gsl::not_null<Scalar<DataVector>*> boundary_correction_scalar_driver,
+    gsl::not_null<Scalar<DataVector>*> boundary_correction_pi_scalar,
     gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         boundary_correction_tensor_driver,
     gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
