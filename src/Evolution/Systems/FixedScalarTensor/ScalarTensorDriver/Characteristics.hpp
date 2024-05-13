@@ -210,20 +210,22 @@ struct LargestCharacteristicSpeed : db::SimpleTag {
 /*!
  * \brief Computes the largest magnitude of the characteristic speeds.
  */
-template <size_t Dim, typename Frame>
+// template <size_t Dim, typename Frame>
 struct ComputeLargestCharacteristicSpeed : db::ComputeTag,
                                            LargestCharacteristicSpeed {
   using argument_tags = tmpl::list<
       //   ::gh::ConstraintDamping::Tags::ConstraintGamma1,
-      gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, Dim, Frame>,
-      gr::Tags::SpatialMetric<DataVector, Dim, Frame>>;
+      gr::Tags::Lapse<DataVector>,
+      gr::Tags::Shift<DataVector, 3, Frame::Inertial>,
+      gr::Tags::SpatialMetric<DataVector, 3, Frame::Inertial>>;
   using return_type = double;
   using base = LargestCharacteristicSpeed;
-  static void function(const gsl::not_null<double*> speed,
-                       //    const Scalar<DataVector>& gamma_1,
-                       const Scalar<DataVector>& lapse,
-                       const tnsr::I<DataVector, Dim, Frame>& shift,
-                       const tnsr::ii<DataVector, Dim, Frame>& spatial_metric);
+  static void function(
+      const gsl::not_null<double*> speed,
+      //    const Scalar<DataVector>& gamma_1,
+      const Scalar<DataVector>& lapse,
+      const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
+      const tnsr::ii<DataVector, 3, Frame::Inertial>& spatial_metric);
 };
 }  // namespace Tags
 }  // namespace fe::ScalarTensorDriver

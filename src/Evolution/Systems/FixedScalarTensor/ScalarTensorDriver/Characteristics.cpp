@@ -168,13 +168,13 @@ evolved_fields_from_characteristic_fields(
   return evolved_fields;
 }
 
-template <size_t Dim, typename Frame>
-void Tags::ComputeLargestCharacteristicSpeed<Dim, Frame>::function(
+// template <size_t Dim, typename Frame>
+void Tags::ComputeLargestCharacteristicSpeed::function(
     const gsl::not_null<double*> speed,
     //  const Scalar<DataVector>& gamma_1,
     const Scalar<DataVector>& lapse,
-    const tnsr::I<DataVector, Dim, Frame>& shift,
-    const tnsr::ii<DataVector, Dim, Frame>& spatial_metric) {
+    const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
+    const tnsr::ii<DataVector, 3, Frame::Inertial>& spatial_metric) {
   const auto shift_magnitude = magnitude(shift, spatial_metric);
   *speed = max(get(shift_magnitude));
 }
@@ -259,9 +259,7 @@ void Tags::ComputeLargestCharacteristicSpeed<Dim, Frame>::function(
           const tnsr::i<DataVector, DIM(data), FRAME(data)>&                   \
               unit_normal_one_form);                                           \
   template struct fe::ScalarTensorDriver::                                     \
-      EvolvedFieldsFromCharacteristicFieldsCompute<DIM(data), FRAME(data)>;    \
-  template struct fe::ScalarTensorDriver::Tags::                               \
-      ComputeLargestCharacteristicSpeed<DIM(data), FRAME(data)>;
+      EvolvedFieldsFromCharacteristicFieldsCompute<DIM(data), FRAME(data)>;
 
 GENERATE_INSTANTIATIONS(INSTANTIATION, (3),
                         (Frame::Inertial, Frame::Grid))
