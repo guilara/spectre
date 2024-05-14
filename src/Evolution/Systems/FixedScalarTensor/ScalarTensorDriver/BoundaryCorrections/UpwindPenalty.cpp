@@ -29,20 +29,20 @@ std::unique_ptr<BoundaryCorrection> UpwindPenalty::get_clone() const {
 void UpwindPenalty::pup(PUP::er& p) { BoundaryCorrection::pup(p); }
 
 double UpwindPenalty::dg_package_data(
-    gsl::not_null<Scalar<DataVector>*> packaged_v_scalar_driver,
-    gsl::not_null<Scalar<DataVector>*> packaged_v_pi_scalar,
     gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         packaged_v_tensor_driver,
     gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*> packaged_v_pi,
+    gsl::not_null<Scalar<DataVector>*> packaged_v_scalar_driver,
+    gsl::not_null<Scalar<DataVector>*> packaged_v_pi_scalar,
     //   gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
     //       packaged_interface_unit_normal,
     gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*>
         packaged_char_speeds,
 
-    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
-
     const tnsr::aa<DataVector, 3, Frame::Inertial>& tensor_driver,
     const tnsr::aa<DataVector, 3, Frame::Inertial>& pi,
+
+    const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
 
     const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
@@ -73,26 +73,26 @@ double UpwindPenalty::dg_package_data(
 }
 
 void UpwindPenalty::dg_boundary_terms(
-    gsl::not_null<Scalar<DataVector>*> boundary_correction_scalar_driver,
-    gsl::not_null<Scalar<DataVector>*> boundary_correction_pi_scalar,
     gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         boundary_correction_tensor_driver,
     gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         boundary_correction_pi,
+    gsl::not_null<Scalar<DataVector>*> boundary_correction_scalar_driver,
+    gsl::not_null<Scalar<DataVector>*> boundary_correction_pi_scalar,
 
-    const Scalar<DataVector>& char_speed_v_scalar_driver_int,
-    const Scalar<DataVector>& char_speed_v_pi_scalar_int,
     const tnsr::aa<DataVector, 3, Frame::Inertial>&
         char_speed_v_tensor_driver_int,
     const tnsr::aa<DataVector, 3, Frame::Inertial>& char_speed_v_pi_int,
+    const Scalar<DataVector>& char_speed_v_scalar_driver_int,
+    const Scalar<DataVector>& char_speed_v_pi_scalar_int,
 
     const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int,
 
-    const Scalar<DataVector>& char_speed_v_scalar_driver_ext,
-    const Scalar<DataVector>& char_speed_v_pi_scalar_ext,
     const tnsr::aa<DataVector, 3, Frame::Inertial>&
         char_speed_v_tensor_driver_ext,
     const tnsr::aa<DataVector, 3, Frame::Inertial>& char_speed_v_pi_ext,
+    const Scalar<DataVector>& char_speed_v_scalar_driver_ext,
+    const Scalar<DataVector>& char_speed_v_pi_scalar_ext,
 
     const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext,
     dg::Formulation /*dg_formulation*/) const {

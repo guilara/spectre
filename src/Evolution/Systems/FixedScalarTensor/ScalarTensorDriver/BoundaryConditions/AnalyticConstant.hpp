@@ -75,11 +75,11 @@ class AnalyticConstant final : public BoundaryCondition {
   using dg_gridless_tags = tmpl::list<>;
 
   std::optional<std::string> dg_ghost(
-      const gsl::not_null<Scalar<DataVector>*> psi,
-      const gsl::not_null<Scalar<DataVector>*> pi_scalar,
       const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
           tensor_driver,
       const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*> pi,
+      const gsl::not_null<Scalar<DataVector>*> psi,
+      const gsl::not_null<Scalar<DataVector>*> pi_scalar,
 
       const gsl::not_null<Scalar<DataVector>*> lapse,
       const gsl::not_null<tnsr::I<DataVector, 3_st>*> shift,
