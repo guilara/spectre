@@ -113,18 +113,53 @@ struct InitializeEvolvedScalarVariables
     : tt::ConformsTo<db::protocols::Mutator> {
   using curved_variables_tag = typename ScalarTensor::System::variables_tag;
   using return_tags = tmpl::list<curved_variables_tag>;
-  using argument_tags = tmpl::list<gr::Tags::Lapse<DataVector>>;
+  using argument_tags =
+      tmpl::list<gr::Tags::Lapse<DataVector>,
+                 //  CurvedScalarWave::Tags::ConstraintGamma2,
+                 domain::Tags::Coordinates<3, Frame::Inertial>>;
   static void apply(
       const gsl::not_null<typename curved_variables_tag::type*> evolved_vars,
-      [[maybe_unused]] const Scalar<DataVector>& lapse) {
+      [[maybe_unused]] const Scalar<DataVector>& lapse,
+      // [[maybe_unused]] const Scalar<DataVector>& gamma2_scalar,
+      const tnsr::I<DataVector, 3, Frame::Inertial>& inertial_coords) {
     get(get<CurvedScalarWave::Tags::Psi>(*evolved_vars)) = 0.0 * get(lapse);
     auto& scalar_phi = get<CurvedScalarWave::Tags::Phi<3>>(*evolved_vars);
     for (size_t i = 0; i < 3; i++) {
       scalar_phi.get(i) = 0.0 * get(lapse);
     }
+
     const auto ones_scalar = make_with_value<Scalar<DataVector>>(lapse, 1.0);
-    get(get<CurvedScalarWave::Tags::Pi>(*evolved_vars)) =
-        -1.0e-3 * (get(lapse) - get(ones_scalar));
+
+    const double AhA_x = 9.0;
+    const double AhB_x = -9.0;
+    const double beta = 1.0;
+    const double normalization_factor = beta / std::sqrt(2.0 * M_PI);
+
+    const double AhA_sign = 1.0;
+    const double AhB_sign = -1.0;
+
+    Scalar<DataVector> argument_gaussian_A;
+    Scalar<DataVector> argument_gaussian_B;
+    get(argument_gaussian_A) = square(
+        (0.5 * beta) * (get<0>(inertial_coords) - AhA_x * get(ones_scalar)));
+    get(argument_gaussian_B) = square(
+        (0.5 * beta) * (get<0>(inertial_coords) - AhB_x * get(ones_scalar)));
+    for (size_t i = 1; i < 3; i++) {
+      get(argument_gaussian_A) += square(
+          (0.5 * beta) * (inertial_coords.get(i) - AhA_x * get(ones_scalar)));
+      get(argument_gaussian_B) += square(
+          (0.5 * beta) * (inertial_coords.get(i) - AhB_x * get(ones_scalar)));
+    }
+
+    auto& scalar_pi = get<CurvedScalarWave::Tags::Pi>(*evolved_vars);
+    const size_t num_points = get_size(get(lapse));
+    for (size_t i = 0; i < num_points; i++) {
+      get(scalar_pi)[i] =
+          AhA_sign * normalization_factor * exp(get(argument_gaussian_A)[i]) +
+          AhB_sign * normalization_factor * exp(get(argument_gaussian_B)[i]);
+    }
+
+    // get(scalar_pi) = -1.0e-7 * get<0>(inertial_coords) * get(gamma2_scalar);
   }
 };
 
