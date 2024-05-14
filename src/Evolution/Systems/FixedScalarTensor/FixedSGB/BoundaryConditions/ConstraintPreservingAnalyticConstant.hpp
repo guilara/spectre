@@ -84,14 +84,13 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
 
   void pup(PUP::er& p) override;
 
-  using dg_interior_evolved_variables_tags =
-      tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>,
-                 gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>,
-                 CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
-                 CurvedScalarWave::Tags::Phi<3>, ScalarTensorDriver::Tags::Psi,
-                 ScalarTensorDriver::Tags::PiScalar,
-                 ScalarTensorDriver::Tags::TensorDriver<DataVector, 3>,
-                 ScalarTensorDriver::Tags::Pi<DataVector, 3>>;
+  using dg_interior_evolved_variables_tags = tmpl::list<
+      gr::Tags::SpacetimeMetric<DataVector, 3>, gh::Tags::Pi<DataVector, 3>,
+      gh::Tags::Phi<DataVector, 3>, CurvedScalarWave::Tags::Psi,
+      CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
+      ScalarTensorDriver::Tags::TensorDriver<DataVector, 3>,
+      ScalarTensorDriver::Tags::Pi<DataVector, 3>,
+      ScalarTensorDriver::Tags::Psi, ScalarTensorDriver::Tags::PiScalar>;
   using dg_interior_temporary_tags =
       tmpl::list<domain::Tags::Coordinates<3, Frame::Inertial>,
                  ::gh::ConstraintDamping::Tags::ConstraintGamma1,
@@ -118,12 +117,12 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       const gsl::not_null<Scalar<DataVector>*> pi_scalar,
       const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> phi_scalar,
 
-      const gsl::not_null<Scalar<DataVector>*> psi_scalar_driver,
-      const gsl::not_null<Scalar<DataVector>*> pi_scalar_driver,
       const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
           tensor_driver,
       const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
           pi_tensor_driver,
+      const gsl::not_null<Scalar<DataVector>*> psi_scalar_driver,
+      const gsl::not_null<Scalar<DataVector>*> pi_scalar_driver,
 
       // c.f. dg_package_data_temporary_tags from the combined Upwind correction
       // (i.e. from fe::DecoupledScalar::ProductOfCorrections)
@@ -152,10 +151,10 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       const Scalar<DataVector>& pi_scalar_interior,
       const tnsr::i<DataVector, 3>& phi_scalar_interior,
 
-      const Scalar<DataVector>& psi_scalar_driver_interior,
-      const Scalar<DataVector>& pi_scalar_driver_interior,
       const tnsr::aa<DataVector, 3>& tensor_driver_interior,
       const tnsr::aa<DataVector, 3>& pi_tensor_driver_interior,
+      const Scalar<DataVector>& psi_scalar_driver_interior,
+      const Scalar<DataVector>& pi_scalar_driver_interior,
 
       const tnsr::I<DataVector, 3, Frame::Inertial>& /*coords*/,
       const Scalar<DataVector>& interior_gamma1,
@@ -228,12 +227,12 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
           dt_phi_scalar_correction,
 
-      const gsl::not_null<Scalar<DataVector>*> dt_psi_scalar_driver_correction,
-      const gsl::not_null<Scalar<DataVector>*> dt_pi_scalar_driver_correction,
       const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
           dt_tensor_driver_correction,
       const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
           dt_pi_tensor_driver_correction,
+      const gsl::not_null<Scalar<DataVector>*> dt_psi_scalar_driver_correction,
+      const gsl::not_null<Scalar<DataVector>*> dt_pi_scalar_driver_correction,
 
       const std::optional<tnsr::I<DataVector, 3, Frame::Inertial>>&
           face_mesh_velocity,
@@ -247,10 +246,10 @@ class ConstraintPreservingAnalyticConstant final : public BoundaryCondition {
       const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>& pi_scalar,
       const tnsr::i<DataVector, 3, Frame::Inertial>& phi_scalar,
 
-      const Scalar<DataVector>& psi_scalar_driver,
-      const Scalar<DataVector>& pi_scalar_driver,
       const tnsr::aa<DataVector, 3, Frame::Inertial>& tensor_driver,
       const tnsr::aa<DataVector, 3, Frame::Inertial>& pi_tensor_driver,
+      const Scalar<DataVector>& psi_scalar_driver,
+      const Scalar<DataVector>& pi_scalar_driver,
       // c.f. dg_interior_primitive_variables_tags
 
       // c.f. dg_interior_temporary_tags
