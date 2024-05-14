@@ -138,17 +138,15 @@ struct InitializeEvolvedScalarVariables
     const double AhA_sign = 1.0;
     const double AhB_sign = -1.0;
 
-    Scalar<DataVector> argument_gaussian_A;
-    Scalar<DataVector> argument_gaussian_B;
+    auto argument_gaussian_A = make_with_value<Scalar<DataVector>>(lapse, 0.0);
+    auto argument_gaussian_B = make_with_value<Scalar<DataVector>>(lapse, 0.0);
     get(argument_gaussian_A) = square(
         (0.5 * beta) * (get<0>(inertial_coords) - AhA_x * get(ones_scalar)));
     get(argument_gaussian_B) = square(
         (0.5 * beta) * (get<0>(inertial_coords) - AhB_x * get(ones_scalar)));
     for (size_t i = 1; i < 3; i++) {
-      get(argument_gaussian_A) += square(
-          (0.5 * beta) * (inertial_coords.get(i) - AhA_x * get(ones_scalar)));
-      get(argument_gaussian_B) += square(
-          (0.5 * beta) * (inertial_coords.get(i) - AhB_x * get(ones_scalar)));
+      get(argument_gaussian_A) += square(0.5 * beta * inertial_coords.get(i));
+      get(argument_gaussian_B) += square(0.5 * beta * inertial_coords.get(i));
     }
 
     auto& scalar_pi = get<CurvedScalarWave::Tags::Pi>(*evolved_vars);
