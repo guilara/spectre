@@ -133,6 +133,7 @@ struct InitializeEvolvedScalarVariables
     const double AhA_x = 9.0;
     const double AhB_x = -9.0;
     const double beta = 1.0;
+    const double epsilon = 1.0e-7;
     const double normalization_factor = beta / std::sqrt(2.0 * M_PI);
 
     const double AhA_sign = 1.0;
@@ -152,9 +153,10 @@ struct InitializeEvolvedScalarVariables
     auto& scalar_pi = get<CurvedScalarWave::Tags::Pi>(*evolved_vars);
     const size_t num_points = get_size(get(lapse));
     for (size_t i = 0; i < num_points; i++) {
-      get(scalar_pi)[i] =
-          AhA_sign * normalization_factor * exp(get(argument_gaussian_A)[i]) +
-          AhB_sign * normalization_factor * exp(get(argument_gaussian_B)[i]);
+      get(scalar_pi)[i] = AhA_sign * epsilon * normalization_factor *
+                              exp(get(argument_gaussian_A)[i]) +
+                          AhB_sign * epsilon * normalization_factor *
+                              exp(get(argument_gaussian_B)[i]);
     }
 
     // get(scalar_pi) = -1.0e-7 * get<0>(inertial_coords) * get(gamma2_scalar);
