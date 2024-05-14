@@ -42,12 +42,12 @@ std::optional<std::string> ConstraintPreservingAnalyticConstant::dg_ghost(
     const gsl::not_null<Scalar<DataVector>*> pi_scalar,
     const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> phi_scalar,
 
-    const gsl::not_null<Scalar<DataVector>*> psi_scalar_driver,
-    const gsl::not_null<Scalar<DataVector>*> pi_scalar_driver,
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         tensor_driver,
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         pi_tensor_driver,
+    const gsl::not_null<Scalar<DataVector>*> psi_scalar_driver,
+    const gsl::not_null<Scalar<DataVector>*> pi_scalar_driver,
 
     // c.f. dg_package_data_temporary_tags from the combined Upwind correction
     // (i.e. from fe::DecoupledScalar::ProductOfCorrections)
@@ -76,10 +76,10 @@ std::optional<std::string> ConstraintPreservingAnalyticConstant::dg_ghost(
     const Scalar<DataVector>& pi_scalar_interior,
     const tnsr::i<DataVector, 3>& phi_scalar_interior,
 
-    const Scalar<DataVector>& psi_scalar_driver_interior,
-    const Scalar<DataVector>& pi_scalar_driver_interior,
     const tnsr::aa<DataVector, 3>& tensor_driver_interior,
     const tnsr::aa<DataVector, 3>& pi_tensor_driver_interior,
+    const Scalar<DataVector>& psi_scalar_driver_interior,
+    const Scalar<DataVector>& pi_scalar_driver_interior,
 
     const tnsr::I<DataVector, 3, Frame::Inertial>& /*coords*/,
     const Scalar<DataVector>& interior_gamma1,
@@ -135,7 +135,7 @@ std::optional<std::string> ConstraintPreservingAnalyticConstant::dg_ghost(
 
   // Scalar Driver
   return scalar_driver_analytic_constant_.dg_ghost(
-      psi_scalar_driver, pi_scalar_driver, tensor_driver, pi_tensor_driver,
+      tensor_driver, pi_tensor_driver, psi_scalar_driver, pi_scalar_driver,
 
       lapse, shift,
 
@@ -159,12 +159,12 @@ ConstraintPreservingAnalyticConstant::dg_time_derivative(
     const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*>
         dt_phi_scalar_correction,
 
-    const gsl::not_null<Scalar<DataVector>*> dt_psi_scalar_driver_correction,
-    const gsl::not_null<Scalar<DataVector>*> dt_pi_scalar_driver_correction,
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         dt_tensor_driver_correction,
     const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
         dt_pi_tensor_driver_correction,
+    const gsl::not_null<Scalar<DataVector>*> dt_psi_scalar_driver_correction,
+    const gsl::not_null<Scalar<DataVector>*> dt_pi_scalar_driver_correction,
 
     const std::optional<tnsr::I<DataVector, 3, Frame::Inertial>>&
         face_mesh_velocity,
@@ -178,10 +178,10 @@ ConstraintPreservingAnalyticConstant::dg_time_derivative(
     const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>& pi_scalar,
     const tnsr::i<DataVector, 3, Frame::Inertial>& phi_scalar,
 
-    const Scalar<DataVector>& psi_scalar_driver,
-    const Scalar<DataVector>& pi_scalar_driver,
     const tnsr::aa<DataVector, 3, Frame::Inertial>& tensor_driver,
     const tnsr::aa<DataVector, 3, Frame::Inertial>& pi_tensor_driver,
+    const Scalar<DataVector>& psi_scalar_driver,
+    const Scalar<DataVector>& pi_scalar_driver,
     // c.f. dg_interior_primitive_variables_tags
 
     // c.f. dg_interior_temporary_tags

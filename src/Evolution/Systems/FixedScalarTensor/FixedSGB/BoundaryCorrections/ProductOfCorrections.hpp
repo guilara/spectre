@@ -141,12 +141,12 @@ class ProductOfCorrections final : public BoundaryCorrection {
       const gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*>
           packaged_char_speeds_scalar,
       // Scalar driver packaged fields
-      const gsl::not_null<Scalar<DataVector>*> packaged_v_psi_scalar_driver,
-      const gsl::not_null<Scalar<DataVector>*> packaged_v_pi_scalar_driver,
       const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
           packaged_v_tensor_driver,
       const gsl::not_null<tnsr::aa<DataVector, 3, Frame::Inertial>*>
           packaged_v_pi_tensor_driver,
+      const gsl::not_null<Scalar<DataVector>*> packaged_v_psi_scalar_driver,
+      const gsl::not_null<Scalar<DataVector>*> packaged_v_pi_scalar_driver,
       //   gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*>
       //       packaged_interface_unit_normal_scalar_driver,
       const gsl::not_null<tnsr::a<DataVector, 3, Frame::Inertial>*>
@@ -159,10 +159,10 @@ class ProductOfCorrections final : public BoundaryCorrection {
       const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>& pi_scalar,
       const tnsr::i<DataVector, 3_st, Frame::Inertial>& phi_scalar,
       // Scalar Tensor driver variables
-      const Scalar<DataVector>& psi_scalar_driver,
-      const Scalar<DataVector>& pi_scalar_driver,
       const tnsr::aa<DataVector, 3_st, Frame::Inertial>& tensor_driver,
       const tnsr::aa<DataVector, 3_st, Frame::Inertial>& pi_tensor_driver,
+      const Scalar<DataVector>& psi_scalar_driver,
+      const Scalar<DataVector>& pi_scalar_driver,
 
       // GH fluxes
       // Scalar fluxes
@@ -221,13 +221,13 @@ class ProductOfCorrections final : public BoundaryCorrection {
     const double scalar_correction_result =
         derived_scalar_correction_.dg_package_data(
             // Scalar packaged variables
-            packaged_v_psi_scalar_driver, packaged_v_pi_scalar_driver,
             packaged_v_tensor_driver, packaged_v_pi_tensor_driver,
+            packaged_v_psi_scalar_driver, packaged_v_pi_scalar_driver,
 
             packaged_char_speeds_scalar_driver,
             // Scalar variables
-            psi_scalar_driver, pi_scalar_driver, tensor_driver,
-            pi_tensor_driver,
+            tensor_driver, pi_tensor_driver, psi_scalar_driver,
+            pi_scalar_driver,
             // Scalar temporaries
             lapse, shift,
 
@@ -251,14 +251,15 @@ class ProductOfCorrections final : public BoundaryCorrection {
       const gsl::not_null<tnsr::i<DataVector, 3_st, Frame::Inertial>*>
           phi_boundary_correction_scalar,
       // Scalar Tensor Driver boundary corrections
-      const gsl::not_null<Scalar<DataVector>*>
-          psi_boundary_correction_scalar_driver,
-      const gsl::not_null<Scalar<DataVector>*>
-          pi_boundary_correction_scalar_driver,
       const gsl::not_null<tnsr::aa<DataVector, 3_st, Frame::Inertial>*>
           boundary_correction_tensor_driver,
       const gsl::not_null<tnsr::aa<DataVector, 3_st, Frame::Inertial>*>
           boundary_correction_pi_tensor_driver,
+      const gsl::not_null<Scalar<DataVector>*>
+          psi_boundary_correction_scalar_driver,
+      const gsl::not_null<Scalar<DataVector>*>
+          pi_boundary_correction_scalar_driver,
+
       // GH internal packages field tags
       const tnsr::aa<DataVector, 3_st, Frame::Inertial>&
           char_speed_v_spacetime_metric_int,
@@ -282,11 +283,11 @@ class ProductOfCorrections final : public BoundaryCorrection {
           interface_unit_normal_int_scalar,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int_scalar,
       // Scalar driver internal packaged field tags
-      const Scalar<DataVector>& v_psi_int_scalar_driver,
-      const Scalar<DataVector>& v_pi_int_scalar_driver,
       const tnsr::aa<DataVector, 3_st, Frame::Inertial>&
           v_tensor_driver_int_tensor_driver,
       const tnsr::aa<DataVector, 3_st, Frame::Inertial>& v_pi_int_tensor_driver,
+      const Scalar<DataVector>& v_psi_int_scalar_driver,
+      const Scalar<DataVector>& v_pi_int_scalar_driver,
 
       //   const tnsr::i<DataVector, 3_st, Frame::Inertial>&
       //       interface_unit_normal_int_scalar_driver,
@@ -314,11 +315,11 @@ class ProductOfCorrections final : public BoundaryCorrection {
           interface_unit_normal_ext_scalar,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext_scalar,
       // Scalar Tensor Driver external packaged fields
-      const Scalar<DataVector>& v_psi_ext_scalar_driver,
-      const Scalar<DataVector>& v_pi_ext_scalar_driver,
       const tnsr::aa<DataVector, 3_st, Frame::Inertial>&
           v_tensor_driver_ext_tensor_driver,
       const tnsr::aa<DataVector, 3_st, Frame::Inertial>& v_pi_ext_tensor_driver,
+      const Scalar<DataVector>& v_psi_ext_scalar_driver,
+      const Scalar<DataVector>& v_pi_ext_scalar_driver,
       //   const tnsr::i<DataVector, 3_st, Frame::Inertial>&
       //       interface_unit_normal_ext_scalar_driver,
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext_driver,
@@ -357,19 +358,19 @@ class ProductOfCorrections final : public BoundaryCorrection {
 
     derived_scalar_correction_.dg_boundary_terms(
         // scalar_boundary_corrections...,
+        boundary_correction_tensor_driver, boundary_correction_pi_tensor_driver,
         psi_boundary_correction_scalar_driver,
-        pi_boundary_correction_scalar_driver, boundary_correction_tensor_driver,
-        boundary_correction_pi_tensor_driver,
+        pi_boundary_correction_scalar_driver,
 
         // scalar_internal_packaged_fields...,
-        v_psi_int_scalar_driver, v_pi_int_scalar_driver,
         v_tensor_driver_int_tensor_driver, v_pi_int_tensor_driver,
+        v_psi_int_scalar_driver, v_pi_int_scalar_driver,
 
         char_speeds_int_driver,
 
         // scalar_external_packaged_fields...,
-        v_psi_ext_scalar_driver, v_pi_ext_scalar_driver,
         v_tensor_driver_ext_tensor_driver, v_pi_ext_tensor_driver,
+        v_psi_ext_scalar_driver, v_pi_ext_scalar_driver,
 
         char_speeds_ext_driver,
 
