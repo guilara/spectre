@@ -62,7 +62,7 @@ struct TensorDriver : db::SimpleTag {
 template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct Pi : db::SimpleTag {
   using type = tnsr::aa<DataType, Dim, Frame>;
-  static std::string name() { return "Phi(TensorDriver)"; }
+  static std::string name() { return "Pi(TensorDriver)"; }
 };
 
 /*!
