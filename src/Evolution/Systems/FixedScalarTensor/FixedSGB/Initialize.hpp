@@ -20,6 +20,7 @@
 #include "Evolution/Systems/ScalarTensor/ConstraintDamping/ConstraintGammas.hpp"
 #include "Evolution/Systems/ScalarTensor/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
+#include "Evolution/Systems/ScalarTensor/StressEnergy.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DerivativesOfSpacetimeMetric.hpp"
@@ -95,6 +96,7 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     fe::sgb::ConstraintDamping::Tags::TauParameterCompute<Dim, Frame::Grid>,
 
     // ScalarTensor::Tags::ScalarSourceCompute>;
+    ScalarTensor::Tags::TraceReversedStressEnergyCompute,
     ScalarTensor::Tags::ScalarCurvatureSourceCompute<DataVector, Dim, Fr>,
 
     // Extra tags for curvatures
