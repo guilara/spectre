@@ -376,7 +376,8 @@ struct ObserverTags {
           fe::ScalarTensorDriver::Tags::SigmaParameter,
           fe::ScalarTensorDriver::Tags::TauParameter,
           // Sources
-          ScalarTensor::Tags::TraceReversedStressEnergyCompute,
+          ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, volume_dim,
+                                                        Frame::Inertial>,
           //   ScalarTensor::Sources::Tags::ScalarSourceCompute,
           ScalarTensor::Tags::ScalarSource,
           // More diagnostic compute tags
