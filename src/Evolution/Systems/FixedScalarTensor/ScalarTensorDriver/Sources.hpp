@@ -35,7 +35,7 @@ void compute_tensor_driver_source(
 
 void compute_target_tensor(
     gsl::not_null<tnsr::aa<DataVector, 3>*> target_tensor,
-    const tnsr::aa<DataVector, 3>& tensor_driver);
+    const tnsr::aa<DataVector, 3>& trace_reversed_stress_energy);
 
 }  // namespace fe::ScalarTensorDriver::Sources
 
@@ -116,8 +116,9 @@ template <typename Frame, typename DataType>
 struct TargetTensorCompute
     : TargetTensor<DataVector, 3, typename Frame::Inertial>,
       db::ComputeTag {
-  using argument_tags = tmpl::list<fe::ScalarTensorDriver::Tags::TensorDriver<
-      DataVector, 3, typename Frame::Inertial>>;
+  using argument_tags =
+      tmpl::list<ScalarTensor::Tags::TraceReversedStressEnergy<
+          DataVector, 3, typename Frame::Inertial>>;
   using return_type = tnsr::aa<DataVector, 3, typename Frame::Inertial>;
   static constexpr void (*function)(
       gsl::not_null<tnsr::aa<DataVector, 3>*> target_tensor,
