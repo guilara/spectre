@@ -137,7 +137,7 @@ struct InitializeEvolvedScalarVariables
     const double normalization_factor = beta / std::sqrt(2.0 * M_PI);
 
     const double AhA_sign = 1.0;
-    const double AhB_sign = -1.0;
+    const double AhB_sign = 1.0;
 
     auto argument_gaussian_A = make_with_value<Scalar<DataVector>>(lapse, 0.0);
     auto argument_gaussian_B = make_with_value<Scalar<DataVector>>(lapse, 0.0);
