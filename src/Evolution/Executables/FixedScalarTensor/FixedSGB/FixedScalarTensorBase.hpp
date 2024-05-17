@@ -385,6 +385,8 @@ struct ObserverTags {
           ScalarTensor::Tags::CouplingFunctionDerivativeCompute<DataVector>,
           // Driver quantities
           fe::ScalarTensorDriver::Tags::TargetScalar,
+          fe::ScalarTensorDriver::Tags::TargetTensor<DataVector, volume_dim,
+                                                     Frame::Inertial>,
           fe::ScalarTensorDriver::Tags::TensorDriverSource<
               DataVector, volume_dim, Frame::Inertial>,
           fe::ScalarTensorDriver::Tags::ScalarDriverSource,
