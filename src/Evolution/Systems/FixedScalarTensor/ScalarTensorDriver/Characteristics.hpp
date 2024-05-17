@@ -213,9 +213,7 @@ struct EvolvedFieldsFromCharacteristicFieldsCompute
 /// @}
 
 namespace Tags {
-struct LargestCharacteristicSpeed : db::SimpleTag {
-  using type = double;
-};
+
 /*!
  * \brief Computes the largest magnitude of the characteristic speeds.
  */

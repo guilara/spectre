@@ -154,6 +154,10 @@ struct CharacteristicSpeeds : db::SimpleTag {
   using type = std::array<DataType, 4>;
 };
 
+struct LargestCharacteristicSpeed : db::SimpleTag {
+  using type = double;
+};
+
 template <typename DataType, size_t Dim, typename Frame = Frame::Inertial>
 struct CharacteristicFields : db::SimpleTag {
   using type =
