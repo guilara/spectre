@@ -54,11 +54,11 @@ struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
                  fe::ScalarTensorDriver::Tags::TauParameter,
                  fe::ScalarTensorDriver::Tags::SigmaParameter>;
   using return_type = Scalar<DataType>;
-  static constexpr void (*function)(const gsl::not_null<return_type*> result,
-                                    const Scalar<DataType>&,
-                                    const Scalar<DataType>&,
-                                    const Scalar<DataType>&,
-                                    const Scalar<DataType>&) =
+  static constexpr void (*function)(
+      gsl::not_null<Scalar<DataType>*> result, const Scalar<DataType>& psi,
+      const Scalar<DataType>& target_psi,
+      const Scalar<DataType>& scalar_tau_parameter,
+      const Scalar<DataType>& scalar_sigma_parameter) =
       &fe::ScalarDriver::Sources::compute_scalar_driver_source;
   using base = ScalarDriverSource;
 };
@@ -79,10 +79,11 @@ struct TargetScalarCompute : TargetScalar, db::ComputeTag {
                  ScalarTensor::Tags::ScalarMass>;
   using return_type = Scalar<DataType>;
   static constexpr void (*function)(
-      const gsl::not_null<return_type*> result, const Scalar<DataType>&,
-      const Scalar<DataType>&, const Scalar<DataType>&, const double,
-      const double,
-      const double) = &ScalarTensor::compute_scalar_curvature_source;
+      gsl::not_null<Scalar<DataType>*> scalar_source,
+      const Scalar<DataType>& weyl_electric_scalar,
+      const Scalar<DataType>& weyl_magnetic_scalar, const Scalar<DataType>& psi,
+      const double first_coupling_psi, const double second_coupling_psi,
+      const double mass_psi) = &ScalarTensor::compute_scalar_curvature_source;
   using base = TargetScalar;
 };
 
@@ -113,18 +114,15 @@ struct TensorDriverSourceCompute : TensorDriverSource<DataType, 3, Frame>,
  * \details TODO : Replace with backreaction trace-reversed H tensor
  */
 template <typename Frame, typename DataType>
-struct TargetTensorCompute
-    : TargetTensor<DataVector, 3, typename Frame::Inertial>,
-      db::ComputeTag {
-  using argument_tags =
-      tmpl::list<ScalarTensor::Tags::TraceReversedStressEnergy<
-          DataVector, 3, typename Frame::Inertial>>;
-  using return_type = tnsr::aa<DataVector, 3, typename Frame::Inertial>;
+struct TargetTensorCompute : TargetTensor<DataType, 3, Frame>, db::ComputeTag {
+  using argument_tags = tmpl::list<
+      ScalarTensor::Tags::TraceReversedStressEnergy<DataType, 3, Frame>>;
+  using return_type = tnsr::aa<DataType, 3, Frame>;
   static constexpr void (*function)(
-      gsl::not_null<tnsr::aa<DataVector, 3>*> target_tensor,
-      const tnsr::aa<DataVector, 3>& tensor_driver) =
+      gsl::not_null<tnsr::aa<DataType, 3, Frame>*> target_tensor,
+      const tnsr::aa<DataType, 3, Frame>& tensor_driver) =
       &fe::ScalarTensorDriver::Sources::compute_target_tensor;
-  using base = TargetTensor<DataVector, 3, typename Frame::Inertial>;
+  using base = TargetTensor<DataType, 3, Frame>;
 };
 
 }  // namespace fe::ScalarTensorDriver::Tags
