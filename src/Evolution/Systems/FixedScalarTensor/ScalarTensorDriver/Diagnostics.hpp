@@ -39,9 +39,11 @@ struct ScalarTrackingDiagnosticCompute : ScalarTrackingDiagnostic,
                  fe::ScalarTensorDriver::Tags::SigmaParameter>;
   using return_type = Scalar<DataType>;
   static constexpr void (*function)(
-      const gsl::not_null<return_type*> result, const Scalar<DataType>&,
-      const Scalar<DataType>&, const Scalar<DataType>&,
-      const Scalar<DataType>&) = &fe::ScalarDriver::driver_tracking_diagnostic;
+      const gsl::not_null<Scalar<DataType>*> diagnostic,
+      const Scalar<DataType>& psi, const Scalar<DataType>& target_psi,
+      const Scalar<DataType>& scalar_tau_parameter,
+      const Scalar<DataType>& scalar_sigma_parameter) =
+      &fe::ScalarDriver::driver_tracking_diagnostic;
   using base = ScalarTrackingDiagnostic;
 };
 

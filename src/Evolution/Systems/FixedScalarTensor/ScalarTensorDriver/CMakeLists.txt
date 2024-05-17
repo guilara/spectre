@@ -34,7 +34,6 @@ target_link_libraries(
   ErrorHandling
   Serialization
   Utilities
-  CurvedScalarWave
   )
 
   add_subdirectory(BoundaryConditions)
