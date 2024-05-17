@@ -29,6 +29,7 @@ using solutions_including_matter = tmpl::append<
         Dim == 3,
         tmpl::append<ghmhd_solutions,
                      gh::ScalarTensor::AnalyticData::all_analytic_data,
-                     gh::fe::DecoupledScalar::AnalyticData::all_analytic_data>,
+                     gh::fe::DecoupledScalar::AnalyticData::all_analytic_data,
+                     gh::fe::sgb::AnalyticData::all_analytic_data>,
         tmpl::list<>>>;
 }  // namespace gh
