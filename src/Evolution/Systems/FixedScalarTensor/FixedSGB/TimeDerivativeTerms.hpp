@@ -58,10 +58,8 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
   using gradient_tags = tmpl::append<gh_gradient_tags, scalar_gradient_tags>;
   using scalar_arg_tags =
       typename fe::ScalarTensorDriver::TimeDerivative::argument_tags;
-  //   using temporary_tags = tmpl::append<gh_temp_tags, scalar_temp_tags>;
   using temporary_tags = tmpl::remove_duplicates<
       tmpl::append<gh_temp_tags, scalar_temp_tags, scalar_extra_temp_tags>>;
-  //   using argument_tags = tmpl::append<gh_arg_tags, scalar_arg_tags>;
   using argument_tags = tmpl::remove_duplicates<
       tmpl::append<gh_arg_tags, scalar_arg_tags, tmpl::list<>>>;
 
@@ -228,23 +226,22 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
         psi_scalar_driver  // scalar_source
     );
 
-    // Call TimeDerivativeTerms for scalar
+    // Call TimeDerivative for Scalar Tensor Driver
     fe::ScalarTensorDriver::TimeDerivative::apply(
-        // Check for duplicates
-        // Scalar Tensor dt variables
+        // Scalar Tensor Driver dt variables
         dt_tensor_driver, dt_pi_tensor_driver, dt_psi_scalar_driver,
         dt_pi_scalar_driver,
 
-        // Scalar Tensor temporal variables
-        lapse, shift, inverse_spatial_metric, det_spatial_metric,
-
-        // Scalar Tensor gradients
+        // Scalar Tensor Driver gradients
         d_tensor_driver, d_pi_tensor_driver, d_psi_scalar_driver,
         d_pi_scalar_driver,
 
-        // Scalar Tensor argument variables
-        tensor_driver, pi_tensor_driver, mesh, time, inertial_coords,
-        inverse_jacobian, mesh_velocity,
+        // Scalar Tensor Driver argument variables
+        tensor_driver, pi_tensor_driver,
+
+        spacetime_metric,
+
+        mesh, time, inertial_coords, inverse_jacobian, mesh_velocity,
 
         psi_scalar_driver, pi_scalar_driver, lapse_scalar, shift_scalar,
 
