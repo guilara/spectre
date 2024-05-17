@@ -577,7 +577,7 @@ struct FixedScalarTensorTemplateBase<
   //   using system_scalar = CurvedScalarWave::System<volume_dim>;
   //   using system_combined = ScalarTensor::System;
   using system = fe::DecoupledScalar::System;
-  using TimeStepperBase = TimeStepper;
+  using TimeStepperBase = LtsTimeStepper;
 
   static constexpr bool local_time_stepping =
       TimeStepperBase::local_time_stepping;
