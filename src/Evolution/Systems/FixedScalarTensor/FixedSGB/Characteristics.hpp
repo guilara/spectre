@@ -53,8 +53,9 @@ struct ComputeLargestCharacteristicSpeed : db::ComputeTag,
         gamma_1_scalar);
     // Largest speed for ScalarDriver
     double driver_largest_speed = 0.0;
-    fe::ScalarTensorDriver::Tags::ComputeLargestCharacteristicSpeed::function(
-        make_not_null(&driver_largest_speed), lapse, shift, spatial_metric);
+    fe::ScalarTensorDriver::Tags::ComputeLargestCharacteristicSpeed<
+        3, Frame>::function(make_not_null(&driver_largest_speed), lapse, shift,
+                            spatial_metric);
     // Compute the maximum speed
     *speed = std::max(st_largest_speed, driver_largest_speed);
   }

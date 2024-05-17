@@ -25,7 +25,6 @@ namespace fe::ScalarTensorDriver {
 template <size_t Dim, typename Frame>
 void characteristic_speeds(
     const gsl::not_null<tnsr::a<DataVector, 3, Frame>*> char_speeds,
-    // const Scalar<DataVector>& gamma_1,
     const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, Dim, Frame>& shift,
     const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form,
@@ -40,7 +39,6 @@ void characteristic_speeds(
 template <size_t Dim, typename Frame>
 void characteristic_speeds(
     const gsl::not_null<std::array<DataVector, 4>*> char_speeds,
-    // const Scalar<DataVector>& gamma_1,
     const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, Dim, Frame>& shift,
     const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form,
@@ -54,7 +52,6 @@ void characteristic_speeds(
 
 template <size_t Dim, typename Frame>
 std::array<DataVector, 4> characteristic_speeds(
-    // const Scalar<DataVector>& gamma_1,
     const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, Dim, Frame>& shift,
     const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form,
@@ -63,7 +60,7 @@ std::array<DataVector, 4> characteristic_speeds(
       typename Tags::CharacteristicSpeeds<DataVector, Dim, Frame>::type>(
       get(lapse), 0.);
   characteristic_speeds(make_not_null(&char_speeds),
-                        //   gamma_1,
+
                         lapse, shift, unit_normal_one_form, mesh_velocity);
   return char_speeds;
 }
@@ -73,16 +70,13 @@ void characteristic_fields(
     const gsl::not_null<
         typename Tags::CharacteristicFields<DataVector, Dim, Frame>::type*>
         char_fields,
-    // const Scalar<DataVector>& gamma_2,
-    const tnsr::II<DataVector, Dim, Frame>& inverse_spatial_metric,
     // Scalar driver fields
     const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
     // Tensor driver fields
-    const tnsr::aa<DataVector, Dim, Frame>& spacetime_metric,
+    const tnsr::aa<DataVector, Dim, Frame>& tensor_driver,
     const tnsr::aa<DataVector, Dim, Frame>& pi,
-    // const tnsr::iaa<DataVector, Dim, Frame>& phi,
+
     const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form) {
-  //   const auto number_of_grid_points = get(gamma_2).size();
   const auto number_of_grid_points = get(psi).size();
   if (UNLIKELY(number_of_grid_points != char_fields->number_of_grid_points())) {
     char_fields->initialize(number_of_grid_points);
@@ -91,7 +85,7 @@ void characteristic_fields(
   get<Tags::VScalarDriver<DataVector>>(*char_fields) = psi;
   get<Tags::VPiScalar<DataVector>>(*char_fields) = pi_scalar;
   get<Tags::VTensorDriver<DataVector, Dim, Frame>>(*char_fields) =
-      spacetime_metric;
+      tensor_driver;
   get<Tags::VPi<DataVector, Dim, Frame>>(*char_fields) = pi;
 }
 
@@ -101,39 +95,33 @@ void characteristic_fields(
     const gsl::not_null<Scalar<DataVector>*>& v_pi_scalar,
     const gsl::not_null<tnsr::aa<DataVector, Dim, Frame>*>& v_tensor_driver,
     const gsl::not_null<tnsr::aa<DataVector, Dim, Frame>*>& v_pi,
-    // const Scalar<DataVector>& gamma_2,
-    // const tnsr::II<DataVector, Dim, Frame>& inverse_spatial_metric,
     // Scalar driver fields
     const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
     // Tensor driver fields
-    const tnsr::aa<DataVector, Dim, Frame>& spacetime_metric,
+    const tnsr::aa<DataVector, Dim, Frame>& tensor_driver,
     const tnsr::aa<DataVector, Dim, Frame>& pi,
-    // const tnsr::iaa<DataVector, Dim, Frame>& phi,
+
     const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form) {
   *v_scalar_driver = psi;
   *v_pi_scalar = pi_scalar;
-  *v_tensor_driver = spacetime_metric;
+  *v_tensor_driver = tensor_driver;
   *v_pi = pi;
 }
 
 template <size_t Dim, typename Frame>
 typename Tags::CharacteristicFields<DataVector, Dim, Frame>::type
 characteristic_fields(
-    // const Scalar<DataVector>& gamma_2,
-    const tnsr::II<DataVector, Dim, Frame>& inverse_spatial_metric,
     const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,
-    const tnsr::aa<DataVector, Dim, Frame>& spacetime_metric,
+    const tnsr::aa<DataVector, Dim, Frame>& tensor_driver,
     const tnsr::aa<DataVector, Dim, Frame>& pi,
-    // const tnsr::iaa<DataVector, Dim, Frame>& phi,
     const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form) {
   auto char_fields = make_with_value<
       typename Tags::CharacteristicFields<DataVector, Dim, Frame>::type>(
       get(pi_scalar), 0.);
   characteristic_fields(make_not_null(&char_fields),
-                        //    gamma_2,
-                        inverse_spatial_metric, psi, pi_scalar,
-                        spacetime_metric, pi,
-                        //  phi,
+
+                        psi, pi_scalar, tensor_driver, pi,
+
                         unit_normal_one_form);
   return char_fields;
 }
@@ -166,7 +154,6 @@ template <size_t Dim, typename Frame>
 typename Tags::EvolvedFieldsFromCharacteristicFields<DataVector, Dim,
                                                      Frame>::type
 evolved_fields_from_characteristic_fields(
-    // const Scalar<DataVector>& gamma_2,
     const Scalar<DataVector>& u_scalar_driver,
     const Scalar<DataVector>& u_pi_scalar,
     const tnsr::aa<DataVector, Dim, Frame>& u_tensor_driver,
@@ -183,13 +170,11 @@ evolved_fields_from_characteristic_fields(
   return evolved_fields;
 }
 
-// template <size_t Dim, typename Frame>
-void Tags::ComputeLargestCharacteristicSpeed::function(
-    const gsl::not_null<double*> speed,
-    //  const Scalar<DataVector>& gamma_1,
-    const Scalar<DataVector>& lapse,
-    const tnsr::I<DataVector, 3, Frame::Inertial>& shift,
-    const tnsr::ii<DataVector, 3, Frame::Inertial>& spatial_metric) {
+template <size_t Dim, typename Frame>
+void Tags::ComputeLargestCharacteristicSpeed<Dim, Frame>::function(
+    const gsl::not_null<double*> speed, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, Dim, Frame>& shift,
+    const tnsr::ii<DataVector, Dim, Frame>& spatial_metric) {
   const auto shift_magnitude = magnitude(shift, spatial_metric);
   *speed = max(get(shift_magnitude));
 }
@@ -228,10 +213,8 @@ void Tags::ComputeLargestCharacteristicSpeed::function(
           typename fe::ScalarTensorDriver::Tags::CharacteristicFields<         \
               DataVector, DIM(data), FRAME(data)>::type*>                      \
           char_fields,                                                         \
-      const tnsr::II<DataVector, DIM(data), FRAME(data)>&                      \
-          inverse_spatial_metric,                                              \
       const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,      \
-      const tnsr::aa<DataVector, DIM(data), FRAME(data)>& spacetime_metric,    \
+      const tnsr::aa<DataVector, DIM(data), FRAME(data)>& tensor_driver,       \
       const tnsr::aa<DataVector, DIM(data), FRAME(data)>& pi,                  \
       const tnsr::i<DataVector, DIM(data), FRAME(data)>&                       \
           unit_normal_one_form);                                               \
@@ -243,17 +226,15 @@ void Tags::ComputeLargestCharacteristicSpeed::function(
       const gsl::not_null<tnsr::aa<DataVector, DIM(data), FRAME(data)>*>&      \
           v_pi,                                                                \
       const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,      \
-      const tnsr::aa<DataVector, DIM(data), FRAME(data)>& spacetime_metric,    \
+      const tnsr::aa<DataVector, DIM(data), FRAME(data)>& tensor_driver,       \
       const tnsr::aa<DataVector, DIM(data), FRAME(data)>& pi,                  \
       const tnsr::i<DataVector, DIM(data), FRAME(data)>&                       \
           unit_normal_one_form);                                               \
   template typename fe::ScalarTensorDriver::Tags::CharacteristicFields<        \
       DataVector, DIM(data), FRAME(data)>::type                                \
   fe::ScalarTensorDriver::characteristic_fields(                               \
-      const tnsr::II<DataVector, DIM(data), FRAME(data)>&                      \
-          inverse_spatial_metric,                                              \
       const Scalar<DataVector>& psi, const Scalar<DataVector>& pi_scalar,      \
-      const tnsr::aa<DataVector, DIM(data), FRAME(data)>& spacetime_metric,    \
+      const tnsr::aa<DataVector, DIM(data), FRAME(data)>& tensor_driver,       \
       const tnsr::aa<DataVector, DIM(data), FRAME(data)>& pi,                  \
       const tnsr::i<DataVector, DIM(data), FRAME(data)>&                       \
           unit_normal_one_form);                                               \
@@ -282,7 +263,9 @@ void Tags::ComputeLargestCharacteristicSpeed::function(
           const tnsr::i<DataVector, DIM(data), FRAME(data)>&                   \
               unit_normal_one_form);                                           \
   template struct fe::ScalarTensorDriver::                                     \
-      EvolvedFieldsFromCharacteristicFieldsCompute<DIM(data), FRAME(data)>;
+      EvolvedFieldsFromCharacteristicFieldsCompute<DIM(data), FRAME(data)>;    \
+  template struct fe::ScalarTensorDriver::Tags::                               \
+      ComputeLargestCharacteristicSpeed<DIM(data), FRAME(data)>;
 
 GENERATE_INSTANTIATIONS(INSTANTIATION, (3),
                         (Frame::Inertial, Frame::Grid))
