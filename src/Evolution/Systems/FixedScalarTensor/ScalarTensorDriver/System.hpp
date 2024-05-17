@@ -48,7 +48,7 @@ struct System {
   using compute_volume_time_derivative_terms = TimeDerivative;
 
   using compute_largest_characteristic_speed =
-      Tags::ComputeLargestCharacteristicSpeed;
+      Tags::ComputeLargestCharacteristicSpeed<3, Frame::Inertial>;
 
   using inverse_spatial_metric_tag =
       gr::Tags::InverseSpatialMetric<DataVector, 3_st>;
