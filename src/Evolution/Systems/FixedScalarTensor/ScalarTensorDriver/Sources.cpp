@@ -48,4 +48,17 @@ void compute_target_tensor(
       target_tensor, 0.0 * trace_reversed_stress_energy(ti::a, ti::b));
 }
 
+void compute_target_tensor_all_same(
+    gsl::not_null<tnsr::aa<DataVector, 3>*> target_tensor,
+    const tnsr::aa<DataVector, 3>& trace_reversed_stress_energy,
+    const Scalar<DataVector>& scalar_target) {
+  tenex::evaluate<ti::a, ti::b>(
+      target_tensor, 0.0 * trace_reversed_stress_energy(ti::a, ti::b));
+  for (size_t a = 0; a < 4; ++a) {
+    for (size_t b = a; b < 4; ++b) {
+      target_tensor->get(a, b) = get(scalar_target);
+    }
+  }
+}
+
 }  // namespace fe::ScalarTensorDriver::Sources
