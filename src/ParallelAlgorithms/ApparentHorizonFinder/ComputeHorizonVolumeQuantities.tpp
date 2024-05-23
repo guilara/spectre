@@ -68,6 +68,8 @@ void ComputeHorizonVolumeQuantities::apply(
   const auto& pi = get<gh::Tags::Pi<DataVector, 3>>(src_vars);
   const auto& phi = get<gh::Tags::Phi<DataVector, 3>>(src_vars);
 
+  const auto& psi_scalar = get<CurvedScalarWave::Tags::Psi>(src_vars);
+
   if (target_vars->number_of_grid_points() !=
       src_vars.number_of_grid_points()) {
     target_vars->initialize(src_vars.number_of_grid_points());
@@ -120,6 +122,9 @@ void ComputeHorizonVolumeQuantities::apply(
                           spacetime_normal_vector, pi, phi);
   gh::christoffel_second_kind(make_not_null(&spatial_christoffel_second_kind),
                               phi, inv_metric);
+
+  *(get<CurvedScalarWave::Tags::Psi>(target_vars, make_not_null(&buffer))) =
+      psi_scalar;
 
   if constexpr (tmpl::list_contains_v<DestTagList,
                                       gr::Tags::SpatialRicci<DataVector, 3>>) {
@@ -181,6 +186,8 @@ void ComputeHorizonVolumeQuantities::apply(
   const auto& psi = get<gr::Tags::SpacetimeMetric<DataVector, 3>>(src_vars);
   const auto& pi = get<gh::Tags::Pi<DataVector, 3>>(src_vars);
   const auto& phi = get<gh::Tags::Phi<DataVector, 3>>(src_vars);
+
+  const auto& psi_scalar = get<CurvedScalarWave::Tags::Psi>(src_vars);
 
   if (target_vars->number_of_grid_points() !=
       src_vars.number_of_grid_points()) {
@@ -259,6 +266,9 @@ void ComputeHorizonVolumeQuantities::apply(
                               shift);
   gh::extrinsic_curvature(make_not_null(&inertial_ex_curvature),
                           spacetime_normal_vector, pi, phi);
+
+  *(get<CurvedScalarWave::Tags::Psi>(target_vars, make_not_null(&buffer))) =
+      psi_scalar;
 
   // Transform spatial metric and extrinsic curvature
   transform::to_different_frame(make_not_null(&metric), inertial_metric,

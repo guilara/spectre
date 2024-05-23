@@ -15,6 +15,7 @@
 #include "Domain/Tags.hpp"
 #include "Elliptic/DiscontinuousGalerkin/Actions/InitializeDomain.hpp"
 #include "Elliptic/DiscontinuousGalerkin/DgElementArray.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "IO/Importers/Actions/ReadVolumeData.hpp"
 #include "IO/Importers/Actions/ReceiveVolumeData.hpp"
 #include "IO/Importers/Actions/RegisterWithElementDataReader.hpp"
@@ -131,7 +132,8 @@ struct DispatchApparentHorizonFinder {
         db::get<gr::Tags::SpatialMetric<DataVector, Dim>>(box),
         db::get<gr::Tags::ExtrinsicCurvature<DataVector, Dim>>(box),
         db::get<domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
-                                              Frame::Inertial>>(box));
+                                              Frame::Inertial>>(box),
+        db::get<CurvedScalarWave::Tags::Psi>(box));
     return {Parallel::AlgorithmExecution::Continue, std::nullopt};
   }
 };
@@ -145,7 +147,8 @@ struct ComputeHorizonVolumeQuantities
       tmpl::list<gr::Tags::SpatialMetric<DataVector, Dim>,
                  gr::Tags::ExtrinsicCurvature<DataVector, Dim>,
                  domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
-                                               Frame::Inertial>>;
+                                               Frame::Inertial>,
+                 CurvedScalarWave::Tags::Psi>;
   using required_src_tags = allowed_src_tags;
   template <typename TargetFrame>
   using allowed_dest_tags = tmpl::list<
@@ -153,7 +156,8 @@ struct ComputeHorizonVolumeQuantities
       gr::Tags::InverseSpatialMetric<DataVector, Dim, TargetFrame>,
       gr::Tags::ExtrinsicCurvature<DataVector, Dim, TargetFrame>,
       gr::Tags::SpatialChristoffelSecondKind<DataVector, Dim, TargetFrame>,
-      gr::Tags::SpatialRicci<DataVector, Dim, TargetFrame>>;
+      gr::Tags::SpatialRicci<DataVector, Dim, TargetFrame>,
+      CurvedScalarWave::Tags::Psi>;
   template <typename TargetFrame>
   using required_dest_tags = allowed_dest_tags<TargetFrame>;
 
@@ -168,6 +172,8 @@ struct ComputeHorizonVolumeQuantities
     const auto& inv_jacobian =
         get<domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
                                           Frame::Inertial>>(src_vars);
+    const auto& psi_scalar = get<CurvedScalarWave::Tags::Psi>(src_vars);
+
     get<gr::Tags::SpatialMetric<DataVector, Dim>>(*target_vars) =
         spatial_metric;
     get<gr::Tags::ExtrinsicCurvature<DataVector, Dim>>(*target_vars) =
@@ -191,6 +197,8 @@ struct ComputeHorizonVolumeQuantities
     gr::ricci_tensor(make_not_null(&spatial_ricci),
                      spatial_christoffel_second_kind,
                      deriv_spatial_christoffel_second_kind);
+
+    get<CurvedScalarWave::Tags::Psi>(*target_vars) = psi_scalar;
   }
 };
 
@@ -241,7 +249,8 @@ struct Metavariables {
   using adm_vars =
       tmpl::list<gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, Dim>,
                  gr::Tags::SpatialMetric<DataVector, Dim>,
-                 gr::Tags::ExtrinsicCurvature<DataVector, Dim>>;
+                 gr::Tags::ExtrinsicCurvature<DataVector, Dim>,
+                 CurvedScalarWave::Tags::Psi>;
 
   using interpolator_source_vars =
       typename ComputeHorizonVolumeQuantities<Dim>::required_src_tags;
