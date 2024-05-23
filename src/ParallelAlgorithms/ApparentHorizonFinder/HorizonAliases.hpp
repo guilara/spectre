@@ -51,7 +51,8 @@ using tags_for_observing =
                gr::surfaces::Tags::ChristodoulouMassCompute<Frame>,
                gr::surfaces::Tags::DimensionlessSpinMagnitudeCompute<Frame>>;
 
-using surface_tags_for_observing = tmpl::list<ylm::Tags::RicciScalar>;
+using surface_tags_for_observing =
+    tmpl::list<ylm::Tags::RicciScalar, CurvedScalarWave::Tags::Psi>;
 
 template <size_t Dim, typename Frame>
 using compute_items_on_target = tmpl::append<
