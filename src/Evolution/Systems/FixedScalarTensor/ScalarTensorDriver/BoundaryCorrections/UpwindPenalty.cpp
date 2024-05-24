@@ -141,10 +141,10 @@ void UpwindPenalty::dg_boundary_terms(
   for (size_t a = 0; a < 4; ++a) {
     for (size_t b = a; b < 4; ++b) {
       boundary_correction_tensor_driver->get(a, b) =
-          weighted_lambda_tensor_driver_ext *
-              get<2>(char_speeds_ext) v_tensor_driver_ext.get(a, b) -
-          weighted_lambda_tensor_driver_int * get<2>(char_speeds_int)
-                                                  v_tensor_driver_int.get(a, b);
+          weighted_lambda_tensor_driver_ext * get<2>(char_speeds_ext) *
+              v_tensor_driver_ext.get(a, b) -
+          weighted_lambda_tensor_driver_int * get<2>(char_speeds_int) *
+              v_tensor_driver_int.get(a, b);
       boundary_correction_pi->get(a, b) =
           weighted_lambda_pi_ext * get<3>(char_speeds_ext) *
               v_pi_ext.get(a, b) -
