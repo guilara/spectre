@@ -83,7 +83,7 @@ struct ComputeHorizonVolumeQuantities
                  gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>,
                  ::Tags::deriv<gh::Tags::Phi<DataVector, 3>, tmpl::size_t<3>,
                                Frame::Inertial>,
-                 CurvedScalarWave::Tags::Psi>;
+                 CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Phi<3>>;
 
   using required_src_tags =
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>,
@@ -98,7 +98,7 @@ struct ComputeHorizonVolumeQuantities
       gr::Tags::ExtrinsicCurvature<DataVector, 3, TargetFrame>,
       gr::Tags::SpatialChristoffelSecondKind<DataVector, 3, TargetFrame>,
       gr::Tags::SpatialRicci<DataVector, 3, TargetFrame>,
-      CurvedScalarWave::Tags::Psi>;
+      CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Phi<3>>;
 
   template <typename TargetFrame>
   using allowed_dest_tags = tmpl::remove_duplicates<

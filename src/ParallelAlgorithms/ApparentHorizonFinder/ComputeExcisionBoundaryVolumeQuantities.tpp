@@ -96,6 +96,8 @@ void ComputeExcisionBoundaryVolumeQuantities::apply(
   const auto& src_spacetime_metric =
       get<gr::Tags::SpacetimeMetric<DataVector, 3>>(src_vars);
   spacetime_metric = src_spacetime_metric;
+  const auto& psi_scalar = get<CurvedScalarWave::Tags::Psi>(src_vars);
+  const auto& phi_scalar = get<CurvedScalarWave::Tags::Phi<3>>(src_vars);
 
   gr::spatial_metric(make_not_null(&spatial_metric), spacetime_metric);
   // put determinant of 3-metric temporarily into lapse to save memory.
@@ -103,6 +105,12 @@ void ComputeExcisionBoundaryVolumeQuantities::apply(
                           make_not_null(&inv_spatial_metric), spatial_metric);
   gr::shift(make_not_null(&shift), spacetime_metric, inv_spatial_metric);
   gr::lapse(make_not_null(&lapse), shift, spacetime_metric);
+
+  *(get<CurvedScalarWave::Tags::Psi>(target_vars, make_not_null(&buffer))) =
+      psi_scalar;
+
+  *(get<CurvedScalarWave::Tags::Phi<3>>(target_vars, make_not_null(&buffer))) =
+      phi_scalar;
 }
 
 /// Dual frame case
@@ -143,6 +151,9 @@ void ComputeExcisionBoundaryVolumeQuantities::apply(
 
   const auto& spacetime_metric =
       get<gr::Tags::SpacetimeMetric<DataVector, 3>>(src_vars);
+
+  const auto& psi_scalar = get<CurvedScalarWave::Tags::Psi>(src_vars);
+  const auto& phi_scalar = get<CurvedScalarWave::Tags::Phi<3>>(src_vars);
 
   if (target_vars->number_of_grid_points() !=
       src_vars.number_of_grid_points()) {
@@ -235,6 +246,12 @@ void ComputeExcisionBoundaryVolumeQuantities::apply(
   tenex::evaluate<ti::I>(
       make_not_null(&shifty_quantity),
       shift(ti::I) + grid_to_target_frame_mesh_velocity(ti::I));
+
+  *(get<CurvedScalarWave::Tags::Psi>(target_vars, make_not_null(&buffer))) =
+      psi_scalar;
+
+  *(get<CurvedScalarWave::Tags::Phi<3>>(target_vars, make_not_null(&buffer))) =
+      phi_scalar;
 }
 
 }  // namespace ah

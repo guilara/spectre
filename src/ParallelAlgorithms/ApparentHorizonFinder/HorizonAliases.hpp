@@ -27,8 +27,12 @@ using source_vars =
     tmpl::list<gr::Tags::SpacetimeMetric<DataVector, Dim>,
                gh::Tags::Pi<DataVector, Dim>, gh::Tags::Phi<DataVector, Dim>,
                ::Tags::deriv<gh::Tags::Phi<DataVector, Dim>, tmpl::size_t<Dim>,
-                             Frame::Inertial>,
-               CurvedScalarWave::Tags::Psi>;
+                             Frame::Inertial>
+
+               ,
+               CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Phi<Dim>
+
+               >;
 
 template <size_t Dim, typename Frame>
 using vars_to_interpolate_to_target =
@@ -39,7 +43,7 @@ using vars_to_interpolate_to_target =
                gr::Tags::SpatialRicci<DataVector, Dim, Frame>
 
                ,
-               CurvedScalarWave::Tags::Psi
+               CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Phi<Dim>
 
                >;
 
@@ -56,7 +60,8 @@ using tags_for_observing = tmpl::list<
                                               Frame>>;
 
 using surface_tags_for_observing =
-    tmpl::list<ylm::Tags::RicciScalar, CurvedScalarWave::Tags::Psi>;
+    tmpl::list<ylm::Tags::RicciScalar, CurvedScalarWave::Tags::Psi,
+               CurvedScalarWave::Tags::Phi<3>>;
 
 template <size_t Dim, typename Frame>
 using compute_items_on_target = tmpl::append<

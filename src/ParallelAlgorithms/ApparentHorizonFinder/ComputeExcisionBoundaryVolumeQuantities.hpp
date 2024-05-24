@@ -84,6 +84,7 @@ struct ComputeExcisionBoundaryVolumeQuantities
                  ::Tags::deriv<gh::Tags::Phi<DataVector, 3>, tmpl::size_t<3>,
                                Frame::Inertial>
                                , CurvedScalarWave::Tags::Psi
+                               , CurvedScalarWave::Tags::Phi<3>
                                >;
 
   using required_src_tags =
