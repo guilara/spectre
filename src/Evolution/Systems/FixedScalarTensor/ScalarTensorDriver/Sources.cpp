@@ -56,7 +56,7 @@ void compute_target_tensor_all_same(
       target_tensor, 0.0 * trace_reversed_stress_energy(ti::a, ti::b));
   for (size_t a = 0; a < 4; ++a) {
     for (size_t b = a; b < 4; ++b) {
-      target_tensor->get(a, b) = 0.0 * get(scalar_target);
+      target_tensor->get(a, b) = get(scalar_target);
     }
   }
 }
