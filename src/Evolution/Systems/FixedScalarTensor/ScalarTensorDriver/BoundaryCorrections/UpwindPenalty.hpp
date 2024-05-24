@@ -103,19 +103,17 @@ class UpwindPenalty final : public BoundaryCorrection {
       gsl::not_null<Scalar<DataVector>*> boundary_correction_scalar_driver,
       gsl::not_null<Scalar<DataVector>*> boundary_correction_pi_scalar,
 
-      const tnsr::aa<DataVector, 3, Frame::Inertial>&
-          char_speed_v_tensor_driver_int,
-      const tnsr::aa<DataVector, 3, Frame::Inertial>& char_speed_v_pi_int,
-      const Scalar<DataVector>& char_speed_v_scalar_driver_int,
-      const Scalar<DataVector>& char_speed_v_pi_scalar_int,
+      const tnsr::aa<DataVector, 3, Frame::Inertial>& v_tensor_driver_int,
+      const tnsr::aa<DataVector, 3, Frame::Inertial>& v_pi_int,
+      const Scalar<DataVector>& v_scalar_driver_int,
+      const Scalar<DataVector>& v_pi_scalar_int,
 
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int,
 
-      const tnsr::aa<DataVector, 3, Frame::Inertial>&
-          char_speed_v_tensor_driver_ext,
-      const tnsr::aa<DataVector, 3, Frame::Inertial>& char_speed_v_pi_ext,
-      const Scalar<DataVector>& char_speed_v_scalar_driver_ext,
-      const Scalar<DataVector>& char_speed_v_pi_scalar_ext,
+      const tnsr::aa<DataVector, 3, Frame::Inertial>& v_tensor_driver_ext,
+      const tnsr::aa<DataVector, 3, Frame::Inertial>& v_pi_ext,
+      const Scalar<DataVector>& v_scalar_driver_ext,
+      const Scalar<DataVector>& v_pi_scalar_ext,
 
       const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext,
       dg::Formulation /*dg_formulation*/) const;

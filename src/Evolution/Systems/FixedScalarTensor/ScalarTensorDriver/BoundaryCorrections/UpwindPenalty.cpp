@@ -80,19 +80,17 @@ void UpwindPenalty::dg_boundary_terms(
     gsl::not_null<Scalar<DataVector>*> boundary_correction_scalar_driver,
     gsl::not_null<Scalar<DataVector>*> boundary_correction_pi_scalar,
 
-    const tnsr::aa<DataVector, 3, Frame::Inertial>&
-        char_speed_v_tensor_driver_int,
-    const tnsr::aa<DataVector, 3, Frame::Inertial>& char_speed_v_pi_int,
-    const Scalar<DataVector>& char_speed_v_scalar_driver_int,
-    const Scalar<DataVector>& char_speed_v_pi_scalar_int,
+    const tnsr::aa<DataVector, 3, Frame::Inertial>& v_tensor_driver_int,
+    const tnsr::aa<DataVector, 3, Frame::Inertial>& v_pi_int,
+    const Scalar<DataVector>& v_scalar_driver_int,
+    const Scalar<DataVector>& v_pi_scalar_int,
 
     const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_int,
 
-    const tnsr::aa<DataVector, 3, Frame::Inertial>&
-        char_speed_v_tensor_driver_ext,
-    const tnsr::aa<DataVector, 3, Frame::Inertial>& char_speed_v_pi_ext,
-    const Scalar<DataVector>& char_speed_v_scalar_driver_ext,
-    const Scalar<DataVector>& char_speed_v_pi_scalar_ext,
+    const tnsr::aa<DataVector, 3, Frame::Inertial>& v_tensor_driver_ext,
+    const tnsr::aa<DataVector, 3, Frame::Inertial>& v_pi_ext,
+    const Scalar<DataVector>& v_scalar_driver_ext,
+    const Scalar<DataVector>& v_pi_scalar_ext,
 
     const tnsr::a<DataVector, 3, Frame::Inertial>& char_speeds_ext,
     dg::Formulation /*dg_formulation*/) const {
@@ -129,23 +127,28 @@ void UpwindPenalty::dg_boundary_terms(
   weighted_lambda_pi_ext = -step_function(char_speeds_ext[3]);
 
   boundary_correction_scalar_driver->get() =
-      weighted_lambda_scalar_driver_ext * char_speed_v_scalar_driver_ext.get() -
-      weighted_lambda_scalar_driver_int * char_speed_v_scalar_driver_int.get();
+      weighted_lambda_scalar_driver_ext * get<0>(char_speeds_ext) *
+          v_scalar_driver_ext.get() -
+      weighted_lambda_scalar_driver_int * get<0>(char_speeds_int) *
+          v_scalar_driver_int.get();
 
   boundary_correction_pi_scalar->get() =
-      weighted_lambda_pi_scalar_ext * char_speed_v_pi_scalar_ext.get() -
-      weighted_lambda_pi_scalar_int * char_speed_v_pi_scalar_int.get();
+      weighted_lambda_pi_scalar_ext * get<1>(char_speeds_ext) *
+          v_pi_scalar_ext.get() -
+      weighted_lambda_pi_scalar_int * get<1>(char_speeds_int) *
+          v_pi_scalar_int.get();
 
   for (size_t a = 0; a < 4; ++a) {
     for (size_t b = a; b < 4; ++b) {
       boundary_correction_tensor_driver->get(a, b) =
-          weighted_lambda_tensor_driver_ext *
-              char_speed_v_tensor_driver_ext.get(a, b) -
-          weighted_lambda_tensor_driver_int *
-              char_speed_v_tensor_driver_int.get(a, b);
+          weighted_lambda_tensor_driver_ext * get<2>(char_speeds_ext) *
+              v_tensor_driver_ext.get(a, b) -
+          weighted_lambda_tensor_driver_int * get<2>(char_speeds_int) *
+              v_tensor_driver_int.get(a, b);
       boundary_correction_pi->get(a, b) =
-          weighted_lambda_pi_ext * char_speed_v_pi_ext.get(a, b) -
-          weighted_lambda_pi_int * char_speed_v_pi_int.get(a, b);
+          weighted_lambda_pi_ext * get<3>(char_speeds_ext) *
+              v_pi_ext.get(a, b) -
+          weighted_lambda_pi_int * get<3>(char_speeds_int) * v_pi_int.get(a, b);
     }
   }
 }
