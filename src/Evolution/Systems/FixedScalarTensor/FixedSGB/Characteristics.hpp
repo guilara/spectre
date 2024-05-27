@@ -33,19 +33,21 @@ struct ComputeLargestCharacteristicSpeed : db::ComputeTag,
                  gr::Tags::Lapse<DataVector>,
                  gr::Tags::Shift<DataVector, 3, Frame>,
                  gr::Tags::SpatialMetric<DataVector, 3, Frame>,
-                 CurvedScalarWave::Tags::ConstraintGamma1>;
+                 CurvedScalarWave::Tags::ConstraintGamma1,
+                 domain::Tags::MeshVelocity<3, Frame>>;
   using return_type = double;
   using base = LargestCharacteristicSpeed;
-  static void function(const gsl::not_null<double*> speed,
-                       // GH arguments
-                       const Scalar<DataVector>& gamma_1,
-                       const Scalar<DataVector>& lapse,
-                       const tnsr::I<DataVector, 3, Frame>& shift,
-                       const tnsr::ii<DataVector, 3, Frame>& spatial_metric,
-                       // Scalar arguments
-                       const Scalar<DataVector>& gamma_1_scalar
-                       // Driver arguments
-  ) {
+  static void function(
+      const gsl::not_null<double*> speed,
+      // GH arguments
+      const Scalar<DataVector>& gamma_1, const Scalar<DataVector>& lapse,
+      const tnsr::I<DataVector, 3, Frame>& shift,
+      const tnsr::ii<DataVector, 3, Frame>& spatial_metric,
+      // Scalar arguments
+      const Scalar<DataVector>& gamma_1_scalar
+      // Driver arguments
+      ,
+      const std::optional<tnsr::I<DataVector, 3, Frame>>& mesh_velocity) {
     // Largest speed in for ScalarTensor
     double st_largest_speed = 0.0;
     ScalarTensor::Tags::ComputeLargestCharacteristicSpeed<Frame>::function(
@@ -55,7 +57,7 @@ struct ComputeLargestCharacteristicSpeed : db::ComputeTag,
     double driver_largest_speed = 0.0;
     fe::ScalarTensorDriver::Tags::ComputeLargestCharacteristicSpeed<
         3, Frame>::function(make_not_null(&driver_largest_speed), lapse, shift,
-                            spatial_metric);
+                            spatial_metric, mesh_velocity);
     // Compute the maximum speed
     *speed = std::max(st_largest_speed, driver_largest_speed);
   }

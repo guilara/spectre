@@ -30,7 +30,15 @@ void characteristic_speeds(
     const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form,
     const std::optional<tnsr::I<DataVector, Dim, Frame>>& mesh_velocity) {
   const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
-  get<0>(*char_speeds) = -shift_dot_normal;  // lambda(VScalarDriver)
+
+  if (mesh_velocity.has_value()) {
+    const DataVector mesh_velocity_dot_normal =
+        get(dot_product((*mesh_velocity), unit_normal_one_form));
+    get<0>(*char_speeds) = mesh_velocity_dot_normal;  // lambda(VScalarDriver)
+  } else {
+    get<0>(*char_speeds) = 0.0 * shift_dot_normal;  // lambda(VScalarDriver)
+  }
+
   get<1>(*char_speeds) = -shift_dot_normal;  // lambda(VPiScalar)
   get<2>(*char_speeds) = -shift_dot_normal;  // lambda(VTensorDriver)
   get<3>(*char_speeds) = -shift_dot_normal;  // lambda(VPi)
@@ -44,7 +52,15 @@ void characteristic_speeds(
     const tnsr::i<DataVector, Dim, Frame>& unit_normal_one_form,
     const std::optional<tnsr::I<DataVector, Dim, Frame>>& mesh_velocity) {
   const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
-  (*char_speeds)[0] = -shift_dot_normal;  // lambda(VScalarDriver)
+
+  if (mesh_velocity.has_value()) {
+    const DataVector mesh_velocity_dot_normal =
+        get(dot_product((*mesh_velocity), unit_normal_one_form));
+    (*char_speeds)[0] = mesh_velocity_dot_normal;  // lambda(VScalarDriver)
+  } else {
+    (*char_speeds)[0] = 0.0 * shift_dot_normal;  // lambda(VScalarDriver)
+  }
+
   (*char_speeds)[1] = -shift_dot_normal;  // lambda(VPiScalar)
   (*char_speeds)[2] = -shift_dot_normal;  // lambda(VTensorDriver)
   (*char_speeds)[3] = -shift_dot_normal;  // lambda(VPi)
@@ -174,9 +190,17 @@ template <size_t Dim, typename Frame>
 void Tags::ComputeLargestCharacteristicSpeed<Dim, Frame>::function(
     const gsl::not_null<double*> speed, const Scalar<DataVector>& lapse,
     const tnsr::I<DataVector, Dim, Frame>& shift,
-    const tnsr::ii<DataVector, Dim, Frame>& spatial_metric) {
+    const tnsr::ii<DataVector, Dim, Frame>& spatial_metric,
+    const std::optional<tnsr::I<DataVector, Dim, Frame>>& mesh_velocity) {
   const auto shift_magnitude = magnitude(shift, spatial_metric);
-  *speed = max(get(shift_magnitude));
+  if (mesh_velocity.has_value()) {
+    const auto mesh_velocity_magnitude =
+        magnitude(mesh_velocity.value(), spatial_metric);
+    *speed =
+        std::max(max(get(shift_magnitude)), max(get(mesh_velocity_magnitude)));
+  } else {
+    *speed = max(get(shift_magnitude));
+  }
 }
 }  // namespace fe::ScalarTensorDriver
 
