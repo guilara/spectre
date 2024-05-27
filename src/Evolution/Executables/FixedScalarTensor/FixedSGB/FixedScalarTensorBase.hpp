@@ -387,11 +387,17 @@ struct ObserverTags {
           fe::ScalarTensorDriver::Tags::TargetScalar,
           fe::ScalarTensorDriver::Tags::TargetTensor<DataVector, volume_dim,
                                                      Frame::Inertial>,
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarTensorDriver::Tags::TargetTensor<DataVector, volume_dim,
+                                                         Frame::Inertial>>,
           fe::ScalarTensorDriver::Tags::TensorDriverSource<
               DataVector, volume_dim, Frame::Inertial>,
           fe::ScalarTensorDriver::Tags::ScalarDriverSource,
           fe::ScalarTensorDriver::Tags::TensorTrackingDiagnosticCompute<
               Frame::Inertial, DataVector>,
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarTensorDriver::Tags::TensorTrackingDiagnostic<
+                  DataVector, volume_dim, Frame::Inertial>>,
           fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnosticCompute<
               Frame::Inertial, DataVector>,
           ::Tags::PointwiseL2NormCompute<
