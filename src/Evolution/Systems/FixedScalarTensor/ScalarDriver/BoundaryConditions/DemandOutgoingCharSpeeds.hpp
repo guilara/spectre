@@ -16,6 +16,7 @@
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/BoundaryCondition.hpp"
 #include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/DemandOutgoingCharSpeeds.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/BoundaryCondition.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Characteristics.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/Serialization/CharmPupable.hpp"
@@ -77,13 +78,39 @@ class DemandOutgoingCharSpeeds final : public BoundaryCondition {
       const Scalar<DataVector>& gamma1, const Scalar<DataVector>& lapse,
       const tnsr::I<DataVector, 3_st>& shift) const {
     // Use the boundary condition from CurvedScalarWave
-    auto fe_string = csw_boundary_instance_.dg_demand_outgoing_char_speeds(
-        face_mesh_velocity, normal_covector, normal_vector, gamma1, lapse,
-        shift);
-    if (not fe_string.has_value()) {
-      return fe_string;
+    // auto fe_string = csw_boundary_instance_.dg_demand_outgoing_char_speeds(
+    //     face_mesh_velocity, normal_covector, normal_vector, gamma1, lapse,
+    //     shift);
+    // if (not fe_string.has_value()) {
+    //   return fe_string;
+    // }
+    // return std::nullopt;
+
+    tnsr::a<DataVector, 3, Frame::Inertial> char_speeds{lapse.size()};
+
+    // These are the modified char speeds for the advection equation
+    characteristic_speeds(make_not_null(&char_speeds), gamma1, lapse, shift,
+                          normal_covector, face_mesh_velocity);
+
+    if (face_mesh_velocity.has_value()) {
+      const auto face_speed = dot_product(normal_covector, *face_mesh_velocity);
+      for (auto& char_speed : char_speeds) {
+        char_speed -= get(face_speed);
+      }
     }
-    return std::nullopt;
+    for (size_t i = 0; i < char_speeds.size(); ++i) {
+      if (min(char_speeds[i]) < 0.) {
+        return MakeString{}
+               << "Detected negative characteristic speed at boundary with "
+                  "outgoing char speeds boundary conditions specified. The "
+                  "speed is "
+               << min(char_speeds[i]) << " for index " << i
+               << ". To see which characteristic field this corresponds to, "
+                  "check the function `characteristic_speeds` in "
+                  "Evolution/Systems/CurvedScalarWave/Characteristics.hpp.";
+      }
+    }
+    return std::nullopt;  // LCOV_EXCL_LINE
   }
 
  private:
