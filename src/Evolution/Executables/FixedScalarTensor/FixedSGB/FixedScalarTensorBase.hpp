@@ -388,10 +388,16 @@ struct ObserverTags {
           fe::ScalarTensorDriver::Tags::TargetTensor<DataVector, volume_dim,
                                                      Frame::Inertial>,
           ::Tags::PointwiseL2NormCompute<
+              fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, volume_dim,
+                                                         Frame::Inertial>>,
+          ::Tags::PointwiseL2NormCompute<
               fe::ScalarTensorDriver::Tags::TargetTensor<DataVector, volume_dim,
                                                          Frame::Inertial>>,
           fe::ScalarTensorDriver::Tags::TensorDriverSource<
               DataVector, volume_dim, Frame::Inertial>,
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarTensorDriver::Tags::TensorDriverSource<
+                  DataVector, volume_dim, Frame::Inertial>>,
           fe::ScalarTensorDriver::Tags::ScalarDriverSource,
           fe::ScalarTensorDriver::Tags::TensorTrackingDiagnosticCompute<
               Frame::Inertial, DataVector>,
@@ -400,8 +406,8 @@ struct ObserverTags {
                   DataVector, volume_dim, Frame::Inertial>>,
           fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnosticCompute<
               Frame::Inertial, DataVector>,
-          ::Tags::PointwiseL2NormCompute<
-              fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnostic>,
+        //   ::Tags::PointwiseL2NormCompute<
+        //       fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnostic>,
           // Compute the constraints of CSW
           //   fe::ScalarDriver::Tags::OneIndexConstraintCompute,
           //   fe::ScalarDriver::Tags::TwoIndexConstraintCompute,
