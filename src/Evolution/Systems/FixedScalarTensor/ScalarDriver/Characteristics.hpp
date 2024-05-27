@@ -10,6 +10,8 @@
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "DataStructures/Variables.hpp"
 #include "Domain/FaceNormal.hpp"
+#include "Domain/Tags.hpp"
+#include "Domain/TagsTimeDependent.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Characteristics.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/TagsDeclarations.hpp"
@@ -147,17 +149,26 @@ struct ComputeLargestCharacteristicSpeed : LargestCharacteristicSpeed,
   using argument_tags =
       tmpl::list<Tags::ConstraintGamma1, gr::Tags::Lapse<DataVector>,
                  gr::Tags::Shift<DataVector, 3_st>,
-                 gr::Tags::SpatialMetric<DataVector, 3_st>>;
+                 gr::Tags::SpatialMetric<DataVector, 3_st>,
+                 domain::Tags::MeshVelocity<3, Frame::Inertial>>;
   using return_type = double;
   using base = LargestCharacteristicSpeed;
   static void function(
-      const gsl::not_null<double*> max_speed, const Scalar<DataVector>& gamma_1,
+      const gsl::not_null<double*> speed, const Scalar<DataVector>& gamma_1,
       const Scalar<DataVector>& lapse,
       const tnsr::I<DataVector, 3_st, Frame::Inertial>& shift,
-      const tnsr::ii<DataVector, 3_st, Frame::Inertial>& spatial_metric) {
-    // Use the methods of CurvedScalarWave
-    CurvedScalarWave::Tags::ComputeLargestCharacteristicSpeed<3_st>::function(
-        max_speed, gamma_1, lapse, shift, spatial_metric);
+      const tnsr::ii<DataVector, 3_st, Frame::Inertial>& spatial_metric,
+      const std::optional<tnsr::I<DataVector, 3, Frame::Inertial>>&
+          mesh_velocity) {
+    const auto shift_magnitude = magnitude(shift, spatial_metric);
+    if (mesh_velocity.has_value()) {
+      const auto mesh_velocity_magnitude =
+          magnitude(mesh_velocity.value(), spatial_metric);
+      *speed = std::max(max(get(shift_magnitude)),
+                        max(get(mesh_velocity_magnitude)));
+    } else {
+      *speed = max(get(shift_magnitude));
+    }
   }
 };
 
