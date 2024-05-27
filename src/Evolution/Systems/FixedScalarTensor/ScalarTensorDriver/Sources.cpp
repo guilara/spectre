@@ -44,8 +44,8 @@ void compute_tensor_driver_source(
 void compute_target_tensor(
     gsl::not_null<tnsr::aa<DataVector, 3>*> target_tensor,
     const tnsr::aa<DataVector, 3>& trace_reversed_stress_energy) {
-  tenex::evaluate<ti::a, ti::b>(
-      target_tensor, 0.0 * trace_reversed_stress_energy(ti::a, ti::b));
+  tenex::evaluate<ti::a, ti::b>(target_tensor,
+                                trace_reversed_stress_energy(ti::a, ti::b));
 }
 
 void compute_target_tensor_all_same(
