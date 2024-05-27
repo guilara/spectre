@@ -9,8 +9,10 @@
 #include "DataStructures/DataBox/Tag.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Domain/FaceNormal.hpp"
+#include "Domain/Tags.hpp"
 #include "Domain/TagsTimeDependent.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
+#include "ParallelAlgorithms/Events/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -207,13 +209,15 @@ struct ComputeLargestCharacteristicSpeed : db::ComputeTag,
   using argument_tags =
       tmpl::list<gr::Tags::Lapse<DataVector>,
                  gr::Tags::Shift<DataVector, Dim, Frame>,
-                 gr::Tags::SpatialMetric<DataVector, Dim, Frame>>;
+                 gr::Tags::SpatialMetric<DataVector, Dim, Frame>,
+                 domain::Tags::MeshVelocity<Dim, Frame>>;
   using return_type = double;
   using base = LargestCharacteristicSpeed;
-  static void function(const gsl::not_null<double*> speed,
-                       const Scalar<DataVector>& lapse,
-                       const tnsr::I<DataVector, Dim, Frame>& shift,
-                       const tnsr::ii<DataVector, Dim, Frame>& spatial_metric);
+  static void function(
+      const gsl::not_null<double*> speed, const Scalar<DataVector>& lapse,
+      const tnsr::I<DataVector, Dim, Frame>& shift,
+      const tnsr::ii<DataVector, Dim, Frame>& spatial_metric,
+      const std::optional<tnsr::I<DataVector, Dim, Frame>>& mesh_velocity);
 };
 }  // namespace Tags
 }  // namespace fe::ScalarTensorDriver
