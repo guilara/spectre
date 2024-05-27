@@ -35,7 +35,7 @@ struct ComputeLargestCharacteristicSpeed : db::ComputeTag,
                  gr::Tags::SpatialMetric<DataVector, 3, Frame>,
                  CurvedScalarWave::Tags::ConstraintGamma1,
                  fe::ScalarDriver::Tags::ConstraintGamma1,
-                 domain::Tags::MeshVelocity<3, Frame::Inertial>>;
+                 domain::Tags::MeshVelocity<3, Frame>>;
   using return_type = double;
   using base = LargestCharacteristicSpeed;
   static void function(
@@ -48,8 +48,7 @@ struct ComputeLargestCharacteristicSpeed : db::ComputeTag,
       const Scalar<DataVector>& gamma_1_scalar,
       // Driver arguments
       const Scalar<DataVector>& gamma_1_driver,
-      const std::optional<tnsr::I<DataVector, 3, Frame::Inertial>>&
-          mesh_velocity) {
+      const std::optional<tnsr::I<DataVector, 3, Frame>>& mesh_velocity) {
     // Largest speed in for ScalarTensor
     double st_largest_speed = 0.0;
     ScalarTensor::Tags::ComputeLargestCharacteristicSpeed<Frame>::function(
