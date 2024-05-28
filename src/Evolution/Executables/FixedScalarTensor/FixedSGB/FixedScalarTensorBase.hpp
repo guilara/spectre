@@ -406,8 +406,8 @@ struct ObserverTags {
                   DataVector, volume_dim, Frame::Inertial>>,
           fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnosticCompute<
               Frame::Inertial, DataVector>,
-        //   ::Tags::PointwiseL2NormCompute<
-        //       fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnostic>,
+          //   ::Tags::PointwiseL2NormCompute<
+          //       fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnostic>,
           // Compute the constraints of CSW
           //   fe::ScalarDriver::Tags::OneIndexConstraintCompute,
           //   fe::ScalarDriver::Tags::TwoIndexConstraintCompute,
@@ -417,6 +417,14 @@ struct ObserverTags {
           //   ::Tags::PointwiseL2NormCompute<
           //       fe::ScalarDriver::Tags::TwoIndexConstraint>,
           // Coordinates
+
+          // BRT
+          ScalarTensor::Tags::OrderReducedGBScalar,
+          ScalarTensor::Tags::DDFPsiTensor,
+          ScalarTensor::Tags::OrderReducedHTensor,
+          ScalarTensor::Tags::OrderReducedHTensorRicciPart,
+          ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy,
+
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
       //   error_tags,
