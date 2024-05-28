@@ -20,6 +20,7 @@
 #include "Evolution/Systems/ScalarTensor/ConstraintDamping/ConstraintGammas.hpp"
 #include "Evolution/Systems/ScalarTensor/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/ScalarSource.hpp"
+#include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/StressEnergy.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
@@ -41,6 +42,9 @@
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
+#include "PointwiseFunctions/ScalarTensor/GBScalarSourceTerms.hpp"
+#include "PointwiseFunctions/ScalarTensor/GBTensorSourceTerms.hpp"
+#include "PointwiseFunctions/ScalarTensor/WeylElectricRicciPart.hpp"
 #include "Utilities/ProtocolHelpers.hpp"
 #include "Utilities/TMPL.hpp"
 
@@ -121,6 +125,40 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     gr::Tags::SqrtDetSpatialMetricCompute<DataVector, Dim, Fr>,
     gr::Tags::WeylMagneticForGBCompute<DataVector, Dim, Fr>,
     gr::Tags::WeylMagneticScalarCompute<DataVector, Dim, Fr>,
+
+    // BR
+    ScalarTensor::Tags::WeylElectricFullCompute<DataVector, Dim, Fr>,
+    ScalarTensor::Tags::WeylElectricFullScalarCompute<DataVector, Dim, Fr>,
+    //   ScalarTensor::Tags::WeylElectricRicciCompute<DataVector, 3,
+    //                                                Fr>,
+    //   ScalarTensor::Tags::WeylElectricRicciScalarComplementCompute<
+    //       DataVector, 3, Fr>,
+    ScalarTensor::Tags::OrderReducedGBScalarCompute<Fr>,
+    ScalarTensor::Tags::RhsPsiCompute, ScalarTensor::Tags::RhsPiCompute,
+    ScalarTensor::Tags::RhsPhiCompute,
+    ScalarTensor::Tags::SpacetimeDerivScalarCompute<Fr>,
+    ScalarTensor::Tags::nnDDKGCompute<Fr>,
+    ScalarTensor::Tags::nsDDKGCompute<Fr>,
+    ScalarTensor::Tags::ssDDKGCompute<Fr>,
+    ScalarTensor::Tags::OrderReducednnHCompute<Fr>,
+    ScalarTensor::Tags::SCrossBCompute<Fr>,
+    ScalarTensor::Tags::JCrossBCompute<Fr>,
+    ScalarTensor::Tags::OrderReducednsHCompute<Fr>,
+    ScalarTensor::Tags::OrderReducedssHCompute<Fr>,
+    ScalarTensor::Tags::OrderReducedHTensorCompute<Fr>,
+    ScalarTensor::Tags::OrderReducedQTensorCompute<Fr>,
+    ScalarTensor::Tags::DDKGTensorCompute<Fr>,
+    ScalarTensor::Tags::OrderReducedHTensorRicciPartCompute<Fr>,
+    ScalarTensor::Tags::DDFPsiTensorCompute<Fr>,
+    ScalarTensor::Tags::nnDDFPsiCompute<Fr>,
+    ScalarTensor::Tags::nsDDFPsiCompute<Fr>,
+    ScalarTensor::Tags::ssDDFPsiCompute<Fr>,
+    ScalarTensor::Tags::OrderReducedTraceReversedStressEnergyCompute<Fr>,
+    // Fixing diagnostics
+    ::Tags::PointwiseL2NormCompute<
+        ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, Dim, Fr>>,
+    ::Tags::PointwiseL2NormCompute<
+        ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy>,
 
     // Tags for the scalar driver
     fe::ScalarTensorDriver::Tags::TargetTensorCompute<Fr, DataVector>,
