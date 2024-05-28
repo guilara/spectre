@@ -1,30 +1,40 @@
 # Distributed under the MIT License.
 # See LICENSE.txt for details.
 
-set(LIBRARY GhFixedScalarTensorAnalyticData)
+set(LIBRARY ScalarTensorDriver)
 
 add_spectre_library(${LIBRARY})
 
 spectre_target_sources(
   ${LIBRARY}
   PRIVATE
-  InstantiateWrappedGr.cpp
+  Characteristics.cpp
+  Diagnostics.cpp
+  Sources.cpp
+  TimeDerivative.cpp
   )
 
 spectre_target_headers(
   ${LIBRARY}
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
-  Factory.hpp
+  Characteristics.hpp
+  Diagnostics.hpp
+  Sources.hpp
+  System.hpp
+  Tags.hpp
+  TimeDerivative.hpp
   )
 
 target_link_libraries(
   ${LIBRARY}
   PUBLIC
-  GeneralRelativitySolutions
-  FixedDecoupledScalarAnalyticData
-  FixedSgbAnalyticData
-  PRIVATE
   DataStructures
+  Domain
+  ErrorHandling
+  Serialization
   Utilities
   )
+
+  add_subdirectory(BoundaryConditions)
+  add_subdirectory(BoundaryCorrections)
