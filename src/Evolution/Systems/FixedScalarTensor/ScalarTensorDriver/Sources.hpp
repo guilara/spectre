@@ -63,6 +63,31 @@ struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
   using base = ScalarDriverSource;
 };
 
+// /*!
+//  * \brief Compute tag for the scalar driver source.
+//  *
+//  * \details Call compute_scalar_driver_source.
+//  */
+// template <typename Frame, typename DataType>
+// struct TargetScalarCompute : TargetScalar, db::ComputeTag {
+//   using argument_tags =
+//       tmpl::list<gr::Tags::WeylElectricScalar<DataType>,
+//                  gr::Tags::WeylMagneticScalar<DataType>,
+//                  CurvedScalarWave::Tags::Psi,
+//                  ScalarTensor::Tags::ScalarFirstCouplingParameter,
+//                  ScalarTensor::Tags::ScalarSecondCouplingParameter,
+//                  ScalarTensor::Tags::ScalarMass>;
+//   using return_type = Scalar<DataType>;
+//   static constexpr void (*function)(
+//       gsl::not_null<Scalar<DataType>*> scalar_source,
+//       const Scalar<DataType>& weyl_electric_scalar,
+//       const Scalar<DataType>& weyl_magnetic_scalar, const Scalar<DataType>&
+//       psi, const double first_coupling_psi, const double second_coupling_psi,
+//       const double mass_psi) =
+//       &ScalarTensor::compute_scalar_curvature_source;
+//   using base = TargetScalar;
+// };
+
 /*!
  * \brief Compute tag for the scalar driver source.
  *
@@ -71,8 +96,7 @@ struct ScalarDriverSourceCompute : ScalarDriverSource, db::ComputeTag {
 template <typename Frame, typename DataType>
 struct TargetScalarCompute : TargetScalar, db::ComputeTag {
   using argument_tags =
-      tmpl::list<gr::Tags::WeylElectricScalar<DataType>,
-                 gr::Tags::WeylMagneticScalar<DataType>,
+      tmpl::list<ScalarTensor::Tags::OrderReducedGBScalar,
                  CurvedScalarWave::Tags::Psi,
                  ScalarTensor::Tags::ScalarFirstCouplingParameter,
                  ScalarTensor::Tags::ScalarSecondCouplingParameter,
@@ -80,10 +104,10 @@ struct TargetScalarCompute : TargetScalar, db::ComputeTag {
   using return_type = Scalar<DataType>;
   static constexpr void (*function)(
       gsl::not_null<Scalar<DataType>*> scalar_source,
-      const Scalar<DataType>& weyl_electric_scalar,
-      const Scalar<DataType>& weyl_magnetic_scalar, const Scalar<DataType>& psi,
-      const double first_coupling_psi, const double second_coupling_psi,
-      const double mass_psi) = &ScalarTensor::compute_scalar_curvature_source;
+      const Scalar<DataType>& order_reduced_gb_scalar,
+      const Scalar<DataType>& psi, const double first_coupling_psi,
+      const double second_coupling_psi, const double mass_psi) =
+      &ScalarTensor::compute_order_reduced_scalar_curvature_source;
   using base = TargetScalar;
 };
 
