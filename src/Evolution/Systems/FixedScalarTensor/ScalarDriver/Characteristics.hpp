@@ -164,8 +164,12 @@ struct ComputeLargestCharacteristicSpeed : LargestCharacteristicSpeed,
     if (mesh_velocity.has_value()) {
       const auto mesh_velocity_magnitude =
           magnitude(mesh_velocity.value(), spatial_metric);
-      *speed = std::max(max(get(shift_magnitude)),
-                        max(get(mesh_velocity_magnitude)));
+      //   *speed = std::max(max(get(shift_magnitude)),
+      //                     max(get(mesh_velocity_magnitude)));
+
+      // The large mesh velocity is along the movement of the grid
+      // For now lets ignore it here
+      *speed = max(get(shift_magnitude));
     } else {
       *speed = max(get(shift_magnitude));
     }
