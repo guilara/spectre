@@ -11,10 +11,12 @@
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/TaggedContainers.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
+#include "Evolution/Systems/CurvedScalarWave/TimeDerivative.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/Tags.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/TimeDerivative.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/TimeDerivative.hpp"
 #include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/TimeDerivative.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
@@ -47,7 +49,9 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       typename fe::ScalarTensorDriver::System::flux_variables,
       tmpl::bind<::Tags::Flux, tmpl::_1, tmpl::pin<tmpl::size_t<3_st>>,
                  tmpl::pin<Frame::Inertial>>>;
-  using gh_temp_tags = typename ScalarTensor::TimeDerivative::temporary_tags;
+  using gh_temp_tags = tmpl::append<
+      typename ScalarTensor::TimeDerivative::temporary_tags_no_extra_tags,
+      tmpl::list<ScalarTensor::Tags::CompleteTraceReversedStressEnergy>>;
   using gh_gradient_tags = typename ScalarTensor::System::gradients_tags;
   using gh_arg_tags = typename ScalarTensor::TimeDerivative::argument_tags;
   using scalar_temp_tags =
@@ -61,7 +65,9 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
   using temporary_tags = tmpl::remove_duplicates<
       tmpl::append<gh_temp_tags, scalar_temp_tags, scalar_extra_temp_tags>>;
   using argument_tags = tmpl::remove_duplicates<
-      tmpl::append<gh_arg_tags, scalar_arg_tags, tmpl::list<>>>;
+      tmpl::append<gh_arg_tags, scalar_arg_tags,
+                   tmpl::list<ScalarTensor::Tags::TraceReversedStressEnergy<
+                       DataVector, 3, ::Frame::Inertial>>>>;
 
   static void apply(
       // GH dt variables
@@ -118,7 +124,8 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
 
       // Extra temporal tags
       // Avoid compute tags for deriv of lapse and shift by adding them here
-      gsl::not_null<tnsr::aa<DataVector, 3_st>*> stress_energy,
+      gsl::not_null<tnsr::aa<DataVector, 3_st>*>
+          complete_trace_reversed_stress_energy,
 
       // Scalar Tensor Driver temporal variables
 
@@ -177,17 +184,18 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
       const tnsr::aa<DataVector, 3_st>& tensor_driver_source,
       const Scalar<DataVector>& scalar_driver_source,
       const Scalar<DataVector>& tau_parameter,
-      const Scalar<DataVector>& sigma_parameter) {
+      const Scalar<DataVector>& sigma_parameter,
+      const tnsr::aa<DataVector, 3_st>&
+          canonical_trace_reversed_stress_energy) {
     // Note: Check that CurvedScalarWave does not update GH variables
     // to a different value. If it does, invert the order of application of the
     // corrections first, so that the GH update is applied at last
 
-    // Call TimeDerivativeTerms for GH
-    ScalarTensor::TimeDerivative::apply(
+    // Compute sourceless part of the RHS of the metric equations
+    gh::TimeDerivative<3>::apply(
         // GH dt variables
         dt_spacetime_metric, dt_pi, dt_phi,
-        // Scalar dt variables
-        dt_psi_scalar, dt_pi_scalar, dt_phi_scalar,
+
         // GH temporal variables
         temp_gamma1, temp_gamma2, temp_gauge_function,
         temp_spacetime_deriv_gauge_function, gamma1gamma2,
@@ -201,30 +209,46 @@ struct TimeDerivativeTerms /*: public evolution::PassVariables*/ {
         christoffel_first_kind, christoffel_second_kind, trace_christoffel,
         normal_spacetime_vector,
 
-        // Scalar temporal variables
-        result_gamma1_scalar, result_gamma2_scalar,
-        // Extra temporal tags
-        stress_energy,
         // GH argument variables
-        // GH spatial derivatives
-        d_spacetime_metric, d_pi, d_phi,
-        // scalar spatial derivatives
-        d_psi_scalar, d_pi_scalar, d_phi_scalar,
-        //
-        spacetime_metric, pi, phi, gamma0, gamma1, gamma2, gauge_condition,
-        mesh, time, inertial_coords, inverse_jacobian, mesh_velocity,
+        d_spacetime_metric, d_pi, d_phi, spacetime_metric, pi, phi, gamma0,
+        gamma1, gamma2, gauge_condition, mesh, time, inertial_coords,
+        inverse_jacobian, mesh_velocity);
+
+    // Compute sourceless part of the RHS of the scalar equation
+    CurvedScalarWave::TimeDerivative<3>::apply(
+        // Scalar dt variables
+        dt_psi_scalar, dt_pi_scalar, dt_phi_scalar,
+
+        // Scalar temporal variables
+        lapse, shift, inverse_spatial_metric,
+
+        result_gamma1_scalar, result_gamma2_scalar,
+
         // Scalar argument variables
-        pi_scalar, phi_scalar,
-        // These appear with the same name as temporals for the other system
+        d_psi_scalar, d_pi_scalar, d_phi_scalar, pi_scalar, phi_scalar,
+
         lapse_scalar, shift_scalar,
-        //
+
         deriv_lapse, deriv_shift, upper_spatial_metric,
         trace_spatial_christoffel, trace_extrinsic_curvature, gamma1_scalar,
-        gamma2_scalar,
+        gamma2_scalar);
 
+    // Compute the (trace-reversed) stress energy tensor here
+    // ScalarTensor::trace_reversed_stress_energy(stress_energy, pi_scalar,
+    //                                            phi_scalar, lapse_scalar);
+    tenex::evaluate<ti::a, ti::b>(
+        complete_trace_reversed_stress_energy,
+        canonical_trace_reversed_stress_energy(ti::a, ti::b) +
+            tensor_driver(ti::a, ti::b));
+
+    ScalarTensor::add_stress_energy_term_to_dt_pi(
+        dt_pi, *complete_trace_reversed_stress_energy, lapse_scalar);
+
+    ScalarTensor::add_scalar_source_to_dt_pi_scalar(
+        dt_pi_scalar,
         // We source the scalar equation with the driver
-        psi_scalar_driver  // scalar_source
-    );
+        psi_scalar_driver,  // scalar_source,
+        lapse_scalar);
 
     // Call TimeDerivative for Scalar Tensor Driver
     fe::ScalarTensorDriver::TimeDerivative::apply(
