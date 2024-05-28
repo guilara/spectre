@@ -243,6 +243,14 @@ struct WeylElectricFullScalar : db::SimpleTag {
   static std::string name() { return "WeylElectricFullScalar"; }
 };
 
+/*!
+ * \brief Order reduced H tensor.
+ */
+struct CompleteTraceReversedStressEnergy : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "CompleteTraceReversedStressEnergy"; }
+};
+
 }  // namespace Tags
 
 namespace OptionTags {
