@@ -38,7 +38,7 @@ void compute_scalar_curvature_source(
       scalar_source, psi, first_coupling_psi, second_coupling_psi);
 
   // Add mass term
-  scalar_source->get() += square(mass_psi) * psi.get();
+  scalar_source->get() += square(mass_psi) * get(psi);
 }
 
 Scalar<DataVector> compute_scalar_curvature_source(
@@ -149,6 +149,23 @@ void compute_rhs_phi(
                   gamma2() * lapse() * (d_psi(ti::i) - phi(ti::i)) -
                   pi() * deriv_lapse(ti::i) +
                   phi(ti::j) * deriv_shift(ti::i, ti::J));
+}
+
+void compute_order_reduced_scalar_curvature_source(
+    gsl::not_null<Scalar<DataVector>*> scalar_source,
+    const Scalar<DataVector>& order_reduced_gb_scalar,
+    const Scalar<DataVector>& psi, const double first_coupling_psi,
+    const double second_coupling_psi, const double mass_psi) {
+  // Make sure it has the same size
+  // *scalar_source = make_with_value<Scalar<DataVector>>(psi, 0.);
+  // Compute the Riemann squared scalar in vacuum
+  scalar_source->get() = get(order_reduced_gb_scalar);
+  // Multiply by the source coupling function
+  multiply_by_coupling_function_prime_quartic(
+      scalar_source, psi, first_coupling_psi, second_coupling_psi);
+
+  // Add mass term
+  scalar_source->get() += square(mass_psi) * psi.get();
 }
 
 }  // namespace ScalarTensor

@@ -149,6 +149,12 @@ void compute_rhs_phi(
     const Scalar<DataVector>& trace_extrinsic_curvature,
     const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2);
 
+void compute_order_reduced_scalar_curvature_source(
+    gsl::not_null<Scalar<DataVector>*> scalar_source,
+    const Scalar<DataVector>& order_reduced_gb_scalar,
+    const Scalar<DataVector>& psi, const double first_coupling_psi,
+    const double second_coupling_psi, const double mass_psi);
+
 namespace Tags {
 
 /*!
