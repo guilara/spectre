@@ -98,7 +98,9 @@ class DemandOutgoingCharSpeeds final : public BoundaryCondition {
         char_speed -= get(face_speed);
       }
     }
-    for (size_t i = 0; i < char_speeds.size(); ++i) {
+    // By construction, for i = 0, the mesh velocity terms should cancel and the
+    // speed be zero. Numerically, this might give small negative values.
+    for (size_t i = 1; i < char_speeds.size(); ++i) {
       if (min(char_speeds[i]) < 0.) {
         return MakeString{}
                << "Detected negative characteristic speed at boundary with "
@@ -107,7 +109,8 @@ class DemandOutgoingCharSpeeds final : public BoundaryCondition {
                << min(char_speeds[i]) << " for index " << i
                << ". To see which characteristic field this corresponds to, "
                   "check the function `characteristic_speeds` in "
-                  "Evolution/Systems/CurvedScalarWave/Characteristics.hpp.";
+                  "Evolution/Systems/FixedScalarTensor/ScalarDriver/"
+                  "Characteristics.hpp.";
       }
     }
     return std::nullopt;  // LCOV_EXCL_LINE
