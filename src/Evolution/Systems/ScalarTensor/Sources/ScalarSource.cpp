@@ -61,6 +61,16 @@ void multiply_by_coupling_function_prime_quartic(
                            (second_coupling_psi / 4.0) * cube(psi.get());
 }
 
+void multiply_by_coupling_function_double_prime_quartic(
+    gsl::not_null<Scalar<DataVector>*> scalar_source,
+    const Scalar<DataVector>& psi, const double first_coupling_psi,
+    const double second_coupling_psi) {
+  const auto ones_scalar = make_with_value<Scalar<DataVector>>(psi, 1.0);
+  *scalar_source->get() *=
+      -(first_coupling_psi / 4.0) * ones_scalar.get() -
+      (3.0 * second_coupling_psi / 4.0) * square(psi.get());
+}
+
 // Extra functions for debugging
 void compute_coupling_function_derivative(
     const gsl::not_null<Scalar<DataVector>*> result,
@@ -78,6 +88,67 @@ void compute_gb_scalar(const gsl::not_null<Scalar<DataVector>*> gb_scalar,
   // Compute the Riemann squared scalar in vacuum
   gb_scalar->get() =
       8.0 * (weyl_electric_scalar.get() - weyl_magnetic_scalar.get());
+}
+
+void compute_rhs_psi(
+    const gsl::not_null<Scalar<DataVector>*> dt_psi,
+    const tnsr::i<DataVector, 3>& d_psi, const tnsr::i<DataVector, 3>& d_pi,
+    const tnsr::ij<DataVector, 3>& d_phi, const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, 3>& phi, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3>& shift,
+    const tnsr::i<DataVector, 3>& deriv_lapse,
+    const tnsr::iJ<DataVector, 3>& deriv_shift,
+    const tnsr::II<DataVector, 3>& upper_spatial_metric,
+    const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
+    const Scalar<DataVector>& trace_extrinsic_curvature,
+    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
+  tenex::evaluate(dt_psi,
+                  -lapse() * pi() + shift(ti::I) * d_psi(ti::i) +
+                      gamma1() * shift(ti::J) * (d_psi(ti::j) - phi(ti::j)));
+}
+
+void compute_rhs_pi(
+    const gsl::not_null<Scalar<DataVector>*> dt_pi,
+    const tnsr::i<DataVector, 3>& d_psi, const tnsr::i<DataVector, 3>& d_pi,
+    const tnsr::ij<DataVector, 3>& d_phi, const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, 3>& phi, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3>& shift,
+    const tnsr::i<DataVector, 3>& deriv_lapse,
+    const tnsr::iJ<DataVector, 3>& deriv_shift,
+    const tnsr::II<DataVector, 3>& upper_spatial_metric,
+    const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
+    const Scalar<DataVector>& trace_extrinsic_curvature,
+    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2,
+    const Scalar<DataVector>& scalar_source) {
+  tenex::evaluate(
+      dt_pi,
+      lapse() * pi() * trace_extrinsic_curvature() +
+          shift(ti::I) * d_pi(ti::i) +
+          lapse() * trace_spatial_christoffel(ti::I) * phi(ti::i) +
+          gamma1() * gamma2() * shift(ti::I) * (d_psi(ti::i) - phi(ti::i)) -
+          lapse() * upper_spatial_metric(ti::I, ti::J) * d_phi(ti::i, ti::j) -
+          upper_spatial_metric(ti::I, ti::J) * phi(ti::i) * deriv_lapse(ti::j));
+  // Add scalar source
+  add_scalar_source_to_dt_pi_scalar(dt_pi, scalar_source, lapse);
+}
+
+void compute_rhs_phi(
+    const gsl::not_null<tnsr::i<DataVector, 3, Frame::Inertial>*> dt_phi,
+    const tnsr::i<DataVector, 3>& d_psi, const tnsr::i<DataVector, 3>& d_pi,
+    const tnsr::ij<DataVector, 3>& d_phi, const Scalar<DataVector>& pi,
+    const tnsr::i<DataVector, 3>& phi, const Scalar<DataVector>& lapse,
+    const tnsr::I<DataVector, 3>& shift,
+    const tnsr::i<DataVector, 3>& deriv_lapse,
+    const tnsr::iJ<DataVector, 3>& deriv_shift,
+    const tnsr::II<DataVector, 3>& upper_spatial_metric,
+    const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
+    const Scalar<DataVector>& trace_extrinsic_curvature,
+    const Scalar<DataVector>& gamma1, const Scalar<DataVector>& gamma2) {
+  tenex::evaluate<ti::i>(
+      dt_phi, -lapse() * d_pi(ti::i) + shift(ti::J) * d_phi(ti::j, ti::i) +
+                  gamma2() * lapse() * (d_psi(ti::i) - phi(ti::i)) -
+                  pi() * deriv_lapse(ti::i) +
+                  phi(ti::j) * deriv_shift(ti::i, ti::J));
 }
 
 }  // namespace ScalarTensor

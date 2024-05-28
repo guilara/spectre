@@ -25,6 +25,224 @@ struct GBScalar : db::SimpleTag {
   static std::string name() { return "GBScalar"; }
 };
 
+/*!
+ * \brief The GB scalar term with nonvaccuum contributions from the scalar.
+ */
+struct OrderReducedGBScalar : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "OrderReducedGBScalar"; }
+};
+
+/*!
+ * \brief Spacetime derivative of the scalar.
+ */
+struct SpacetimeDerivScalar : db::SimpleTag {
+  using type = tnsr::a<DataVector, 3>;
+  static std::string name() { return "SpacetimeDerivPsi"; }
+};
+
+/*!
+ * \brief Normal normal projection of the second covariant derivative of the
+ * scalar.
+ */
+struct nnDDKG : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "nnDDKG"; }
+};
+
+/*!
+ * \brief Normal spatial projection of the second covariant derivative of the
+ * scalar.
+ */
+struct nsDDKG : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "nsDDKG"; }
+};
+
+/*!
+ * \brief Spatial spatial projection of the second covariant derivative of the
+ * scalar.
+ */
+struct ssDDKG : db::SimpleTag {
+  using type = tnsr::ii<DataVector, 3>;
+  static std::string name() { return "ssDDKG"; }
+};
+
+/*!
+ * \brief Second covariant derivative tensor of the scalar.
+ */
+struct DDKGTensor : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "DDKGTensor"; }
+};
+
+/*!
+ * \brief Normal normal projection of the second covariant derivative of the
+ * scalar.
+ */
+struct nnDDFPsi : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "nnDDFPsi"; }
+};
+
+/*!
+ * \brief Normal spatial projection of the second covariant derivative of the
+ * scalar.
+ */
+struct nsDDFPsi : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "nsDDFPsi"; }
+};
+
+/*!
+ * \brief Spatial spatial projection of the second covariant derivative of the
+ * scalar.
+ */
+struct ssDDFPsi : db::SimpleTag {
+  using type = tnsr::ii<DataVector, 3>;
+  static std::string name() { return "ssDDFPsi"; }
+};
+
+/*!
+ * \brief Second covariant derivative tensor of the scalar.
+ */
+struct DDFPsiTensor : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "DDFPsiTensor"; }
+};
+
+/*!
+ * \brief Rhs of the Psi equation.
+ */
+struct RhsPsi : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "Rhs(Csw(Psi))"; }
+};
+
+/*!
+ * \brief Rhs of the Pi equation.
+ */
+struct RhsPi : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "Rhs(Csw(Pi))"; }
+};
+
+/*!
+ * \brief Rhs of the Pi equation.
+ */
+struct RhsPhi : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "Rhs(Csw(Phi))"; }
+};
+
+/*!
+ * \brief Normal normal projection of the order reduced H tensor.
+ */
+struct OrderReducednnH : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "OrderReducednnH"; }
+};
+
+/*!
+ * \brief Normal spatial projection of the order reduced H tensor.
+ */
+struct OrderReducednsH : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "OrderReducednsH"; }
+};
+
+/*!
+ * \brief Spatial spatial projection of the order reduced H tensor.
+ */
+struct OrderReducedssH : db::SimpleTag {
+  using type = tnsr::ii<DataVector, 3>;
+  static std::string name() { return "OrderReducedssH"; }
+};
+
+/*!
+ * \brief Order reduced H tensor.
+ */
+struct OrderReducedHTensor : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "OrderReducedHTensor"; }
+};
+
+/*!
+ * \brief Order reduced H tensor.
+ */
+struct OrderReducedHTensorRicciPart : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "OrderReducedHTensorRicciPart"; }
+};
+
+/*!
+ * \brief Order reduced H tensor.
+ */
+struct OrderReducedTraceReversedStressEnergy : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "OrderReducedTraceReversedStressEnergy"; }
+};
+
+/*!
+ * \brief Order reduced Q tensor.
+ */
+struct OrderReducedQTensor : db::SimpleTag {
+  using type = tnsr::aa<DataVector, 3>;
+  static std::string name() { return "OrderReducedQTensor"; }
+};
+
+/*!
+ * \brief S cross B for normal spatial projection of order reduced H tensor.
+ */
+struct SCrossB : db::SimpleTag {
+  using type = tnsr::i<DataVector, 3>;
+  static std::string name() { return "SCrossB"; }
+};
+
+/*!
+ * \brief j cross B for spatial spatial projection of order reduced H tensor.
+ */
+struct JCrossB : db::SimpleTag {
+  using type = tnsr::ij<DataVector, 3>;
+  static std::string name() { return "JCrossB"; }
+};
+
+/*!
+ * \brief All extra 4-Ricci terms in the electric part scalar.
+ */
+ template <typename DataType>
+struct WeylElectricRicciScalarComplement : db::SimpleTag {
+  using type = Scalar<DataType>;
+  static std::string name() { return "WeylElectricRicciScalarComplement"; }
+};
+
+/*!
+ * \brief 4-Ricci terms in the electric part of the Weyl tensor.
+ */
+template <typename DataType, size_t SpatialDim, typename Frame>
+struct WeylElectricRicci : db::SimpleTag {
+  using type = tnsr::ii<DataType, SpatialDim, Frame>;
+  static std::string name() { return "WeylElectricRicci"; }
+};
+
+/*!
+ * \brief 4-Ricci terms in the electric part of the Weyl tensor.
+ */
+template <typename DataType, size_t SpatialDim, typename Frame>
+struct WeylElectricFull : db::SimpleTag {
+  using type = tnsr::ii<DataType, SpatialDim, Frame>;
+  static std::string name() { return "WeylElectricFull"; }
+};
+
+/*!
+ * \brief All extra 4-Ricci terms in the electric part scalar.
+ */
+template <typename DataType>
+struct WeylElectricFullScalar : db::SimpleTag {
+  using type = Scalar<DataType>;
+  static std::string name() { return "WeylElectricFullScalar"; }
+};
+
 }  // namespace Tags
 
 namespace OptionTags {
