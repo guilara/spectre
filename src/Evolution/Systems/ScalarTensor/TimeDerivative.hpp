@@ -65,6 +65,10 @@ struct TimeDerivative {
       tmpl::append<gh_arg_tags, scalar_arg_tags,
                    tmpl::list<ScalarTensor::Tags::ScalarSource>>;
 
+  // For the Fixed versions
+  using temporary_tags_no_extra_tags =
+      tmpl::remove_duplicates<tmpl::append<gh_temp_tags, scalar_temp_tags>>;
+
   static void apply(
       // GH dt variables
       gsl::not_null<tnsr::aa<DataVector, dim>*> dt_spacetime_metric,

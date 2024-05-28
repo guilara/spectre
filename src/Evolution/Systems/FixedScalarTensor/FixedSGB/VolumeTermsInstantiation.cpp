@@ -81,5 +81,6 @@ template void volume_terms<::fe::sgb::TimeDerivativeTerms>(
     const tnsr::aa<DataVector, 3>& tensor_driver_source,
     const Scalar<DataVector>& scalar_driver_source,
     const Scalar<DataVector>& scalar_tau_parameter,
-    const Scalar<DataVector>& scalar_sigma_parameter);
+    const Scalar<DataVector>& scalar_sigma_parameter,
+    const tnsr::aa<DataVector, 3>& canonical_trace_reversed_stress_energy);
 }  // namespace evolution::dg::Actions::detail
