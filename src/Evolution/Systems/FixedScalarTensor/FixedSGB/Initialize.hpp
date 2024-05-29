@@ -7,6 +7,7 @@
 #include <optional>
 
 #include "DataStructures/DataBox/Protocols/Mutator.hpp"
+#include "DataStructures/Tensor/EagerMath/Norms.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/ConstraintDamping/ConstraintGammas.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/ConstraintDamping/Tags.hpp"
