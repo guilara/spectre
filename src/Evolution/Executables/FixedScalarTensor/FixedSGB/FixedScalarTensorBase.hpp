@@ -419,11 +419,11 @@ struct ObserverTags {
           // Coordinates
 
           // BRT
-          ScalarTensor::Tags::OrderReducedGBScalar,
-          ScalarTensor::Tags::DDFPsiTensor,
-          ScalarTensor::Tags::OrderReducedHTensor,
-          ScalarTensor::Tags::OrderReducedHTensorRicciPart,
-          ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy,
+          //   ScalarTensor::Tags::OrderReducedGBScalar,
+          //   ScalarTensor::Tags::DDFPsiTensor,
+          //   ScalarTensor::Tags::OrderReducedHTensor,
+          //   ScalarTensor::Tags::OrderReducedHTensorRicciPart,
+          //   ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
