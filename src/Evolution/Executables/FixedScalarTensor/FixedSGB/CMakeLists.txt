@@ -59,3 +59,18 @@ target_link_libraries(
   PRIVATE
   ${LIBS_TO_LINK}
   )
+
+  set(BBH_EXECUTABLE EvolveFixedSgbBinaryBlackHole)
+add_spectre_executable(
+  ${BBH_EXECUTABLE}
+  EXCLUDE_FROM_ALL
+  EvolveFixedSgbBinaryBlackHole.cpp
+  )
+target_link_libraries(
+  ${BBH_EXECUTABLE}
+  PRIVATE
+  ${LIBS_TO_LINK}
+  Cce
+  Deadlock
+  EvolutionTriggers
+  )
