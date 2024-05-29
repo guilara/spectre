@@ -156,8 +156,10 @@ struct TensorDriverSourceCompute : TensorDriverSource<DataType, 3, Frame>,
  */
 template <typename Frame, typename DataType>
 struct TargetTensorCompute : TargetTensor<DataType, 3, Frame>, db::ComputeTag {
-  using argument_tags =
-      tmpl::list<ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy>;
+  //   using argument_tags =
+  //      tmpl::list<ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy>;
+  using argument_tags = tmpl::list<
+      ScalarTensor::Tags::TraceReversedStressEnergy<DataType, 3, Frame>>;
   using return_type = tnsr::aa<DataType, 3, Frame>;
   static constexpr void (*function)(
       gsl::not_null<tnsr::aa<DataType, 3, Frame>*> target_tensor,
