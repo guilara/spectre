@@ -327,19 +327,20 @@ void compute_j_cross_B(
     const tnsr::i<DataVector, 3>& nsDDKG) {
   *j_cross_B_result = make_with_value<tnsr::ij<DataVector, 3>>(
       get<0, 0>(inverse_spatial_metric), 0.0);
-  // Raise indices
-  const auto weyl_magnetic_down_up = tenex::evaluate<ti::i, ti::J>(
-      weyl_magnetic(ti::i, ti::l) * inverse_spatial_metric(ti::L, ti::J));
-  const auto nsDDKGu = tenex::evaluate<ti::I>(
-      inverse_spatial_metric(ti::I, ti::J) * nsDDKG(ti::j));
 
   for (LeviCivitaIterator<3> levi_civita_it; levi_civita_it; ++levi_civita_it) {
     const auto [i, j, k] = levi_civita_it();
     for (size_t l = 0; l < 3; ++l) {
-      // j cross B
-      // Note: For now we don't impose symmetry of this quantity
-      j_cross_B_result->get(i, l) += levi_civita_it.sign() * nsDDKGu.get(j) *
-                                     weyl_magnetic_down_up.get(l, k);
+      for (size_t m = 0; m < 3; ++m) {
+        for (size_t n = 0; n < 3; ++n) {
+          // j cross B
+          // Note: For now we don't impose symmetry of this quantity
+          j_cross_B_result->get(i, l) +=
+              levi_civita_it.sign() *
+              (nsDDKG.get(m) * inverse_spatial_metric.get(m, j)) *
+              (weyl_magnetic.get(l, n) * inverse_spatial_metric.get(n, k));
+        }
+      }
     }
   }
 }
