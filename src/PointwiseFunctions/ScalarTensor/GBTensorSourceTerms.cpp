@@ -367,11 +367,14 @@ void order_reduced_gb_H_spatial_spatial_projection(
     const tnsr::ii<DataVector, 3>& weyl_electric,
     const Scalar<DataVector>& nnDDKG, const tnsr::ii<DataVector, 3>& ssDDKG,
     const tnsr::ij<DataVector, 3>& j_cross_B, const Scalar<DataVector>& nnH) {
-  const auto trace_ssDDKG = tenex::evaluate(
-      ssDDKG(ti::i, ti::j) * inverse_spatial_metric(ti::J, ti::I));
   tenex::evaluate<ti::i, ti::j>(
       ssH_result,
-      (trace_ssDDKG() + nnDDKG()) * weyl_electric(ti::i, ti::j)
+      (
+          // Trace of ssDDKG
+          ssDDKG(ti::k, ti::l) * inverse_spatial_metric(ti::L, ti::K) +
+
+          nnDDKG()) *
+              weyl_electric(ti::i, ti::j)
           // -2 * 2 symmetric part E ssDDKG
           - (ssDDKG(ti::j, ti::k) * inverse_spatial_metric(ti::K, ti::L) *
                  weyl_electric(ti::l, ti::i) +
