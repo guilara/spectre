@@ -462,15 +462,19 @@ void order_reduced_trace_reversed_stress_energy(
   // 8 pi factor needs to be added here since we absorbed it in the
   // trace reversed part of the canonical stress energy tensor
   const double H_tensor_prefactor = -8.0 * (8.0 * M_PI);
-  const auto trace_of_H =
-      tenex::evaluate(inverse_spacetime_metric(ti::A, ti::B) *
-                      (gb_H_tensor_ricci_part(ti::a, ti::b) +
-                       gb_H_tensor_weyl_part(ti::a, ti::b)));
+
   tenex::evaluate<ti::a, ti::b>(
       order_reduced_trace_reversed_stress_energy_result,
       H_tensor_prefactor * (gb_H_tensor_ricci_part(ti::a, ti::b) +
                             gb_H_tensor_weyl_part(ti::a, ti::b)) -
-          0.5 * H_tensor_prefactor * trace_of_H() *
+          0.5 * H_tensor_prefactor *
+              (
+                  // Trace of H
+                  inverse_spacetime_metric(ti::C, ti::D) *
+                  (gb_H_tensor_ricci_part(ti::c, ti::d) +
+                   gb_H_tensor_weyl_part(ti::c, ti::d))
+
+                      ) *
               spacetime_metric(ti::a, ti::b));
 }
 
