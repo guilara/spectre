@@ -426,7 +426,7 @@ void order_reduced_gb_H_tensor_ricci_part(
   // 8.0 * M_PI factor in T definition
   const double one_over_four = 1.0 / 4.0;
   const double two_over_three = 2.0 / 3.0;
-  const auto trace_T = tenex::evaluate(T(ti::a, ti::b) * inv_g(ti::B, ti::A));
+
   tenex::evaluate<ti::a, ti::c>(
       gb_H_tensor_result, one_over_four *
                               (-2.0 * g(ti::a, ti::c) * T(ti::b, ti::d) +
@@ -439,7 +439,11 @@ void order_reduced_gb_H_tensor_ricci_part(
                                    (2.0 * g(ti::a, ti::c) * g(ti::b, ti::d) -
                                     g(ti::a, ti::d) * g(ti::b, ti::c) -
                                     g(ti::a, ti::b) * g(ti::c, ti::d)) *
-                                   trace_T()) *
+                                   (
+                                       // Trace T
+                                       T(ti::g, ti::h) * inv_g(ti::H, ti::G))
+
+                                   ) *
                               inv_g(ti::B, ti::E) * inv_g(ti::D, ti::F) *
                               DDKG(ti::e, ti::f));
 }
