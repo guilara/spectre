@@ -147,9 +147,9 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     ScalarTensor::Tags::DDKGTensorCompute<Fr>,
     // ScalarTensor::Tags::OrderReducedHTensorRicciPartCompute<Fr>,
     // ScalarTensor::Tags::DDFPsiTensorCompute<Fr>,
-    // ScalarTensor::Tags::nnDDFPsiCompute<Fr>,
-    // ScalarTensor::Tags::nsDDFPsiCompute<Fr>,
-    // ScalarTensor::Tags::ssDDFPsiCompute<Fr>,
+    ScalarTensor::Tags::nnDDFPsiCompute<Fr>,
+    ScalarTensor::Tags::nsDDFPsiCompute<Fr>,
+    ScalarTensor::Tags::ssDDFPsiCompute<Fr>,
     // ScalarTensor::Tags::OrderReducedTraceReversedStressEnergyCompute<Fr>,
     // Fixing diagnostics
     // ::Tags::PointwiseL2NormCompute<
