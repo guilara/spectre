@@ -137,7 +137,7 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     ScalarTensor::Tags::nnDDKGCompute<Fr>,
     ScalarTensor::Tags::nsDDKGCompute<Fr>,
     ScalarTensor::Tags::ssDDKGCompute<Fr>,
-    // ScalarTensor::Tags::OrderReducednnHCompute<Fr>,
+    ScalarTensor::Tags::OrderReducednnHCompute<Fr>,
     // ScalarTensor::Tags::SCrossBCompute<Fr>,
     // ScalarTensor::Tags::JCrossBCompute<Fr>,
     // ScalarTensor::Tags::OrderReducednsHCompute<Fr>,
