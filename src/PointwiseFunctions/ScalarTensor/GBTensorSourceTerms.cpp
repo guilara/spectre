@@ -179,21 +179,23 @@ void DDFPsi_tensor_from_DDKG_tensor(
     const tnsr::a<DataVector, 3>& spacetime_derivative_scalar,
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi) {
-  // Define scalars
-  Scalar<DataVector> f_prime = make_with_value<Scalar<DataVector>>(psi, 1.0);
-  Scalar<DataVector> f_double_prime =
-      make_with_value<Scalar<DataVector>>(psi, 1.0);
-  // Multiply by coupling function
-  ScalarTensor::multiply_by_coupling_function_prime_quartic(
-      &f_prime, psi, first_coupling_psi, second_coupling_psi);
-  ScalarTensor::multiply_by_coupling_function_double_prime_quartic(
-      &f_double_prime, psi, first_coupling_psi, second_coupling_psi);
-  // Construct tensor
-  tenex::evaluate<ti::a, ti::b>(DDFPsi_tensor_result,
-                                f_double_prime() *
-                                        spacetime_derivative_scalar(ti::a) *
-                                        spacetime_derivative_scalar(ti::b) +
-                                    f_prime() * DDKG(ti::a, ti::b));
+  const double first_coupling_psi_over_four = first_coupling_psi / 4.0;
+  const double second_coupling_psi_over_four = second_coupling_psi / 4.0;
+
+  tenex::evaluate<ti::a, ti::b>(
+      DDFPsi_tensor_result,
+      // Double prime term
+      -first_coupling_psi_over_four * spacetime_derivative_scalar(ti::a) *
+              spacetime_derivative_scalar(ti::b) -
+          3.0 * second_coupling_psi_over_four * psi() * psi() *
+              spacetime_derivative_scalar(ti::a) *
+              spacetime_derivative_scalar(ti::b) +
+          // Prime term
+          (-first_coupling_psi_over_four * psi() -
+           second_coupling_psi_over_four * psi() * psi() * psi()) *
+              DDKG(ti::a, ti::b)
+
+  );
 }
 
 void DDFPsi_normal_normal_projection(
