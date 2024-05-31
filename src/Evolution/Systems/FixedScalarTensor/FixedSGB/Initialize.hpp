@@ -128,9 +128,9 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     gr::Tags::WeylMagneticScalarCompute<DataVector, Dim, Fr>,
 
     // BR
-    // ScalarTensor::Tags::WeylElectricFullCompute<DataVector, Dim, Fr>,
-    // ScalarTensor::Tags::WeylElectricFullScalarCompute<DataVector, Dim, Fr>,
-    // ScalarTensor::Tags::OrderReducedGBScalarCompute<Fr>,
+    ScalarTensor::Tags::WeylElectricFullCompute<DataVector, Dim, Fr>,
+    ScalarTensor::Tags::WeylElectricFullScalarCompute<DataVector, Dim, Fr>,
+    ScalarTensor::Tags::OrderReducedGBScalarCompute<Fr>,
     ScalarTensor::Tags::RhsPsiCompute, ScalarTensor::Tags::RhsPiCompute,
     ScalarTensor::Tags::RhsPhiCompute,
     ScalarTensor::Tags::SpacetimeDerivScalarCompute<Fr>,
