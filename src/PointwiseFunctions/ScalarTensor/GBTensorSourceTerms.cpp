@@ -293,21 +293,29 @@ void compute_S_cross_B(
     const tnsr::ii<DataVector, 3>& ssDDKG) {
   *S_cross_B_result = make_with_value<tnsr::i<DataVector, 3>>(
       get<0, 0>(inverse_spatial_metric), 0.0);
-  // Raise indices
-  const auto weyl_magnetic_down_up = tenex::evaluate<ti::i, ti::J>(
-      weyl_magnetic(ti::i, ti::l) * inverse_spatial_metric(ti::L, ti::J));
-
-  const auto ssDDKGuu = tenex::evaluate<ti::I, ti::J>(
-      inverse_spatial_metric(ti::I, ti::K) * ssDDKG(ti::k, ti::l) *
-      inverse_spatial_metric(ti::L, ti::J));
 
   for (LeviCivitaIterator<3> levi_civita_it; levi_civita_it; ++levi_civita_it) {
     const auto [i, j, k] = levi_civita_it();
     // S cross B
     // epsilon_{ijk} B_{l}^{k} S^{jl}
     for (size_t l = 0; l < 3; ++l) {
-      S_cross_B_result->get(i) += levi_civita_it.sign() * ssDDKGuu.get(j, l) *
-                                  weyl_magnetic_down_up.get(l, k);
+      for (size_t m = 0; m < 3; ++m) {
+        for (size_t n = 0; n < 3; ++n) {
+          for (size_t p = 0; p < 3; ++p) {
+            S_cross_B_result->get(i) +=
+                levi_civita_it.sign() *
+                (
+                    // Raise indices
+                    inverse_spatial_metric.get(j, m) * ssDDKG.get(m, n) *
+                    inverse_spatial_metric.get(l, n)
+
+                        ) *
+                (
+                    // Raise index
+                    weyl_magnetic.get(l, p) * inverse_spatial_metric.get(p, k));
+          }
+        }
+      }
     }
   }
 }
