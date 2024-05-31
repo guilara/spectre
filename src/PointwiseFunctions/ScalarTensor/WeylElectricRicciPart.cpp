@@ -60,10 +60,7 @@ void weyl_electric_full(
   const double kappa = 8 * M_PI;
   const double one_over_six = 1.0 / 6.0;
   const double one_over_three = 1.0 / 3.0;
-  const auto scalar_factor =
-      tenex::evaluate(2.0 * pi_scalar() * pi_scalar() +
-                      phi_scalar(ti::k) * inverse_spatial_metric(ti::K, ti::L) *
-                          phi_scalar(ti::l));
+
   // Compute the Weyl Electric scalar
   tenex::evaluate<ti::i, ti::j>(
       weyl_electric_full,
@@ -76,18 +73,28 @@ void weyl_electric_full(
                    extrinsic_curvature(ti::k, ti::j))
           // Weyl electric Ricci part
           - 0.5 * kappa * phi_scalar(ti::i) * phi_scalar(ti::j) -
-          one_over_six * kappa * scalar_factor() *
-              spatial_metric(ti::i, ti::j));
-  // Take the trace
-  const auto weyl_electric_trace =
-      tenex::evaluate(inverse_spatial_metric(ti::I, ti::J) *
-                      (*weyl_electric_full)(ti::i, ti::j));
+          one_over_six * kappa *
+              (
+                  // Scalar factor
+                  2.0 * pi_scalar() * pi_scalar() +
+                  phi_scalar(ti::k) * inverse_spatial_metric(ti::K, ti::L) *
+                      phi_scalar(ti::l)) *
+              spatial_metric(ti::i, ti::j)
+
+  );
+
   // Remove the trace part
-  tenex::update<ti::i, ti::j>(weyl_electric_full,
-                              (*weyl_electric_full)(ti::i, ti::j)
-                                  // Remove trace
-                                  - one_over_three * weyl_electric_trace() *
-                                        spatial_metric(ti::i, ti::j));
+  tenex::update<ti::i, ti::j>(
+      weyl_electric_full, (*weyl_electric_full)(ti::i, ti::j)
+                              // Remove trace
+                              - one_over_three *
+                                    (
+                                        // Trace
+                                        inverse_spatial_metric(ti::K, ti::L) *
+                                        (*weyl_electric_full)(ti::k, ti::l)
+
+                                            ) *
+                                    spatial_metric(ti::i, ti::j));
 }
 
 }  // namespace ScalarTensor
