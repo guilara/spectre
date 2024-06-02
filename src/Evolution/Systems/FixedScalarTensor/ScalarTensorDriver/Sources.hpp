@@ -142,9 +142,10 @@ struct TargetTensorCompute : TargetTensor<DataType, 3, Frame>, db::ComputeTag
 {
   using argument_tags = tmpl::list<
 
-      ScalarTensor::Tags::OrderReducedHTensor
+      //   ScalarTensor::Tags::OrderReducedHTensor
+      ScalarTensor::Tags::OrderReducedHTensorRicciPart
 
-    //   ScalarTensor::Tags::TraceReversedStressEnergy<DataType, 3, Frame>
+      //   ScalarTensor::Tags::TraceReversedStressEnergy<DataType, 3, Frame>
 
       >;
   using return_type = tnsr::aa<DataType, 3, Frame>;
