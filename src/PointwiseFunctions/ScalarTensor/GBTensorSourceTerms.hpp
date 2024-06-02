@@ -74,8 +74,9 @@ void DDKG_spatial_spatial_projection(
 
 void DDKG_tensor_from_projections(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
-    const Scalar<DataVector>& lapse, Scalar<DataVector> nnDDKG,
-    tnsr::i<DataVector, 3> nsDDKG, tnsr::ii<DataVector, 3> ssDDKG);
+    const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnDDKG,
+    const tnsr::i<DataVector, 3>& nsDDKG,
+    const tnsr::ii<DataVector, 3>& ssDDKG);
 
 // template <typename Frame>
 void DDKG_tensor_from_projections(
@@ -182,23 +183,23 @@ void order_reduced_gb_H_tensor_weyl_part(
 
 void order_reduced_Q_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> Q_tensor_result,
-    const tnsr::aa<DataVector, 3> spacetime_metric,
+    const tnsr::aa<DataVector, 3>& spacetime_metric,
     const Scalar<DataVector>& weyl_electric_scalar,
     const Scalar<DataVector>& weyl_magnetic_scalar);
 
 void order_reduced_gb_H_tensor_ricci_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
-    const tnsr::aa<DataVector, 3> g, const tnsr::AA<DataVector, 3> inv_g,
-    const tnsr::aa<DataVector, 3> T, const tnsr::aa<DataVector, 3> DDKG);
+    const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
+    const tnsr::aa<DataVector, 3>& T, const tnsr::aa<DataVector, 3>& DDKG);
 
 void order_reduced_trace_reversed_stress_energy(
     const gsl::not_null<tnsr::aa<DataVector, 3>*>
         order_reduced_trace_reversed_stress_energy_result,
-    const tnsr::aa<DataVector, 3> spacetime_metric,
-    const tnsr::AA<DataVector, 3> inverse_spacetime_metric,
-    const tnsr::aa<DataVector, 3> gb_H_tensor_ricci_part,
-    const tnsr::aa<DataVector, 3> gb_H_tensor_weyl_part,
-    const tnsr::aa<DataVector, 3> trace_reversed_canonical_stress_energy);
+    const tnsr::aa<DataVector, 3>& spacetime_metric,
+    const tnsr::AA<DataVector, 3>& inverse_spacetime_metric,
+    const tnsr::aa<DataVector, 3>& gb_H_tensor_ricci_part,
+    const tnsr::aa<DataVector, 3>& gb_H_tensor_weyl_part,
+    const tnsr::aa<DataVector, 3>& trace_reversed_canonical_stress_energy);
 
 /*
 void order_reduced_gb_H_tensor(
@@ -306,8 +307,9 @@ struct DDKGTensorCompute : DDKGTensor, db::ComputeTag {
   using return_type = tnsr::aa<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::aa<DataVector, 3>*> result,
-      const Scalar<DataVector>&, Scalar<DataVector>, tnsr::i<DataVector, 3>,
-      tnsr::ii<DataVector, 3>) = &DDKG_tensor_from_projections;
+      const Scalar<DataVector>&, const Scalar<DataVector>&,
+      const tnsr::i<DataVector, 3>&,
+      const tnsr::ii<DataVector, 3>&) = &DDKG_tensor_from_projections;
   using base = DDKGTensor;
 };
 
@@ -531,7 +533,7 @@ struct OrderReducedQTensorCompute : OrderReducedQTensor, db::ComputeTag {
   using return_type = tnsr::aa<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::aa<DataVector, 3>*> Q_tensor_result,
-      const tnsr::aa<DataVector, 3>, const Scalar<DataVector>&,
+      const tnsr::aa<DataVector, 3>&, const Scalar<DataVector>&,
       const Scalar<DataVector>&) = &order_reduced_Q_tensor;
   using base = OrderReducedQTensor;
 };
@@ -551,8 +553,8 @@ struct OrderReducedHTensorRicciPartCompute : OrderReducedHTensorRicciPart,
   using return_type = tnsr::aa<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
-      const tnsr::aa<DataVector, 3> g, const tnsr::AA<DataVector, 3> inv_g,
-      const tnsr::aa<DataVector, 3> T, const tnsr::aa<DataVector, 3> DDKG) =
+      const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
+      const tnsr::aa<DataVector, 3>& T, const tnsr::aa<DataVector, 3>& DDKG) =
       &order_reduced_gb_H_tensor_ricci_part;
   using base = OrderReducedHTensorRicciPart;
 };
@@ -575,11 +577,11 @@ struct OrderReducedTraceReversedStressEnergyCompute
   static constexpr void (*function)(
       const gsl::not_null<tnsr::aa<DataVector, 3>*>
           order_reduced_trace_reversed_stress_energy_result,
-      const tnsr::aa<DataVector, 3> spacetime_metric,
-      const tnsr::AA<DataVector, 3> inverse_spacetime_metric,
-      const tnsr::aa<DataVector, 3> gb_H_tensor_ricci_part,
-      const tnsr::aa<DataVector, 3> gb_H_tensor_weyl_part,
-      const tnsr::aa<DataVector, 3> trace_reversed_canonical_stress_energy) =
+      const tnsr::aa<DataVector, 3>& spacetime_metric,
+      const tnsr::AA<DataVector, 3>& inverse_spacetime_metric,
+      const tnsr::aa<DataVector, 3>& gb_H_tensor_ricci_part,
+      const tnsr::aa<DataVector, 3>& gb_H_tensor_weyl_part,
+      const tnsr::aa<DataVector, 3>& trace_reversed_canonical_stress_energy) =
       &order_reduced_trace_reversed_stress_energy;
   using base = OrderReducedTraceReversedStressEnergy;
 };
