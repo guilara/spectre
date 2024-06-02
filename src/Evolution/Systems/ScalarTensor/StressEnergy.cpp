@@ -43,4 +43,13 @@ void trace_reversed_stress_energy(
   }
 }
 
+void trace_of_trace_reversed_stress_energy(
+    const gsl::not_null<Scalar<DataVector>*> trace_of_stress_energy,
+    const tnsr::aa<DataVector, 3>& stress_energy,
+    const tnsr::AA<DataVector, 3>& inverse_spacetime_metric) {
+  tenex::evaluate(
+      trace_of_stress_energy,
+      stress_energy(ti::a, ti::b) * inverse_spacetime_metric(ti::B, ti::A));
+}
+
 }  // namespace ScalarTensor

@@ -111,6 +111,11 @@ void DDFPsi_tensor_from_DDKG_tensor(
     const Scalar<DataVector>& psi, const double first_coupling_psi,
     const double second_coupling_psi);
 
+void raise_indices_DDFPsi(
+    const gsl::not_null<tnsr::AA<DataVector, 3>*> DDFPsiUpUp_tensor_result,
+    const tnsr::aa<DataVector, 3>& DDFPsi,
+    const tnsr::AA<DataVector, 3>& inverse_spacetime_metric);
+
 void DDFPsi_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> DDFPsi_normal_normal_result,
     // Scalar quantities
@@ -187,10 +192,16 @@ void order_reduced_Q_tensor(
     const Scalar<DataVector>& weyl_electric_scalar,
     const Scalar<DataVector>& weyl_magnetic_scalar);
 
+// void order_reduced_gb_H_tensor_ricci_part(
+//     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+//     const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
+//     const tnsr::aa<DataVector, 3>& T, const tnsr::aa<DataVector, 3>& DDKG);
+
 void order_reduced_gb_H_tensor_ricci_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
     const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
-    const tnsr::aa<DataVector, 3>& T, const tnsr::aa<DataVector, 3>& DDKG);
+    const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
+    const tnsr::AA<DataVector, 3>& DDKGUpUp);
 
 void order_reduced_trace_reversed_stress_energy(
     const gsl::not_null<tnsr::aa<DataVector, 3>*>
@@ -402,6 +413,23 @@ struct DDFPsiTensorCompute : DDFPsiTensor, db::ComputeTag {
 };
 
 /*!
+ * \brief Compute tag for second covariant derivative of the scalar.
+ */
+template <typename Frame>
+struct DDFPsiUpUpTensorCompute : DDFPsiUpUpTensor, db::ComputeTag {
+  using argument_tags =
+      tmpl::list<ScalarTensor::Tags::DDFPsiTensor,
+                 gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>>;
+  using return_type = tnsr::AA<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::AA<DataVector, 3>*> DDFPsiUpUp_tensor_result,
+      const tnsr::aa<DataVector, 3>& DDFPsi,
+      const tnsr::AA<DataVector, 3>& inverse_spacetime_metric) =
+      &raise_indices_DDFPsi;
+  using base = DDFPsiUpUpTensor;
+};
+
+/*!
  * \brief Compute tag for normal-spatial projection of the order reduced H
  * tensor.
  */
@@ -538,6 +566,27 @@ struct OrderReducedQTensorCompute : OrderReducedQTensor, db::ComputeTag {
   using base = OrderReducedQTensor;
 };
 
+// /*!
+//  * \brief Compute tag for spatial-spatial projection of the order reduced H
+//  * tensor.
+//  */
+// template <typename Frame>
+// struct OrderReducedHTensorRicciPartCompute : OrderReducedHTensorRicciPart,
+//                                              db::ComputeTag {
+//   using argument_tags = tmpl::list<
+//       gr::Tags::SpacetimeMetric<DataVector, 3, Frame>,
+//       gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>,
+//       ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3, Frame>,
+//       ScalarTensor::Tags::DDFPsiTensor>;
+//   using return_type = tnsr::aa<DataVector, 3, Frame>;
+//   static constexpr void (*function)(
+//       const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+//       const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
+//       const tnsr::aa<DataVector, 3>& T, const tnsr::aa<DataVector, 3>& DDKG)
+//       = &order_reduced_gb_H_tensor_ricci_part;
+//   using base = OrderReducedHTensorRicciPart;
+// };
+
 /*!
  * \brief Compute tag for spatial-spatial projection of the order reduced H
  * tensor.
@@ -549,12 +598,14 @@ struct OrderReducedHTensorRicciPartCompute : OrderReducedHTensorRicciPart,
       gr::Tags::SpacetimeMetric<DataVector, 3, Frame>,
       gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>,
       ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3, Frame>,
-      ScalarTensor::Tags::DDFPsiTensor>;
+      ScalarTensor::Tags::TraceOfTraceReversedStressEnergy<DataVector>,
+      ScalarTensor::Tags::DDFPsiUpUpTensor>;
   using return_type = tnsr::aa<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
       const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
-      const tnsr::aa<DataVector, 3>& T, const tnsr::aa<DataVector, 3>& DDKG) =
+      const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
+      const tnsr::AA<DataVector, 3>& DDKGUpUp) =
       &order_reduced_gb_H_tensor_ricci_part;
   using base = OrderReducedHTensorRicciPart;
 };
