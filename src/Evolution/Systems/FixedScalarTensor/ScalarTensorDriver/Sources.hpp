@@ -133,31 +133,15 @@ struct TensorDriverSourceCompute : TensorDriverSource<DataType, 3, Frame>,
   using base = TensorDriverSource<DataType, 3, Frame>;
 };
 
-// /*!
-//  * \brief Compute tag for the tensor driver target.
-//  * \details TODO : Replace with backreaction trace-reversed H tensor
-//  */
-// template <typename Frame, typename DataType>
-// struct TargetTensorCompute : TargetTensor<DataType, 3, Frame>, db::ComputeTag
-// {
-//   using argument_tags = tmpl::list<
-//       ScalarTensor::Tags::TraceReversedStressEnergy<DataType, 3, Frame>>;
-//   using return_type = tnsr::aa<DataType, 3, Frame>;
-//   static constexpr void (*function)(
-//       gsl::not_null<tnsr::aa<DataType, 3, Frame>*> target_tensor,
-//       const tnsr::aa<DataType, 3, Frame>& tensor_driver) =
-//       &fe::ScalarTensorDriver::Sources::compute_target_tensor;
-//   using base = TargetTensor<DataType, 3, Frame>;
-// };
-
 /*!
  * \brief Compute tag for the tensor driver target.
  * \details TODO : Replace with backreaction trace-reversed H tensor
  */
 template <typename Frame, typename DataType>
-struct TargetTensorCompute : TargetTensor<DataType, 3, Frame>, db::ComputeTag {
-  using argument_tags =
-      tmpl::list<ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy>;
+struct TargetTensorCompute : TargetTensor<DataType, 3, Frame>, db::ComputeTag
+{
+  using argument_tags = tmpl::list<
+      ScalarTensor::Tags::TraceReversedStressEnergy<DataType, 3, Frame>>;
   using return_type = tnsr::aa<DataType, 3, Frame>;
   static constexpr void (*function)(
       gsl::not_null<tnsr::aa<DataType, 3, Frame>*> target_tensor,
@@ -165,5 +149,21 @@ struct TargetTensorCompute : TargetTensor<DataType, 3, Frame>, db::ComputeTag {
       &fe::ScalarTensorDriver::Sources::compute_target_tensor;
   using base = TargetTensor<DataType, 3, Frame>;
 };
+
+// /*!
+//  * \brief Compute tag for the tensor driver target.
+//  * \details TODO : Replace with backreaction trace-reversed H tensor
+//  */
+// template <typename Frame, typename DataType>
+//struct TargetTensorCompute : TargetTensor<DataType, 3, Frame>, db::ComputeTag{
+//   using argument_tags =
+//       tmpl::list<ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy>;
+//   using return_type = tnsr::aa<DataType, 3, Frame>;
+//   static constexpr void (*function)(
+//       gsl::not_null<tnsr::aa<DataType, 3, Frame>*> target_tensor,
+//       const tnsr::aa<DataType, 3, Frame>& tensor_driver) =
+//       &fe::ScalarTensorDriver::Sources::compute_target_tensor;
+//   using base = TargetTensor<DataType, 3, Frame>;
+// };
 
 }  // namespace fe::ScalarTensorDriver::Tags
