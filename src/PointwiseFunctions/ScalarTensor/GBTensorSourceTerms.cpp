@@ -198,6 +198,16 @@ void DDFPsi_tensor_from_DDKG_tensor(
   );
 }
 
+void raise_indices_DDFPsi(
+    const gsl::not_null<tnsr::AA<DataVector, 3>*> DDFPsiUpUp_tensor_result,
+    const tnsr::aa<DataVector, 3>& DDFPsi,
+    const tnsr::AA<DataVector, 3>& inverse_spacetime_metric) {
+  tenex::evaluate<ti::A, ti::B>(DDFPsiUpUp_tensor_result,
+                                inverse_spacetime_metric(ti::A, ti::C) *
+                                    DDFPsi(ti::c, ti::d) *
+                                    inverse_spacetime_metric(ti::D, ti::B));
+}
+
 void DDFPsi_normal_normal_projection(
     const gsl::not_null<Scalar<DataVector>*> DDFPsi_normal_normal_result,
     // Scalar quantities
@@ -416,10 +426,43 @@ void order_reduced_Q_tensor(
                            spacetime_metric(ti::a, ti::b));
 }
 
+// void order_reduced_gb_H_tensor_ricci_part(
+//     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+//     const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
+//     const tnsr::aa<DataVector, 3>& T, const tnsr::aa<DataVector, 3>& DDKG) {
+//   // g: spacetime metric
+//   // inv_g: inverse spacetime metric
+//   // T: trace reversed stress energy
+//   // 8.0 * M_PI factor in T definition
+//   const double one_over_four = 1.0 / 4.0;
+//   const double two_over_three = 2.0 / 3.0;
+
+//   tenex::evaluate<ti::a, ti::c>(
+//       gb_H_tensor_result, one_over_four *
+//                               (-2.0 * g(ti::a, ti::c) * T(ti::b, ti::d) +
+//                                g(ti::a, ti::d) * T(ti::b, ti::c) +
+//                                g(ti::a, ti::b) * T(ti::c, ti::d) +
+//                                g(ti::b, ti::c) * T(ti::a, ti::d) -
+//                                2.0 * g(ti::b, ti::d) * T(ti::a, ti::c) +
+//                                g(ti::c, ti::d) * T(ti::a, ti::b) +
+//                                two_over_three *
+//                                    (2.0 * g(ti::a, ti::c) * g(ti::b, ti::d) -
+//                                     g(ti::a, ti::d) * g(ti::b, ti::c) -
+//                                     g(ti::a, ti::b) * g(ti::c, ti::d)) *
+//                                    (
+//                                        // Trace T
+//                                        T(ti::g, ti::h) * inv_g(ti::H, ti::G))
+
+//                                    ) *
+//                               inv_g(ti::B, ti::E) * inv_g(ti::D, ti::F) *
+//                               DDKG(ti::e, ti::f));
+// }
+
 void order_reduced_gb_H_tensor_ricci_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
     const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
-    const tnsr::aa<DataVector, 3>& T, const tnsr::aa<DataVector, 3>& DDKG) {
+    const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
+    const tnsr::AA<DataVector, 3>& DDKGUpUp) {
   // g: spacetime metric
   // inv_g: inverse spacetime metric
   // T: trace reversed stress energy
@@ -439,13 +482,10 @@ void order_reduced_gb_H_tensor_ricci_part(
                                    (2.0 * g(ti::a, ti::c) * g(ti::b, ti::d) -
                                     g(ti::a, ti::d) * g(ti::b, ti::c) -
                                     g(ti::a, ti::b) * g(ti::c, ti::d)) *
-                                   (
-                                       // Trace T
-                                       T(ti::g, ti::h) * inv_g(ti::H, ti::G))
+                                   trace_T()
 
                                    ) *
-                              inv_g(ti::B, ti::E) * inv_g(ti::D, ti::F) *
-                              DDKG(ti::e, ti::f));
+                              DDKGUpUp(ti::B, ti::D));
 }
 
 void order_reduced_trace_reversed_stress_energy(

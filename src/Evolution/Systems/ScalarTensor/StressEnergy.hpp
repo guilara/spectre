@@ -85,6 +85,11 @@ void trace_reversed_stress_energy(
     const tnsr::i<DataVector, 3_st>& phi_scalar,
     const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3_st>& shift);
 
+void trace_of_trace_reversed_stress_energy(
+    const gsl::not_null<Scalar<DataVector>*> trace_of_stress_energy,
+    const tnsr::aa<DataVector, 3>& stress_energy,
+    const tnsr::AA<DataVector, 3>& inverse_spacetime_metric);
+
 namespace Tags {
 
 /*!
@@ -108,6 +113,29 @@ struct TraceReversedStressEnergyCompute
       const tnsr::I<DataVector, Dim>&) = &trace_reversed_stress_energy;
   using base = TraceReversedStressEnergy<DataVector, Dim, Frame::Inertial>;
 };
+
+/*!
+ * \brief Compute tag for the trace reversed stress energy tensor.
+ *
+ * \details Compute using ScalarTensor::trace_reversed_stress_energy.
+ */
+struct TraceOfTraceReversedStressEnergyCompute
+    : TraceOfTraceReversedStressEnergy<DataVector>,
+      db::ComputeTag {
+  static constexpr size_t Dim = 3;
+  using argument_tags = tmpl::list<
+      ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3,
+                                                    Frame::Inertial>,
+      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame::Inertial>>;
+  using return_type = tnsr::aa<DataVector, Dim, Frame::Inertial>;
+  static constexpr void (*function)(
+      const gsl::not_null<Scalar<DataVector>*> trace_of_stress_energy,
+      const tnsr::aa<DataVector, 3>& stress_energy,
+      const tnsr::AA<DataVector, 3>& inverse_spacetime_metric) =
+      &trace_of_trace_reversed_stress_energy;
+  using base = TraceOfTraceReversedStressEnergy<DataVector>;
+};
+
 }  // namespace Tags
 
 }  // namespace ScalarTensor

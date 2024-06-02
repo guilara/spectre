@@ -112,6 +112,14 @@ struct DDFPsiTensor : db::SimpleTag {
 };
 
 /*!
+ * \brief Second covariant derivative tensor of the scalar.
+ */
+struct DDFPsiUpUpTensor : db::SimpleTag {
+  using type = tnsr::AA<DataVector, 3>;
+  static std::string name() { return "DDFPsiUpUpTensor"; }
+};
+
+/*!
  * \brief Rhs of the Psi equation.
  */
 struct RhsPsi : db::SimpleTag {
