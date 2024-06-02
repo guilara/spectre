@@ -30,6 +30,11 @@ struct TraceReversedStressEnergy : db::SimpleTag {
   using type = tnsr::aa<DataType, Dim, Fr>;
 };
 
+template <typename DataType>
+struct TraceOfTraceReversedStressEnergy : db::SimpleTag {
+  using type = Scalar<DataType>;
+};
+
 /*!
  * \brief Tag holding the source term of the scalar equation.
  *
