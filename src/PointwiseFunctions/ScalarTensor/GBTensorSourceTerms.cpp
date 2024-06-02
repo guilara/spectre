@@ -101,8 +101,8 @@ void DDKG_tensor_from_projections(
     // Metric quantities
     const Scalar<DataVector>& lapse,
     // Projections
-    Scalar<DataVector> nnDDKG, tnsr::i<DataVector, 3> nsDDKG,
-    tnsr::ii<DataVector, 3> ssDDKG) {
+    const Scalar<DataVector>& nnDDKG, const tnsr::i<DataVector, 3>& nsDDKG,
+    const tnsr::ii<DataVector, 3>& ssDDKG) {
   // Assemble in symmetric rank-2 4-tensor with lower indices
   get<0, 0>(*DDKG_tensor_result) = square(get(lapse)) * get(nnDDKG);
   for (size_t i = 0; i < 3; ++i) {
@@ -408,7 +408,7 @@ void order_reduced_gb_H_tensor_weyl_part(
 
 void order_reduced_Q_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> Q_tensor_result,
-    const tnsr::aa<DataVector, 3> spacetime_metric,
+    const tnsr::aa<DataVector, 3>& spacetime_metric,
     const Scalar<DataVector>& weyl_electric_scalar,
     const Scalar<DataVector>& weyl_magnetic_scalar) {
   tenex::evaluate<ti::a, ti::b>(
@@ -418,8 +418,8 @@ void order_reduced_Q_tensor(
 
 void order_reduced_gb_H_tensor_ricci_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
-    const tnsr::aa<DataVector, 3> g, const tnsr::AA<DataVector, 3> inv_g,
-    const tnsr::aa<DataVector, 3> T, const tnsr::aa<DataVector, 3> DDKG) {
+    const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
+    const tnsr::aa<DataVector, 3>& T, const tnsr::aa<DataVector, 3>& DDKG) {
   // g: spacetime metric
   // inv_g: inverse spacetime metric
   // T: trace reversed stress energy
@@ -451,11 +451,11 @@ void order_reduced_gb_H_tensor_ricci_part(
 void order_reduced_trace_reversed_stress_energy(
     const gsl::not_null<tnsr::aa<DataVector, 3>*>
         order_reduced_trace_reversed_stress_energy_result,
-    const tnsr::aa<DataVector, 3> spacetime_metric,
-    const tnsr::AA<DataVector, 3> inverse_spacetime_metric,
-    const tnsr::aa<DataVector, 3> gb_H_tensor_ricci_part,
-    const tnsr::aa<DataVector, 3> gb_H_tensor_weyl_part,
-    const tnsr::aa<DataVector, 3> trace_reversed_canonical_stress_energy) {
+    const tnsr::aa<DataVector, 3>& spacetime_metric,
+    const tnsr::AA<DataVector, 3>& inverse_spacetime_metric,
+    const tnsr::aa<DataVector, 3>& gb_H_tensor_ricci_part,
+    const tnsr::aa<DataVector, 3>& gb_H_tensor_weyl_part,
+    const tnsr::aa<DataVector, 3>& trace_reversed_canonical_stress_energy) {
   // Sum and take the trace-reverse
   // For the Weyl part the trace should be zero, and taking the trace-reverse
   // should not change it
