@@ -406,6 +406,11 @@ struct ObserverTags {
                   DataVector, volume_dim, Frame::Inertial>>,
           fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnosticCompute<
               Frame::Inertial, DataVector>,
+          ::Tags::PointwiseL2NormCompute<
+              ScalarTensor::Tags::TraceReversedStressEnergy<
+                  DataVector, volume_dim, Frame::Inertial>>,
+          // ::Tags::PointwiseL2NormCompute<
+          //     ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy>,
           //   ::Tags::PointwiseL2NormCompute<
           //       fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnostic>,
           // Compute the constraints of CSW
