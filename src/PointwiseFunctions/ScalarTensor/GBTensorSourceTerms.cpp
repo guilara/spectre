@@ -501,7 +501,12 @@ void order_reduced_trace_reversed_stress_energy(
   // should not change it
   // 8 pi factor needs to be added here since we absorbed it in the
   // trace reversed part of the canonical stress energy tensor
-  const double H_tensor_prefactor = -8.0 * (8.0 * M_PI);
+
+  // We work in units where set G = 1 / (8 M_PI)
+  // const double kappa = 8.0 * M_PI;
+  const double kappa = 1.0;
+
+  const double H_tensor_prefactor = -8.0 * kappa;
 
   tenex::evaluate<ti::a, ti::b>(
       order_reduced_trace_reversed_stress_energy_result,

@@ -29,7 +29,9 @@ void trace_reversed_stress_energy(
     const Scalar<DataVector>& pi_scalar,
     const tnsr::i<DataVector, 3_st>& phi_scalar,
     const Scalar<DataVector>& lapse) {
-  const double kappa = 8.0 * M_PI;
+  // We work in units where set G = 1 / (8 M_PI)
+  // const double kappa = 8.0 * M_PI;
+  const double kappa = 1.0;
   get<0, 0>(*stress_energy) = kappa * square(get(lapse) * get(pi_scalar));
   for (size_t i = 0; i < 3; ++i) {
     stress_energy->get(0, i + 1) =
