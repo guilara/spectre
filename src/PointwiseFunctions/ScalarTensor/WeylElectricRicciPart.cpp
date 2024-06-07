@@ -57,7 +57,11 @@ void weyl_electric_full(
     const tnsr::ii<DataType, SpatialDim, Frame>& spatial_metric,
     const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric) {
   // Prefactor definitions
-  const double kappa = 8 * M_PI;
+
+  // We work in units where set G = 1 / (8 M_PI)
+  // const double kappa = 8.0 * M_PI;
+  const double kappa = 1.0;
+
   const double one_over_six = 1.0 / 6.0;
   const double one_over_three = 1.0 / 3.0;
 
