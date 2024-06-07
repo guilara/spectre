@@ -467,25 +467,24 @@ void order_reduced_gb_H_tensor_ricci_part(
   // inv_g: inverse spacetime metric
   // T: trace reversed stress energy
   // 8.0 * M_PI factor in T definition
-  const double one_over_four = 1.0 / 4.0;
-  const double two_over_three = 2.0 / 3.0;
 
-  tenex::evaluate<ti::a, ti::c>(
-      gb_H_tensor_result, one_over_four *
-                              (-2.0 * g(ti::a, ti::c) * T(ti::b, ti::d) +
-                               g(ti::a, ti::d) * T(ti::b, ti::c) +
-                               g(ti::a, ti::b) * T(ti::c, ti::d) +
-                               g(ti::b, ti::c) * T(ti::a, ti::d) -
-                               2.0 * g(ti::b, ti::d) * T(ti::a, ti::c) +
-                               g(ti::c, ti::d) * T(ti::a, ti::b) +
-                               two_over_three *
-                                   (2.0 * g(ti::a, ti::c) * g(ti::b, ti::d) -
-                                    g(ti::a, ti::d) * g(ti::b, ti::c) -
-                                    g(ti::a, ti::b) * g(ti::c, ti::d)) *
-                                   trace_T()
+  const double one_over_three = 1.0 / 3.0;
 
-                                   ) *
-                              DDKGUpUp(ti::B, ti::D));
+  tenex::evaluate<ti::a, ti::b>(gb_H_tensor_result,
+                                (
+
+                                    0.5 * (-g(ti::c, ti::d) * T(ti::a, ti::b) +
+                                           g(ti::b, ti::c) * T(ti::a, ti::d) +
+                                           g(ti::a, ti::d) * T(ti::b, ti::c) -
+                                           g(ti::a, ti::b) * T(ti::c, ti::d)) +
+
+                                    one_over_three *
+                                        (-g(ti::a, ti::d) * g(ti::b, ti::c) +
+                                         g(ti::a, ti::b) * g(ti::c, ti::d)) *
+                                        trace_T()
+
+                                        ) *
+                                    DDKGUpUp(ti::C, ti::D));
 }
 
 void order_reduced_trace_reversed_stress_energy(
