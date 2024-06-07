@@ -88,17 +88,16 @@ void weyl_electric_full(
   );
 
   // Remove the trace part
-  tenex::update<ti::i, ti::j>(
-      weyl_electric_full, (*weyl_electric_full)(ti::i, ti::j)
-                              // Remove trace
-                              - one_over_three *
-                                    (
-                                        // Trace
-                                        inverse_spatial_metric(ti::K, ti::L) *
-                                        (*weyl_electric_full)(ti::k, ti::l)
+  // Lets be a bit careful with tenex::update
+  // and compute the trace first
+  const auto trace_E = tenex::evaluate(inverse_spatial_metric(ti::K, ti::L) *
+                                       (*weyl_electric_full)(ti::k, ti::l));
 
-                                            ) *
-                                    spatial_metric(ti::i, ti::j));
+  tenex::update<ti::i, ti::j>(
+      weyl_electric_full,
+      (*weyl_electric_full)(ti::i, ti::j)
+          // Remove trace
+          - one_over_three * trace_E() * spatial_metric(ti::i, ti::j));
 }
 
 }  // namespace ScalarTensor
