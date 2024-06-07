@@ -100,6 +100,15 @@ void weyl_electric_full(
           - one_over_three * trace_E() * spatial_metric(ti::i, ti::j));
 }
 
+template <typename DataType, size_t SpatialDim, typename Frame>
+void my_trace(
+    const gsl::not_null<Scalar<DataType>*> result,
+    const tnsr::ii<DataType, SpatialDim, Frame>& weyl_electric,
+    const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric) {
+  tenex::evaluate(result, weyl_electric(ti::i, ti::j) *
+                              inverse_spatial_metric(ti::J, ti::I));
+}
+
 }  // namespace ScalarTensor
 
 #define DIM(data) BOOST_PP_TUPLE_ELEM(0, data)
@@ -132,6 +141,11 @@ void weyl_electric_full(
       const Scalar<DTYPE(data)>& pi_scalar,                                \
       const tnsr::i<DTYPE(data), DIM(data), FRAME(data)>& phi_scalar,      \
       const tnsr::ii<DTYPE(data), DIM(data), FRAME(data)>& spatial_metric, \
+      const tnsr::II<DTYPE(data), DIM(data), FRAME(data)>&                 \
+          inverse_spatial_metric);                                         \
+  template void ScalarTensor::my_trace(                                    \
+      const gsl::not_null<Scalar<DTYPE(data)>*> result,                    \
+      const tnsr::ii<DTYPE(data), DIM(data), FRAME(data)>& weyl_electric,  \
       const tnsr::II<DTYPE(data), DIM(data), FRAME(data)>&                 \
           inverse_spatial_metric);
 
