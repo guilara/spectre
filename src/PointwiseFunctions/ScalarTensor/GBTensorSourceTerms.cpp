@@ -507,6 +507,8 @@ void order_reduced_trace_reversed_stress_energy(
 
   const double H_tensor_prefactor = -8.0 * kappa;
 
+  // Trace reversed
+  // We avoid using tenex::update for now
   tenex::evaluate<ti::a, ti::b>(
       order_reduced_trace_reversed_stress_energy_result,
       H_tensor_prefactor * (gb_H_tensor_ricci_part(ti::a, ti::b) +

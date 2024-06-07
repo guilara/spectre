@@ -48,6 +48,12 @@ void weyl_electric_full(
     const tnsr::ii<DataType, SpatialDim, Frame>& spatial_metric,
     const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric);
 
+template <typename DataType, size_t SpatialDim, typename Frame>
+void my_trace(
+    const gsl::not_null<Scalar<DataType>*> result,
+    const tnsr::ii<DataType, SpatialDim, Frame>& weyl_electric,
+    const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric);
+
 namespace Tags {
 /// Compute item for the 4-Ricci part of the electric part of the weyl tensor
 ///
@@ -141,6 +147,25 @@ struct WeylElectricFullScalarCompute : WeylElectricFullScalar<DataType>,
           &gr::weyl_electric_scalar<DataType, SpatialDim, Frame>);
 
   using base = WeylElectricFullScalar<DataType>;
+};
+
+/// Can be retrieved using ScalarTensor::Tags::WeylElectricFullScalar
+template <typename DataType, size_t SpatialDim, typename Frame>
+struct WeylElectricFullTraceCompute : WeylElectricFullTrace<DataType>,
+                                      db::ComputeTag {
+  using argument_tags = tmpl::list<
+      ScalarTensor::Tags::WeylElectricFull<DataType, SpatialDim, Frame>,
+      gr::Tags::InverseSpatialMetric<DataType, SpatialDim, Frame>>;
+
+  using return_type = Scalar<DataType>;
+
+  static constexpr auto function =
+      static_cast<void (*)(gsl::not_null<Scalar<DataType>*>,
+                           const tnsr::ii<DataType, SpatialDim, Frame>&,
+                           const tnsr::II<DataType, SpatialDim, Frame>&)>(
+          &my_trace<DataType, SpatialDim, Frame>);
+
+  using base = WeylElectricFullTrace<DataType>;
 };
 
 }  // namespace Tags

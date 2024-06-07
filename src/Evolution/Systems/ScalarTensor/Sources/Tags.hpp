@@ -252,6 +252,15 @@ struct WeylElectricFullScalar : db::SimpleTag {
 };
 
 /*!
+ * \brief All extra 4-Ricci terms in the electric part scalar.
+ */
+template <typename DataType>
+struct WeylElectricFullTrace : db::SimpleTag {
+  using type = Scalar<DataType>;
+  static std::string name() { return "WeylElectricFullTrace"; }
+};
+
+/*!
  * \brief Order reduced H tensor.
  */
 struct CompleteTraceReversedStressEnergy : db::SimpleTag {

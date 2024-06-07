@@ -424,6 +424,8 @@ struct ObserverTags {
           // Coordinates
 
           // BRT
+          ScalarTensor::Tags::WeylElectricFullTraceCompute<
+              DataVector, volume_dim, Frame::Inertial>,
           ScalarTensor::Tags::OrderReducedGBScalar,
           ScalarTensor::Tags::DDFPsiTensor,
           ScalarTensor::Tags::OrderReducedHTensor,
