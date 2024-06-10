@@ -101,6 +101,71 @@ void weyl_electric_full(
 }
 
 template <typename DataType, size_t SpatialDim, typename Frame>
+void weyl_electric_full(
+    const gsl::not_null<tnsr::ii<DataType, SpatialDim, Frame>*>
+        weyl_electric_full,
+    const tnsr::ii<DataType, SpatialDim, Frame>& spatial_ricci,
+    const tnsr::ii<DataType, SpatialDim, Frame>& extrinsic_curvature,
+    const Scalar<DataType>& pi_scalar,
+    const tnsr::i<DataType, SpatialDim, Frame>& phi_scalar,
+    const tnsr::ii<DataType, SpatialDim, Frame>& spatial_metric,
+    const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric,
+    const tnsr::ii<DataType, SpatialDim, Frame>& spatial_tensor_driver,
+    const Scalar<DataType>& trace_tensor_driver) {
+  // Prefactor definitions
+
+  // We work in units where set G = 1 / (8 M_PI)
+  // const double kappa = 8.0 * M_PI;
+  const double kappa = 1.0;
+
+  const double one_over_six = 1.0 / 6.0;
+  const double one_over_three = 1.0 / 3.0;
+
+  // Compute the Weyl Electric scalar
+  tenex::evaluate<ti::i, ti::j>(
+      weyl_electric_full,
+      // Weyl electric vacuum part
+      spatial_ricci(ti::i, ti::j) +
+          inverse_spatial_metric(ti::K, ti::L) *
+              (extrinsic_curvature(ti::k, ti::l) *
+                   extrinsic_curvature(ti::i, ti::j) -
+               extrinsic_curvature(ti::i, ti::l) *
+                   extrinsic_curvature(ti::k, ti::j))
+          // Weyl electric Ricci part
+          - 0.5 * kappa * phi_scalar(ti::i) * phi_scalar(ti::j) -
+          one_over_six * kappa *
+              (
+                  // Scalar factor
+                  2.0 * pi_scalar() * pi_scalar() +
+                  phi_scalar(ti::k) * inverse_spatial_metric(ti::K, ti::L) *
+                      phi_scalar(ti::l)) *
+              spatial_metric(ti::i, ti::j)
+          // Tensor driver
+          - 0.5 * spatial_tensor_driver(ti::i, ti::j) -
+          0.5 *
+              (
+                  // Trace
+                  spatial_tensor_driver(ti::k, ti::l) *
+                  inverse_spatial_metric(ti::K, ti::L)) *
+              spatial_metric(ti::i, ti::j) +
+          one_over_three * trace_tensor_driver() * spatial_metric(ti::i, ti::j)
+
+  );
+
+  // Remove the trace part
+  // Lets be a bit careful with tenex::update
+  // and compute the trace first
+  const auto trace_E = tenex::evaluate(inverse_spatial_metric(ti::K, ti::L) *
+                                       (*weyl_electric_full)(ti::k, ti::l));
+
+  tenex::update<ti::i, ti::j>(
+      weyl_electric_full,
+      (*weyl_electric_full)(ti::i, ti::j)
+          // Remove trace
+          - one_over_three * trace_E() * spatial_metric(ti::i, ti::j));
+}
+
+template <typename DataType, size_t SpatialDim, typename Frame>
 void my_trace(
     const gsl::not_null<Scalar<DataType>*> result,
     const tnsr::ii<DataType, SpatialDim, Frame>& weyl_electric,
@@ -143,6 +208,20 @@ void my_trace(
       const tnsr::ii<DTYPE(data), DIM(data), FRAME(data)>& spatial_metric, \
       const tnsr::II<DTYPE(data), DIM(data), FRAME(data)>&                 \
           inverse_spatial_metric);                                         \
+  template void ScalarTensor::weyl_electric_full(                          \
+      const gsl::not_null<tnsr::ii<DTYPE(data), DIM(data), FRAME(data)>*>  \
+          weyl_electric_full,                                              \
+      const tnsr::ii<DTYPE(data), DIM(data), FRAME(data)>& spatial_ricci,  \
+      const tnsr::ii<DTYPE(data), DIM(data), FRAME(data)>&                 \
+          extrinsic_curvature,                                             \
+      const Scalar<DTYPE(data)>& pi_scalar,                                \
+      const tnsr::i<DTYPE(data), DIM(data), FRAME(data)>& phi_scalar,      \
+      const tnsr::ii<DTYPE(data), DIM(data), FRAME(data)>& spatial_metric, \
+      const tnsr::II<DTYPE(data), DIM(data), FRAME(data)>&                 \
+          inverse_spatial_metric,                                          \
+      const tnsr::ii<DTYPE(data), DIM(data), FRAME(data)>&                 \
+          spatial_tensor_driver,                                           \
+      const Scalar<DTYPE(data)>& trace_tensor_driver);                     \
   template void ScalarTensor::my_trace(                                    \
       const gsl::not_null<Scalar<DTYPE(data)>*> result,                    \
       const tnsr::ii<DTYPE(data), DIM(data), FRAME(data)>& weyl_electric,  \

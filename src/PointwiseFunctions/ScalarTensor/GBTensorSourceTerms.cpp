@@ -487,6 +487,49 @@ void order_reduced_gb_H_tensor_ricci_part(
                                     DDKGUpUp(ti::C, ti::D));
 }
 
+void order_reduced_gb_H_tensor_ricci_part(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+    const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
+    const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
+    const tnsr::AA<DataVector, 3>& DDKGUpUp,
+    const tnsr::aa<DataVector, 3>& Tdriv,
+    const Scalar<DataVector>& trace_Tdriv) {
+  // g: spacetime metric
+  // inv_g: inverse spacetime metric
+  // T: trace reversed stress energy
+  // Tdriv: tensor_driver
+  // 8.0 * M_PI factor in T definition
+
+  const double one_over_three = 1.0 / 3.0;
+
+  tenex::evaluate<ti::a, ti::b>(
+      gb_H_tensor_result, (
+
+                              0.5 * (-g(ti::c, ti::d) * T(ti::a, ti::b) +
+                                     g(ti::b, ti::c) * T(ti::a, ti::d) +
+                                     g(ti::a, ti::d) * T(ti::b, ti::c) -
+                                     g(ti::a, ti::b) * T(ti::c, ti::d)) +
+
+                              one_over_three *
+                                  (-g(ti::a, ti::d) * g(ti::b, ti::c) +
+                                   g(ti::a, ti::b) * g(ti::c, ti::d)) *
+                                  trace_T() +
+
+                              // Tensor driver part
+                              0.5 * (-g(ti::c, ti::d) * Tdriv(ti::a, ti::b) +
+                                     g(ti::b, ti::c) * Tdriv(ti::a, ti::d) +
+                                     g(ti::a, ti::d) * Tdriv(ti::b, ti::c) -
+                                     g(ti::a, ti::b) * Tdriv(ti::c, ti::d)) +
+
+                              one_over_three *
+                                  (-g(ti::a, ti::d) * g(ti::b, ti::c) +
+                                   g(ti::a, ti::b) * g(ti::c, ti::d)) *
+                                  trace_Tdriv()
+
+                                  ) *
+                              DDKGUpUp(ti::C, ti::D));
+}
+
 void order_reduced_trace_reversed_stress_energy(
     const gsl::not_null<tnsr::aa<DataVector, 3>*>
         order_reduced_trace_reversed_stress_energy_result,
