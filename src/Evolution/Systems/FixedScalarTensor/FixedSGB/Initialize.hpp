@@ -163,7 +163,12 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
     fe::ScalarTensorDriver::Tags::TargetTensorCompute<Fr, DataVector>,
     fe::ScalarTensorDriver::Tags::TargetScalarCompute<Fr, DataVector>,
     fe::ScalarTensorDriver::Tags::TensorDriverSourceCompute<Fr, DataVector>,
-    fe::ScalarTensorDriver::Tags::ScalarDriverSourceCompute<Fr, DataVector>>;
+    fe::ScalarTensorDriver::Tags::ScalarDriverSourceCompute<Fr, DataVector>,
+
+    // Scalar driver projections
+    gr::Tags::SpacetimeNormalOneFormCompute<DataVector, Dim, Fr>,
+    fe::ScalarTensorDriver::Tags::TensorDriverSpatialProjectionCompute<Fr>,
+    fe::ScalarTensorDriver::Tags::TensorDriverTraceCompute<Fr>>;
 
 struct InitializeEvolvedScalarVariables
     : tt::ConformsTo<db::protocols::Mutator> {
