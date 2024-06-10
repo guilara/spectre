@@ -525,3 +525,71 @@ void order_reduced_trace_reversed_stress_energy(
 }
 
 }  // namespace ScalarTensor
+
+namespace fe::ScalarTensorDriver {
+
+void tensor_driver_normal_normal_projection(
+    const gsl::not_null<Scalar<DataVector>*> tensor_driver_nn,
+    const tnsr::aa<DataVector, 3>& tensor_driver,
+    const tnsr::A<DataVector, 3>& spacetime_normal_vector) {
+  // n^{a} tensor_driver_{a b} n^{b}
+  tenex::evaluate(tensor_driver_nn, spacetime_normal_vector(ti::A) *
+                                        tensor_driver(ti::a, ti::b) *
+                                        spacetime_normal_vector(ti::B));
+}
+
+void tensor_driver_spatial_normal_projection(
+    const gsl::not_null<tnsr::i<DataVector, 3>*> tensor_driver_sn,
+    const tnsr::aa<DataVector, 3>& tensor_driver,
+    const tnsr::A<DataVector, 3>& spacetime_normal_vector,
+    const tnsr::a<DataVector, 3>& spacetime_normal_covector) {
+  for (size_t i = 0; i < 3; ++i) {
+    tensor_driver_sn->get(i) = 0.0;
+    for (size_t a = 0; a < 4; ++a) {
+      // Check
+      // n^{a} tensor_driver_{a b} (delta^{b}_{i} - n^{b} n_{i})
+      tensor_driver_sn->get(i) +=
+          spacetime_normal_vector.get(a) * tensor_driver.get(a, i + 1);
+      for (size_t b = 0; b < 4; ++b) {
+        tensor_driver_sn->get(i) += -1.0 * spacetime_normal_vector.get(a) *
+                                    tensor_driver.get(a, b) *
+                                    spacetime_normal_vector.get(b) *
+                                    spacetime_normal_covector.get(i + 1);
+      }
+    }
+  }
+}
+
+void tensor_driver_spatial_spatial_projection(
+    const gsl::not_null<tnsr::ii<DataVector, 3>*> tensor_driver_ss,
+    const tnsr::aa<DataVector, 3>& tensor_driver,
+    const tnsr::A<DataVector, 3>& spacetime_normal_vector,
+    const tnsr::a<DataVector, 3>& spacetime_normal_covector) {
+  // Maybe it is better to compute in terms of lapse and shift as opposed to
+  // normal (co)vectors
+
+  for (size_t i = 0; i < 3; ++i) {
+    for (size_t j = i; j < 3; ++j) {
+      //  (delta^{a}_{i} - n^{a} n_{i}) * tensor_driver_{a b} *
+      //  (delta^{b}_{j} - n^{b} n_{j})
+      tensor_driver_ss->get(i, j) = tensor_driver.get(i + 1, j + 1);
+      for (size_t a = 0; a < 4; ++a) {
+        tensor_driver_ss->get(i, j) += -1.0 * spacetime_normal_vector.get(a) *
+                                       spacetime_normal_covector.get(i + 1) *
+                                       tensor_driver.get(a, j + 1);
+        tensor_driver_ss->get(i, j) += -1.0 * tensor_driver.get(i + 1, a) *
+                                       spacetime_normal_vector.get(a) *
+                                       spacetime_normal_covector.get(j + 1);
+        for (size_t b = 0; b < 4; ++b) {
+          tensor_driver_ss->get(i, j) += spacetime_normal_vector.get(a) *
+                                         spacetime_normal_covector.get(i + 1) *
+                                         tensor_driver.get(a, b) *
+                                         spacetime_normal_vector.get(b) *
+                                         spacetime_normal_covector.get(j + 1);
+        }
+      }
+    }
+  }
+}
+
+}  // namespace fe::ScalarTensorDriver

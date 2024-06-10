@@ -173,4 +173,20 @@ struct EvolvedFieldsFromCharacteristicFields : db::SimpleTag {
                            Pi<DataType, Dim, Frame>>>;
 };
 
+/*!
+ * \brief Tensor driver.
+ */
+struct TensorDriverTrace : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "TensorDriverTrace"; }
+};
+
+/*!
+ * \brief Tensor driver.
+ */
+struct TensorDriverSpatialProjection : db::SimpleTag {
+  using type = tnsr::ii<DataVector, 3, Frame::Inertial>;
+  static std::string name() { return "TensorDriverSpatialProjection"; }
+};
+
 }  // namespace fe::ScalarTensorDriver::Tags
