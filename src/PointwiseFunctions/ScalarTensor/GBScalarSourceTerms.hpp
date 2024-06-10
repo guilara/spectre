@@ -8,6 +8,7 @@
 #include "DataStructures/DataBox/Tag.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
@@ -48,6 +49,17 @@ void order_reduced_gb_scalar_with_tenex(
     const tnsr::aa<DataVector, 3, Frame>& trace_reversed_stress_energy,
     const tnsr::AA<DataVector, 3, Frame>& inverse_spacetime_metric);
 
+template <typename Frame>
+void order_reduced_gb_scalar_with_tenex(
+    const gsl::not_null<Scalar<DataVector>*> result,
+    const Scalar<DataVector>& weyl_electric_scalar,
+    const Scalar<DataVector>& weyl_magnetic_scalar,
+    const tnsr::aa<DataVector, 3, Frame>& trace_reversed_stress_energy,
+    const Scalar<DataVector>& trace_of_trace_reversed_stress_energy,
+    const tnsr::AA<DataVector, 3, Frame>& inverse_spacetime_metric,
+    const tnsr::aa<DataVector, 3, Frame>& tensor_driver,
+    const Scalar<DataVector>& trace_of_tensor_driver);
+
 namespace Tags {
 
 /*!
@@ -80,13 +92,20 @@ struct OrderReducedGBScalarCompute : OrderReducedGBScalar, db::ComputeTag {
       ScalarTensor::Tags::WeylElectricFullScalar<DataVector>,
       gr::Tags::WeylMagneticScalar<DataVector>,
       ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3, Frame>,
-      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>>;
+      ScalarTensor::Tags::TraceOfTraceReversedStressEnergy<DataVector>,
+      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>,
+      fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, 3, Frame>,
+      fe::ScalarTensorDriver::Tags::TensorDriverTrace>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<Scalar<DataVector>*> result,
-      const Scalar<DataVector>&, const Scalar<DataVector>&,
-      const tnsr::aa<DataVector, 3, Frame>&,
-      const tnsr::AA<DataVector, 3, Frame>&) =
+      const Scalar<DataVector>& weyl_electric_scalar,
+      const Scalar<DataVector>& weyl_magnetic_scalar,
+      const tnsr::aa<DataVector, 3, Frame>& trace_reversed_stress_energy,
+      const Scalar<DataVector>& trace_of_trace_reversed_stress_energy,
+      const tnsr::AA<DataVector, 3, Frame>& inverse_spacetime_metric,
+      const tnsr::aa<DataVector, 3, Frame>& tensor_driver,
+      const Scalar<DataVector>& trace_of_tensor_driver) =
       &order_reduced_gb_scalar_with_tenex;
   using base = OrderReducedGBScalar;
 };
