@@ -205,6 +205,14 @@ void order_reduced_gb_H_tensor_ricci_part(
     const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
     const tnsr::AA<DataVector, 3>& DDKGUpUp);
 
+void order_reduced_gb_H_tensor_ricci_part(
+    const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+    const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
+    const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
+    const tnsr::AA<DataVector, 3>& DDKGUpUp,
+    const tnsr::aa<DataVector, 3>& Tdriv,
+    const Scalar<DataVector>& trace_Tdriv);
+
 void order_reduced_trace_reversed_stress_energy(
     const gsl::not_null<tnsr::aa<DataVector, 3>*>
         order_reduced_trace_reversed_stress_energy_result,
@@ -601,13 +609,17 @@ struct OrderReducedHTensorRicciPartCompute : OrderReducedHTensorRicciPart,
       gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>,
       ScalarTensor::Tags::TraceReversedStressEnergy<DataVector, 3, Frame>,
       ScalarTensor::Tags::TraceOfTraceReversedStressEnergy<DataVector>,
-      ScalarTensor::Tags::DDFPsiUpUpTensor>;
+      ScalarTensor::Tags::DDFPsiUpUpTensor,
+      fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, 3, Frame>,
+      fe::ScalarTensorDriver::Tags::TensorDriverTrace>;
   using return_type = tnsr::aa<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
       const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
       const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
-      const tnsr::AA<DataVector, 3>& DDKGUpUp) =
+      const tnsr::AA<DataVector, 3>& DDKGUpUp,
+      const tnsr::aa<DataVector, 3>& Tdriv,
+      const Scalar<DataVector>& trace_Tdriv) =
       &order_reduced_gb_H_tensor_ricci_part;
   using base = OrderReducedHTensorRicciPart;
 };
