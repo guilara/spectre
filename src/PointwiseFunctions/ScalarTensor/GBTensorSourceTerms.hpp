@@ -8,7 +8,9 @@
 #include "DataStructures/DataBox/Tag.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
+#include "Evolution/Systems/ScalarTensor/StressEnergy.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylMagnetic.hpp"
@@ -640,3 +642,66 @@ struct OrderReducedTraceReversedStressEnergyCompute
 }  // namespace Tags
 
 }  // namespace ScalarTensor
+
+namespace fe::ScalarTensorDriver {
+
+void tensor_driver_normal_normal_projection(
+    const gsl::not_null<Scalar<DataVector>*> tensor_driver_nn,
+    const tnsr::aa<DataVector, 3>& tensor_driver,
+    const tnsr::A<DataVector, 3>& spacetime_normal_vector);
+
+void tensor_driver_spatial_normal_projection(
+    const gsl::not_null<tnsr::i<DataVector, 3>*> tensor_driver_sn,
+    const tnsr::aa<DataVector, 3>& tensor_driver,
+    const tnsr::A<DataVector, 3>& spacetime_normal_vector,
+    const tnsr::a<DataVector, 3>& spacetime_normal_covector);
+
+void tensor_driver_spatial_spatial_projection(
+    const gsl::not_null<tnsr::ii<DataVector, 3>*> tensor_driver_ss,
+    const tnsr::aa<DataVector, 3>& tensor_driver,
+    const tnsr::A<DataVector, 3>& spacetime_normal_vector,
+    const tnsr::a<DataVector, 3>& spacetime_normal_covector);
+
+namespace Tags {
+// gr::Tags::SpacetimeNormalVector<DataVector, Dim>
+
+/*!
+ * \brief Compute tag for normal-normal projection of the tensor driver.
+ */
+template <typename Frame>
+struct TensorDriverSpatialProjectionCompute : TensorDriverSpatialProjection,
+                                              db::ComputeTag {
+  using argument_tags = tmpl::list<
+      fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, 3, Frame>,
+      gr::Tags::SpacetimeNormalVector<DataVector, 3, Frame>,
+      gr::Tags::SpacetimeNormalOneForm<DataVector, 3, Frame>>;
+  using return_type = tnsr::ii<DataVector, 3, Frame>;
+  static constexpr void (*function)(
+      const gsl::not_null<tnsr::ii<DataVector, 3>*> tensor_driver_ss,
+      const tnsr::aa<DataVector, 3>& tensor_driver,
+      const tnsr::A<DataVector, 3>& spacetime_normal_vector,
+      const tnsr::a<DataVector, 3>& spacetime_normal_covector) =
+      &tensor_driver_spatial_spatial_projection;
+  using base = TensorDriverSpatialProjection;
+};
+
+/*!
+ * \brief Compute tag for normal-normal projection of the tensor driver.
+ */
+template <typename Frame>
+struct TensorDriverTraceCompute : TensorDriverTrace, db::ComputeTag {
+  using argument_tags = tmpl::list<
+      fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, 3, Frame>,
+      gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<Scalar<DataVector>*> trace,
+      const tnsr::aa<DataVector, 3>& tensor_driver,
+      const tnsr::AA<DataVector, 3>& inverse_spacetime_metric) =
+      &::ScalarTensor::trace_of_trace_reversed_stress_energy;
+  using base = TensorDriverTrace;
+};
+
+}  // namespace Tags
+
+}  // namespace fe::ScalarTensorDriver
