@@ -6,6 +6,7 @@
 #include "DataStructures/DataBox/Tag.hpp"
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
@@ -272,6 +273,48 @@ struct RhsPsiCompute : RhsPsi, db::ComputeTag {
   using base = RhsPsi;
 };
 
+// /*!
+//  * \brief Compute the Rhs of the Pi equation.
+//  *
+//  * \details Call ....
+//  */
+// // template <typename DataType>
+// struct RhsPiCompute : RhsPi, db::ComputeTag {
+//   using argument_tags =
+//       tmpl::list<::Tags::deriv<CurvedScalarWave::Tags::Psi, tmpl::size_t<3>,
+//                                Frame::Inertial>,
+//                  ::Tags::deriv<CurvedScalarWave::Tags::Pi, tmpl::size_t<3>,
+//                                Frame::Inertial>,
+//                  ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>,
+//                  tmpl::size_t<3>,
+//                                Frame::Inertial>,
+//                  CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>,
+//                  gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>,
+//                  ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>,
+//                                Frame::Inertial>,
+//                  ::Tags::deriv<gr::Tags::Shift<DataVector, 3>,
+//                  tmpl::size_t<3>,
+//                                Frame::Inertial>,
+//                  gr::Tags::InverseSpatialMetric<DataVector, 3>,
+//                  gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, 3>,
+//                  gr::Tags::TraceExtrinsicCurvature<DataVector>,
+//                  CurvedScalarWave::Tags::ConstraintGamma1,
+//                  CurvedScalarWave::Tags::ConstraintGamma2,
+//                  ScalarTensor::Tags::ScalarSource>;
+//   using return_type = Scalar<DataVector>;
+//   static constexpr void (*function)(
+//       const gsl::not_null<return_type*> result, const tnsr::i<DataVector,
+//       3>&, const tnsr::i<DataVector, 3>&, const tnsr::ij<DataVector, 3>&,
+//       const Scalar<DataVector>&, const tnsr::i<DataVector, 3>&,
+//       const Scalar<DataVector>&, const tnsr::I<DataVector, 3>&,
+//       const tnsr::i<DataVector, 3>&, const tnsr::iJ<DataVector, 3>&,
+//       const tnsr::II<DataVector, 3>&, const tnsr::I<DataVector, 3>&,
+//       const Scalar<DataVector>&, const Scalar<DataVector>&,
+//       const Scalar<DataVector>&, const Scalar<DataVector>&) =
+//       &compute_rhs_pi;
+//   using base = RhsPi;
+// };
+
 /*!
  * \brief Compute the Rhs of the Pi equation.
  *
@@ -297,7 +340,8 @@ struct RhsPiCompute : RhsPi, db::ComputeTag {
                  gr::Tags::TraceExtrinsicCurvature<DataVector>,
                  CurvedScalarWave::Tags::ConstraintGamma1,
                  CurvedScalarWave::Tags::ConstraintGamma2,
-                 ScalarTensor::Tags::ScalarSource>;
+                 // Source with the scalar driver
+                 fe::ScalarTensorDriver::Tags::Psi>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
       const gsl::not_null<return_type*> result, const tnsr::i<DataVector, 3>&,

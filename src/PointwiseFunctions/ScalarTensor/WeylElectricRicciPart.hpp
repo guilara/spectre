@@ -8,6 +8,7 @@
 #include "DataStructures/DataBox/Tag.hpp"
 #include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
@@ -47,6 +48,19 @@ void weyl_electric_full(
     const tnsr::i<DataType, SpatialDim, Frame>& phi_scalar,
     const tnsr::ii<DataType, SpatialDim, Frame>& spatial_metric,
     const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric);
+
+template <typename DataType, size_t SpatialDim, typename Frame>
+void weyl_electric_full(
+    const gsl::not_null<tnsr::ii<DataType, SpatialDim, Frame>*>
+        weyl_electric_full,
+    const tnsr::ii<DataType, SpatialDim, Frame>& spatial_ricci,
+    const tnsr::ii<DataType, SpatialDim, Frame>& extrinsic_curvature,
+    const Scalar<DataType>& pi_scalar,
+    const tnsr::i<DataType, SpatialDim, Frame>& phi_scalar,
+    const tnsr::ii<DataType, SpatialDim, Frame>& spatial_metric,
+    const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric,
+    const tnsr::ii<DataType, SpatialDim, Frame>& spatial_tensor_driver,
+    const Scalar<DataType>& trace_tensor_driver);
 
 template <typename DataType, size_t SpatialDim, typename Frame>
 void my_trace(
@@ -114,17 +128,23 @@ struct WeylElectricFullCompute : WeylElectricFull<DataType, SpatialDim, Frame>,
                  CurvedScalarWave::Tags::Pi,
                  CurvedScalarWave::Tags::Phi<SpatialDim>,
                  gr::Tags::SpatialMetric<DataType, SpatialDim, Frame>,
-                 gr::Tags::InverseSpatialMetric<DataType, SpatialDim, Frame>>;
+                 gr::Tags::InverseSpatialMetric<DataType, SpatialDim, Frame>,
+                 fe::ScalarTensorDriver::Tags::TensorDriverSpatialProjection,
+                 fe::ScalarTensorDriver::Tags::TensorDriverTrace>;
 
   using return_type = tnsr::ii<DataType, SpatialDim, Frame>;
 
   static constexpr auto function = static_cast<void (*)(
-      gsl::not_null<tnsr::ii<DataType, SpatialDim, Frame>*> result,
-      const tnsr::ii<DataType, SpatialDim, Frame>&,
-      const tnsr::ii<DataType, SpatialDim, Frame>&, const Scalar<DataType>&,
-      const tnsr::i<DataType, SpatialDim, Frame>&,
-      const tnsr::ii<DataType, SpatialDim, Frame>&,
-      const tnsr::II<DataType, SpatialDim, Frame>&)>(
+      const gsl::not_null<tnsr::ii<DataType, SpatialDim, Frame>*>
+          weyl_electric_full,
+      const tnsr::ii<DataType, SpatialDim, Frame>& spatial_ricci,
+      const tnsr::ii<DataType, SpatialDim, Frame>& extrinsic_curvature,
+      const Scalar<DataType>& pi_scalar,
+      const tnsr::i<DataType, SpatialDim, Frame>& phi_scalar,
+      const tnsr::ii<DataType, SpatialDim, Frame>& spatial_metric,
+      const tnsr::II<DataType, SpatialDim, Frame>& inverse_spatial_metric,
+      const tnsr::ii<DataType, SpatialDim, Frame>& spatial_tensor_driver,
+      const Scalar<DataType>& trace_tensor_driver)>(
       &weyl_electric_full<DataType, SpatialDim, Frame>);
 
   using base = WeylElectricFull<DataType, SpatialDim, Frame>;
