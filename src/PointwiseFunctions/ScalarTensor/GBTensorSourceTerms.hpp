@@ -29,20 +29,20 @@ void DDKG_normal_normal_projection(
 
     // Metric quantities
     const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
-
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     // Scalar quantities
+    const tnsr::i<DataVector, 3>& phi_scalar,
 
     // Scalar gradients
     const tnsr::i<DataVector, 3>& d_pi_scalar,
 
     // Provide them with RHS compute tags or from dt<> prefixes
-    const Scalar<DataVector>& dt_pi_scalar);
+    const Scalar<DataVector>& dt_pi_scalar,
+
+    const tnsr::i<DataVector, 3>& d_lapse);
 
 void DDKG_normal_spatial_projection(
     const gsl::not_null<tnsr::i<DataVector, 3>*> DDKG_normal_spatial_result,
-
-    // Metric quantities
-    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
 
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& extrinsic_curvature,
@@ -51,10 +51,7 @@ void DDKG_normal_spatial_projection(
     const tnsr::i<DataVector, 3>& phi_scalar,
 
     // Scalar gradients
-    const tnsr::ij<DataVector, 3>& d_phi_scalar,
-
-    // Provide them with RHS compute tags or from dt<> prefixes
-    const tnsr::i<DataVector, 3>& dt_phi_scalar);
+    const tnsr::i<DataVector, 3>& d_pi_scalar);
 
 void DDKG_spatial_spatial_projection(
     const gsl::not_null<tnsr::ii<DataVector, 3>*> DDKG_spatial_spatial_result,
@@ -263,14 +260,28 @@ template <typename Frame>
 struct nnDDKGCompute : nnDDKG, db::ComputeTag {
   using argument_tags = tmpl::list<
       gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3, Frame>,
+      gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
+      CurvedScalarWave::Tags::Phi<3>,
       ::Tags::deriv<CurvedScalarWave::Tags::Pi, tmpl::size_t<3>, Frame>,
-      ScalarTensor::Tags::RhsPi>;
+      ScalarTensor::Tags::RhsPi,
+      ::Tags::deriv<gr::Tags::Lapse<DataVector>, tmpl::size_t<3>, Frame>>;
   using return_type = Scalar<DataVector>;
   static constexpr void (*function)(
-      const gsl::not_null<Scalar<DataVector>*> result,
-      const Scalar<DataVector>&, const tnsr::I<DataVector, 3>&,
-      const tnsr::i<DataVector, 3>&,
-      const Scalar<DataVector>&) = &DDKG_normal_normal_projection;
+      const gsl::not_null<Scalar<DataVector>*> DDKG_normal_normal_result,
+
+      // Metric quantities
+      const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+      const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+      // Scalar quantities
+      const tnsr::i<DataVector, 3>& phi_scalar,
+
+      // Scalar gradients
+      const tnsr::i<DataVector, 3>& d_pi_scalar,
+
+      // Provide them with RHS compute tags or from dt<> prefixes
+      const Scalar<DataVector>& dt_pi_scalar,
+
+      const tnsr::i<DataVector, 3>& d_lapse) = &DDKG_normal_normal_projection;
   using base = nnDDKG;
 };
 
@@ -281,19 +292,23 @@ struct nnDDKGCompute : nnDDKG, db::ComputeTag {
 template <typename Frame>
 struct nsDDKGCompute : nsDDKG, db::ComputeTag {
   using argument_tags = tmpl::list<
-      gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3, Frame>,
       gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
       gr::Tags::ExtrinsicCurvature<DataVector, 3, Frame>,
       CurvedScalarWave::Tags::Phi<3>,
-      ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>, Frame>,
-      ScalarTensor::Tags::RhsPhi>;
+      ::Tags::deriv<CurvedScalarWave::Tags::Pi, tmpl::size_t<3>, Frame>>;
   using return_type = tnsr::i<DataVector, 3, Frame>;
   static constexpr void (*function)(
-      const gsl::not_null<tnsr::i<DataVector, 3>*> result,
-      const Scalar<DataVector>&, const tnsr::I<DataVector, 3>&,
-      const tnsr::II<DataVector, 3>&, const tnsr::ii<DataVector, 3>&,
-      const tnsr::i<DataVector, 3>&, const tnsr::ij<DataVector, 3>&,
-      const tnsr::i<DataVector, 3>&) = &DDKG_normal_spatial_projection;
+      const gsl::not_null<tnsr::i<DataVector, 3>*> DDKG_normal_spatial_result,
+
+      const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+      const tnsr::ii<DataVector, 3>& extrinsic_curvature,
+
+      // Scalar quantities
+      const tnsr::i<DataVector, 3>& phi_scalar,
+
+      // Scalar gradients
+      const tnsr::i<DataVector, 3>& d_pi_scalar) =
+      &DDKG_normal_spatial_projection;
   using base = nsDDKG;
 };
 
