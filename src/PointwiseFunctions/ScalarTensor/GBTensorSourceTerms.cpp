@@ -28,25 +28,33 @@ void DDKG_normal_normal_projection(
 
     // Metric quantities
     const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
-
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     // Scalar quantities
+    const tnsr::i<DataVector, 3>& phi_scalar,
 
     // Scalar gradients
     const tnsr::i<DataVector, 3>& d_pi_scalar,
 
     // Provide them with RHS compute tags or from dt<> prefixes
-    const Scalar<DataVector>& dt_pi_scalar) {
+    const Scalar<DataVector>& dt_pi_scalar,
+
+    const tnsr::i<DataVector, 3>& d_lapse) {
   // = - L_n Pi from the equations of motion
   tenex::evaluate(
       DDKG_normal_normal_result,
-      -(1.0 / lapse()) * (dt_pi_scalar() - shift(ti::I) * d_pi_scalar(ti::i)));
+      // - L_n Pi - (1/lapse) Phi^{i} partial_i lapse
+      -(1.0 / lapse()) * (dt_pi_scalar() - shift(ti::I) * d_pi_scalar(ti::i)
+
+                          - inverse_spatial_metric(ti::I, ti::J) *
+                                phi_scalar(ti::i) * d_lapse(ti::j)
+
+                              )
+
+  );
 }
 
 void DDKG_normal_spatial_projection(
     const gsl::not_null<tnsr::i<DataVector, 3>*> DDKG_normal_spatial_result,
-
-    // Metric quantities
-    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
 
     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
     const tnsr::ii<DataVector, 3>& extrinsic_curvature,
@@ -55,17 +63,15 @@ void DDKG_normal_spatial_projection(
     const tnsr::i<DataVector, 3>& phi_scalar,
 
     // Scalar gradients
-    const tnsr::ij<DataVector, 3>& d_phi_scalar,
-
-    // Provide them with RHS compute tags or from dt<> prefixes
-    const tnsr::i<DataVector, 3>& dt_phi_scalar) {
+    const tnsr::i<DataVector, 3>& d_pi_scalar) {
   tenex::evaluate<ti::i>(
-      DDKG_normal_spatial_result,
-      extrinsic_curvature(ti::i, ti::j) * inverse_spatial_metric(ti::J, ti::K) *
-              phi_scalar(ti::k)
-          // + L_n Phi from the equations of motion
-          + (1.0 / lapse()) * (dt_phi_scalar(ti::i) -
-                               shift(ti::J) * d_phi_scalar(ti::j, ti::i)));
+      DDKG_normal_spatial_result, extrinsic_curvature(ti::i, ti::j) *
+                                          inverse_spatial_metric(ti::J, ti::K) *
+                                          phi_scalar(ti::k)
+
+                                      - d_pi_scalar(ti::i)
+
+  );
 }
 
 void DDKG_spatial_spatial_projection(
@@ -141,17 +147,19 @@ void DDKG_tensor_from_projections(
     // Provide them with RHS compute tags or from dt<> prefixes
     const Scalar<DataVector>& dt_psi_scalar,
     const Scalar<DataVector>& dt_pi_scalar,
-    const tnsr::i<DataVector, 3>& dt_phi_scalar) {
+    const tnsr::i<DataVector, 3>& dt_phi_scalar,
+
+    const tnsr::i<DataVector, 3>& d_lapse) {
   // Compute projections of the second derivative tensor
   // nn
   Scalar<DataVector> nnDDKG;
   DDKG_normal_normal_projection(make_not_null(&nnDDKG), lapse, shift,
-                                d_pi_scalar, dt_pi_scalar);
+                                inverse_spatial_metric, phi_scalar, d_pi_scalar,
+                                dt_pi_scalar, d_lapse);
   // ns
   tnsr::i<DataVector, 3> nsDDKG;
-  DDKG_normal_spatial_projection(make_not_null(&nsDDKG), lapse, shift,
-                                 inverse_spatial_metric, extrinsic_curvature,
-                                 phi_scalar, d_phi_scalar, dt_phi_scalar);
+  DDKG_normal_spatial_projection(make_not_null(&nsDDKG), inverse_spatial_metric,
+                                 extrinsic_curvature, phi_scalar, d_pi_scalar);
   // ss
   tnsr::ii<DataVector, 3> ssDDKG;
   DDKG_spatial_spatial_projection(make_not_null(&ssDDKG), extrinsic_curvature,
