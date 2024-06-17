@@ -102,6 +102,13 @@ void DDKG_tensor_from_projections(
     const Scalar<DataVector>& dt_pi_scalar,
     const tnsr::i<DataVector, 3>& dt_phi_scalar);
 
+void DDKG_trace_minus_eom(
+    const gsl::not_null<Scalar<DataVector>*> diagnostic,
+    const tnsr::aa<DataVector, 3>& DDKG,
+    const tnsr::AA<DataVector, 3>& inverse_spacetime_metric,
+    const Scalar<DataVector>& dt_pi_scalar,
+    const Scalar<DataVector>& scalar_driver);
+
 // TODO: Compute projections as well
 void DDFPsi_tensor_from_DDKG_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDFPsi_tensor_result,
@@ -347,6 +354,26 @@ struct DDKGTensorCompute : DDKGTensor, db::ComputeTag {
       const tnsr::i<DataVector, 3>&,
       const tnsr::ii<DataVector, 3>&) = &DDKG_tensor_from_projections;
   using base = DDKGTensor;
+};
+
+/*!
+ * \brief Compute diagnostic for DDKG tensor.
+ */
+template <typename Frame>
+struct EomFromDDKGTensorDiagnosticCompute : EomFromDDKGTensorDiagnostic,
+                                            db::ComputeTag {
+  using argument_tags =
+      tmpl::list<ScalarTensor::Tags::DDKGTensor,
+                 gr::Tags::InverseSpacetimeMetric<DataVector, 3, Frame>,
+                 ScalarTensor::Tags::RhsPi, fe::ScalarTensorDriver::Tags::Psi>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<Scalar<DataVector>*> diagnostic,
+      const tnsr::aa<DataVector, 3>& DDKG,
+      const tnsr::AA<DataVector, 3>& inverse_spacetime_metric,
+      const Scalar<DataVector>& dt_pi_scalar,
+      const Scalar<DataVector>& scalar_driver) = &DDKG_trace_minus_eom;
+  using base = EomFromDDKGTensorDiagnostic;
 };
 
 /*!

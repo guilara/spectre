@@ -77,6 +77,14 @@ struct DDKGTensor : db::SimpleTag {
 };
 
 /*!
+ * \brief Diagnostic tag.
+ */
+struct EomFromDDKGTensorDiagnostic : db::SimpleTag {
+  using type = Scalar<DataVector>;
+  static std::string name() { return "EomFromDDKGTensorDiagnostic"; }
+};
+
+/*!
  * \brief Normal normal projection of the second covariant derivative of the
  * scalar.
  */
