@@ -124,6 +124,23 @@ void DDKG_tensor_from_projections(
   }
 }
 
+void DDKG_trace_minus_eom(
+    const gsl::not_null<Scalar<DataVector>*> diagnostic,
+    const tnsr::aa<DataVector, 3>& DDKG,
+    const tnsr::AA<DataVector, 3>& inverse_spacetime_metric,
+    const Scalar<DataVector>& dt_pi_scalar,
+    const Scalar<DataVector>& scalar_driver) {
+  // Check that the trace of the DDKG tensor is consistent with the equation of
+  // motion
+  // Check that Box Psi - source = 0, where the first term is computed from the
+  // DDKG tensor
+  tenex::evaluate(diagnostic,
+                  // Trace
+                  DDKG(ti::a, ti::b) * inverse_spacetime_metric(ti::B, ti::A) -
+                      // Equation of motion source term
+                      scalar_driver());
+}
+
 // template <typename Frame>
 void DDKG_tensor_from_projections(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
