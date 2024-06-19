@@ -4,6 +4,8 @@
 #pragma once
 
 #include "DataStructures/DataBox/Tag.hpp"
+#include "DataStructures/DataVector.hpp"
+#include "DataStructures/Tensor/Tensor.hpp"
 #include "Options/String.hpp"
 
 namespace ScalarTensor {
@@ -30,7 +32,6 @@ struct GBScalar : db::SimpleTag {
  */
 struct OrderReducedGBScalar : db::SimpleTag {
   using type = Scalar<DataVector>;
-  static std::string name() { return "OrderReducedGBScalar"; }
 };
 
 /*!
