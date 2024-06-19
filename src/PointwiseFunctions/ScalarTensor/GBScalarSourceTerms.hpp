@@ -41,13 +41,13 @@ namespace ScalarTensor {
  * where \f$ T^{(\Psi, \mathrm{TR})}_{ab}\f$ is the canonical trace reversed
  * stress energy tensor.
  */
-template <typename Frame>
-void order_reduced_gb_scalar_with_tenex(
-    const gsl::not_null<Scalar<DataVector>*> result,
-    const Scalar<DataVector>& weyl_electric_scalar,
-    const Scalar<DataVector>& weyl_magnetic_scalar,
-    const tnsr::aa<DataVector, 3, Frame>& trace_reversed_stress_energy,
-    const tnsr::AA<DataVector, 3, Frame>& inverse_spacetime_metric);
+// template <typename Frame>
+// void order_reduced_gb_scalar_with_tenex(
+//     const gsl::not_null<Scalar<DataVector>*> result,
+//     const Scalar<DataVector>& weyl_electric_scalar,
+//     const Scalar<DataVector>& weyl_magnetic_scalar,
+//     const tnsr::aa<DataVector, 3, Frame>& trace_reversed_stress_energy,
+//     const tnsr::AA<DataVector, 3, Frame>& inverse_spacetime_metric);
 
 template <typename Frame>
 void order_reduced_gb_scalar_with_tenex(
