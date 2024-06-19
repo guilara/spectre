@@ -433,6 +433,8 @@ struct ObserverTags {
           ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy,
           ScalarTensor::Tags::EomFromDDKGTensorDiagnosticCompute<
               Frame::Inertial>,
+          ScalarTensor::Tags::TraceOfSsDDKGTensorDiagnosticCompute<
+              Frame::Inertial>,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
