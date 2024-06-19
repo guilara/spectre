@@ -71,6 +71,16 @@ void DDKG_spatial_spatial_projection(
     // Provide them with RHS compute tags or from dt<> prefixes
 );
 
+void trace_of_DDKG_spatial_spatial_projection_diagnostic(
+    const gsl::not_null<Scalar<DataVector>*> result,
+    const tnsr::ii<DataVector, 3>& ssDDKG,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
+    const Scalar<DataVector>& trace_extrinsic_curvature,
+    const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
+    const tnsr::ij<DataVector, 3>& d_phi_scalar);
+
 void DDKG_tensor_from_projections(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
     const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnDDKG,
@@ -337,6 +347,33 @@ struct ssDDKGCompute : ssDDKG, db::ComputeTag {
       const Scalar<DataVector>&, const tnsr::i<DataVector, 3>&,
       const tnsr::ij<DataVector, 3>&) = &DDKG_spatial_spatial_projection;
   using base = ssDDKG;
+};
+
+/*!
+ * \brief Compute diagnostic for DDKG tensor.
+ */
+template <typename Frame>
+struct TraceOfSsDDKGTensorDiagnosticCompute : TraceOfSsDDKGTensorDiagnostic,
+                                              db::ComputeTag {
+  using argument_tags = tmpl::list<
+      ScalarTensor::Tags::ssDDKG,
+      gr::Tags::InverseSpatialMetric<DataVector, 3, Frame>,
+      gr::Tags::TraceSpatialChristoffelSecondKind<DataVector, 3, Frame>,
+      gr::Tags::TraceExtrinsicCurvature<DataVector>, CurvedScalarWave::Tags::Pi,
+      CurvedScalarWave::Tags::Phi<3>,
+      ::Tags::deriv<CurvedScalarWave::Tags::Phi<3>, tmpl::size_t<3>, Frame>>;
+  using return_type = Scalar<DataVector>;
+  static constexpr void (*function)(
+      const gsl::not_null<Scalar<DataVector>*> result,
+      const tnsr::ii<DataVector, 3>& ssDDKG,
+      const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+      const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
+      const Scalar<DataVector>& trace_extrinsic_curvature,
+      const Scalar<DataVector>& pi_scalar,
+      const tnsr::i<DataVector, 3>& phi_scalar,
+      const tnsr::ij<DataVector, 3>& d_phi_scalar) =
+      &trace_of_DDKG_spatial_spatial_projection_diagnostic;
+  using base = TraceOfSsDDKGTensorDiagnostic;
 };
 
 /*!

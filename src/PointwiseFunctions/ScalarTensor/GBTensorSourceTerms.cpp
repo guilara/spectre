@@ -102,6 +102,28 @@ void DDKG_spatial_spatial_projection(
               phi_scalar(ti::k));
 }
 
+void trace_of_DDKG_spatial_spatial_projection_diagnostic(
+    const gsl::not_null<Scalar<DataVector>*> result,
+    const tnsr::ii<DataVector, 3>& ssDDKG,
+    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+    const tnsr::I<DataVector, 3>& trace_spatial_christoffel,
+    const Scalar<DataVector>& trace_extrinsic_curvature,
+    const Scalar<DataVector>& pi_scalar,
+    const tnsr::i<DataVector, 3>& phi_scalar,
+    const tnsr::ij<DataVector, 3>& d_phi_scalar) {
+  tenex::evaluate(result,
+                  // Trace of spatial part
+                  ssDDKG(ti::i, ti::j) * inverse_spatial_metric(ti::J, ti::I) -
+                      (
+
+                          inverse_spatial_metric(ti::I, ti::J) *
+                              d_phi_scalar(ti::i, ti::j) -
+                          trace_spatial_christoffel(ti::I) * phi_scalar(ti::i) -
+                          trace_extrinsic_curvature() * pi_scalar()
+
+                          ));
+}
+
 void DDKG_tensor_from_projections(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
     // Metric quantities
