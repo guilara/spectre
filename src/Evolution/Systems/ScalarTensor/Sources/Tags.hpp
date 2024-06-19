@@ -39,7 +39,6 @@ struct OrderReducedGBScalar : db::SimpleTag {
  */
 struct SpacetimeDerivScalar : db::SimpleTag {
   using type = tnsr::a<DataVector, 3>;
-  static std::string name() { return "SpacetimeDerivPsi"; }
 };
 
 /*!
