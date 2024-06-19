@@ -69,6 +69,14 @@ struct ssDDKG : db::SimpleTag {
 };
 
 /*!
+ * \brief Spatial spatial projection of the second covariant derivative of the
+ * scalar.
+ */
+struct TraceOfSsDDKGTensorDiagnostic : db::SimpleTag {
+  using type = Scalar<DataVector>;
+};
+
+/*!
  * \brief Second covariant derivative tensor of the scalar.
  */
 struct DDKGTensor : db::SimpleTag {
