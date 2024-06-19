@@ -45,7 +45,7 @@ void DDKG_normal_normal_projection(
       // - L_n Pi - (1/lapse) Phi^{i} partial_i lapse
       -(1.0 / lapse()) * (dt_pi_scalar() - shift(ti::I) * d_pi_scalar(ti::i)
 
-                          - inverse_spatial_metric(ti::I, ti::J) *
+                          + inverse_spatial_metric(ti::I, ti::J) *
                                 phi_scalar(ti::i) * d_lapse(ti::j)
 
                               )
