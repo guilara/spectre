@@ -82,7 +82,7 @@ void trace_reversed_stress_energy(
     gsl::not_null<tnsr::aa<DataVector, 3_st>*> stress_energy,
     const Scalar<DataVector>& pi_scalar,
     const tnsr::i<DataVector, 3_st>& phi_scalar,
-    const Scalar<DataVector>& lapse);
+    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3_st>& shift);
 
 void trace_of_trace_reversed_stress_energy(
     const gsl::not_null<Scalar<DataVector>*> trace_of_stress_energy,
@@ -102,12 +102,14 @@ struct TraceReversedStressEnergyCompute
   static constexpr size_t Dim = 3;
   using argument_tags =
       tmpl::list<CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<Dim>,
-                 gr::Tags::Lapse<DataVector>>;
+                 gr::Tags::Lapse<DataVector>,
+                 gr::Tags::Shift<DataVector, 3, Frame::Inertial>>;
   using return_type = tnsr::aa<DataVector, Dim, Frame::Inertial>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::aa<DataVector, Dim>*> result,
       const Scalar<DataVector>&, const tnsr::i<DataVector, Dim>&,
-      const Scalar<DataVector>&) = &trace_reversed_stress_energy;
+      const Scalar<DataVector>&,
+      const tnsr::I<DataVector, Dim>&) = &trace_reversed_stress_energy;
   using base = TraceReversedStressEnergy<DataVector, Dim, Frame::Inertial>;
 };
 
