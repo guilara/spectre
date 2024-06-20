@@ -29,6 +29,10 @@ void trace_reversed_stress_energy(
     const Scalar<DataVector>& pi_scalar,
     const tnsr::i<DataVector, 3_st>& phi_scalar,
     const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3_st>& shift) {
+  // We work in units where set G = 1 / (8 M_PI)
+  // const double kappa = 8.0 * M_PI;
+  const double kappa = 1.0;
+
   // 00-component
   get<0, 0>(*stress_energy) = square(get(lapse) * get(pi_scalar));
 
@@ -54,6 +58,10 @@ void trace_reversed_stress_energy(
       stress_energy->get(i + 1, j + 1) = phi_scalar.get(i) * phi_scalar.get(j);
     }
   }
+
+  // Multiply by kappa
+  tenex::update<ti::a, ti::b>(stress_energy,
+                              kappa * (*stress_energy)(ti::a, ti::b));
 }
 
 void trace_of_trace_reversed_stress_energy(
