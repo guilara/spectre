@@ -12,13 +12,15 @@ namespace ScalarTensor {
 void spacetime_derivative_scalar(const gsl::not_null<tnsr::a<DataVector, 3>*>
                                      spacetime_derivative_scalar_result,
                                  const Scalar<DataVector>& lapse,
+                                 const tnsr::I<DataVector, 3>& shift,
                                  const Scalar<DataVector>& pi_scalar,
                                  const tnsr::i<DataVector, 3>& phi_scalar) {
   // Assemble in symmetric rank-2 4-tensor with lower indices
-  // partial_a = Phi_a + n_a Pi
-  // with n_0 = - lapse and n_i = 0
+
   get<0>(*spacetime_derivative_scalar_result) = -get(lapse) * get(pi_scalar);
   for (size_t i = 0; i < 3; ++i) {
+    get<0>(*spacetime_derivative_scalar_result) +=
+        shift.get(i) * phi_scalar.get(i);
     spacetime_derivative_scalar_result->get(i + 1) = phi_scalar.get(i);
   }
 }
@@ -127,20 +129,29 @@ void trace_of_DDKG_spatial_spatial_projection_diagnostic(
 void DDKG_tensor_from_projections(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
     // Metric quantities
-    const Scalar<DataVector>& lapse,
+    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
     // Projections
     const Scalar<DataVector>& nnDDKG, const tnsr::i<DataVector, 3>& nsDDKG,
     const tnsr::ii<DataVector, 3>& ssDDKG) {
   // Assemble in symmetric rank-2 4-tensor with lower indices
+
+  // 00-component
   get<0, 0>(*DDKG_tensor_result) = square(get(lapse)) * get(nnDDKG);
+
   for (size_t i = 0; i < 3; ++i) {
-    // nsH with lower indices
-    // Check sign
+    // 00-component
+    get<0, 0>(*DDKG_tensor_result) +=
+        2.0 * get(lapse) * shift.get(i) * nsDDKG.get(i);
+    // 0i-component
     DDKG_tensor_result->get(0, i + 1) = get(lapse) * nsDDKG.get(i);
-  }
-  for (size_t i = 0; i < 3; ++i) {
+
     for (size_t j = i; j < 3; ++j) {
-      // ssH with lower indices
+      // 00-component
+      get<0, 0>(*DDKG_tensor_result) +=
+          shift.get(i) * shift.get(j) * ssDDKG.get(i, j);
+      // 0i-component
+      DDKG_tensor_result->get(0, i + 1) += shift.get(j) * ssDDKG.get(j, i);
+      // ij-component
       DDKG_tensor_result->get(i + 1, j + 1) = ssDDKG.get(i, j);
     }
   }
@@ -233,15 +244,23 @@ void DDKG_tensor_from_projections(
                                   phi_scalar, d_phi_scalar);
 
   // Assemble in symmetric rank-2 4-tensor with lower indices
+  // 00-component
   get<0, 0>(*DDKG_tensor_result) = square(get(lapse)) * get(nnDDKG);
+
   for (size_t i = 0; i < 3; ++i) {
-    // nsH with lower indices
-    // Check sign
+    // 00-component
+    get<0, 0>(*DDKG_tensor_result) +=
+        2.0 * get(lapse) * shift.get(i) * nsDDKG.get(i);
+    // 0i-component
     DDKG_tensor_result->get(0, i + 1) = get(lapse) * nsDDKG.get(i);
-  }
-  for (size_t i = 0; i < 3; ++i) {
+
     for (size_t j = i; j < 3; ++j) {
-      // ssH with lower indices
+      // 00-component
+      get<0, 0>(*DDKG_tensor_result) +=
+          shift.get(i) * shift.get(j) * ssDDKG.get(i, j);
+      // 0i-component
+      DDKG_tensor_result->get(0, i + 1) += shift.get(j) * ssDDKG.get(j, i);
+      // ij-component
       DDKG_tensor_result->get(i + 1, j + 1) = ssDDKG.get(i, j);
     }
   }
@@ -473,18 +492,27 @@ void order_reduced_gb_H_spatial_spatial_projection(
 
 void order_reduced_gb_H_tensor_weyl_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
-    const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnH,
-    const tnsr::i<DataVector, 3>& nsH, const tnsr::ii<DataVector, 3>& ssH) {
+    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+    const Scalar<DataVector>& nnH, const tnsr::i<DataVector, 3>& nsH,
+    const tnsr::ii<DataVector, 3>& ssH) {
   // Assemble in symmetric rank-2 4-tensor with lower indices
+  // 00-component
   get<0, 0>(*gb_H_tensor_result) = square(get(lapse)) * get(nnH);
+
   for (size_t i = 0; i < 3; ++i) {
-    // nsH with lower indices
-    // Check sign
+    // 00-component
+    get<0, 0>(*gb_H_tensor_result) +=
+        2.0 * get(lapse) * shift.get(i) * nsH.get(i);
+    // 0i-component
     gb_H_tensor_result->get(0, i + 1) = get(lapse) * nsH.get(i);
-  }
-  for (size_t i = 0; i < 3; ++i) {
+
     for (size_t j = i; j < 3; ++j) {
-      // ssH with lower indices
+      // 00-component
+      get<0, 0>(*gb_H_tensor_result) +=
+          shift.get(i) * shift.get(j) * ssH.get(i, j);
+      // 0i-component
+      gb_H_tensor_result->get(0, i + 1) += shift.get(j) * ssH.get(j, i);
+      // ij-component
       gb_H_tensor_result->get(i + 1, j + 1) = ssH.get(i, j);
     }
   }
