@@ -145,12 +145,15 @@ void DDKG_tensor_from_projections(
     // 0i-component
     DDKG_tensor_result->get(0, i + 1) = get(lapse) * nsDDKG.get(i);
 
-    for (size_t j = i; j < 3; ++j) {
+    for (size_t j = 0; j < 3; ++j) {
       // 00-component
       get<0, 0>(*DDKG_tensor_result) +=
           shift.get(i) * shift.get(j) * ssDDKG.get(i, j);
       // 0i-component
       DDKG_tensor_result->get(0, i + 1) += shift.get(j) * ssDDKG.get(j, i);
+    }
+
+    for (size_t j = i; j < 3; ++j) {
       // ij-component
       DDKG_tensor_result->get(i + 1, j + 1) = ssDDKG.get(i, j);
     }
