@@ -189,19 +189,24 @@ void DDKG_trace_minus_eom(
   // motion
   // Check that Box Psi - source = 0, where the first term is computed from the
   // DDKG tensor
-  tenex::evaluate(
-      diagnostic,
-      // Trace
-      DDKG(ti::a, ti::b) * inverse_spacetime_metric(ti::B, ti::A) -
-          // Equation of motion source term
-          (
+  // tenex::evaluate(
+  //     diagnostic,
+  //     // Trace
+  //     DDKG(ti::a, ti::b) * inverse_spacetime_metric(ti::B, ti::A) -
+  //         // Equation of motion source term
+  //         (
 
-              ssDDKG(ti::i, ti::j) * inverse_spatial_metric(ti::I, ti::J) -
-              nnDDKG()
+  //             ssDDKG(ti::i, ti::j) * inverse_spatial_metric(ti::I, ti::J) -
+  //             nnDDKG()
 
-                  )
+  //                 )
 
-  );
+  // );
+  tenex::evaluate(diagnostic,
+                  // Trace
+                  DDKG(ti::a, ti::b) * inverse_spacetime_metric(ti::B, ti::A) -
+                      // Equation of motion source term
+                      scalar_driver());
 }
 
 // template <typename Frame>
