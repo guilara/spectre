@@ -21,6 +21,7 @@ namespace ScalarTensor {
 void spacetime_derivative_scalar(const gsl::not_null<tnsr::a<DataVector, 3>*>
                                      spacetime_derivative_scalar_result,
                                  const Scalar<DataVector>& lapse,
+                                 const tnsr::I<DataVector, 3>& shift,
                                  const Scalar<DataVector>& pi_scalar,
                                  const tnsr::i<DataVector, 3>& phi_scalar);
 
@@ -83,8 +84,8 @@ void trace_of_DDKG_spatial_spatial_projection_diagnostic(
 
 void DDKG_tensor_from_projections(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
-    const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnDDKG,
-    const tnsr::i<DataVector, 3>& nsDDKG,
+    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+    const Scalar<DataVector>& nnDDKG, const tnsr::i<DataVector, 3>& nsDDKG,
     const tnsr::ii<DataVector, 3>& ssDDKG);
 
 // template <typename Frame>
@@ -208,8 +209,9 @@ void order_reduced_gb_H_spatial_spatial_projection(
 
 void order_reduced_gb_H_tensor_weyl_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
-    const Scalar<DataVector>& lapse, const Scalar<DataVector>& nnH,
-    const tnsr::i<DataVector, 3>& nsH, const tnsr::ii<DataVector, 3>& ssH);
+    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+    const Scalar<DataVector>& nnH, const tnsr::i<DataVector, 3>& nsH,
+    const tnsr::ii<DataVector, 3>& ssH);
 
 void order_reduced_Q_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> Q_tensor_result,
@@ -267,13 +269,15 @@ namespace Tags {
 template <typename Frame>
 struct SpacetimeDerivScalarCompute : SpacetimeDerivScalar, db::ComputeTag {
   using argument_tags =
-      tmpl::list<gr::Tags::Lapse<DataVector>, CurvedScalarWave::Tags::Pi,
-                 CurvedScalarWave::Tags::Phi<3>>;
+      tmpl::list<gr::Tags::Lapse<DataVector>,
+                 gr::Tags::Shift<DataVector, 3, Frame>,
+                 CurvedScalarWave::Tags::Pi, CurvedScalarWave::Tags::Phi<3>>;
   using return_type = tnsr::a<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::a<DataVector, 3>*>
           spacetime_derivative_scalar_result,
-      const Scalar<DataVector>& lapse, const Scalar<DataVector>& pi_scalar,
+      const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+      const Scalar<DataVector>& pi_scalar,
       const tnsr::i<DataVector, 3>& d_pi_scalar) = &spacetime_derivative_scalar;
   using base = SpacetimeDerivScalar;
 };
@@ -391,13 +395,15 @@ struct TraceOfSsDDKGTensorDiagnosticCompute : TraceOfSsDDKGTensorDiagnostic,
 template <typename Frame>
 struct DDKGTensorCompute : DDKGTensor, db::ComputeTag {
   using argument_tags =
-      tmpl::list<gr::Tags::Lapse<DataVector>, ScalarTensor::Tags::nnDDKG,
-                 ScalarTensor::Tags::nsDDKG, ScalarTensor::Tags::ssDDKG>;
+      tmpl::list<gr::Tags::Lapse<DataVector>,
+                 gr::Tags::Shift<DataVector, 3, Frame>,
+                 ScalarTensor::Tags::nnDDKG, ScalarTensor::Tags::nsDDKG,
+                 ScalarTensor::Tags::ssDDKG>;
   using return_type = tnsr::aa<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::aa<DataVector, 3>*> result,
-      const Scalar<DataVector>&, const Scalar<DataVector>&,
-      const tnsr::i<DataVector, 3>&,
+      const Scalar<DataVector>&, const tnsr::I<DataVector, 3>& shift,
+      const Scalar<DataVector>&, const tnsr::i<DataVector, 3>&,
       const tnsr::ii<DataVector, 3>&) = &DDKG_tensor_from_projections;
   using base = DDKGTensor;
 };
@@ -660,13 +666,14 @@ struct OrderReducedssHCompute : OrderReducedssH, db::ComputeTag {
 template <typename Frame>
 struct OrderReducedHTensorCompute : OrderReducedHTensor, db::ComputeTag {
   using argument_tags = tmpl::list<
-      gr::Tags::Lapse<DataVector>, ScalarTensor::Tags::OrderReducednnH,
-      ScalarTensor::Tags::OrderReducednsH, ScalarTensor::Tags::OrderReducedssH>;
+      gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3, Frame>,
+      ScalarTensor::Tags::OrderReducednnH, ScalarTensor::Tags::OrderReducednsH,
+      ScalarTensor::Tags::OrderReducedssH>;
   using return_type = tnsr::aa<DataVector, 3, Frame>;
   static constexpr void (*function)(
       const gsl::not_null<tnsr::aa<DataVector, 3>*> result,
-      const Scalar<DataVector>&, const Scalar<DataVector>&,
-      const tnsr::i<DataVector, 3>&,
+      const Scalar<DataVector>&, const tnsr::I<DataVector, 3>& shift,
+      const Scalar<DataVector>&, const tnsr::i<DataVector, 3>&,
       const tnsr::ii<DataVector, 3>&) = &order_reduced_gb_H_tensor_weyl_part;
   using base = OrderReducedHTensor;
 };
