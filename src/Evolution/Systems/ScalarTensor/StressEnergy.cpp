@@ -44,13 +44,16 @@ void trace_reversed_stress_energy(
     stress_energy->get(0, i + 1) =
         -get(lapse) * get(pi_scalar) * phi_scalar.get(i);
 
-    for (size_t j = i; j < 3; ++j) {
+    for (size_t j = 0; j < 3; ++j) {
       // 00-component
       get<0, 0>(*stress_energy) +=
           shift.get(i) * shift.get(j) * phi_scalar.get(i) * phi_scalar.get(j);
       // 0i-component
       stress_energy->get(0, i + 1) +=
           shift.get(j) * phi_scalar.get(j) * phi_scalar.get(i);
+    }
+
+    for (size_t j = i; j < 3; ++j) {
       // ij-component
       stress_energy->get(i + 1, j + 1) = phi_scalar.get(i) * phi_scalar.get(j);
     }
