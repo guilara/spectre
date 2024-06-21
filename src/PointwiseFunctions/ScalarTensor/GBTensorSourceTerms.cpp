@@ -292,13 +292,13 @@ void DDFPsi_tensor_from_DDKG_tensor(
   tenex::evaluate<ti::a, ti::b>(
       DDFPsi_tensor_result,
       // Double prime term
-      -first_coupling_psi_over_four * spacetime_derivative_scalar(ti::a) *
-              spacetime_derivative_scalar(ti::b) -
+      first_coupling_psi_over_four * spacetime_derivative_scalar(ti::a) *
+              spacetime_derivative_scalar(ti::b) +
           3.0 * second_coupling_psi_over_four * psi() * psi() *
               spacetime_derivative_scalar(ti::a) *
               spacetime_derivative_scalar(ti::b) +
           // Prime term
-          (-first_coupling_psi_over_four * psi() -
+          (first_coupling_psi_over_four * psi() +
            second_coupling_psi_over_four * psi() * psi() * psi()) *
               DDKG(ti::a, ti::b)
 
@@ -329,11 +329,11 @@ void DDFPsi_normal_normal_projection(
 
   tenex::evaluate(DDFPsi_normal_normal_result,
                   // Double prime term
-                  -first_coupling_psi_over_four * pi_scalar() * pi_scalar() -
+                  first_coupling_psi_over_four * pi_scalar() * pi_scalar() +
                       3.0 * second_coupling_psi_over_four * psi() * psi() *
                           pi_scalar() * pi_scalar() +
                       // Prime term
-                      (-first_coupling_psi_over_four * psi() -
+                      (first_coupling_psi_over_four * psi() +
                        second_coupling_psi_over_four * psi() * psi() * psi()) *
                           DDKG_normal_normal_projection()
 
@@ -355,11 +355,11 @@ void DDFPsi_spatial_normal_projection(
   tenex::evaluate<ti::i>(
       DDFPsi_spatial_normal_result,
       // Double prime term
-      -(-first_coupling_psi_over_four * pi_scalar() * phi_scalar(ti::i) -
+      -(first_coupling_psi_over_four * pi_scalar() * phi_scalar(ti::i) +
         3.0 * second_coupling_psi_over_four * psi() * psi() * pi_scalar() *
             phi_scalar(ti::i)) +
           // Prime term
-          (-first_coupling_psi_over_four * psi() -
+          (first_coupling_psi_over_four * psi() +
            second_coupling_psi_over_four * psi() * psi() * psi()) *
               DDKG_spatial_normal_projection(ti::i)
 
@@ -380,11 +380,11 @@ void DDFPsi_spatial_spatial_projection(
   tenex::evaluate<ti::i, ti::j>(
       DDFPsi_spatial_spatial_result,
       // Double prime term
-      -first_coupling_psi_over_four * phi_scalar(ti::i) * phi_scalar(ti::j) -
+      first_coupling_psi_over_four * phi_scalar(ti::i) * phi_scalar(ti::j) +
           3.0 * second_coupling_psi_over_four * psi() * psi() *
               phi_scalar(ti::i) * phi_scalar(ti::j) +
           // Prime term
-          (-first_coupling_psi_over_four * psi() -
+          (first_coupling_psi_over_four * psi() +
            second_coupling_psi_over_four * psi() * psi() * psi()) *
               DDKG_spatial_spatial_projection(ti::i, ti::j)
 
