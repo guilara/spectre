@@ -29,4 +29,13 @@ SPECTRE_TEST_CASE("Unit.PointwiseFunctions.ScalarTensor.GBTensorTerms",
   pypp::check_with_random_values<1>(
       &ScalarTensor::spacetime_derivative_scalar, "GBTensorSourceTerms",
       {"spacetime_derivative_scalar"}, {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::DDKG_normal_normal_projection, "GBTensorSourceTerms",
+      {"DDKG_normal_normal_projection"}, {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::DDKG_normal_spatial_projection, "GBTensorSourceTerms",
+      {"DDKG_normal_spatial_projection"}, {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::DDKG_spatial_spatial_projection, "GBTensorSourceTerms",
+      {"DDKG_spatial_spatial_projection"}, {{{1.0e-2, 0.5}}}, DataVector{5});
 }
