@@ -63,3 +63,25 @@ def DDKG_spatial_spatial_projection(
     result = D_phi - pi_scalar * extrinsic_curvature
 
     return result
+
+
+def DDKG_tensor_from_projections(lapse, shift, nnDDKG, nsDDKG, ssDDKG):
+    DDKG = np.zeros((4, 4))
+
+    # 00-component
+    DDKG[0, 0] = (
+        lapse * lapse * nnDDKG
+        + 2.0 * lapse * np.dot(shift, nsDDKG)
+        + np.transpose(shift) @ ssDDKG @ shift
+    )
+
+    # 0i-component
+    DDKG[0, 1:] = lapse * nsDDKG + np.transpose(shift) @ ssDDKG
+
+    # Impose symmetry
+    DDKG[1:, 0] = np.transpose(DDKG[0, 1:])
+
+    # ij-component
+    DDKG[1:, 1:] = ssDDKG
+
+    return DDKG

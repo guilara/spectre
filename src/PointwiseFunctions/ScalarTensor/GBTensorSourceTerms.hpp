@@ -89,29 +89,29 @@ void DDKG_tensor_from_projections(
     const tnsr::ii<DataVector, 3>& ssDDKG);
 
 // template <typename Frame>
-void DDKG_tensor_from_projections(
-    const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
+// void DDKG_tensor_from_projections(
+//     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
 
-    // Metric quantities
-    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
-    const tnsr::aa<DataVector, 3>& spacetime_metric,
-    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
-    const tnsr::ii<DataVector, 3>& extrinsic_curvature,
-    const tnsr::Ijj<DataVector, 3>& spatial_christoffel_second_kind,
+//     // Metric quantities
+//     const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+//     const tnsr::aa<DataVector, 3>& spacetime_metric,
+//     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+//     const tnsr::ii<DataVector, 3>& extrinsic_curvature,
+//     const tnsr::Ijj<DataVector, 3>& spatial_christoffel_second_kind,
 
-    // Scalar quantities
-    const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>& pi_scalar,
-    const tnsr::i<DataVector, 3>& phi_scalar,
+//     // Scalar quantities
+//     const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>&
+//     pi_scalar, const tnsr::i<DataVector, 3>& phi_scalar,
 
-    // Scalar gradients
-    const tnsr::i<DataVector, 3>& d_psi_scalar,
-    const tnsr::i<DataVector, 3>& d_pi_scalar,
-    const tnsr::ij<DataVector, 3>& d_phi_scalar,
+//     // Scalar gradients
+//     const tnsr::i<DataVector, 3>& d_psi_scalar,
+//     const tnsr::i<DataVector, 3>& d_pi_scalar,
+//     const tnsr::ij<DataVector, 3>& d_phi_scalar,
 
-    // Provide them with RHS compute tags or from dt<> prefixes
-    const Scalar<DataVector>& dt_psi_scalar,
-    const Scalar<DataVector>& dt_pi_scalar,
-    const tnsr::i<DataVector, 3>& dt_phi_scalar);
+//     // Provide them with RHS compute tags or from dt<> prefixes
+//     const Scalar<DataVector>& dt_psi_scalar,
+//     const Scalar<DataVector>& dt_pi_scalar,
+//     const tnsr::i<DataVector, 3>& dt_phi_scalar);
 
 void DDKG_trace_minus_eom(
     const gsl::not_null<Scalar<DataVector>*> diagnostic,

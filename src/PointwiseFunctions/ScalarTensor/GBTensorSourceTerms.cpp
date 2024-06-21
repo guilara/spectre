@@ -210,72 +210,75 @@ void DDKG_trace_minus_eom(
 }
 
 // template <typename Frame>
-void DDKG_tensor_from_projections(
-    const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
+// void DDKG_tensor_from_projections(
+//     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDKG_tensor_result,
 
-    // Metric quantities
-    const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
-    const tnsr::aa<DataVector, 3>& spacetime_metric,
-    const tnsr::II<DataVector, 3>& inverse_spatial_metric,
-    const tnsr::ii<DataVector, 3>& extrinsic_curvature,
-    const tnsr::Ijj<DataVector, 3>& spatial_christoffel_second_kind,
+//     // Metric quantities
+//     const Scalar<DataVector>& lapse, const tnsr::I<DataVector, 3>& shift,
+//     const tnsr::aa<DataVector, 3>& spacetime_metric,
+//     const tnsr::II<DataVector, 3>& inverse_spatial_metric,
+//     const tnsr::ii<DataVector, 3>& extrinsic_curvature,
+//     const tnsr::Ijj<DataVector, 3>& spatial_christoffel_second_kind,
 
-    // Scalar quantities
-    const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>& pi_scalar,
-    const tnsr::i<DataVector, 3>& phi_scalar,
+//     // Scalar quantities
+//     const Scalar<DataVector>& psi_scalar, const Scalar<DataVector>&
+//     pi_scalar, const tnsr::i<DataVector, 3>& phi_scalar,
 
-    // Scalar gradients
-    const tnsr::i<DataVector, 3>& d_psi_scalar,
-    const tnsr::i<DataVector, 3>& d_pi_scalar,
-    const tnsr::ij<DataVector, 3>& d_phi_scalar,
+//     // Scalar gradients
+//     const tnsr::i<DataVector, 3>& d_psi_scalar,
+//     const tnsr::i<DataVector, 3>& d_pi_scalar,
+//     const tnsr::ij<DataVector, 3>& d_phi_scalar,
 
-    // Provide them with RHS compute tags or from dt<> prefixes
-    const Scalar<DataVector>& dt_psi_scalar,
-    const Scalar<DataVector>& dt_pi_scalar,
-    const tnsr::i<DataVector, 3>& dt_phi_scalar,
+//     // Provide them with RHS compute tags or from dt<> prefixes
+//     const Scalar<DataVector>& dt_psi_scalar,
+//     const Scalar<DataVector>& dt_pi_scalar,
+//     const tnsr::i<DataVector, 3>& dt_phi_scalar,
 
-    const tnsr::i<DataVector, 3>& d_lapse) {
-  // Compute projections of the second derivative tensor
-  // nn
-  Scalar<DataVector> nnDDKG;
-  DDKG_normal_normal_projection(make_not_null(&nnDDKG), lapse, shift,
-                                inverse_spatial_metric, phi_scalar, d_pi_scalar,
-                                dt_pi_scalar, d_lapse);
-  // ns
-  tnsr::i<DataVector, 3> nsDDKG;
-  DDKG_normal_spatial_projection(make_not_null(&nsDDKG), inverse_spatial_metric,
-                                 extrinsic_curvature, phi_scalar, d_pi_scalar);
-  // ss
-  tnsr::ii<DataVector, 3> ssDDKG;
-  DDKG_spatial_spatial_projection(make_not_null(&ssDDKG), extrinsic_curvature,
-                                  spatial_christoffel_second_kind, pi_scalar,
-                                  phi_scalar, d_phi_scalar);
+//     const tnsr::i<DataVector, 3>& d_lapse) {
+//   // Compute projections of the second derivative tensor
+//   // nn
+//   Scalar<DataVector> nnDDKG;
+//   DDKG_normal_normal_projection(make_not_null(&nnDDKG), lapse, shift,
+//                                 inverse_spatial_metric, phi_scalar,
+//                                 d_pi_scalar, dt_pi_scalar, d_lapse);
+//   // ns
+//   tnsr::i<DataVector, 3> nsDDKG;
+//   DDKG_normal_spatial_projection(make_not_null(&nsDDKG),
+//   inverse_spatial_metric,
+//                                  extrinsic_curvature, phi_scalar,
+//                                  d_pi_scalar);
+//   // ss
+//   tnsr::ii<DataVector, 3> ssDDKG;
+//   DDKG_spatial_spatial_projection(make_not_null(&ssDDKG),
+//   extrinsic_curvature,
+//                                   spatial_christoffel_second_kind, pi_scalar,
+//                                   phi_scalar, d_phi_scalar);
 
-  // Assemble in symmetric rank-2 4-tensor with lower indices
-  // 00-component
-  get<0, 0>(*DDKG_tensor_result) = square(get(lapse)) * get(nnDDKG);
+//   // Assemble in symmetric rank-2 4-tensor with lower indices
+//   // 00-component
+//   get<0, 0>(*DDKG_tensor_result) = square(get(lapse)) * get(nnDDKG);
 
-  for (size_t i = 0; i < 3; ++i) {
-    // 00-component
-    get<0, 0>(*DDKG_tensor_result) +=
-        2.0 * get(lapse) * shift.get(i) * nsDDKG.get(i);
-    // 0i-component
-    DDKG_tensor_result->get(0, i + 1) = get(lapse) * nsDDKG.get(i);
+//   for (size_t i = 0; i < 3; ++i) {
+//     // 00-component
+//     get<0, 0>(*DDKG_tensor_result) +=
+//         2.0 * get(lapse) * shift.get(i) * nsDDKG.get(i);
+//     // 0i-component
+//     DDKG_tensor_result->get(0, i + 1) = get(lapse) * nsDDKG.get(i);
 
-    for (size_t j = 0; j < 3; ++j) {
-      // 00-component
-      get<0, 0>(*DDKG_tensor_result) +=
-          shift.get(i) * shift.get(j) * ssDDKG.get(i, j);
-      // 0i-component
-      DDKG_tensor_result->get(0, i + 1) += shift.get(j) * ssDDKG.get(j, i);
-    }
+//     for (size_t j = 0; j < 3; ++j) {
+//       // 00-component
+//       get<0, 0>(*DDKG_tensor_result) +=
+//           shift.get(i) * shift.get(j) * ssDDKG.get(i, j);
+//       // 0i-component
+//       DDKG_tensor_result->get(0, i + 1) += shift.get(j) * ssDDKG.get(j, i);
+//     }
 
-    for (size_t j = i; j < 3; ++j) {
-      // ij-component
-      DDKG_tensor_result->get(i + 1, j + 1) = ssDDKG.get(i, j);
-    }
-  }
-}
+//     for (size_t j = i; j < 3; ++j) {
+//       // ij-component
+//       DDKG_tensor_result->get(i + 1, j + 1) = ssDDKG.get(i, j);
+//     }
+//   }
+// }
 
 void DDFPsi_tensor_from_DDKG_tensor(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> DDFPsi_tensor_result,
