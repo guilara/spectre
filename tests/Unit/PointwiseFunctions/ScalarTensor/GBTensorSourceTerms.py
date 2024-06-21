@@ -85,3 +85,81 @@ def DDKG_tensor_from_projections(lapse, shift, nnDDKG, nsDDKG, ssDDKG):
     DDKG[1:, 1:] = ssDDKG
 
     return DDKG
+
+
+def fPsi(psi, eta, zeta):
+    return (eta / 8.0) * np.power(psi, 2) + (zeta / 16.0) * np.power(psi, 4)
+
+
+def first_derivative_fPsi(psi, eta, zeta):
+    return (1.0 / 4.0) * (eta * psi + zeta * np.power(psi, 3))
+
+
+def second_derivative_fPsi(psi, eta, zeta):
+    return (1.0 / 4.0) * (eta + 3.0 * zeta * np.power(psi, 2))
+
+
+def DDFPsi_tensor_from_DDKG_tensor(
+    DDKG,
+    spacetime_derivative_scalar,
+    psi,
+    eta,  # first_coupling_psi,
+    zeta,  # second_coupling_psi,
+):
+    result = second_derivative_fPsi(psi, eta, zeta) * np.outer(
+        spacetime_derivative_scalar, spacetime_derivative_scalar
+    )
+
+    result += first_derivative_fPsi(psi, eta, zeta) * DDKG
+
+    return result
+
+
+def DDFPsi_normal_normal_projection(
+    psi,
+    pi_scalar,
+    phi_scalar,
+    DDKG_normal_normal_projection,
+    eta,  #     first_coupling_psi,
+    zeta,  #    second_coupling_psi,
+):
+    result = (
+        second_derivative_fPsi(psi, eta, zeta) * np.power(pi_scalar, 2)
+        + first_derivative_fPsi(psi, eta, zeta) * DDKG_normal_normal_projection
+    )
+
+    return result
+
+
+def DDFPsi_spatial_normal_projection(
+    psi,
+    pi_scalar,
+    phi_scalar,
+    DDKG_spatial_normal_projection,
+    eta,  # first_coupling_psi,
+    zeta,  # second_coupling_psi,
+):
+    result = (
+        second_derivative_fPsi(psi, eta, zeta) * (-1.0 * pi_scalar * phi_scalar)
+        + first_derivative_fPsi(psi, eta, zeta) * DDKG_spatial_normal_projection
+    )
+
+    return result
+
+
+def DDFPsi_spatial_spatial_projection(
+    psi,
+    pi_scalar,
+    phi_scalar,
+    DDKG_spatial_spatial_projection,
+    eta,  # first_coupling_psi,
+    zeta,  # second_coupling_psi,
+):
+    result = (
+        second_derivative_fPsi(psi, eta, zeta)
+        * np.outer(phi_scalar, phi_scalar)
+        + first_derivative_fPsi(psi, eta, zeta)
+        * DDKG_spatial_spatial_projection
+    )
+
+    return result
