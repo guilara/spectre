@@ -577,34 +577,36 @@ void order_reduced_Q_tensor(
 //                               DDKG(ti::e, ti::f));
 // }
 
-void order_reduced_gb_H_tensor_ricci_part(
-    const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
-    const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
-    const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
-    const tnsr::AA<DataVector, 3>& DDKGUpUp) {
-  // g: spacetime metric
-  // inv_g: inverse spacetime metric
-  // T: trace reversed stress energy
-  // 8.0 * M_PI factor in T definition
+// void order_reduced_gb_H_tensor_ricci_part(
+//     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+//     const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
+//     const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
+//     const tnsr::AA<DataVector, 3>& DDKGUpUp) {
+//   // g: spacetime metric
+//   // inv_g: inverse spacetime metric
+//   // T: trace reversed stress energy
+//   // 8.0 * M_PI factor in T definition
 
-  const double one_over_three = 1.0 / 3.0;
+//   const double one_over_three = 1.0 / 3.0;
 
-  tenex::evaluate<ti::a, ti::b>(gb_H_tensor_result,
-                                (
+//   tenex::evaluate<ti::a, ti::b>(gb_H_tensor_result,
+//                                 (
 
-                                    0.5 * (-g(ti::c, ti::d) * T(ti::a, ti::b) +
-                                           g(ti::b, ti::c) * T(ti::a, ti::d) +
-                                           g(ti::a, ti::d) * T(ti::b, ti::c) -
-                                           g(ti::a, ti::b) * T(ti::c, ti::d)) +
+//                                     0.5 * (-g(ti::c, ti::d) * T(ti::a, ti::b)
+//                                     +
+//                                            g(ti::b, ti::c) * T(ti::a, ti::d)
+//                                            + g(ti::a, ti::d) * T(ti::b,
+//                                            ti::c) - g(ti::a, ti::b) *
+//                                            T(ti::c, ti::d)) +
 
-                                    one_over_three *
-                                        (-g(ti::a, ti::d) * g(ti::b, ti::c) +
-                                         g(ti::a, ti::b) * g(ti::c, ti::d)) *
-                                        trace_T()
+//                                     one_over_three *
+//                                         (-g(ti::a, ti::d) * g(ti::b, ti::c) +
+//                                          g(ti::a, ti::b) * g(ti::c, ti::d)) *
+//                                         trace_T()
 
-                                        ) *
-                                    DDKGUpUp(ti::C, ti::D));
-}
+//                                         ) *
+//                                     DDKGUpUp(ti::C, ti::D));
+// }
 
 void order_reduced_gb_H_tensor_ricci_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,

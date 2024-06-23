@@ -163,3 +163,176 @@ def DDFPsi_spatial_spatial_projection(
     )
 
     return result
+
+
+def order_reduced_gb_H_normal_normal_projection(
+    inverse_spatial_metric, weyl_electric, ssDDKG
+):
+    result = np.trace(
+        weyl_electric @ inverse_spatial_metric @ ssDDKG @ inverse_spatial_metric
+    )
+
+    return result
+
+
+def compute_S_cross_B(inverse_spatial_metric, weyl_magnetic, ssDDKG):
+    # Without the sqrt(gamma) factor
+
+    B_down_up = weyl_magnetic @ inverse_spatial_metric
+
+    S_up_up = inverse_spatial_metric @ ssDDKG @ inverse_spatial_metric
+
+    result = np.zeros(3)
+    for l in range(0, 3):
+        result += np.cross(S_up_up[l, :], B_down_up[l, :])
+
+    return result
+
+
+def compute_j_cross_B(inverse_spatial_metric, weyl_magnetic, nsDDKG):
+    # Without the sqrt(gamma) factor
+
+    j_up = inverse_spatial_metric @ nsDDKG
+
+    B_down_up = weyl_magnetic @ inverse_spatial_metric
+
+    result = np.zeros((3, 3))
+    for j in range(0, 3):
+        result[:, j] = np.transpose(np.cross(j_up, B_down_up[j, :]))
+
+    return result
+
+
+def order_reduced_gb_H_normal_spatial_projection(
+    inverse_spatial_metric,
+    sqrt_det_spatial_metric,
+    weyl_electric,
+    nsDDKG,
+    S_cross_B,
+):
+    # Raise index
+    j_up = inverse_spatial_metric @ nsDDKG
+
+    # Weyl electric term
+    result = weyl_electric @ j_up
+
+    # Weyl magnetic term
+    result += sqrt_det_spatial_metric * S_cross_B
+
+    return result
+
+
+def order_reduced_gb_H_spatial_spatial_projection(
+    spatial_metric,
+    inverse_spatial_metric,
+    sqrt_det_spatial_metric,
+    weyl_electric,
+    nnDDKG,
+    ssDDKG,
+    j_cross_B,
+    nnH,
+):
+    trace_S = np.trace(ssDDKG @ inverse_spatial_metric)
+    rho = nnDDKG
+
+    S_down_up = ssDDKG @ inverse_spatial_metric
+    S_up_up = inverse_spatial_metric @ S_down_up
+    S_times_E = S_down_up @ weyl_electric
+    trES = nnH  # To avoid recomputing the trace in the cpp function
+
+    # First term
+    result = (trace_S + rho) * weyl_electric
+
+    # Second term
+    result += -(S_times_E + np.transpose(S_times_E))
+
+    # Third term
+    result += sqrt_det_spatial_metric * (j_cross_B + np.transpose(j_cross_B))
+
+    # Fourth term
+    result += spatial_metric * trES
+
+    return result
+
+
+def order_reduced_gb_H_tensor_weyl_part(lapse, shift, nnH, nsH, ssH):
+    rho = nnH
+    j_vec = nsH
+    S = ssH
+
+    result = np.zeros((4, 4))
+
+    # 00-component
+    result[0, 0] = (
+        np.power(lapse, 2) * rho
+        + 2.0 * lapse * np.dot(shift, j_vec)
+        + shift @ S @ shift
+    )
+    # 0i-component
+    result[0, 1:] = lapse * j_vec + S @ shift
+
+    # ij-component
+    result[1:, 1:] = S
+
+    return result
+
+
+def order_reduced_Q_tensor(
+    spacetime_metric, weyl_electric_scalar, weyl_magnetic_scalar
+):
+    result = (
+        2.0 * (weyl_electric_scalar - weyl_magnetic_scalar) * spacetime_metric
+    )
+
+    return result
+
+
+def order_reduced_gb_H_tensor_ricci_part(
+    g, inv_g, T, trace_T, DDKGUpUp, Tdriv, trace_Tdriv
+):
+    Ricci = T + Tdriv
+    trRicci = trace_T + trace_Tdriv
+
+    # First term
+    first_term = -0.5 * (
+        np.einsum("ac,db,bd->ac", g, Ricci, DDKGUpUp)
+        - np.einsum("ad,cb,bd->ac", g, Ricci, DDKGUpUp)
+    )
+
+    # Second term
+    second_term = 0.5 * (
+        np.einsum("bc,da,bd->ac", g, Ricci, DDKGUpUp)
+        - np.einsum("bd,ca,bd->ac", g, Ricci, DDKGUpUp)
+    )
+
+    # Third term
+    third_term = 0.5 * (
+        np.einsum("ac,db,bd->ac", g, g, DDKGUpUp)
+        - np.einsum("ad,cb,bd->ac", g, g, DDKGUpUp)
+    )
+    third_term *= (2.0 / 3.0) * trRicci
+
+    result = first_term + second_term + third_term
+
+    return result
+
+
+def order_reduced_trace_reversed_stress_energy(
+    spacetime_metric,
+    inverse_spacetime_metric,
+    gb_H_tensor_ricci_part,
+    gb_H_tensor_weyl_part,
+    trace_reversed_canonical_stress_energy,
+):
+    kappa = 1.0
+    H_prefactor = -8.0
+
+    H_SET = (
+        H_prefactor * kappa * (gb_H_tensor_weyl_part + gb_H_tensor_ricci_part)
+    )
+    trace_H_SET = np.trace(inverse_spacetime_metric @ H_SET)
+
+    # Trace-reverse the H tensor
+    result = H_SET - 0.5 * trace_H_SET * spacetime_metric
+
+    return result

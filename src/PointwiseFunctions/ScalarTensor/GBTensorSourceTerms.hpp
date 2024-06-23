@@ -224,11 +224,11 @@ void order_reduced_Q_tensor(
 //     const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
 //     const tnsr::aa<DataVector, 3>& T, const tnsr::aa<DataVector, 3>& DDKG);
 
-void order_reduced_gb_H_tensor_ricci_part(
-    const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
-    const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
-    const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
-    const tnsr::AA<DataVector, 3>& DDKGUpUp);
+// void order_reduced_gb_H_tensor_ricci_part(
+//     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
+//     const tnsr::aa<DataVector, 3>& g, const tnsr::AA<DataVector, 3>& inv_g,
+//     const tnsr::aa<DataVector, 3>& T, const Scalar<DataVector>& trace_T,
+//     const tnsr::AA<DataVector, 3>& DDKGUpUp);
 
 void order_reduced_gb_H_tensor_ricci_part(
     const gsl::not_null<tnsr::aa<DataVector, 3>*> gb_H_tensor_result,
