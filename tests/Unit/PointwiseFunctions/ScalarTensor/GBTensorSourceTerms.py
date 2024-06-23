@@ -324,6 +324,8 @@ def order_reduced_trace_reversed_stress_energy(
     gb_H_tensor_weyl_part,
     trace_reversed_canonical_stress_energy,
 ):
+    # Does not include the canonical SET part
+
     kappa = 1.0
     H_prefactor = -8.0
 
@@ -334,5 +336,45 @@ def order_reduced_trace_reversed_stress_energy(
 
     # Trace-reverse the H tensor
     result = H_SET - 0.5 * trace_H_SET * spacetime_metric
+
+    return result
+
+
+def tensor_driver_normal_normal_projection(
+    tensor_driver, spacetime_normal_vector
+):
+    result = spacetime_normal_vector @ tensor_driver @ spacetime_normal_vector
+
+    return result
+
+
+def tensor_driver_spatial_normal_projection(
+    tensor_driver, spacetime_normal_vector, spacetime_normal_covector
+):
+    #  (delta^{a}_{i} + normal_covec_{i} * normal_vec^{a}) * Sigma_{ab}
+    # * normal_vec^{b}
+    # = delta^{a}_{i} * Sigma_{ab} * normal_vec^{b}
+    # since normal_covec_{i} = 0
+
+    projection_4d = tensor_driver @ spacetime_normal_vector
+
+    # Keep only spatial indices
+    result = projection_4d[1:]
+
+    return result
+
+
+def tensor_driver_spatial_spatial_projection(
+    tensor_driver,
+    spacetime_normal_vector,
+    spacetime_normal_covector,
+):
+    #  (delta^{a}_{i} + normal_covec_{i} * normal_vec^{a}) * Sigma_{ab}
+    # * (delta^{b}_{j} + normal_covec_{j} * normal_vec^{b})
+    # = delta^{a}_{i} * Sigma_{ab} * delta^{b}_{j}
+    # since normal_covec_{i} = 0
+
+    # Keep only the spatial components
+    result = tensor_driver[1:, 1:]
 
     return result
