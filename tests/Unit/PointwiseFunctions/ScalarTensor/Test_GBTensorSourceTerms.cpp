@@ -5,6 +5,7 @@
 
 #include <string>
 
+#include "Evolution/Systems/FixedScalarTensor/ScalarTensorDriver/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Sources/Tags.hpp"
 #include "Framework/CheckWithRandomValues.hpp"
 #include "Framework/Pypp.hpp"
@@ -85,5 +86,17 @@ SPECTRE_TEST_CASE("Unit.PointwiseFunctions.ScalarTensor.GBTensorTerms",
   pypp::check_with_random_values<1>(
       &ScalarTensor::order_reduced_trace_reversed_stress_energy,
       "GBTensorSourceTerms", {"order_reduced_trace_reversed_stress_energy"},
+      {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &fe::ScalarTensorDriver::tensor_driver_normal_normal_projection,
+      "GBTensorSourceTerms", {"tensor_driver_normal_normal_projection"},
+      {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &fe::ScalarTensorDriver::tensor_driver_spatial_normal_projection,
+      "GBTensorSourceTerms", {"tensor_driver_spatial_normal_projection"},
+      {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &fe::ScalarTensorDriver::tensor_driver_spatial_spatial_projection,
+      "GBTensorSourceTerms", {"tensor_driver_spatial_spatial_projection"},
       {{{1.0e-2, 0.5}}}, DataVector{5});
 }

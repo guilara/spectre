@@ -710,7 +710,7 @@ void tensor_driver_spatial_normal_projection(
   for (size_t i = 0; i < 3; ++i) {
     tensor_driver_sn->get(i) = 0.0;
     for (size_t a = 0; a < 4; ++a) {
-      // n^{a} tensor_driver_{a b} (delta^{b}_{i} - n^{b} n_{i})
+      // n^{a} tensor_driver_{a b} (delta^{b}_{i} + n^{b} n_{i})
       // = n^{a} tensor_driver_{a i}
       tensor_driver_sn->get(i) +=
           spacetime_normal_vector.get(a) * tensor_driver.get(a, i + 1);
