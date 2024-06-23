@@ -53,4 +53,37 @@ SPECTRE_TEST_CASE("Unit.PointwiseFunctions.ScalarTensor.GBTensorTerms",
   pypp::check_with_random_values<1>(
       &ScalarTensor::DDFPsi_spatial_spatial_projection, "GBTensorSourceTerms",
       {"DDFPsi_spatial_spatial_projection"}, {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::order_reduced_gb_H_normal_normal_projection,
+      "GBTensorSourceTerms", {"order_reduced_gb_H_normal_normal_projection"},
+      {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::compute_S_cross_B, "GBTensorSourceTerms",
+      {"compute_S_cross_B"}, {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::compute_j_cross_B, "GBTensorSourceTerms",
+      {"compute_j_cross_B"}, {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::order_reduced_gb_H_normal_spatial_projection,
+      "GBTensorSourceTerms", {"order_reduced_gb_H_normal_spatial_projection"},
+      {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::order_reduced_gb_H_spatial_spatial_projection,
+      "GBTensorSourceTerms", {"order_reduced_gb_H_spatial_spatial_projection"},
+      {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::order_reduced_gb_H_tensor_weyl_part, "GBTensorSourceTerms",
+      {"order_reduced_gb_H_tensor_weyl_part"}, {{{1.0e-2, 0.5}}},
+      DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::order_reduced_Q_tensor, "GBTensorSourceTerms",
+      {"order_reduced_Q_tensor"}, {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::order_reduced_gb_H_tensor_ricci_part,
+      "GBTensorSourceTerms", {"order_reduced_gb_H_tensor_ricci_part"},
+      {{{1.0e-2, 0.5}}}, DataVector{5});
+  pypp::check_with_random_values<1>(
+      &ScalarTensor::order_reduced_trace_reversed_stress_energy,
+      "GBTensorSourceTerms", {"order_reduced_trace_reversed_stress_energy"},
+      {{{1.0e-2, 0.5}}}, DataVector{5});
 }
