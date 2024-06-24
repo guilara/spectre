@@ -57,6 +57,7 @@
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/BoundaryCorrections/ProductOfCorrections.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/ConstraintDamping/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedSGB/Constraints.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/Initialize.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/Tags.hpp"
@@ -461,7 +462,7 @@ struct EvolutionMetavars {
           gr::Tags::Shift<DataVector, volume_dim, Frame::Inertial>,
           gr::Tags::Lapse<DataVector>,
           gr::Tags::SqrtDetSpatialMetric<DataVector>,
-          gr::Tags::SpacetimeNormalOneFormCompute<DataVector, volume_dim,
+          gr::Tags::SpacetimeNormalOneForm<DataVector, volume_dim,
                                                   Frame::Inertial>,
           gr::Tags::SpacetimeNormalVector<DataVector, volume_dim,
                                           Frame::Inertial>,
@@ -539,7 +540,7 @@ struct EvolutionMetavars {
           volume_dim == 3,
           tmpl::list<
               gh::Tags::FourIndexConstraintCompute<3, Frame::Inertial>,
-              gh::Tags::FConstraintCompute<3, Frame::Inertial>,
+              fe::sgb::Tags::FConstraintCompute<3, Frame::Inertial>,
               ::Tags::PointwiseL2NormCompute<gh::Tags::FConstraint<
                   DataVector, volume_dim, Frame::Inertial>>,
               ::Tags::PointwiseL2NormCompute<gh::Tags::FourIndexConstraint<
