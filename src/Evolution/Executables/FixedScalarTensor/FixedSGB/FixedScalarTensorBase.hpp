@@ -73,6 +73,7 @@
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/BoundaryCorrections/Factory.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/BoundaryCorrections/ProductOfCorrections.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/ConstraintDamping/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedSGB/Constraints.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/Initialize.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/Tags.hpp"
@@ -444,7 +445,7 @@ struct ObserverTags {
           volume_dim == 3,
           tmpl::list<
               gh::Tags::FourIndexConstraintCompute<3, Frame::Inertial>,
-              gh::Tags::FConstraintCompute<3, Frame::Inertial>,
+              fe::sgb::Tags::FConstraintCompute<3, Frame::Inertial>,
               ::Tags::PointwiseL2NormCompute<gh::Tags::FConstraint<
                   DataVector, volume_dim, Frame::Inertial>>,
               ::Tags::PointwiseL2NormCompute<gh::Tags::FourIndexConstraint<

@@ -8,6 +8,7 @@ add_spectre_library(${LIBRARY})
 spectre_target_sources(
   ${LIBRARY}
   PRIVATE
+  Constraints.cpp
   Diagnostics.cpp
   VolumeTermsInstantiation.cpp
   )
@@ -17,6 +18,7 @@ spectre_target_headers(
   INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   HEADERS
   Characteristics.hpp
+  Constraints.hpp
   Diagnostics.hpp
   Initialize.hpp
   System.hpp
