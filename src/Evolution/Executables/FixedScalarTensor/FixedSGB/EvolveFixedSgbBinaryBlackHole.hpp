@@ -463,7 +463,7 @@ struct EvolutionMetavars {
           gr::Tags::Lapse<DataVector>,
           gr::Tags::SqrtDetSpatialMetric<DataVector>,
           gr::Tags::SpacetimeNormalOneForm<DataVector, volume_dim,
-                                                  Frame::Inertial>,
+                                           Frame::Inertial>,
           gr::Tags::SpacetimeNormalVector<DataVector, volume_dim,
                                           Frame::Inertial>,
           gr::Tags::InverseSpacetimeMetric<DataVector, volume_dim,
@@ -527,11 +527,44 @@ struct EvolutionMetavars {
           ScalarTensor::Tags::CouplingFunctionDerivativeCompute<DataVector>,
           // Driver quantities
           fe::ScalarTensorDriver::Tags::TargetScalar,
+          fe::ScalarTensorDriver::Tags::TargetTensor<DataVector, volume_dim,
+                                                     Frame::Inertial>,
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarTensorDriver::Tags::TensorDriver<DataVector, volume_dim,
+                                                         Frame::Inertial>>,
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarTensorDriver::Tags::TargetTensor<DataVector, volume_dim,
+                                                         Frame::Inertial>>,
+          fe::ScalarTensorDriver::Tags::TensorDriverSource<
+              DataVector, volume_dim, Frame::Inertial>,
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarTensorDriver::Tags::TensorDriverSource<
+                  DataVector, volume_dim, Frame::Inertial>>,
           fe::ScalarTensorDriver::Tags::ScalarDriverSource,
+          fe::ScalarTensorDriver::Tags::TensorTrackingDiagnosticCompute<
+              Frame::Inertial, DataVector>,
+          ::Tags::PointwiseL2NormCompute<
+              fe::ScalarTensorDriver::Tags::TensorTrackingDiagnostic<
+                  DataVector, volume_dim, Frame::Inertial>>,
           fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnosticCompute<
               Frame::Inertial, DataVector>,
           ::Tags::PointwiseL2NormCompute<
-              fe::ScalarTensorDriver::Tags::ScalarTrackingDiagnostic>,
+              ScalarTensor::Tags::TraceReversedStressEnergy<
+                  DataVector, volume_dim, Frame::Inertial>>,
+
+          // BRT
+          ScalarTensor::Tags::WeylElectricFullTraceCompute<
+              DataVector, volume_dim, Frame::Inertial>,
+          ScalarTensor::Tags::OrderReducedGBScalar,
+          ScalarTensor::Tags::DDFPsiTensor,
+          ScalarTensor::Tags::OrderReducedHTensor,
+          ScalarTensor::Tags::OrderReducedHTensorRicciPart,
+          ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy,
+          ScalarTensor::Tags::EomFromDDKGTensorDiagnosticCompute<
+              Frame::Inertial>,
+          ScalarTensor::Tags::TraceOfSsDDKGTensorDiagnosticCompute<
+              Frame::Inertial>,
+
           // Coordinates
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
