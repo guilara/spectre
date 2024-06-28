@@ -2,6 +2,7 @@
 # See LICENSE.txt for details.
 
 set(LIBS_TO_LINK
+  Actions
   ApparentHorizonFinder
   Charmxx::main
   ControlSystem
@@ -27,6 +28,7 @@ set(LIBS_TO_LINK
   Parallel
   ParallelInterpolation
   PhaseControl
+  Printf
   ScalarTensor
   ScalarTensorAnalyticData
   ScalarTensorPointwise

@@ -8,6 +8,8 @@
 
 #include "ControlSystem/Actions/InitializeMeasurements.hpp"
 #include "ControlSystem/Component.hpp"
+#include "ControlSystem/ControlErrors/Size/Factory.hpp"
+#include "ControlSystem/ControlErrors/Size/State.hpp"
 #include "ControlSystem/Measurements/SingleHorizon.hpp"
 #include "ControlSystem/Metafunctions.hpp"
 #include "ControlSystem/Systems/Shape.hpp"
@@ -187,11 +189,12 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
                         LtsTimeStepper>,
             tmpl::pair<LtsTimeStepper,
                        TimeSteppers::monotonic_lts_time_steppers>>,
-        tmpl::pair<Event,
-                   tmpl::flatten<tmpl::list<
-                       intrp::Events::Interpolate<volume_dim, AhA,
-                                                  interpolator_source_vars>,
-                    control_system::metafunctions::control_system_events<
+        tmpl::pair<
+            Event,
+            tmpl::flatten<tmpl::list<
+                intrp::Events::Interpolate<volume_dim, AhA,
+                                           interpolator_source_vars>,
+                control_system::metafunctions::control_system_events<
                     control_systems>,
                 intrp::Events::InterpolateWithoutInterpComponent<
                     volume_dim, ExcisionBoundaryA, interpolator_source_vars>,
@@ -214,7 +217,9 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
                     volume_dim, SphericalSurface6,
                     scalar_charge_interpolator_source_vars>>>>,
         tmpl::pair<DenseTrigger,
-                   control_system::control_system_triggers<control_systems>>>;
+                   control_system::control_system_triggers<control_systems>>,
+        tmpl::pair<control_system::size::State,
+                   control_system::size::States::factory_creatable_states>>;
   };
 
   using typename st_base::const_global_cache_tags;
