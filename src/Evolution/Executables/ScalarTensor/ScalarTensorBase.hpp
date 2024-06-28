@@ -129,8 +129,6 @@
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialData.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/Tags/InitialData.hpp"
-#include "PointwiseFunctions/ScalarTensor/GBScalarSourceTerms.hpp"
-#include "PointwiseFunctions/ScalarTensor/GBTensorSourceTerms.hpp"
 #include "PointwiseFunctions/ScalarTensor/ScalarCharge.hpp"
 #include "PointwiseFunctions/ScalarTensor/WeylElectricRicciPart.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
@@ -271,44 +269,6 @@ struct ObserverTags {
           ScalarTensor::Tags::ScalarSource,
           ScalarTensor::Tags::GBScalarCompute<DataVector>,
           ScalarTensor::Tags::CouplingFunctionDerivativeCompute<DataVector>,
-          // BR
-          ScalarTensor::Tags::WeylElectricFullCompute<DataVector, 3,
-                                                      Frame::Inertial>,
-          ScalarTensor::Tags::WeylElectricFullScalarCompute<DataVector, 3,
-                                                            Frame::Inertial>,
-          //   ScalarTensor::Tags::WeylElectricRicciCompute<DataVector, 3,
-          //                                                Frame::Inertial>,
-          //   ScalarTensor::Tags::WeylElectricRicciScalarComplementCompute<
-          //       DataVector, 3, Frame::Inertial>,
-          ScalarTensor::Tags::OrderReducedGBScalarCompute<Frame::Inertial>,
-          ScalarTensor::Tags::RhsPsiCompute, ScalarTensor::Tags::RhsPiCompute,
-          ScalarTensor::Tags::RhsPhiCompute,
-          ScalarTensor::Tags::SpacetimeDerivScalarCompute<Frame::Inertial>,
-          ScalarTensor::Tags::nnDDKGCompute<Frame::Inertial>,
-          ScalarTensor::Tags::nsDDKGCompute<Frame::Inertial>,
-          ScalarTensor::Tags::ssDDKGCompute<Frame::Inertial>,
-          ScalarTensor::Tags::OrderReducednnHCompute<Frame::Inertial>,
-          ScalarTensor::Tags::SCrossBCompute<Frame::Inertial>,
-          ScalarTensor::Tags::JCrossBCompute<Frame::Inertial>,
-          ScalarTensor::Tags::OrderReducednsHCompute<Frame::Inertial>,
-          ScalarTensor::Tags::OrderReducedssHCompute<Frame::Inertial>,
-          ScalarTensor::Tags::OrderReducedHTensorCompute<Frame::Inertial>,
-          ScalarTensor::Tags::OrderReducedQTensorCompute<Frame::Inertial>,
-          ScalarTensor::Tags::DDKGTensorCompute<Frame::Inertial>,
-          ScalarTensor::Tags::OrderReducedHTensorRicciPartCompute<
-              Frame::Inertial>,
-          ScalarTensor::Tags::DDFPsiTensorCompute<Frame::Inertial>,
-          ScalarTensor::Tags::nnDDFPsiCompute<Frame::Inertial>,
-          ScalarTensor::Tags::nsDDFPsiCompute<Frame::Inertial>,
-          ScalarTensor::Tags::ssDDFPsiCompute<Frame::Inertial>,
-          ScalarTensor::Tags::OrderReducedTraceReversedStressEnergyCompute<
-              Frame::Inertial>,
-          // Fixing diagnostics
-          ::Tags::PointwiseL2NormCompute<
-              ScalarTensor::Tags::TraceReversedStressEnergy<
-                  DataVector, volume_dim, Frame::Inertial>>,
-          ::Tags::PointwiseL2NormCompute<
-              ScalarTensor::Tags::OrderReducedTraceReversedStressEnergy>,
 
           ::domain::Tags::Coordinates<volume_dim, Frame::Grid>,
           ::domain::Tags::Coordinates<volume_dim, Frame::Inertial>>,
