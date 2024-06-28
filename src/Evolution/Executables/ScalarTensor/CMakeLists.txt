@@ -26,6 +26,7 @@ set(LIBS_TO_LINK
   Observer
   Options
   Parallel
+  ParallelAmr
   ParallelInterpolation
   PhaseControl
   Printf
