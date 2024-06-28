@@ -4,9 +4,11 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "ControlSystem/Actions/InitializeMeasurements.hpp"
+#include "ControlSystem/Actions/PrintCurrentMeasurement.hpp"
 #include "ControlSystem/Component.hpp"
 #include "ControlSystem/ControlErrors/Size/Factory.hpp"
 #include "ControlSystem/ControlErrors/Size/State.hpp"
@@ -15,16 +17,26 @@
 #include "ControlSystem/Systems/Shape.hpp"
 #include "ControlSystem/Systems/Size.hpp"
 #include "ControlSystem/Trigger.hpp"
+#include "Domain/FunctionsOfTime/OutputTimeBounds.hpp"
+#include "Domain/FunctionsOfTime/Tags.hpp"
 #include "Domain/Structure/ObjectLabel.hpp"
 #include "Evolution/Actions/RunEventsAndTriggers.hpp"
+#include "Evolution/Deadlock/PrintDgElementArray.hpp"
+#include "Evolution/DiscontinuousGalerkin/InboxTags.hpp"
 #include "Evolution/Executables/ScalarTensor/ScalarTensorBase.hpp"
+#include "Evolution/Systems/Cce/Callbacks/DumpBondiSachsOnWorldtube.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Actions/SetInitialData.hpp"
 #include "Options/FactoryHelpers.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
 #include "Options/String.hpp"
+#include "Parallel/GlobalCache.hpp"
+#include "Parallel/Invoke.hpp"
 #include "Parallel/MemoryMonitor/MemoryMonitor.hpp"
 #include "Parallel/PhaseControl/ExecutePhaseChange.hpp"
+#include "Parallel/Printf/Printf.hpp"
+#include "Parallel/Protocols/RegistrationMetavariables.hpp"
 #include "ParallelAlgorithms/Actions/FunctionsOfTimeAreReady.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/CopyFromCreatorOrLeaveAsIs.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/ErrorOnFailedApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/FindApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/IgnoreFailedApparentHorizon.hpp"
@@ -34,6 +46,7 @@
 #include "ParallelAlgorithms/ApparentHorizonFinder/ComputeHorizonVolumeQuantities.tpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/HorizonAliases.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/InterpolationTarget.hpp"
+#include "ParallelAlgorithms/ApparentHorizonFinder/ObserveCenters.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/CleanUpInterpolator.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/ElementInitInterpPoints.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InitializeInterpolationTarget.hpp"
@@ -56,9 +69,13 @@
 #include "PointwiseFunctions/GeneralRelativity/Surfaces/Tags.hpp"
 #include "Time/Actions/SelfStartActions.hpp"
 #include "Time/ChangeSlabSize/Action.hpp"
+#include "Time/ChangeSlabSize/Tags.hpp"
 #include "Time/StepChoosers/Factory.hpp"
+#include "Time/Tags/StepperErrors.hpp"
 #include "Time/Tags/Time.hpp"
+#include "Utilities/Algorithm.hpp"
 #include "Utilities/ErrorHandling/Error.hpp"
+#include "Utilities/PrettyType.hpp"
 #include "Utilities/ProtocolHelpers.hpp"
 
 struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
@@ -258,6 +275,9 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
           Parallel::PhaseActions<Parallel::Phase::Register,
                                  tmpl::list<dg_registration_list,
                                             Parallel::Actions::TerminatePhase>>,
+          Parallel::PhaseActions<Parallel::Phase::CheckDomain,
+                                 tmpl::list<::amr::Actions::SendAmrDiagnostics,
+                                            Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
               tmpl::list<::domain::Actions::CheckFunctionsOfTimeAreReady,
@@ -268,18 +288,83 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
 
   using gh_dg_element_array = st_dg_element_array;
 
-  template <typename ParallelComponent>
-  struct registration_list {
-    using type = std::conditional_t<
-        std::is_same_v<ParallelComponent, st_dg_element_array>,
-        dg_registration_list, tmpl::list<>>;
+  struct amr : tt::ConformsTo<::amr::protocols::AmrMetavariables> {
+    using element_array = st_dg_element_array;
+
+    using projectors = tmpl::list<
+        Initialization::ProjectTimeStepping<volume_dim>,
+        evolution::dg::Initialization::ProjectDomain<volume_dim>,
+        Initialization::ProjectTimeStepperHistory<EvolutionMetavars>,
+        ::amr::projectors::ProjectVariables<volume_dim,
+                                            typename system::variables_tag>,
+        evolution::dg::Initialization::ProjectMortars<EvolutionMetavars>,
+        evolution::Actions::ProjectRunEventsAndDenseTriggers,
+        ::amr::projectors::DefaultInitialize<
+            Initialization::Tags::InitialTimeDelta,
+            Initialization::Tags::InitialSlabSize<local_time_stepping>,
+            ::domain::Tags::InitialExtents<volume_dim>,
+            ::domain::Tags::InitialRefinementLevels<volume_dim>,
+            evolution::dg::Tags::Quadrature,
+            Tags::StepperErrors<typename system::variables_tag>,
+            SelfStart::Tags::InitialValue<typename system::variables_tag>,
+            SelfStart::Tags::InitialValue<Tags::TimeStep>,
+            SelfStart::Tags::InitialValue<Tags::Next<Tags::TimeStep>>,
+            evolution::dg::Tags::BoundaryData<volume_dim>>,
+        ::amr::projectors::CopyFromCreatorOrLeaveAsIs<tmpl::push_back<
+            typename control_system::Actions::InitializeMeasurements<
+                control_systems>::simple_tags,
+            intrp::Tags::InterpPointInfo<EvolutionMetavars>,
+            Tags::ChangeSlabSize::NumberOfExpectedMessages,
+            Tags::ChangeSlabSize::NewSlabSize>>>;
   };
 
+  //   template <typename ParallelComponent>
+  //   struct registration_list {
+  //     using type = std::conditional_t<
+  //         std::is_same_v<ParallelComponent, st_dg_element_array>,
+  //         dg_registration_list, tmpl::list<>>;
+  //   };
+
+  struct registration
+      : tt::ConformsTo<Parallel::protocols::RegistrationMetavariables> {
+    using element_registrars =
+        tmpl::map<tmpl::pair<st_dg_element_array, dg_registration_list>>;
+  };
+
+  using control_components =
+      control_system::control_components<EvolutionMetavars, control_systems>;
+
+  static void run_deadlock_analysis_simple_actions(
+      Parallel::GlobalCache<EvolutionMetavars>& cache,
+      const std::vector<std::string>& deadlocked_components) {
+    const auto& functions_of_time =
+        Parallel::get<::domain::Tags::FunctionsOfTime>(cache);
+
+    const std::string time_bounds =
+        ::domain::FunctionsOfTime::output_time_bounds(functions_of_time);
+
+    Parallel::printf("%s\n", time_bounds);
+
+    if (alg::count(deadlocked_components,
+                   pretty_type::name<st_dg_element_array>()) == 1) {
+      tmpl::for_each<control_components>([&cache](auto component_v) {
+        using component = tmpl::type_from<decltype(component_v)>;
+        Parallel::simple_action<
+            control_system::Actions::PrintCurrentMeasurement>(
+            Parallel::get_parallel_component<component>(cache));
+      });
+
+      Parallel::simple_action<deadlock::PrintElementInfo>(
+          Parallel::get_parallel_component<st_dg_element_array>(cache));
+    }
+  }
+
   using component_list = tmpl::flatten<tmpl::list<
+      ::amr::Component<EvolutionMetavars>,
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
-      mem_monitor::MemoryMonitor<EvolutionMetavars>,
-      st_dg_element_array, intrp::Interpolator<EvolutionMetavars>,
+      mem_monitor::MemoryMonitor<EvolutionMetavars>, st_dg_element_array,
+      intrp::Interpolator<EvolutionMetavars>,
       control_system::control_components<EvolutionMetavars, control_systems>,
       tmpl::transform<interpolation_target_tags,
                       tmpl::bind<intrp::InterpolationTarget,
