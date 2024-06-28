@@ -120,6 +120,21 @@
 #include "ParallelAlgorithms/Actions/MemoryMonitor/ContributeMemoryData.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
+#include "ParallelAlgorithms/Amr/Actions/CollectDataFromChildren.hpp"
+#include "ParallelAlgorithms/Amr/Actions/Component.hpp"
+#include "ParallelAlgorithms/Amr/Actions/CreateChild.hpp"
+#include "ParallelAlgorithms/Amr/Actions/Initialize.hpp"
+#include "ParallelAlgorithms/Amr/Actions/SendAmrDiagnostics.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/Constraints.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/Criterion.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/DriveToTarget.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/Random.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/TruncationError.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/CopyFromCreatorOrLeaveAsIs.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/DefaultInitialize.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/Tensors.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/Variables.hpp"
+#include "ParallelAlgorithms/Amr/Protocols/AmrMetavariables.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/ErrorOnFailedApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/FindApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/IgnoreFailedApparentHorizon.hpp"
@@ -548,13 +563,24 @@ struct EvolutionMetavars {
       : tt::ConformsTo<Options::protocols::FactoryCreation> {
     using factory_classes = tmpl::map<
         tmpl::pair<
-            evolution::initial_data::InitialData,
-            tmpl::flatten<tmpl::list<
-                gh::NumericInitialData,
-                // We add the analytic data to be able to impose Dirichlet BCs
-                gh::ScalarTensor::AnalyticData::all_analytic_data,
-                tmpl::conditional_t<std::is_same_v<SpecInitialData, NoSuchType>,
-                                    tmpl::list<>, SpecInitialData>>>>,
+            amr::Criterion,
+            tmpl::list<
+                amr::Criteria::DriveToTarget<volume_dim>,
+                amr::Criteria::Constraints<
+                    volume_dim,
+                    tmpl::list<gh::Tags::ThreeIndexConstraintCompute<
+                        volume_dim, Frame::Inertial>>>,
+                amr::Criteria::TruncationError<
+                    volume_dim, typename system::variables_tag::tags_list>>>,
+        tmpl::pair<evolution::initial_data::InitialData,
+                   tmpl::flatten<tmpl::list<
+                       gh::NumericInitialData,
+                       // We add the analytic data to be able to impose
+                       // Dirichlet BCs
+                       gh::ScalarTensor::AnalyticData::all_analytic_data,
+                       tmpl::conditional_t<
+                           std::is_same_v<SpecInitialData, NoSuchType>,
+                           tmpl::list<>, SpecInitialData>>>>,
         tmpl::pair<DenseTrigger,
                    tmpl::flatten<tmpl::list<
                        control_system::control_system_triggers<control_systems>,
@@ -653,13 +679,14 @@ struct EvolutionMetavars {
       tmpl::list<observers::Actions::RegisterEventsWithObservers,
                  intrp::Actions::RegisterElementWithInterpolator>;
 
-  static constexpr std::array<Parallel::Phase, 8> default_phase_order{
+  static constexpr std::array<Parallel::Phase, 9> default_phase_order{
       {Parallel::Phase::Initialization,
        Parallel::Phase::RegisterWithElementDataReader,
        Parallel::Phase::ImportInitialData,
        Parallel::Phase::InitializeInitialDataDependentQuantities,
        Parallel::Phase::Register, Parallel::Phase::InitializeTimeStepperHistory,
-       Parallel::Phase::Evolve, Parallel::Phase::Exit}};
+       Parallel::Phase::CheckDomain, Parallel::Phase::Evolve,
+       Parallel::Phase::Exit}};
 
   using step_actions = tmpl::list<
       evolution::dg::Actions::ComputeTimeDerivative<
@@ -694,6 +721,7 @@ struct EvolutionMetavars {
           Initialization::TimeStepping<EvolutionMetavars, TimeStepperBase>,
           evolution::dg::Initialization::Domain<volume_dim,
                                                 use_control_systems>,
+          ::amr::Initialization::Initialize<volume_dim>,
           Initialization::TimeStepperHistory<EvolutionMetavars>>,
       Initialization::Actions::NonconservativeSystem<system>,
       Initialization::Actions::AddComputeTags<tmpl::list<::Tags::DerivCompute<
@@ -737,6 +765,9 @@ struct EvolutionMetavars {
           Parallel::PhaseActions<
               Parallel::Phase::InitializeTimeStepperHistory,
               SelfStart::self_start_procedure<step_actions, system>>,
+          Parallel::PhaseActions<Parallel::Phase::CheckDomain,
+                                 tmpl::list<::amr::Actions::SendAmrDiagnostics,
+                                            Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
               tmpl::list<::domain::Actions::CheckFunctionsOfTimeAreReady,
@@ -801,7 +832,37 @@ struct EvolutionMetavars {
     }
   }
 
+  struct amr : tt::ConformsTo<::amr::protocols::AmrMetavariables> {
+    using element_array = gh_dg_element_array;
+    using projectors = tmpl::list<
+        Initialization::ProjectTimeStepping<volume_dim>,
+        evolution::dg::Initialization::ProjectDomain<volume_dim>,
+        Initialization::ProjectTimeStepperHistory<EvolutionMetavars>,
+        ::amr::projectors::ProjectVariables<volume_dim,
+                                            typename system::variables_tag>,
+        evolution::dg::Initialization::ProjectMortars<EvolutionMetavars>,
+        evolution::Actions::ProjectRunEventsAndDenseTriggers,
+        ::amr::projectors::DefaultInitialize<
+            Initialization::Tags::InitialTimeDelta,
+            Initialization::Tags::InitialSlabSize<local_time_stepping>,
+            ::domain::Tags::InitialExtents<volume_dim>,
+            ::domain::Tags::InitialRefinementLevels<volume_dim>,
+            evolution::dg::Tags::Quadrature,
+            Tags::StepperErrors<typename system::variables_tag>,
+            SelfStart::Tags::InitialValue<typename system::variables_tag>,
+            SelfStart::Tags::InitialValue<Tags::TimeStep>,
+            SelfStart::Tags::InitialValue<Tags::Next<Tags::TimeStep>>,
+            evolution::dg::Tags::BoundaryData<volume_dim>>,
+        ::amr::projectors::CopyFromCreatorOrLeaveAsIs<tmpl::push_back<
+            typename control_system::Actions::InitializeMeasurements<
+                control_systems>::simple_tags,
+            intrp::Tags::InterpPointInfo<EvolutionMetavars>,
+            Tags::ChangeSlabSize::NumberOfExpectedMessages,
+            Tags::ChangeSlabSize::NewSlabSize>>>;
+  };
+
   using component_list = tmpl::flatten<tmpl::list<
+      ::amr::Component<EvolutionMetavars>,
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
       importers::ElementDataReader<EvolutionMetavars>,
