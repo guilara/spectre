@@ -10,6 +10,8 @@
 #include "ControlSystem/Actions/InitializeMeasurements.hpp"
 #include "ControlSystem/Actions/PrintCurrentMeasurement.hpp"
 #include "ControlSystem/Component.hpp"
+#include "ControlSystem/ControlErrors/Size/Factory.hpp"
+#include "ControlSystem/ControlErrors/Size/State.hpp"
 #include "ControlSystem/Measurements/SingleHorizon.hpp"
 #include "ControlSystem/Metafunctions.hpp"
 #include "ControlSystem/Systems/Shape.hpp"
@@ -17,13 +19,13 @@
 #include "ControlSystem/Trigger.hpp"
 #include "Domain/Creators/RegisterDerivedWithCharm.hpp"
 #include "Domain/Creators/TimeDependence/RegisterDerivedWithCharm.hpp"
-#include "Domain/FunctionsOfTime/FunctionsOfTimeAreReady.hpp"
 #include "Domain/FunctionsOfTime/OutputTimeBounds.hpp"
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
 #include "Domain/FunctionsOfTime/Tags.hpp"
 #include "Domain/Structure/ObjectLabel.hpp"
 #include "Evolution/Actions/RunEventsAndTriggers.hpp"
 #include "Evolution/Deadlock/PrintDgElementArray.hpp"
+#include "Evolution/DiscontinuousGalerkin/InboxTags.hpp"
 #include "Evolution/Executables/FixedScalarTensor/FixedSGB/FixedScalarTensorBase.hpp"
 #include "Evolution/Systems/Cce/Callbacks/DumpBondiSachsOnWorldtube.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedSGB/BoundaryCorrections/RegisterDerived.hpp"
@@ -39,7 +41,10 @@
 #include "Parallel/Invoke.hpp"
 #include "Parallel/MemoryMonitor/MemoryMonitor.hpp"
 #include "Parallel/PhaseControl/ExecutePhaseChange.hpp"
-#include "Parallel/Printf.hpp"
+#include "Parallel/Printf/Printf.hpp"
+#include "Parallel/Protocols/RegistrationMetavariables.hpp"
+#include "ParallelAlgorithms/Actions/FunctionsOfTimeAreReady.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/CopyFromCreatorOrLeaveAsIs.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/ErrorOnFailedApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/FindApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/IgnoreFailedApparentHorizon.hpp"
@@ -49,6 +54,7 @@
 #include "ParallelAlgorithms/ApparentHorizonFinder/ComputeHorizonVolumeQuantities.tpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/HorizonAliases.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/InterpolationTarget.hpp"
+#include "ParallelAlgorithms/ApparentHorizonFinder/ObserveCenters.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/CleanUpInterpolator.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/ElementInitInterpPoints.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InitializeInterpolationTarget.hpp"
@@ -68,9 +74,11 @@
 #include "ParallelAlgorithms/Interpolation/Targets/Sphere.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Surfaces/Tags.hpp"
-#include "Time/Actions/ChangeSlabSize.hpp"
 #include "Time/Actions/SelfStartActions.hpp"
+#include "Time/ChangeSlabSize/Action.hpp"
+#include "Time/ChangeSlabSize/Tags.hpp"
 #include "Time/StepChoosers/Factory.hpp"
+#include "Time/Tags/StepperErrors.hpp"
 #include "Time/Tags/Time.hpp"
 #include "Utilities/Algorithm.hpp"
 #include "Utilities/Blas.hpp"
@@ -328,7 +336,13 @@ struct EvolutionMetavars
     //                               3, ExcisionBoundaryA, EvolutionMetavars,
     //                               interpolator_source_vars>>>>;
     using factory_classes = Options::add_factory_classes<
-        typename st_base::factory_creation::factory_classes,
+        // Restrict to monotonic time steppers in LTS to avoid control
+        // systems deadlocking.
+        tmpl::insert<
+            tmpl::erase<typename st_base::factory_creation::factory_classes,
+                        LtsTimeStepper>,
+            tmpl::pair<LtsTimeStepper,
+                       TimeSteppers::monotonic_lts_time_steppers>>,
         tmpl::pair<
             Event,
             tmpl::flatten<tmpl::list<
@@ -356,7 +370,9 @@ struct EvolutionMetavars
                     3, SphericalSurface6,
                     scalar_charge_interpolator_source_vars>>>>,
         tmpl::pair<DenseTrigger,
-                   control_system::control_system_triggers<control_systems>>>;
+                   control_system::control_system_triggers<control_systems>>,
+        tmpl::pair<control_system::size::State,
+                   control_system::size::States::factory_creatable_states>>;
   };
 
   using typename st_base::const_global_cache_tags;
