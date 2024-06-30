@@ -223,6 +223,7 @@ constexpr auto make_default_phase_order() {
                       Parallel::Phase::InitializeInitialDataDependentQuantities,
                       Parallel::Phase::Register,
                       Parallel::Phase::InitializeTimeStepperHistory,
+                      Parallel::Phase::CheckDomain,
                       Parallel::Phase::Evolve,
                       Parallel::Phase::Exit};
   } else {
@@ -230,6 +231,7 @@ constexpr auto make_default_phase_order() {
                       Parallel::Phase::InitializeInitialDataDependentQuantities,
                       Parallel::Phase::Register,
                       Parallel::Phase::InitializeTimeStepperHistory,
+                      Parallel::Phase::CheckDomain,
                       Parallel::Phase::Evolve,
                       Parallel::Phase::Exit};
   }
@@ -556,6 +558,15 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
   //           gr::Solutions::Minkowski<volume_dim>>>;
   using initial_data_list = gh::fe::sgb::AnalyticData::all_analytic_data;
   using factory_classes = tmpl::map<
+      tmpl::pair<
+          amr::Criterion,
+          tmpl::list<
+              amr::Criteria::DriveToTarget<volume_dim>,
+              amr::Criteria::Constraints<
+                  volume_dim, tmpl::list<gh::Tags::ThreeIndexConstraintCompute<
+                                  volume_dim, Frame::Inertial>>>,
+              amr::Criteria::TruncationError<
+                  volume_dim, typename system::variables_tag::tags_list>>>,
       tmpl::pair<DenseTrigger, DenseTriggers::standard_dense_triggers>,
       tmpl::pair<DomainCreator<volume_dim>, domain_creators<volume_dim>>,
       tmpl::pair<
@@ -758,6 +769,7 @@ struct FixedScalarTensorTemplateBase<
       Initialization::Actions::InitializeItems<
           Initialization::TimeStepping<derived_metavars, TimeStepperBase>,
           evolution::dg::Initialization::Domain<volume_dim, UseControlSystems>,
+          ::amr::Initialization::Initialize<volume_dim>,
           Initialization::TimeStepperHistory<derived_metavars>>,
       Initialization::Actions::NonconservativeSystem<system>,
       //
