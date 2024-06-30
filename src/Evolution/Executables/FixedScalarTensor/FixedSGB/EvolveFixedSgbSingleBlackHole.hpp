@@ -296,6 +296,8 @@ struct EvolutionMetavars
   static constexpr bool use_control_systems =
       tmpl::size<control_systems>::value > 0;
 
+  struct BondiSachs;
+
   //   using interpolation_target_tags = tmpl::list<AhA, ExcisionBoundaryA>;
   //   using interpolation_target_tags = tmpl::list<AhA>;
   //   using interpolation_target_tags = tmpl::list<AhA, SphericalSurface,
@@ -313,11 +315,28 @@ struct EvolutionMetavars
       control_system::metafunctions::interpolation_target_tags<control_systems>,
       AhA, ExcisionBoundaryA, SphericalSurface, SphericalSurface2,
       SphericalSurface3, SphericalSurface4, SphericalSurface5,
-      SphericalSurface6>;
+      SphericalSurface6, BondiSachs>;
   using interpolator_source_vars = ::ah::source_vars<volume_dim>;
+  using source_vars_no_deriv =
+      tmpl::list<gr::Tags::SpacetimeMetric<DataVector, volume_dim>,
+                 gh::Tags::Pi<DataVector, volume_dim>,
+                 gh::Tags::Phi<DataVector, volume_dim>>;
 
   using scalar_charge_interpolator_source_vars =
       detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
+
+  struct BondiSachs : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    static std::string name() { return "BondiSachsInterpolation"; }
+    using temporal_id = ::Tags::Time;
+    using vars_to_interpolate_to_target = source_vars_no_deriv;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<BondiSachs, ::Frame::Inertial>;
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::DumpBondiSachsOnWorldtube<BondiSachs>>;
+    using compute_items_on_target = tmpl::list<>;
+    template <typename Metavariables>
+    using interpolating_component = typename Metavariables::st_dg_element_array;
+  };
 
   // The interpolator_source_vars need to be the same in both the
   // Interpolate event and the InterpolateWithoutInterpComponent event.  The
@@ -349,6 +368,8 @@ struct EvolutionMetavars
                 intrp::Events::Interpolate<3, AhA, interpolator_source_vars>,
                 control_system::metafunctions::control_system_events<
                     control_systems>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    3, BondiSachs, source_vars_no_deriv>,
                 intrp::Events::InterpolateWithoutInterpComponent<
                     3, ExcisionBoundaryA, interpolator_source_vars>,
                 intrp::Events::InterpolateWithoutInterpComponent<
@@ -442,11 +463,10 @@ struct EvolutionMetavars
 
   using gh_dg_element_array = st_dg_element_array;
 
-  template <typename ParallelComponent>
-  struct registration_list {
-    using type = std::conditional_t<
-        std::is_same_v<ParallelComponent, st_dg_element_array>,
-        dg_registration_list, tmpl::list<>>;
+  struct registration
+      : tt::ConformsTo<Parallel::protocols::RegistrationMetavariables> {
+    using element_registrars =
+        tmpl::map<tmpl::pair<st_dg_element_array, dg_registration_list>>;
   };
 
   //   using component_list = tmpl::flatten<tmpl::list<
