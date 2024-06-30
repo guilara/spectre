@@ -10,13 +10,16 @@
 #include "ControlSystem/Actions/LimitTimeStep.hpp"
 #include "ControlSystem/Actions/PrintCurrentMeasurement.hpp"
 #include "ControlSystem/Component.hpp"
+#include "ControlSystem/ControlErrors/Size/Factory.hpp"
 #include "ControlSystem/ControlErrors/Size/RegisterDerivedWithCharm.hpp"
+#include "ControlSystem/ControlErrors/Size/State.hpp"
 #include "ControlSystem/Measurements/BothHorizons.hpp"
 #include "ControlSystem/Metafunctions.hpp"
 #include "ControlSystem/Systems/Expansion.hpp"
 #include "ControlSystem/Systems/Rotation.hpp"
 #include "ControlSystem/Systems/Shape.hpp"
 #include "ControlSystem/Systems/Size.hpp"
+#include "ControlSystem/Systems/Translation.hpp"
 #include "ControlSystem/Trigger.hpp"
 #include "DataStructures/DataBox/PrefixHelpers.hpp"
 #include "DataStructures/DataBox/Tag.hpp"
@@ -25,11 +28,9 @@
 #include "Domain/Creators/CylindricalBinaryCompactObject.hpp"
 #include "Domain/Creators/RegisterDerivedWithCharm.hpp"
 #include "Domain/Creators/TimeDependence/RegisterDerivedWithCharm.hpp"
-#include "Domain/FunctionsOfTime/FunctionsOfTimeAreReady.hpp"
 #include "Domain/FunctionsOfTime/OutputTimeBounds.hpp"
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
 #include "Domain/FunctionsOfTime/Tags.hpp"
-#include "Domain/Protocols/Metavariables.hpp"
 #include "Domain/Tags.hpp"
 #include "Domain/TagsCharacteristicSpeeds.hpp"
 #include "Evolution/Actions/RunEventsAndDenseTriggers.hpp"
@@ -39,9 +40,8 @@
 #include "Evolution/DiscontinuousGalerkin/Actions/ApplyBoundaryCorrections.hpp"
 #include "Evolution/DiscontinuousGalerkin/Actions/ComputeTimeDerivative.hpp"
 #include "Evolution/DiscontinuousGalerkin/DgElementArray.hpp"
+#include "Evolution/DiscontinuousGalerkin/InboxTags.hpp"
 #include "Evolution/DiscontinuousGalerkin/Initialization/Mortars.hpp"
-#include "Evolution/EventsAndDenseTriggers/DenseTrigger.hpp"
-#include "Evolution/EventsAndDenseTriggers/DenseTriggers/Factory.hpp"
 #include "Evolution/Initialization/DgDomain.hpp"
 #include "Evolution/Initialization/Evolution.hpp"
 #include "Evolution/Initialization/NonconservativeSystem.hpp"
@@ -109,7 +109,6 @@
 #include "IO/Observer/Tags.hpp"
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Tags.hpp"
 #include "NumericalAlgorithms/LinearOperators/ExponentialFilter.hpp"
-#include "NumericalAlgorithms/LinearOperators/FilterAction.hpp"
 #include "Options/Options.hpp"
 #include "Options/ParseOptions.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
@@ -126,14 +125,31 @@
 #include "Parallel/PhaseControl/Factory.hpp"
 #include "Parallel/PhaseControl/VisitAndReturn.hpp"
 #include "Parallel/PhaseDependentActionList.hpp"
-#include "Parallel/Printf.hpp"
+#include "Parallel/Printf/Printf.hpp"
 #include "Parallel/Protocols/RegistrationMetavariables.hpp"
 #include "Parallel/Reduction.hpp"
 #include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
+#include "ParallelAlgorithms/Actions/FilterAction.hpp"
+#include "ParallelAlgorithms/Actions/FunctionsOfTimeAreReady.hpp"
 #include "ParallelAlgorithms/Actions/InitializeItems.hpp"
 #include "ParallelAlgorithms/Actions/MemoryMonitor/ContributeMemoryData.hpp"
 #include "ParallelAlgorithms/Actions/MutateApply.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
+#include "ParallelAlgorithms/Amr/Actions/CollectDataFromChildren.hpp"
+#include "ParallelAlgorithms/Amr/Actions/Component.hpp"
+#include "ParallelAlgorithms/Amr/Actions/CreateChild.hpp"
+#include "ParallelAlgorithms/Amr/Actions/Initialize.hpp"
+#include "ParallelAlgorithms/Amr/Actions/SendAmrDiagnostics.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/Constraints.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/Criterion.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/DriveToTarget.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/Random.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/TruncationError.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/CopyFromCreatorOrLeaveAsIs.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/DefaultInitialize.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/Tensors.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/Variables.hpp"
+#include "ParallelAlgorithms/Amr/Protocols/AmrMetavariables.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/ErrorOnFailedApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/FindApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/IgnoreFailedApparentHorizon.hpp"
@@ -146,6 +162,8 @@
 #include "ParallelAlgorithms/ApparentHorizonFinder/ObserveCenters.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/MonitorMemory.hpp"
+#include "ParallelAlgorithms/EventsAndDenseTriggers/DenseTrigger.hpp"
+#include "ParallelAlgorithms/EventsAndDenseTriggers/DenseTriggers/Factory.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Completion.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Event.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/EventsAndTriggers.hpp"
@@ -179,13 +197,16 @@
 #include "PointwiseFunctions/GeneralRelativity/Surfaces/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
+#include "PointwiseFunctions/GeneralRelativity/WeylTypeD1.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialData.hpp"
 #include "PointwiseFunctions/ScalarTensor/ScalarCharge.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
-#include "Time/Actions/ChangeSlabSize.hpp"
+#include "Time/Actions/CleanHistory.hpp"
 #include "Time/Actions/RecordTimeStepperData.hpp"
 #include "Time/Actions/SelfStartActions.hpp"
 #include "Time/Actions/UpdateU.hpp"
+#include "Time/ChangeSlabSize/Action.hpp"
+#include "Time/ChangeSlabSize/Tags.hpp"
 #include "Time/StepChoosers/Cfl.hpp"
 #include "Time/StepChoosers/Constant.hpp"
 #include "Time/StepChoosers/Factory.hpp"
@@ -193,6 +214,7 @@
 #include "Time/StepChoosers/PreventRapidIncrease.hpp"
 #include "Time/StepChoosers/StepChooser.hpp"
 #include "Time/StepChoosers/StepToTimes.hpp"
+#include "Time/Tags/StepperErrors.hpp"
 #include "Time/Tags/Time.hpp"
 #include "Time/Tags/TimeStepId.hpp"
 #include "Time/TimeSequence.hpp"
@@ -290,9 +312,6 @@ struct EvolutionMetavars {
 
   // NOLINTNEXTLINE(google-runtime-references)
   void pup(PUP::er& /*p*/) {}
-  struct domain : tt::ConformsTo<::domain::protocols::Metavariables> {
-    static constexpr bool enable_time_dependent_maps = true;
-  };
 
   template <::domain::ObjectLabel Horizon, typename Frame>
   struct Ah : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
@@ -424,6 +443,7 @@ struct EvolutionMetavars {
   using control_systems =
       tmpl::list<control_system::Systems::Rotation<3, both_horizons>,
                  control_system::Systems::Expansion<2, both_horizons>,
+                 control_system::Systems::Translation<2, both_horizons>,
                  control_system::Systems::Shape<::domain::ObjectLabel::A, 2,
                                                 both_horizons>,
                  control_system::Systems::Shape<::domain::ObjectLabel::B, 2,
@@ -606,10 +626,21 @@ struct EvolutionMetavars {
       : tt::ConformsTo<Options::protocols::FactoryCreation> {
     using factory_classes = tmpl::map<
         tmpl::pair<
+            amr::Criterion,
+            tmpl::list<
+                amr::Criteria::DriveToTarget<volume_dim>,
+                amr::Criteria::Constraints<
+                    volume_dim,
+                    tmpl::list<gh::Tags::ThreeIndexConstraintCompute<
+                        volume_dim, Frame::Inertial>>>,
+                amr::Criteria::TruncationError<
+                    volume_dim, typename system::variables_tag::tags_list>>>,
+        tmpl::pair<
             evolution::initial_data::InitialData,
             tmpl::flatten<tmpl::list<
                 gh::NumericInitialData,
-                // We add the analytic data to be able to impose Dirichlet BCs
+                // We add the analytic data to be able to impose
+                // Dirichlet BCs
                 gh::fe::sgb::AnalyticData::all_analytic_data,
                 tmpl::conditional_t<std::is_same_v<SpecInitialData, NoSuchType>,
                                     tmpl::list<>, SpecInitialData>>>>,
@@ -657,12 +688,16 @@ struct EvolutionMetavars {
                 control_system::metafunctions::control_system_events<
                     control_systems>,
                 Events::time_events<system>>>>,
+        tmpl::pair<control_system::size::State,
+                   control_system::size::States::factory_creatable_states>,
         tmpl::pair<fe::sgb::BoundaryConditions::BoundaryCondition,
                    fe::sgb::BoundaryConditions::standard_boundary_conditions>,
         tmpl::pair<
             gh::gauges::GaugeCondition,
             tmpl::list<gh::gauges::DampedHarmonic, gh::gauges::Harmonic>>,
-        tmpl::pair<LtsTimeStepper, TimeSteppers::lts_time_steppers>,
+        // Restrict to monotonic time steppers in LTS to avoid control
+        // systems deadlocking.
+        tmpl::pair<LtsTimeStepper, TimeSteppers::monotonic_lts_time_steppers>,
         tmpl::pair<PhaseChange, PhaseControl::factory_creatable_classes>,
         tmpl::pair<StepChooser<StepChooserUse::LtsStep>,
                    StepChoosers::standard_step_choosers<system>>,
@@ -712,13 +747,14 @@ struct EvolutionMetavars {
       tmpl::list<observers::Actions::RegisterEventsWithObservers,
                  intrp::Actions::RegisterElementWithInterpolator>;
 
-  static constexpr std::array<Parallel::Phase, 8> default_phase_order{
+  static constexpr std::array<Parallel::Phase, 9> default_phase_order{
       {Parallel::Phase::Initialization,
        Parallel::Phase::RegisterWithElementDataReader,
        Parallel::Phase::ImportInitialData,
        Parallel::Phase::InitializeInitialDataDependentQuantities,
        Parallel::Phase::Register, Parallel::Phase::InitializeTimeStepperHistory,
-       Parallel::Phase::Evolve, Parallel::Phase::Exit}};
+       Parallel::Phase::CheckDomain, Parallel::Phase::Evolve,
+       Parallel::Phase::Exit}};
 
   using step_actions = tmpl::list<
       evolution::dg::Actions::ComputeTimeDerivative<
@@ -739,6 +775,7 @@ struct EvolutionMetavars {
                   ::domain::CheckFunctionsOfTimeAreReadyPostprocessor>>,
               control_system::Actions::LimitTimeStep<control_systems>,
               Actions::UpdateU<system>>>,
+      Actions::CleanHistory<system, local_time_stepping>,
       dg::Actions::Filter<
           Filters::Exponential<0>,
           tmpl::list<gr::Tags::SpacetimeMetric<DataVector, volume_dim>,
@@ -755,6 +792,7 @@ struct EvolutionMetavars {
           Initialization::TimeStepping<EvolutionMetavars, TimeStepperBase>,
           evolution::dg::Initialization::Domain<volume_dim,
                                                 use_control_systems>,
+          ::amr::Initialization::Initialize<volume_dim>,
           Initialization::TimeStepperHistory<EvolutionMetavars>>,
       Initialization::Actions::NonconservativeSystem<system>,
       Initialization::Actions::AddComputeTags<tmpl::list<::Tags::DerivCompute<
@@ -798,6 +836,9 @@ struct EvolutionMetavars {
           Parallel::PhaseActions<
               Parallel::Phase::InitializeTimeStepperHistory,
               SelfStart::self_start_procedure<step_actions, system>>,
+          Parallel::PhaseActions<Parallel::Phase::CheckDomain,
+                                 tmpl::list<::amr::Actions::SendAmrDiagnostics,
+                                            Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
               tmpl::list<::domain::Actions::CheckFunctionsOfTimeAreReady,
@@ -844,7 +885,7 @@ struct EvolutionMetavars {
         Parallel::get<::domain::Tags::FunctionsOfTime>(cache);
 
     const std::string time_bounds =
-        ::domain::FunctionsOfTime::ouput_time_bounds(functions_of_time);
+        ::domain::FunctionsOfTime::output_time_bounds(functions_of_time);
 
     Parallel::printf("%s\n", time_bounds);
 
@@ -862,7 +903,37 @@ struct EvolutionMetavars {
     }
   }
 
+  struct amr : tt::ConformsTo<::amr::protocols::AmrMetavariables> {
+    using element_array = gh_dg_element_array;
+    using projectors = tmpl::list<
+        Initialization::ProjectTimeStepping<volume_dim>,
+        evolution::dg::Initialization::ProjectDomain<volume_dim>,
+        Initialization::ProjectTimeStepperHistory<EvolutionMetavars>,
+        ::amr::projectors::ProjectVariables<volume_dim,
+                                            typename system::variables_tag>,
+        evolution::dg::Initialization::ProjectMortars<EvolutionMetavars>,
+        evolution::Actions::ProjectRunEventsAndDenseTriggers,
+        ::amr::projectors::DefaultInitialize<
+            Initialization::Tags::InitialTimeDelta,
+            Initialization::Tags::InitialSlabSize<local_time_stepping>,
+            ::domain::Tags::InitialExtents<volume_dim>,
+            ::domain::Tags::InitialRefinementLevels<volume_dim>,
+            evolution::dg::Tags::Quadrature,
+            Tags::StepperErrors<typename system::variables_tag>,
+            SelfStart::Tags::InitialValue<typename system::variables_tag>,
+            SelfStart::Tags::InitialValue<Tags::TimeStep>,
+            SelfStart::Tags::InitialValue<Tags::Next<Tags::TimeStep>>,
+            evolution::dg::Tags::BoundaryData<volume_dim>>,
+        ::amr::projectors::CopyFromCreatorOrLeaveAsIs<tmpl::push_back<
+            typename control_system::Actions::InitializeMeasurements<
+                control_systems>::simple_tags,
+            intrp::Tags::InterpPointInfo<EvolutionMetavars>,
+            Tags::ChangeSlabSize::NumberOfExpectedMessages,
+            Tags::ChangeSlabSize::NewSlabSize>>>;
+  };
+
   using component_list = tmpl::flatten<tmpl::list<
+      ::amr::Component<EvolutionMetavars>,
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
       importers::ElementDataReader<EvolutionMetavars>,
