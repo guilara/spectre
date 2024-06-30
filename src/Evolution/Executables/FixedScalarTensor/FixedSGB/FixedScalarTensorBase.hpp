@@ -727,39 +727,23 @@ struct FixedScalarTensorTemplateBase<
                          evolution::dg::ApplyBoundaryCorrections<
                              local_time_stepping, system, volume_dim, true>>>,
                      evolution::dg::Actions::ApplyLtsBoundaryCorrections<
-                         system, volume_dim, false>,
-                     // We allow for separate filtering of the system variables
-                     dg::Actions::Filter<Filters::Exponential<0>,
-                                         system::gh_system::gh_system::
-                                             variables_tag::tags_list>,
-                     dg::Actions::Filter<Filters::Exponential<1>,
-                                         system::gh_system::scalar_system::
-                                             variables_tag::tags_list>,
-                     dg::Actions::Filter<
-                         Filters::Exponential<2>,
-                         system::scalar_system::variables_tag::tags_list>>
-          // tmpl::list<>
-          ,
+                         system, volume_dim, false>>,
           tmpl::list<
               evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
                   system, volume_dim, false>,
               Actions::RecordTimeStepperData<system>,
               evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<>>,
               control_system::Actions::LimitTimeStep<ControlSystems>,
-              Actions::UpdateU<system>,
-              Actions::CleanHistory<system, local_time_stepping>,
-              // We allow for separate filtering of the system variables
-              dg::Actions::Filter<
-                  Filters::Exponential<0>,
-                  system::gh_system::gh_system::variables_tag::tags_list>,
-              dg::Actions::Filter<
-                  Filters::Exponential<1>,
-                  system::gh_system::scalar_system::variables_tag::tags_list>,
-              dg::Actions::Filter<
-                  Filters::Exponential<2>,
-                  system::scalar_system::variables_tag::tags_list>>
-          // tmpl::list<>
-          >>;
+              Actions::UpdateU<system>>>,
+      Actions::CleanHistory<system, local_time_stepping>,
+      dg::Actions::Filter<
+          Filters::Exponential<0>,
+          system::gh_system::gh_system::variables_tag::tags_list>,
+      dg::Actions::Filter<
+          Filters::Exponential<1>,
+          system::gh_system::scalar_system::variables_tag::tags_list>,
+      dg::Actions::Filter<Filters::Exponential<2>,
+                          system::scalar_system::variables_tag::tags_list>>;
 
   // For labeling the yaml option for RandomizeVariables
   struct RandomizeInitialGuess {};
