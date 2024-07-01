@@ -713,41 +713,6 @@ void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
 
 template <typename DataType, typename Frame>
 void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
-    const gsl::not_null<Scalar<DataType>*> null_form_dot_deriv_H,
-    const gsl::not_null<CachedBuffer*> cache,
-    internal_tags::null_form_dot_deriv_H<DataType> /*meta*/) const {
-  const auto& deriv_H =
-      cache->get_var(*this, internal_tags::deriv_H<DataType, Frame>{});
-  const auto& null_form =
-      cache->get_var(*this, internal_tags::null_form<DataType, Frame>{});
-  get(*null_form_dot_deriv_H) = 0.0;
-  for (size_t i = 0; i < 3; ++i) {
-    get(*null_form_dot_deriv_H) += null_form.get(i + 1) * deriv_H.get(i + 1);
-  }
-}
-
-template <typename DataType, typename Frame>
-void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
-    const gsl::not_null<tnsr::i<DataType, 3, Frame>*>
-        null_form_dot_deriv_null_form,
-    const gsl::not_null<CachedBuffer*> cache,
-    internal_tags::null_form_dot_deriv_null_form<DataType, Frame> /*meta*/)
-    const {
-  const auto& deriv_null_form =
-      cache->get_var(*this, internal_tags::deriv_null_form<DataType, Frame>{});
-  const auto& null_form =
-      cache->get_var(*this, internal_tags::null_form<DataType, Frame>{});
-  for (size_t j = 0; j < 3; ++j) {
-    null_form_dot_deriv_null_form->get(j) = 0.0;
-    for (size_t i = 0; i < 3; ++i) {
-      null_form_dot_deriv_null_form->get(j) +=
-          null_form.get(i + 1) * deriv_null_form.get(i + 1, j + 1);
-    }
-  }
-}
-
-template <typename DataType, typename Frame>
-void KerrSchild::IntermediateComputer<DataType, Frame>::operator()(
     const gsl::not_null<tnsr::ii<DataType, 3, Frame>*> extrinsic_curvature,
     const gsl::not_null<CachedBuffer*> cache,
     gr::Tags::ExtrinsicCurvature<DataType, 3, Frame> /*meta*/) const {
