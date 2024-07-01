@@ -67,7 +67,7 @@ using standard_boundary_conditions = tmpl::append<
         subset_standard_boundary_conditions_gh,
         subset_standard_boundary_conditions_scalar>::type,
     tmpl::list<ScalarTensor::BoundaryConditions::ConstraintPreserving,
-    tmpl::list<ScalarTensor::BoundaryConditions::BjorusAnalyticConstant,
+               ScalarTensor::BoundaryConditions::BjorusAnalyticConstant,
                domain::BoundaryConditions::Periodic<BoundaryCondition>>>;
 
 }  // namespace ScalarTensor::BoundaryConditions
