@@ -10,6 +10,8 @@
 #include "ControlSystem/Actions/InitializeMeasurements.hpp"
 #include "ControlSystem/Actions/PrintCurrentMeasurement.hpp"
 #include "ControlSystem/Component.hpp"
+#include "ControlSystem/ControlErrors/Size/Factory.hpp"
+#include "ControlSystem/ControlErrors/Size/State.hpp"
 #include "ControlSystem/Measurements/SingleHorizon.hpp"
 #include "ControlSystem/Metafunctions.hpp"
 #include "ControlSystem/Systems/Shape.hpp"
@@ -17,13 +19,13 @@
 #include "ControlSystem/Trigger.hpp"
 #include "Domain/Creators/RegisterDerivedWithCharm.hpp"
 #include "Domain/Creators/TimeDependence/RegisterDerivedWithCharm.hpp"
-#include "Domain/FunctionsOfTime/FunctionsOfTimeAreReady.hpp"
 #include "Domain/FunctionsOfTime/OutputTimeBounds.hpp"
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
 #include "Domain/FunctionsOfTime/Tags.hpp"
 #include "Domain/Structure/ObjectLabel.hpp"
 #include "Evolution/Actions/RunEventsAndTriggers.hpp"
 #include "Evolution/Deadlock/PrintDgElementArray.hpp"
+#include "Evolution/DiscontinuousGalerkin/InboxTags.hpp"
 #include "Evolution/Executables/FixedScalarTensor/FixedDecoupledScalar/FixedScalarTensorBase.hpp"
 #include "Evolution/Systems/Cce/Callbacks/DumpBondiSachsOnWorldtube.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/RegisterDerived.hpp"
@@ -39,7 +41,10 @@
 #include "Parallel/Invoke.hpp"
 #include "Parallel/MemoryMonitor/MemoryMonitor.hpp"
 #include "Parallel/PhaseControl/ExecutePhaseChange.hpp"
-#include "Parallel/Printf.hpp"
+#include "Parallel/Printf/Printf.hpp"
+#include "Parallel/Protocols/RegistrationMetavariables.hpp"
+#include "ParallelAlgorithms/Actions/FunctionsOfTimeAreReady.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/CopyFromCreatorOrLeaveAsIs.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/ErrorOnFailedApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/FindApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/IgnoreFailedApparentHorizon.hpp"
@@ -49,6 +54,7 @@
 #include "ParallelAlgorithms/ApparentHorizonFinder/ComputeHorizonVolumeQuantities.tpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/HorizonAliases.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/InterpolationTarget.hpp"
+#include "ParallelAlgorithms/ApparentHorizonFinder/ObserveCenters.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/CleanUpInterpolator.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/ElementInitInterpPoints.hpp"
 #include "ParallelAlgorithms/Interpolation/Actions/InitializeInterpolationTarget.hpp"
@@ -68,9 +74,11 @@
 #include "ParallelAlgorithms/Interpolation/Targets/Sphere.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Surfaces/Tags.hpp"
-#include "Time/Actions/ChangeSlabSize.hpp"
 #include "Time/Actions/SelfStartActions.hpp"
+#include "Time/ChangeSlabSize/Action.hpp"
+#include "Time/ChangeSlabSize/Tags.hpp"
 #include "Time/StepChoosers/Factory.hpp"
+#include "Time/Tags/StepperErrors.hpp"
 #include "Time/Tags/Time.hpp"
 #include "Utilities/Algorithm.hpp"
 #include "Utilities/Blas.hpp"
@@ -288,6 +296,8 @@ struct EvolutionMetavars
   static constexpr bool use_control_systems =
       tmpl::size<control_systems>::value > 0;
 
+  struct BondiSachs;
+
   //   using interpolation_target_tags = tmpl::list<AhA, ExcisionBoundaryA>;
   //   using interpolation_target_tags = tmpl::list<AhA>;
   //   using interpolation_target_tags = tmpl::list<AhA, SphericalSurface,
@@ -305,11 +315,28 @@ struct EvolutionMetavars
       control_system::metafunctions::interpolation_target_tags<control_systems>,
       AhA, ExcisionBoundaryA, SphericalSurface, SphericalSurface2,
       SphericalSurface3, SphericalSurface4, SphericalSurface5,
-      SphericalSurface6>;
+      SphericalSurface6, BondiSachs>;
   using interpolator_source_vars = ::ah::source_vars<volume_dim>;
+  using source_vars_no_deriv =
+      tmpl::list<gr::Tags::SpacetimeMetric<DataVector, volume_dim>,
+                 gh::Tags::Pi<DataVector, volume_dim>,
+                 gh::Tags::Phi<DataVector, volume_dim>>;
 
   using scalar_charge_interpolator_source_vars =
       detail::ObserverTags<3_st>::scalar_charge_vars_to_interpolate_to_target;
+
+  struct BondiSachs : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
+    static std::string name() { return "BondiSachsInterpolation"; }
+    using temporal_id = ::Tags::Time;
+    using vars_to_interpolate_to_target = source_vars_no_deriv;
+    using compute_target_points =
+        intrp::TargetPoints::Sphere<BondiSachs, ::Frame::Inertial>;
+    using post_interpolation_callbacks =
+        tmpl::list<intrp::callbacks::DumpBondiSachsOnWorldtube<BondiSachs>>;
+    using compute_items_on_target = tmpl::list<>;
+    template <typename Metavariables>
+    using interpolating_component = typename Metavariables::st_dg_element_array;
+  };
 
   // The interpolator_source_vars need to be the same in both the
   // Interpolate event and the InterpolateWithoutInterpComponent event.  The
@@ -328,13 +355,21 @@ struct EvolutionMetavars
     //                               3, ExcisionBoundaryA, EvolutionMetavars,
     //                               interpolator_source_vars>>>>;
     using factory_classes = Options::add_factory_classes<
-        typename st_base::factory_creation::factory_classes,
+        // Restrict to monotonic time steppers in LTS to avoid control
+        // systems deadlocking.
+        tmpl::insert<
+            tmpl::erase<typename st_base::factory_creation::factory_classes,
+                        LtsTimeStepper>,
+            tmpl::pair<LtsTimeStepper,
+                       TimeSteppers::monotonic_lts_time_steppers>>,
         tmpl::pair<
             Event,
             tmpl::flatten<tmpl::list<
                 intrp::Events::Interpolate<3, AhA, interpolator_source_vars>,
                 control_system::metafunctions::control_system_events<
                     control_systems>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    3, BondiSachs, source_vars_no_deriv>,
                 intrp::Events::InterpolateWithoutInterpComponent<
                     3, ExcisionBoundaryA, interpolator_source_vars>,
                 intrp::Events::InterpolateWithoutInterpComponent<
@@ -356,7 +391,9 @@ struct EvolutionMetavars
                     3, SphericalSurface6,
                     scalar_charge_interpolator_source_vars>>>>,
         tmpl::pair<DenseTrigger,
-                   control_system::control_system_triggers<control_systems>>>;
+                   control_system::control_system_triggers<control_systems>>,
+        tmpl::pair<control_system::size::State,
+                   control_system::size::States::factory_creatable_states>>;
   };
 
   using typename st_base::const_global_cache_tags;
@@ -394,18 +431,16 @@ struct EvolutionMetavars
           tmpl::conditional_t<
               UseNumericalInitialData,
               //   tmpl::list<>,
-              tmpl::list<
-                  Parallel::PhaseActions<
-                      Parallel::Phase::RegisterWithElementDataReader,
-                      tmpl::list<
-                          importers::Actions::RegisterWithElementDataReader,
-                          Parallel::Actions::TerminatePhase>>,
-                  Parallel::PhaseActions<
-                      Parallel::Phase::ImportInitialData,
-                      tmpl::list<
-                          gh::Actions::SetInitialData,
-                          gh::Actions::ReceiveNumericInitialData,
-                          Parallel::Actions::TerminatePhase>>>,
+              tmpl::list<Parallel::PhaseActions<
+                             Parallel::Phase::RegisterWithElementDataReader,
+                             tmpl::list<importers::Actions::
+                                            RegisterWithElementDataReader,
+                                        Parallel::Actions::TerminatePhase>>,
+                         Parallel::PhaseActions<
+                             Parallel::Phase::ImportInitialData,
+                             tmpl::list<gh::Actions::SetInitialData,
+                                        gh::Actions::ReceiveNumericInitialData,
+                                        Parallel::Actions::TerminatePhase>>>,
               tmpl::list<>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
@@ -418,6 +453,9 @@ struct EvolutionMetavars
           Parallel::PhaseActions<Parallel::Phase::Register,
                                  tmpl::list<dg_registration_list,
                                             Parallel::Actions::TerminatePhase>>,
+          Parallel::PhaseActions<Parallel::Phase::CheckDomain,
+                                 tmpl::list<::amr::Actions::SendAmrDiagnostics,
+                                            Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
               tmpl::list<::domain::Actions::CheckFunctionsOfTimeAreReady,
@@ -428,11 +466,40 @@ struct EvolutionMetavars
 
   using gh_dg_element_array = st_dg_element_array;
 
-  template <typename ParallelComponent>
-  struct registration_list {
-    using type = std::conditional_t<
-        std::is_same_v<ParallelComponent, st_dg_element_array>,
-        dg_registration_list, tmpl::list<>>;
+  struct amr : tt::ConformsTo<::amr::protocols::AmrMetavariables> {
+    using element_array = gh_dg_element_array;
+
+    using projectors = tmpl::list<
+        Initialization::ProjectTimeStepping<volume_dim>,
+        evolution::dg::Initialization::ProjectDomain<volume_dim>,
+        Initialization::ProjectTimeStepperHistory<EvolutionMetavars>,
+        ::amr::projectors::ProjectVariables<volume_dim,
+                                            typename system::variables_tag>,
+        evolution::dg::Initialization::ProjectMortars<EvolutionMetavars>,
+        evolution::Actions::ProjectRunEventsAndDenseTriggers,
+        ::amr::projectors::DefaultInitialize<
+            Initialization::Tags::InitialTimeDelta,
+            Initialization::Tags::InitialSlabSize<st_base::local_time_stepping>,
+            ::domain::Tags::InitialExtents<volume_dim>,
+            ::domain::Tags::InitialRefinementLevels<volume_dim>,
+            evolution::dg::Tags::Quadrature,
+            Tags::StepperErrors<typename system::variables_tag>,
+            SelfStart::Tags::InitialValue<typename system::variables_tag>,
+            SelfStart::Tags::InitialValue<Tags::TimeStep>,
+            SelfStart::Tags::InitialValue<Tags::Next<Tags::TimeStep>>,
+            evolution::dg::Tags::BoundaryData<volume_dim>>,
+        ::amr::projectors::CopyFromCreatorOrLeaveAsIs<tmpl::push_back<
+            typename control_system::Actions::InitializeMeasurements<
+                control_systems>::simple_tags,
+            intrp::Tags::InterpPointInfo<EvolutionMetavars>,
+            Tags::ChangeSlabSize::NumberOfExpectedMessages,
+            Tags::ChangeSlabSize::NewSlabSize>>>;
+  };
+
+  struct registration
+      : tt::ConformsTo<Parallel::protocols::RegistrationMetavariables> {
+    using element_registrars =
+        tmpl::map<tmpl::pair<st_dg_element_array, dg_registration_list>>;
   };
 
   //   using component_list = tmpl::flatten<tmpl::list<
@@ -446,6 +513,7 @@ struct EvolutionMetavars
   //       intrp::InterpolationTarget<EvolutionMetavars, AhA>,
   //       intrp::InterpolationTarget<EvolutionMetavars, ExcisionBoundaryA>>>;
   using component_list = tmpl::flatten<tmpl::list<
+      ::amr::Component<EvolutionMetavars>,
       observers::Observer<EvolutionMetavars>,
       observers::ObserverWriter<EvolutionMetavars>,
       mem_monitor::MemoryMonitor<EvolutionMetavars>,

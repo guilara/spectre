@@ -59,6 +59,8 @@ target_link_libraries(
   ${SINGLE_BH_EXECUTABLE}
   PRIVATE
   ${LIBS_TO_LINK}
+  Cce
+  Deadlock
   )
 
 set(BBH_EXECUTABLE EvolveFixedDecoupledScalarBinaryBlackHole)

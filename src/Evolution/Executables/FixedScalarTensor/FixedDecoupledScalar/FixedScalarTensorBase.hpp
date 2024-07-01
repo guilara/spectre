@@ -15,7 +15,6 @@
 #include "Domain/Creators/Factory3D.hpp"
 #include "Domain/Creators/RegisterDerivedWithCharm.hpp"
 #include "Domain/Creators/TimeDependence/RegisterDerivedWithCharm.hpp"
-#include "Domain/FunctionsOfTime/FunctionsOfTimeAreReady.hpp"
 #include "Domain/FunctionsOfTime/RegisterDerivedWithCharm.hpp"
 #include "Domain/Tags.hpp"
 #include "Domain/TagsCharacteristicSpeeds.hpp"
@@ -25,15 +24,38 @@
 #include "Evolution/DiscontinuousGalerkin/Actions/ComputeTimeDerivative.hpp"
 #include "Evolution/DiscontinuousGalerkin/DgElementArray.hpp"
 #include "Evolution/DiscontinuousGalerkin/Initialization/Mortars.hpp"
-#include "Evolution/EventsAndDenseTriggers/DenseTrigger.hpp"
-#include "Evolution/EventsAndDenseTriggers/DenseTriggers/Factory.hpp"
 #include "Evolution/Initialization/DgDomain.hpp"
 #include "Evolution/Initialization/Evolution.hpp"
 #include "Evolution/Initialization/NonconservativeSystem.hpp"
 #include "Evolution/Initialization/SetVariables.hpp"
+#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Initialize.hpp"
+#include "Evolution/Systems/CurvedScalarWave/PsiSquared.hpp"
+#include "Evolution/Systems/CurvedScalarWave/System.hpp"
+#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/ProductOfConditions.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/ProductOfCorrections.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Initialize.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/System.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Actions/InitializeConstraintGammas.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Constraints.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Diagnostics.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Initialize.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/PsiSquared.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/System.hpp"
+#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Actions/SetInitialData.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/BoundaryCorrections/Factory.hpp"
+#include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Equations.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/GaugeSourceFunctions/Factory.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/GaugeSourceFunctions/Gauges.hpp"
@@ -42,18 +64,6 @@
 #include "Evolution/Systems/GeneralizedHarmonic/Initialize.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
-#include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/FindApparentHorizon.hpp"
-#include "ParallelAlgorithms/ApparentHorizonFinder/InterpolationTarget.hpp"
-//
-#include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
-//
-#include "Evolution/Systems/CurvedScalarWave/BoundaryConditions/Factory.hpp"
-#include "Evolution/Systems/CurvedScalarWave/BoundaryCorrections/Factory.hpp"
-#include "Evolution/Systems/CurvedScalarWave/Initialize.hpp"
-#include "Evolution/Systems/CurvedScalarWave/PsiSquared.hpp"
-#include "Evolution/Systems/CurvedScalarWave/System.hpp"
-#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
-//
 #include "Evolution/Systems/ScalarTensor/Actions/InitializeConstraintGammas.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
@@ -66,28 +76,6 @@
 #include "Evolution/Systems/ScalarTensor/StressEnergy.hpp"
 #include "Evolution/Systems/ScalarTensor/System.hpp"
 #include "Evolution/Systems/ScalarTensor/Tags.hpp"
-//
-//
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/Factory.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryConditions/ProductOfConditions.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/Factory.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/BoundaryCorrections/ProductOfCorrections.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/Tags.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Initialize.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/System.hpp"
-#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Tags.hpp"
-//
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Actions/InitializeConstraintGammas.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryConditions/Factory.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/BoundaryCorrections/Factory.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Constraints.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Diagnostics.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Initialize.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/PsiSquared.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/System.hpp"
-#include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
-//
 #include "Evolution/Tags/Filter.hpp"
 #include "Evolution/TypeTraits.hpp"
 #include "IO/Importers/Actions/RegisterWithElementDataReader.hpp"
@@ -99,7 +87,6 @@
 #include "IO/Observer/Tags.hpp"
 #include "NumericalAlgorithms/DiscontinuousGalerkin/Tags.hpp"
 #include "NumericalAlgorithms/LinearOperators/ExponentialFilter.hpp"
-#include "NumericalAlgorithms/LinearOperators/FilterAction.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
 #include "Options/String.hpp"
 #include "Parallel/Algorithms/AlgorithmSingleton.hpp"
@@ -114,21 +101,39 @@
 #include "Parallel/Reduction.hpp"
 #include "ParallelAlgorithms/Actions/AddComputeTags.hpp"
 #include "ParallelAlgorithms/Actions/AddSimpleTags.hpp"
+#include "ParallelAlgorithms/Actions/FilterAction.hpp"
+#include "ParallelAlgorithms/Actions/FunctionsOfTimeAreReady.hpp"
 #include "ParallelAlgorithms/Actions/InitializeItems.hpp"
-#include "ParallelAlgorithms/Actions/MutateApply.hpp"
-//
-#include "ParallelAlgorithms/Actions/RandomizeVariables.hpp"
-//
 #include "ParallelAlgorithms/Actions/MemoryMonitor/ContributeMemoryData.hpp"
+#include "ParallelAlgorithms/Actions/MutateApply.hpp"
+#include "ParallelAlgorithms/Actions/RandomizeVariables.hpp"
 #include "ParallelAlgorithms/Actions/TerminatePhase.hpp"
+#include "ParallelAlgorithms/Amr/Actions/CollectDataFromChildren.hpp"
+#include "ParallelAlgorithms/Amr/Actions/Component.hpp"
+#include "ParallelAlgorithms/Amr/Actions/CreateChild.hpp"
+#include "ParallelAlgorithms/Amr/Actions/Initialize.hpp"
+#include "ParallelAlgorithms/Amr/Actions/SendAmrDiagnostics.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/Constraints.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/Criterion.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/DriveToTarget.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/Random.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/Tags/Criteria.hpp"
+#include "ParallelAlgorithms/Amr/Criteria/TruncationError.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/CopyFromCreatorOrLeaveAsIs.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/DefaultInitialize.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/Tensors.hpp"
+#include "ParallelAlgorithms/Amr/Projectors/Variables.hpp"
+#include "ParallelAlgorithms/Amr/Protocols/AmrMetavariables.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/ErrorOnFailedApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/FindApparentHorizon.hpp"
 #include "ParallelAlgorithms/ApparentHorizonFinder/Callbacks/IgnoreFailedApparentHorizon.hpp"
+#include "ParallelAlgorithms/ApparentHorizonFinder/InterpolationTarget.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/MonitorMemory.hpp"
 #include "ParallelAlgorithms/Events/ObserveTimeStep.hpp"
 #include "ParallelAlgorithms/Events/Tags.hpp"
-#include "Evolution/Actions/RunEventsAndDenseTriggers.hpp"
+#include "ParallelAlgorithms/EventsAndDenseTriggers/DenseTrigger.hpp"
+#include "ParallelAlgorithms/EventsAndDenseTriggers/DenseTriggers/Factory.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Completion.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Event.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/EventsAndTriggers.hpp"
@@ -146,16 +151,13 @@
 #include "ParallelAlgorithms/Interpolation/InterpolationTarget.hpp"
 #include "ParallelAlgorithms/Interpolation/Interpolator.hpp"
 #include "ParallelAlgorithms/Interpolation/Tags.hpp"
+#include "PointwiseFunctions/AnalyticData/GhFixedScalarTensor/Factory.hpp"
+#include "PointwiseFunctions/AnalyticData/GhScalarTensor/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/Factory.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrSchild.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/SphericalKerrSchild.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/WrappedGr.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/Tags.hpp"
-//
-#include "PointwiseFunctions/AnalyticData/GhScalarTensor/Factory.hpp"
-//
-#include "PointwiseFunctions/AnalyticData/GhFixedScalarTensor/Factory.hpp"
-//
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/GeneralRelativity/DetAndInverseSpatialMetric.hpp"
 #include "PointwiseFunctions/GeneralRelativity/GeneralizedHarmonic/ConstraintGammas.hpp"
@@ -166,11 +168,11 @@
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialData.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/Tags/InitialData.hpp"
-//
+#include "PointwiseFunctions/MathFunctions/Factory.hpp"
+#include "PointwiseFunctions/MathFunctions/MathFunction.hpp"
 #include "PointwiseFunctions/ScalarTensor/ScalarCharge.hpp"
-//
 #include "Time/Actions/AdvanceTime.hpp"
-#include "Time/Actions/ChangeSlabSize.hpp"
+#include "Time/Actions/CleanHistory.hpp"
 #include "Time/Actions/RecordTimeStepperData.hpp"
 #include "Time/Actions/SelfStartActions.hpp"
 #include "Time/Actions/UpdateU.hpp"
@@ -224,6 +226,7 @@ constexpr auto make_default_phase_order() {
                       Parallel::Phase::InitializeInitialDataDependentQuantities,
                       Parallel::Phase::Register,
                       Parallel::Phase::InitializeTimeStepperHistory,
+                      Parallel::Phase::CheckDomain,
                       Parallel::Phase::Evolve,
                       Parallel::Phase::Exit};
   } else {
@@ -231,6 +234,7 @@ constexpr auto make_default_phase_order() {
                       Parallel::Phase::InitializeInitialDataDependentQuantities,
                       Parallel::Phase::Register,
                       Parallel::Phase::InitializeTimeStepperHistory,
+                      Parallel::Phase::CheckDomain,
                       Parallel::Phase::Evolve,
                       Parallel::Phase::Exit};
   }
@@ -517,13 +521,21 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
   using initial_data_list =
       gh::fe::DecoupledScalar::AnalyticData::all_analytic_data;
   using factory_classes = tmpl::map<
+      tmpl::pair<
+          amr::Criterion,
+          tmpl::list<
+              amr::Criteria::DriveToTarget<volume_dim>,
+              amr::Criteria::Constraints<
+                  volume_dim, tmpl::list<gh::Tags::ThreeIndexConstraintCompute<
+                                  volume_dim, Frame::Inertial>>>,
+              amr::Criteria::TruncationError<
+                  volume_dim, typename system::variables_tag::tags_list>>>,
       tmpl::pair<DenseTrigger, DenseTriggers::standard_dense_triggers>,
       tmpl::pair<DomainCreator<volume_dim>, domain_creators<volume_dim>>,
       tmpl::pair<
           Event,
           tmpl::flatten<tmpl::list<
-              Events::Completion,
-              Events::MonitorMemory<volume_dim>,
+              Events::Completion, Events::MonitorMemory<volume_dim>,
               typename detail::ObserverTags<volume_dim>::field_observations,
               Events::time_events<system>>>>,
       //   tmpl::pair<gh::BoundaryConditions::BoundaryCondition<
@@ -679,38 +691,23 @@ struct FixedScalarTensorTemplateBase<
                          evolution::dg::ApplyBoundaryCorrections<
                              local_time_stepping, system, volume_dim, true>>>,
                      evolution::dg::Actions::ApplyLtsBoundaryCorrections<
-                         system, volume_dim, false>,
-                     // We allow for separate filtering of the system variables
-                     dg::Actions::Filter<Filters::Exponential<0>,
-                                         system::gh_system::gh_system::
-                                             variables_tag::tags_list>,
-                     dg::Actions::Filter<Filters::Exponential<1>,
-                                         system::gh_system::scalar_system::
-                                             variables_tag::tags_list>,
-                     dg::Actions::Filter<
-                         Filters::Exponential<2>,
-                         system::scalar_system::variables_tag::tags_list>>
-          // tmpl::list<>
-          ,
+                         system, volume_dim, false>>,
           tmpl::list<
               evolution::dg::Actions::ApplyBoundaryCorrectionsToTimeDerivative<
                   system, volume_dim, false>,
               Actions::RecordTimeStepperData<system>,
               evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<>>,
               control_system::Actions::LimitTimeStep<ControlSystems>,
-              Actions::UpdateU<system>,
-              // We allow for separate filtering of the system variables
-              dg::Actions::Filter<
-                  Filters::Exponential<0>,
-                  system::gh_system::gh_system::variables_tag::tags_list>,
-              dg::Actions::Filter<
-                  Filters::Exponential<1>,
-                  system::gh_system::scalar_system::variables_tag::tags_list>,
-              dg::Actions::Filter<
-                  Filters::Exponential<2>,
-                  system::scalar_system::variables_tag::tags_list>>
-          // tmpl::list<>
-          >>;
+              Actions::UpdateU<system>>>,
+      Actions::CleanHistory<system, local_time_stepping>,
+      dg::Actions::Filter<
+          Filters::Exponential<0>,
+          system::gh_system::gh_system::variables_tag::tags_list>,
+      dg::Actions::Filter<
+          Filters::Exponential<1>,
+          system::gh_system::scalar_system::variables_tag::tags_list>,
+      dg::Actions::Filter<Filters::Exponential<2>,
+                          system::scalar_system::variables_tag::tags_list>>;
 
   // For labeling the yaml option for RandomizeVariables
   struct RandomizeInitialGuess {};
@@ -720,6 +717,7 @@ struct FixedScalarTensorTemplateBase<
       Initialization::Actions::InitializeItems<
           Initialization::TimeStepping<derived_metavars, TimeStepperBase>,
           evolution::dg::Initialization::Domain<volume_dim, UseControlSystems>,
+          ::amr::Initialization::Initialize<volume_dim>,
           Initialization::TimeStepperHistory<derived_metavars>>,
       Initialization::Actions::NonconservativeSystem<system>,
       //
