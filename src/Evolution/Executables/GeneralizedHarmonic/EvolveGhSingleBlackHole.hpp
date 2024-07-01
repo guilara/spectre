@@ -88,30 +88,31 @@ struct EvolutionMetavars : public GeneralizedHarmonicTemplateBase<3, UseLts> {
       "formulation,\n"
       "on a domain with a single horizon and corresponding excised region"};
 
+  template <typename Frame>
   struct ApparentHorizon
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     using temporal_id = ::Tags::Time;
-    using tags_to_observe = ::ah::tags_for_observing<Frame::Inertial>;
+    using tags_to_observe = ::ah::tags_for_observing<Frame>;
     using surface_tags_to_observe = ::ah::surface_tags_for_observing;
     using compute_vars_to_interpolate = ah::ComputeHorizonVolumeQuantities;
     using vars_to_interpolate_to_target =
-        ::ah::vars_to_interpolate_to_target<volume_dim, ::Frame::Inertial>;
+        ::ah::vars_to_interpolate_to_target<volume_dim, Frame>;
     using compute_items_on_target =
-        ::ah::compute_items_on_target<volume_dim, Frame::Inertial>;
+        ::ah::compute_items_on_target<volume_dim, Frame>;
     using compute_target_points =
-        intrp::TargetPoints::ApparentHorizon<ApparentHorizon,
-                                             ::Frame::Inertial>;
-    using post_interpolation_callbacks =
-        tmpl::list<intrp::callbacks::FindApparentHorizon<ApparentHorizon,
-                                                         ::Frame::Inertial>>;
+        intrp::TargetPoints::ApparentHorizon<ApparentHorizon, Frame>;
+    using post_interpolation_callbacks = tmpl::list<
+        intrp::callbacks::FindApparentHorizon<ApparentHorizon, Frame>>;
     using horizon_find_failure_callback =
         intrp::callbacks::IgnoreFailedApparentHorizon;
-    using post_horizon_find_callbacks = tmpl::list<
-        intrp::callbacks::ObserveTimeSeriesOnSurface<tags_to_observe,
-                                                     ApparentHorizon>,
-        intrp::callbacks::ObserveSurfaceData<
-            surface_tags_to_observe, ApparentHorizon, ::Frame::Inertial>>;
+    using post_horizon_find_callbacks =
+        tmpl::list<intrp::callbacks::ObserveTimeSeriesOnSurface<
+                       tags_to_observe, ApparentHorizon>,
+                   intrp::callbacks::ObserveSurfaceData<
+                       surface_tags_to_observe, ApparentHorizon, Frame>>;
   };
+
+  using Ah = ApparentHorizon<::Frame::Grid>;
 
   struct ExcisionBoundary
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
@@ -148,7 +149,7 @@ struct EvolutionMetavars : public GeneralizedHarmonicTemplateBase<3, UseLts> {
 
   using interpolation_target_tags = tmpl::push_back<
       control_system::metafunctions::interpolation_target_tags<control_systems>,
-      ApparentHorizon, ExcisionBoundary, BondiSachs>;
+      Ah, ExcisionBoundary, BondiSachs>;
   using interpolator_source_vars = ::ah::source_vars<volume_dim>;
   using source_vars_no_deriv =
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, volume_dim>,
@@ -184,16 +185,16 @@ struct EvolutionMetavars : public GeneralizedHarmonicTemplateBase<3, UseLts> {
                         LtsTimeStepper>,
             tmpl::pair<LtsTimeStepper,
                        TimeSteppers::monotonic_lts_time_steppers>>,
-        tmpl::pair<Event,
-                   tmpl::flatten<tmpl::list<
-                       intrp::Events::Interpolate<3, ApparentHorizon,
-                                                  interpolator_source_vars>,
-                       control_system::metafunctions::control_system_events<
-                           control_systems>,
-                       intrp::Events::InterpolateWithoutInterpComponent<
-                           3, BondiSachs, source_vars_no_deriv>,
-                       intrp::Events::InterpolateWithoutInterpComponent<
-                           3, ExcisionBoundary, interpolator_source_vars>>>>,
+        tmpl::pair<
+            Event,
+            tmpl::flatten<tmpl::list<
+                intrp::Events::Interpolate<3, Ah, interpolator_source_vars>,
+                control_system::metafunctions::control_system_events<
+                    control_systems>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    3, BondiSachs, source_vars_no_deriv>,
+                intrp::Events::InterpolateWithoutInterpComponent<
+                    3, ExcisionBoundary, interpolator_source_vars>>>>,
         tmpl::pair<DenseTrigger,
                    control_system::control_system_triggers<control_systems>>,
         tmpl::pair<control_system::size::State,
@@ -205,7 +206,7 @@ struct EvolutionMetavars : public GeneralizedHarmonicTemplateBase<3, UseLts> {
   using observed_reduction_data_tags =
       observers::collect_reduction_data_tags<tmpl::push_back<
           tmpl::at<typename factory_creation::factory_classes, Event>,
-          typename ApparentHorizon::post_horizon_find_callbacks,
+          typename Ah::post_horizon_find_callbacks,
           typename ExcisionBoundary::post_interpolation_callbacks>>;
 
   using dg_registration_list =
