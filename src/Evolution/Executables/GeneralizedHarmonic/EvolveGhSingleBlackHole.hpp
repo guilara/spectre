@@ -112,7 +112,7 @@ struct EvolutionMetavars : public GeneralizedHarmonicTemplateBase<3, UseLts> {
                        surface_tags_to_observe, ApparentHorizon, Frame>>;
   };
 
-  using Ah = ApparentHorizon<::Frame::Grid>;
+  using Ah = ApparentHorizon<::Frame::Distorted>;
 
   struct ExcisionBoundary
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
