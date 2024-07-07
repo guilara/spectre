@@ -2,11 +2,34 @@
 // See LICENSE.txt for details.
 
 #pragma once
+#pragma once
 
+#include <cstddef>
+#include <string>
+
+#include "DataStructures/DataBox/Tag.hpp"
+#include "DataStructures/Tensor/TypeAliases.hpp"
 #include "Evolution/Tags.hpp"
+#include "Options/String.hpp"
+
+/// \cond
+class DataVector;
+template <class>
+class Variables;
+/// \endcond
 
 namespace fe::DecoupledScalar {
-namespace Tags {}  // namespace Tags
+namespace Tags {
+
+struct ReSource : db::SimpleTag {
+  using type = Scalar<DataVector>;
+};
+
+struct ImSource : db::SimpleTag {
+  using type = Scalar<DataVector>;
+};
+
+}  // namespace Tags
 namespace OptionTags {
 /*!
  * \ingroup OptionGroupsGroup

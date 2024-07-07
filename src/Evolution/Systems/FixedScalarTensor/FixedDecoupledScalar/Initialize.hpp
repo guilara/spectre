@@ -10,6 +10,7 @@
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/ConstraintGammas.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/ConstraintDamping/Tags.hpp"
+#include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/Sources/ComplexPotential.hpp"
 #include "Evolution/Systems/FixedScalarTensor/FixedDecoupledScalar/System.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Sources.hpp"
 #include "Evolution/Systems/FixedScalarTensor/ScalarDriver/Tags.hpp"
@@ -95,7 +96,7 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
         Dim, Frame::Grid>,
 
     // ScalarTensor::Tags::ScalarSourceCompute>;
-    ScalarTensor::Tags::ScalarCurvatureSourceCompute<DataVector, Dim, Fr>,
+    // ScalarTensor::Tags::ScalarCurvatureSourceCompute<DataVector, Dim, Fr>,
 
     // Extra tags for curvatures
     ::Tags::DerivTensorCompute<
@@ -122,7 +123,14 @@ using scalar_tensor_3plus1_compute_tags = tmpl::list<
 
     // Tags for the scalar driver
     fe::ScalarDriver::Tags::TargetPsiCompute<Fr, DataVector>,
-    fe::ScalarDriver::Tags::ScalarDriverSourceCompute<Fr, DataVector>>;
+    // fe::ScalarDriver::Tags::ScalarDriverSourceCompute<Fr, DataVector>,
+
+    fe::DecoupledScalar::Tags::ReSourceCompute<Fr, DataVector>,
+    fe::DecoupledScalar::Tags::ImSourceCompute<Fr, DataVector>,
+    ScalarTensor::Tags::ReSourceMirrorCompute,
+    fe::ScalarDriver::Tags::ImSourceMirrorCompute
+
+    >;
 
 struct InitializeEvolvedScalarVariables
     : tt::ConformsTo<db::protocols::Mutator> {

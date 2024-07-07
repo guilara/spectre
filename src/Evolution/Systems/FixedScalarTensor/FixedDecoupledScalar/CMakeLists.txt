@@ -19,6 +19,7 @@ spectre_target_headers(
   Characteristics.hpp
   Diagnostics.hpp
   Initialize.hpp
+  Sources/ComplexPotential.hpp
   System.hpp
   Tags.hpp
   TimeDerivativeTerms.hpp
