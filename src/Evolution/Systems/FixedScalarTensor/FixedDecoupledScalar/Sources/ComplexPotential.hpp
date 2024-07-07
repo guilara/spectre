@@ -52,7 +52,7 @@ void compute_higgs_potential_re_part(
                          (square(get(psi_re)) + square(get(psi_im))) *
                          get(psi_re);
   scalar_source->get() +=
-      -0.25 * lambda_parameter * vev_parameter * vev_parameter * get(psi_re);
+      -0.5 * lambda_parameter * vev_parameter * vev_parameter * get(psi_re);
   scalar_source->get() += square(mass_psi) * get(psi_re);
 }
 
@@ -67,7 +67,7 @@ void compute_higgs_potential_im_part(
                          (square(get(psi_re)) + square(get(psi_im))) *
                          get(psi_im);
   scalar_source->get() +=
-      -0.25 * lambda_parameter * vev_parameter * vev_parameter * get(psi_im);
+      -0.5 * lambda_parameter * vev_parameter * vev_parameter * get(psi_im);
   scalar_source->get() += square(mass_psi) * get(psi_im);
 }
 
