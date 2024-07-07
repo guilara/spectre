@@ -40,6 +40,7 @@ void compute_potential_im_part(
   scalar_source->get() = square(mass_psi) * get(psi_im);
 }
 
+// V = (lambda / 4)(Psi_bar * Psi - v^2/ 2)^2 + m^2 Psi_bar Psi
 void compute_higgs_potential_re_part(
     const gsl::not_null<Scalar<DataVector>*> scalar_source,
     // Real part
