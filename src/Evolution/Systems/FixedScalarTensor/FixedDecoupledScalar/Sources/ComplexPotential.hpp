@@ -40,6 +40,36 @@ void compute_potential_im_part(
   scalar_source->get() = square(mass_psi) * get(psi_im);
 }
 
+void compute_higgs_potential_re_part(
+    const gsl::not_null<Scalar<DataVector>*> scalar_source,
+    // Real part
+    const Scalar<DataVector>& psi_re,
+    // Imaginary part
+    const Scalar<DataVector>& psi_im, const double lambda_parameter,
+    const double vev_parameter, const double mass_psi) {
+  scalar_source->get() = 0.5 * lambda_parameter *
+                         (square(get(psi_re)) + square(get(psi_im))) *
+                         get(psi_re);
+  scalar_source->get() +=
+      -0.25 * lambda_parameter * vev_parameter * vev_parameter * get(psi_re);
+  scalar_source->get() += square(mass_psi) * get(psi_re);
+}
+
+void compute_higgs_potential_im_part(
+    const gsl::not_null<Scalar<DataVector>*> scalar_source,
+    // Real part
+    const Scalar<DataVector>& psi_re,
+    // Imaginary part
+    const Scalar<DataVector>& psi_im, const double lambda_parameter,
+    const double vev_parameter, const double mass_psi) {
+  scalar_source->get() = 0.5 * lambda_parameter *
+                         (square(get(psi_re)) + square(get(psi_im))) *
+                         get(psi_im);
+  scalar_source->get() +=
+      -0.25 * lambda_parameter * vev_parameter * vev_parameter * get(psi_im);
+  scalar_source->get() += square(mass_psi) * get(psi_im);
+}
+
 namespace Tags {
 
 /*!
@@ -62,7 +92,7 @@ struct ReSourceCompute : ReSource, db::ComputeTag {
       // Imaginary part
       const Scalar<DataVector>& psi_im, const double first_coupling_psi,
       const double second_coupling_psi,
-      const double mass_psi) = &compute_potential_re_part;
+      const double mass_psi) = &compute_higgs_potential_re_part;
   using base = ReSource;
 };
 
@@ -86,7 +116,7 @@ struct ImSourceCompute : ImSource, db::ComputeTag {
       // Imaginary part
       const Scalar<DataVector>& psi_im, const double first_coupling_psi,
       const double second_coupling_psi,
-      const double mass_psi) = &compute_potential_im_part;
+      const double mass_psi) = &compute_higgs_potential_im_part;
   using base = ImSource;
 };
 
