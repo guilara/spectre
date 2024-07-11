@@ -71,7 +71,7 @@ void compute_higgs_potential_im_part(
   scalar_source->get() += square(mass_psi) * get(psi_im);
 }
 
-// V =
+// V = m_b^2 \Psi^2 [1 - (2 / sigma_0^2) * \Psi^2]^2
 void compute_solitonic_potential_re_part(
     const gsl::not_null<Scalar<DataVector>*> scalar_source,
     // Real part
@@ -88,7 +88,7 @@ void compute_solitonic_potential_re_part(
                           get(psi_re);
 }
 
-// V =
+// V = m_b^2 \Psi^2 [1 - (2 / sigma_0^2) * \Psi^2]^2
 void compute_solitonic_potential_im_part(
     const gsl::not_null<Scalar<DataVector>*> scalar_source,
     // Real part
