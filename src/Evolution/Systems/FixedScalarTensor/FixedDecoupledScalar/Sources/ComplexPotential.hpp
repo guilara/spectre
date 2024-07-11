@@ -71,6 +71,40 @@ void compute_higgs_potential_im_part(
   scalar_source->get() += square(mass_psi) * get(psi_im);
 }
 
+// V =
+void compute_solitonic_potential_re_part(
+    const gsl::not_null<Scalar<DataVector>*> scalar_source,
+    // Real part
+    const Scalar<DataVector>& psi_re,
+    // Imaginary part
+    const Scalar<DataVector>& psi_im, const double sigma_zero,
+    const double vev_parameter, const double mass_psi) {
+  scalar_source->get() = square(mass_psi) * get(psi_re);
+  scalar_source->get() += (-4.0 / square(sigma_zero)) *
+                          (square(get(psi_re)) + square(get(psi_im))) *
+                          get(psi_re);
+  scalar_source->get() += (3.0 / square(square(sigma_zero))) *
+                          square(square(get(psi_re)) + square(get(psi_im))) *
+                          get(psi_re);
+}
+
+// V =
+void compute_solitonic_potential_im_part(
+    const gsl::not_null<Scalar<DataVector>*> scalar_source,
+    // Real part
+    const Scalar<DataVector>& psi_re,
+    // Imaginary part
+    const Scalar<DataVector>& psi_im, const double sigma_zero,
+    const double vev_parameter, const double mass_psi) {
+  scalar_source->get() = square(mass_psi) * get(psi_im);
+  scalar_source->get() += (-4.0 / square(sigma_zero)) *
+                          (square(get(psi_re)) + square(get(psi_im))) *
+                          get(psi_im);
+  scalar_source->get() += (3.0 / square(square(sigma_zero))) *
+                          square(square(get(psi_re)) + square(get(psi_im))) *
+                          get(psi_im);
+}
+
 namespace Tags {
 
 /*!
