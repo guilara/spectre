@@ -127,7 +127,7 @@ struct ReSourceCompute : ReSource, db::ComputeTag {
       // Imaginary part
       const Scalar<DataVector>& psi_im, const double first_coupling_psi,
       const double second_coupling_psi,
-      const double mass_psi) = &compute_higgs_potential_re_part;
+      const double mass_psi) = &compute_solitonic_potential_re_part;
   using base = ReSource;
 };
 
@@ -151,7 +151,7 @@ struct ImSourceCompute : ImSource, db::ComputeTag {
       // Imaginary part
       const Scalar<DataVector>& psi_im, const double first_coupling_psi,
       const double second_coupling_psi,
-      const double mass_psi) = &compute_higgs_potential_im_part;
+      const double mass_psi) = &compute_solitonic_potential_im_part;
   using base = ImSource;
 };
 
