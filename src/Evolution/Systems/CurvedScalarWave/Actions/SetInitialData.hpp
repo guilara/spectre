@@ -55,8 +55,7 @@ class NumericInitialData : public evolution::initial_data::InitialData {
 
   struct ScalarVars : tuples::tagged_tuple_from_typelist<all_vars> {
     static constexpr Options::String help =
-        "Primitive hydro variables: 'RestMassDensity' and "
-        "'LowerSpatialFourVelocity' (which is u_i = W * gamma_ij v^j). ";
+        "Scalar variables: 'Psi', 'Pi' and 'Phi'.";
     using options = tags_list;
     using TaggedTuple::TaggedTuple;
   };
