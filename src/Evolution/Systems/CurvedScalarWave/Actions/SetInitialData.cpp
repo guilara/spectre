@@ -15,7 +15,7 @@ namespace CurvedScalarWave {
 NumericInitialData::NumericInitialData(
     std::string file_glob, std::string subfile_name,
     std::variant<double, importers::ObservationSelector> observation_value,
-    const bool enable_interpolation, PrimitiveVars selected_variables
+    const bool enable_interpolation, ScalarVars selected_variables
     // ,
     // const double density_cutoff
     )
