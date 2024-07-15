@@ -43,6 +43,7 @@ target_link_libraries(
   GeneralRelativity
   )
 
+add_subdirectory(Actions)
 add_subdirectory(BoundaryConditions)
 add_subdirectory(BoundaryCorrections)
 add_subdirectory(Worldtube)
