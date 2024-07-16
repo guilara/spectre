@@ -28,16 +28,12 @@ NumericInitialData::NumericInitialData(
     std::variant<double, importers::ObservationSelector> observation_value,
     const bool enable_interpolation,
     typename GhNumericId::Variables::type gh_selected_variables,
-    typename HydroNumericId::Variables::type hydro_selected_variables
-    // , const double density_cutoff
-    )
+    typename ScalarNumericId::Variables::type hydro_selected_variables)
     : gh_numeric_id_(file_glob, subfile_name, observation_value,
                      enable_interpolation, std::move(gh_selected_variables)),
-      hydro_numeric_id_(std::move(file_glob), std::move(subfile_name),
-                        observation_value, enable_interpolation,
-                        std::move(hydro_selected_variables)
-                        // , density_cutoff
-      ) {}
+      scalar_numeric_id_(std::move(file_glob), std::move(subfile_name),
+                         observation_value, enable_interpolation,
+                         std::move(hydro_selected_variables)) {}
 
 NumericInitialData::NumericInitialData(CkMigrateMessage* msg)
     : InitialData(msg) {}
@@ -47,18 +43,18 @@ PUP::able::PUP_ID NumericInitialData::my_PUP_ID = 0;
 size_t NumericInitialData::volume_data_id() const {
   size_t hash = 0;
   boost::hash_combine(hash, gh_numeric_id_.volume_data_id());
-  boost::hash_combine(hash, hydro_numeric_id_.volume_data_id());
+  boost::hash_combine(hash, scalar_numeric_id_.volume_data_id());
   return hash;
 }
 
 void NumericInitialData::pup(PUP::er& p) {
   p | gh_numeric_id_;
-  p | hydro_numeric_id_;
+  p | scalar_numeric_id_;
 }
 
 bool operator==(const NumericInitialData& lhs, const NumericInitialData& rhs) {
   return lhs.gh_numeric_id_ == rhs.gh_numeric_id_ and
-         lhs.hydro_numeric_id_ == rhs.hydro_numeric_id_;
+         lhs.scalar_numeric_id_ == rhs.scalar_numeric_id_;
 }
 
 }  // namespace ScalarTensor
