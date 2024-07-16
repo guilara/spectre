@@ -44,32 +44,25 @@ namespace ScalarTensor {
 
 /*!
  * \brief Numeric initial data loaded from volume data files
- *
- * This class can be factory-created in the input file to start an evolution
- * from numeric initial data. It selects the set of GH variables to load from
- * the volume data file (ADM or GH variables), the set of hydro variables, and
- * allows to set constant values for some of the hydro variables. This class
- * mostly combines the `gh::NumericInitialData` and
- * `grmhd::ValenciaDivClean::NumericInitialData` classes.
  */
 class NumericInitialData : public evolution::initial_data::InitialData,
                            public evolution::NumericInitialData {
  private:
   using GhNumericId = gh::NumericInitialData;
-  using HydroNumericId = CurvedScalarWave::NumericInitialData;
+  using ScalarNumericId = CurvedScalarWave::NumericInitialData;
 
  public:
   using all_vars =
-      tmpl::append<GhNumericId::all_vars, HydroNumericId::all_vars>;
+      tmpl::append<GhNumericId::all_vars, ScalarNumericId::all_vars>;
 
   struct GhVariables : GhNumericId::Variables {};
-  struct HydroVariables : HydroNumericId::Variables {};
+  struct HydroVariables : ScalarNumericId::Variables {};
 
   using options = tmpl::list<
       importers::OptionTags::FileGlob, importers::OptionTags::Subgroup,
       importers::OptionTags::ObservationValue,
       importers::OptionTags::EnableInterpolation, GhVariables, HydroVariables
-      //  , HydroNumericId::DensityCutoff
+      //  , ScalarNumericId::DensityCutoff
       >;
 
   static constexpr Options::String help =
@@ -98,9 +91,7 @@ class NumericInitialData : public evolution::initial_data::InitialData,
       std::variant<double, importers::ObservationSelector> observation_value,
       bool enable_interpolation,
       typename GhNumericId::Variables::type gh_selected_variables,
-      typename HydroNumericId::Variables::type hydro_selected_variables
-      // , double density_cutoff
-  );
+      typename ScalarNumericId::Variables::type hydro_selected_variables);
 
   const importers::ImporterOptions& importer_options() const {
     return gh_numeric_id_.importer_options();
@@ -108,7 +99,9 @@ class NumericInitialData : public evolution::initial_data::InitialData,
 
   const GhNumericId& gh_numeric_id() const { return gh_numeric_id_; }
 
-  const HydroNumericId& hydro_numeric_id() const { return hydro_numeric_id_; }
+  const ScalarNumericId& scalar_numeric_id() const {
+    return scalar_numeric_id_;
+  }
 
   size_t volume_data_id() const;
 
@@ -116,7 +109,7 @@ class NumericInitialData : public evolution::initial_data::InitialData,
   void select_for_import(
       const gsl::not_null<tuples::TaggedTuple<AllTags...>*> fields) const {
     gh_numeric_id_.select_for_import(fields);
-    hydro_numeric_id_.select_for_import(fields);
+    scalar_numeric_id_.select_for_import(fields);
   }
 
   template <typename... AllTags>
@@ -133,8 +126,8 @@ class NumericInitialData : public evolution::initial_data::InitialData,
                             Frame::Inertial>& inv_jacobian) const {
     gh_numeric_id_.set_initial_data(spacetime_metric, pi, phi, numeric_data,
                                     mesh, inv_jacobian);
-    hydro_numeric_id_.set_initial_data(psi_scalar, pi_scalar, phi_scalar,
-                                       numeric_data, mesh, inv_jacobian);
+    scalar_numeric_id_.set_initial_data(psi_scalar, pi_scalar, phi_scalar,
+                                        numeric_data, mesh, inv_jacobian);
   }
 
   void pup(PUP::er& p) override;
@@ -144,7 +137,7 @@ class NumericInitialData : public evolution::initial_data::InitialData,
 
  private:
   GhNumericId gh_numeric_id_{};
-  HydroNumericId hydro_numeric_id_{};
+  ScalarNumericId scalar_numeric_id_{};
 };
 
 namespace Actions {
@@ -153,7 +146,7 @@ namespace Actions {
  * \brief Dispatch loading numeric initial data from files.
  *
  * Place this action before
- * grmhd::GhValenciaDivClean::Actions::SetNumericInitialData in the action list.
+ * ScalarTensor::Actions::SetNumericInitialData in the action list.
  * See importers::Actions::ReadAllVolumeDataAndDistribute for details, which is
  * invoked by this action.
  */
@@ -281,22 +274,7 @@ struct SetInitialData {
 
   /*!
    * \brief Receive numeric initial data loaded by
-   * grmhd::GhValenciaDivClean::Actions::SetInitialData.
-   *
-   * Place this action in the action list after
-   * grmhd::GhValenciaDivClean::Actions::SetInitialData to wait until the
-   * data for this element has arrived, and then compute the GH variables and
-   * the remaining primitive variables and store them in the DataBox to be used
-   * as initial data.
-   *
-   * This action modifies the GH system tags (spacetime metric, pi, phi) and the
-   * tags listed in `hydro::grmhd_tags` in the DataBox (i.e., the hydro
-   * primitives). It does not modify conservative variables, so it relies on a
-   * primitive-to-conservative update in the action list before the evolution
-   * can start.
-   *
-   * \requires This action requires an equation of state, which is retrieved
-   * from the DataBox as `hydro::Tags::GrmhdEquationOfState`.
+   * ScalarTensor::Actions::SetInitialData.
    */
   struct ReceiveNumericInitialData {
     static constexpr size_t Dim = 3;
@@ -326,28 +304,6 @@ struct SetInitialData {
       const auto& inv_jacobian =
           db::get<domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
                                                 Frame::Inertial>>(box);
-
-      // const auto& [mesh, inv_jacobian] = [&box]() {
-      //   if constexpr (db::tag_is_retrievable_v<
-      //                     evolution::dg::subcell::Tags::ActiveGrid,
-      //                     db::DataBox<DbTagsList>>) {
-      //     const bool on_subcell =
-      //         db::get<evolution::dg::subcell::Tags::ActiveGrid>(box) ==
-      //         evolution::dg::subcell::ActiveGrid::Subcell;
-      //     if (on_subcell) {
-      //       return std::forward_as_tuple(
-      //           db::get<evolution::dg::subcell::Tags::Mesh<Dim>>(box),
-      //           db::get<evolution::dg::subcell::fd::Tags::
-      //                       InverseJacobianLogicalToInertial<Dim>>(box));
-      //     }
-      //   }
-      //   return std::forward_as_tuple(
-      //       db::get<domain::Tags::Mesh<Dim>>(box),
-      //       db::get<domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
-      //                                             Frame::Inertial>>(box));
-      // }();
-      // const auto& equation_of_state =
-      //     db::get<hydro::Tags::GrmhdEquationOfState>(box);
 
       db::mutate<gr::Tags::SpacetimeMetric<DataVector, 3>,
                  gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>,
