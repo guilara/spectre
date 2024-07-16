@@ -70,6 +70,7 @@
 #include "Evolution/Systems/GeneralizedHarmonic/System.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 #include "Evolution/Systems/ScalarTensor/Actions/InitializeConstraintGammas.hpp"
+#include "Evolution/Systems/ScalarTensor/Actions/SetInitialData.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/Factory.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryConditions/ProductOfConditions.hpp"
 #include "Evolution/Systems/ScalarTensor/BoundaryCorrections/Factory.hpp"
@@ -572,15 +573,15 @@ struct EvolutionMetavars {
                         volume_dim, Frame::Inertial>>>,
                 amr::Criteria::TruncationError<
                     volume_dim, typename system::variables_tag::tags_list>>>,
-        tmpl::pair<evolution::initial_data::InitialData,
-                   tmpl::flatten<tmpl::list<
-                       gh::NumericInitialData,
-                       // We add the analytic data to be able to impose
-                       // Dirichlet BCs
-                       gh::ScalarTensor::AnalyticData::all_analytic_data,
-                       tmpl::conditional_t<
-                           std::is_same_v<SpecInitialData, NoSuchType>,
-                           tmpl::list<>, SpecInitialData>>>>,
+        tmpl::pair<
+            evolution::initial_data::InitialData,
+            tmpl::flatten<tmpl::list<
+                ScalarTensor::NumericInitialData,
+                // We add the analytic data to be able to impose
+                // Dirichlet BCs
+                //    gh::ScalarTensor::AnalyticData::all_analytic_data,
+                tmpl::conditional_t<std::is_same_v<SpecInitialData, NoSuchType>,
+                                    tmpl::list<>, SpecInitialData>>>>,
         tmpl::pair<DenseTrigger,
                    tmpl::flatten<tmpl::list<
                        control_system::control_system_triggers<control_systems>,
@@ -753,8 +754,8 @@ struct EvolutionMetavars {
                          Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::ImportInitialData,
-              tmpl::list<gh::Actions::SetInitialData,
-                         gh::Actions::ReceiveNumericInitialData,
+              tmpl::list<ScalarTensor::Actions::SetInitialData,
+                         ScalarTensor::Actions::ReceiveNumericInitialData,
                          Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,

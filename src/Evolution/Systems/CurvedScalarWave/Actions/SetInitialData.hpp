@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstddef>
+#include <pup.h>
 #include <string>
 #include <variant>
 
@@ -13,11 +14,13 @@
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Domain/Structure/ElementId.hpp"
 #include "Domain/Tags.hpp"
+#include "Evolution/Initialization/InitialData.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "IO/Importers/Actions/ReadVolumeData.hpp"
 #include "IO/Importers/ElementDataReader.hpp"
 #include "IO/Importers/Tags.hpp"
 #include "NumericalAlgorithms/LinearOperators/PartialDerivatives.hpp"
+#include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "Options/String.hpp"
 #include "Parallel/AlgorithmExecution.hpp"
 #include "Parallel/GlobalCache.hpp"
@@ -25,8 +28,10 @@
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialData.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/Tags/InitialData.hpp"
+#include "Utilities/CallWithDynamicType.hpp"
 #include "Utilities/ErrorHandling/Error.hpp"
 #include "Utilities/Gsl.hpp"
+#include "Utilities/Serialization/CharmPupable.hpp"
 #include "Utilities/SetNumberOfGridPoints.hpp"
 #include "Utilities/TMPL.hpp"
 #include "Utilities/TaggedTuple.hpp"
@@ -53,7 +58,8 @@ class NumericInitialData : public evolution::initial_data::InitialData {
       tmpl::list<CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi>;
   using optional_primitive_vars = tmpl::list<>;
 
-  struct ScalarVars : tuples::tagged_tuple_from_typelist<all_vars> {
+  struct ScalarVars : tuples::tagged_tuple_from_typelist<
+                          db::wrap_tags_in<VarName, all_vars>> {
     static constexpr Options::String help =
         "Scalar variables: 'Psi', 'Pi' and 'Phi'.";
     using options = tags_list;
@@ -115,22 +121,13 @@ class NumericInitialData : public evolution::initial_data::InitialData {
       const gsl::not_null<tuples::TaggedTuple<AllTags...>*> fields) const {
     // Select the subset of the available variables that we want to read from
     // the volume data file
-    std::visit(
-        [&fields](const auto& vars) {
-          // This lambda is invoked with the set of vars selected in the input
-          // file, which map to the tensor names that should be read from the H5
-          // file
-          using selected_vars = std::decay_t<decltype(vars)>;
-          // Get the mapped tensor name from the input file and select it in the
-          // set of all possible vars.
-          tmpl::for_each<typename selected_vars::tags_list>(
-              [&fields, &vars](const auto tag_v) {
-                using tag = typename std::decay_t<decltype(tag_v)>::type::tag;
-                get<importers::Tags::Selected<tag>>(*fields) =
-                    get<VarName<tag>>(vars);
-              });
-        },
-        selected_variables_);
+    using selected_vars = std::decay_t<decltype(selected_variables_)>;
+    tmpl::for_each<typename selected_vars::tags_list>(
+        [&fields, this](const auto tag_v) {
+          using tag = typename std::decay_t<decltype(tag_v)>::type::tag;
+          get<importers::Tags::Selected<tag>>(*fields) =
+              get<VarName<tag>>(selected_variables_);
+        });
   }
 
   template <typename... AllTags>
