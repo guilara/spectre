@@ -56,14 +56,12 @@ class NumericInitialData : public evolution::initial_data::InitialData,
       tmpl::append<GhNumericId::all_vars, ScalarNumericId::all_vars>;
 
   struct GhVariables : GhNumericId::Variables {};
-  struct HydroVariables : ScalarNumericId::Variables {};
+  struct ScalarVariables : ScalarNumericId::Variables {};
 
   using options = tmpl::list<
       importers::OptionTags::FileGlob, importers::OptionTags::Subgroup,
       importers::OptionTags::ObservationValue,
-      importers::OptionTags::EnableInterpolation, GhVariables, HydroVariables
-      //  , ScalarNumericId::DensityCutoff
-      >;
+      importers::OptionTags::EnableInterpolation, GhVariables, ScalarVariables>;
 
   static constexpr Options::String help =
       "Numeric initial data loaded from volume data files";
