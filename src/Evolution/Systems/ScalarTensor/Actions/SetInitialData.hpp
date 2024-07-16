@@ -119,7 +119,7 @@ class NumericInitialData : public evolution::initial_data::InitialData,
     hydro_numeric_id_.select_for_import(fields);
   }
 
-  template <typename... AllTags, size_t ThermodynamicDim>
+  template <typename... AllTags>
   void set_initial_data(
       const gsl::not_null<tnsr::aa<DataVector, 3>*> spacetime_metric,
       const gsl::not_null<tnsr::aa<DataVector, 3>*> pi,
@@ -353,7 +353,7 @@ struct SetInitialData {
                  gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>,
                  CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
                  CurvedScalarWave::Tags::Phi<3>>(
-          [&initial_data, &numeric_data](
+          [&initial_data, &numeric_data, &mesh, &inv_jacobian](
               const gsl::not_null<tnsr::aa<DataVector, 3>*> spacetime_metric,
               const gsl::not_null<tnsr::aa<DataVector, 3>*> pi,
               const gsl::not_null<tnsr::iaa<DataVector, 3>*> phi,
