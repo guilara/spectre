@@ -367,7 +367,7 @@ struct SetInitialData {
                                           make_not_null(&numeric_data), mesh,
                                           inv_jacobian);
           },
-          make_not_null(&box), mesh, inv_jacobian);
+          make_not_null(&box));
 
       return {Parallel::AlgorithmExecution::Continue, std::nullopt};
     }
