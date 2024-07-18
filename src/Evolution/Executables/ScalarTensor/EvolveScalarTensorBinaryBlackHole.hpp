@@ -573,15 +573,17 @@ struct EvolutionMetavars {
                         volume_dim, Frame::Inertial>>>,
                 amr::Criteria::TruncationError<
                     volume_dim, typename system::variables_tag::tags_list>>>,
-        tmpl::pair<
-            evolution::initial_data::InitialData,
-            tmpl::flatten<tmpl::list<
-                ScalarTensor::NumericInitialData,
-                // We add the analytic data to be able to impose
-                // Dirichlet BCs
-                //    gh::ScalarTensor::AnalyticData::all_analytic_data,
-                tmpl::conditional_t<std::is_same_v<SpecInitialData, NoSuchType>,
-                                    tmpl::list<>, SpecInitialData>>>>,
+        tmpl::pair<evolution::initial_data::InitialData,
+                   tmpl::flatten<tmpl::list<
+                       gh::NumericInitialData,
+                       // We add the analytic data to be able to impose
+                       // Dirichlet BCs
+                       //    gh::ScalarTensor::AnalyticData::all_analytic_data
+                       // ,
+                       // tmpl::conditional_t<std::is_same_v<SpecInitialData,
+                       // NoSuchType>,
+                       //                     tmpl::list<>, SpecInitialData>
+                       >>>,
         tmpl::pair<DenseTrigger,
                    tmpl::flatten<tmpl::list<
                        control_system::control_system_triggers<control_systems>,
@@ -725,6 +727,8 @@ struct EvolutionMetavars {
           ::amr::Initialization::Initialize<volume_dim>,
           Initialization::TimeStepperHistory<EvolutionMetavars>>,
       Initialization::Actions::NonconservativeSystem<system>,
+      // Remove if numerical ID
+      ScalarTensor::Initialization::InitializeEvolvedScalarVariables,
       Initialization::Actions::AddComputeTags<tmpl::list<::Tags::DerivCompute<
           typename system::variables_tag, ::domain::Tags::Mesh<volume_dim>,
           ::domain::Tags::InverseJacobian<volume_dim, Frame::ElementLogical,
@@ -754,8 +758,8 @@ struct EvolutionMetavars {
                          Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::ImportInitialData,
-              tmpl::list<ScalarTensor::Actions::SetInitialData,
-                         ScalarTensor::Actions::ReceiveNumericInitialData,
+              tmpl::list<gh::Actions::SetInitialData,
+                         gh::Actions::ReceiveNumericInitialData,
                          Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
