@@ -285,8 +285,8 @@ struct EvolutionMetavars {
 
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
       // For now we initially set the scalar variables to analytic values
-      Initialization::Actions::AddSimpleTags<
-          ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
+      //   Initialization::Actions::AddSimpleTags<
+      //       ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
       Actions::MutateApply<gh::gauges::SetPiAndPhiFromConstraints<volume_dim>>,
       //   Initialization::Actions::AddSimpleTags<
       //       ScalarTensor::Initialization::
