@@ -285,8 +285,8 @@ struct EvolutionMetavars {
 
   using initialize_initial_data_dependent_quantities_actions = tmpl::list<
       // For now we initially set the scalar variables to analytic values
-      Initialization::Actions::AddSimpleTags<
-          ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
+      //   Initialization::Actions::AddSimpleTags<
+      //       ScalarTensor::Initialization::InitializeEvolvedScalarVariables>,
       Actions::MutateApply<gh::gauges::SetPiAndPhiFromConstraints<volume_dim>>,
       //   Initialization::Actions::AddSimpleTags<
       //       ScalarTensor::Initialization::
@@ -575,7 +575,8 @@ struct EvolutionMetavars {
                     volume_dim, typename system::variables_tag::tags_list>>>,
         tmpl::pair<evolution::initial_data::InitialData,
                    tmpl::flatten<tmpl::list<
-                       gh::NumericInitialData,
+                       gh::NumericInitialData
+                    //    ,
                        // We add the analytic data to be able to impose
                        // Dirichlet BCs
                        //    gh::ScalarTensor::AnalyticData::all_analytic_data
