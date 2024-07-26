@@ -575,7 +575,8 @@ struct EvolutionMetavars {
                     volume_dim, typename system::variables_tag::tags_list>>>,
         tmpl::pair<evolution::initial_data::InitialData,
                    tmpl::flatten<tmpl::list<
-                       gh::NumericInitialData,
+                       ScalarTensor::NumericInitialData
+                       //    ,
                        // We add the analytic data to be able to impose
                        // Dirichlet BCs
                        //    gh::ScalarTensor::AnalyticData::all_analytic_data
@@ -756,8 +757,8 @@ struct EvolutionMetavars {
                          Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::ImportInitialData,
-              tmpl::list<gh::Actions::SetInitialData,
-                         gh::Actions::ReceiveNumericInitialData,
+              tmpl::list<ScalarTensor::Actions::SetInitialData,
+                         ScalarTensor::Actions::ReceiveNumericInitialData,
                          Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::InitializeInitialDataDependentQuantities,
