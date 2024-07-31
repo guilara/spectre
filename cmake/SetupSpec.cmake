@@ -4,6 +4,7 @@
 find_package(SpEC)
 
 if (NOT SpEC_FOUND)
+  set(PYTHONPATH "/u/guilara/repos/spec/Support/Python:${PYTHONPATH}")
   return()
 endif()
 
