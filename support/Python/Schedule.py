@@ -135,7 +135,7 @@ def schedule(
     submit: Optional[bool] = None,
     clean_output: bool = False,
     force: bool = False,
-    no_validate=False,
+    validate: Optional[bool] = None,
     extra_params: dict = {},
     **kwargs,
 ) -> Optional[subprocess.CompletedProcess]:
@@ -306,6 +306,8 @@ def schedule(
         files in the 'run_dir' before scheduling the run. (Default: 'False')
       force: Optional. When 'True', overwrite input file and submit script
         in the 'run_dir' instead of raising an error when they already exist.
+      validate: Optional. When 'True', validate that the input file is parsed
+        correctly. When 'False' skip this step.
       extra_params: Optional. Dictionary of extra parameters passed to input
         file and submit script templates. Parameters can also be passed as
         keyword arguments to this function instead.
@@ -535,7 +537,7 @@ def schedule(
         force=force,
     )
 
-    if not no_validate:
+    if validate or validate is None:
         # Validate input file
         validate_input_file(
             input_file_path.resolve(), executable=executable, work_dir=run_dir
@@ -853,9 +855,9 @@ def scheduler_options(f):
         ),
     )
     @click.option(
-        "--no-validate",
-        is_flag=True,
-        help="Skip validation of the input file.",
+        "--validate/--no-validate",
+        default=None,
+        help="Validate or skip the validation of the input file.",
     )
     # Scheduling options
     @click.option(
