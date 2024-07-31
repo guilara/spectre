@@ -4,7 +4,12 @@
 find_package(SpEC)
 
 if (NOT SpEC_FOUND)
-  set(PYTHONPATH "/u/guilara/repos/spec/Support/Python:${PYTHONPATH}")
+  # Make SpEC scripts available in Python independently of whether the SpEC
+  # exporter is available or not. These can be used until we have ported
+  # them to SpECTRE.
+  if (SPEC_ROOT)
+    set(PYTHONPATH "${SPEC_ROOT}/Support/Python:${PYTHONPATH}")
+  endif()
   return()
 endif()
 
