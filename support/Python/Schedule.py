@@ -135,7 +135,7 @@ def schedule(
     submit: Optional[bool] = None,
     clean_output: bool = False,
     force: bool = False,
-    validate: Optional[bool] = None,
+    validate: Optional[bool] = True,
     extra_params: dict = {},
     **kwargs,
 ) -> Optional[subprocess.CompletedProcess]:
@@ -537,8 +537,8 @@ def schedule(
         force=force,
     )
 
-    if validate or validate is None:
-        # Validate input file
+    # Validate input file
+    if validate:
         validate_input_file(
             input_file_path.resolve(), executable=executable, work_dir=run_dir
         )
@@ -856,7 +856,7 @@ def scheduler_options(f):
     )
     @click.option(
         "--validate/--no-validate",
-        default=None,
+        default=True,
         help="Validate or skip the validation of the input file.",
     )
     # Scheduling options
