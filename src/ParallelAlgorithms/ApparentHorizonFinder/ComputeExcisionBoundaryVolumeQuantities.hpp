@@ -6,7 +6,6 @@
 #include <cstddef>
 
 #include "DataStructures/Tensor/TypeAliases.hpp"
-#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 #include "ParallelAlgorithms/Interpolation/Protocols/ComputeVarsToInterpolate.hpp"
@@ -82,9 +81,7 @@ struct ComputeExcisionBoundaryVolumeQuantities
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>,
                  gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>,
                  ::Tags::deriv<gh::Tags::Phi<DataVector, 3>, tmpl::size_t<3>,
-                               Frame::Inertial>
-                               , CurvedScalarWave::Tags::Psi
-                               >;
+                               Frame::Inertial>>;
 
   using required_src_tags =
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>>;

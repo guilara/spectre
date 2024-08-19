@@ -6,7 +6,6 @@
 #include <cstddef>
 
 #include "DataStructures/Tensor/TypeAliases.hpp"
-#include "Evolution/Systems/CurvedScalarWave/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/ConstraintDamping/Tags.hpp"
 #include "Evolution/Systems/GeneralizedHarmonic/Tags.hpp"
 #include "ParallelAlgorithms/Interpolation/Protocols/ComputeVarsToInterpolate.hpp"
@@ -82,14 +81,11 @@ struct ComputeHorizonVolumeQuantities
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>,
                  gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>,
                  ::Tags::deriv<gh::Tags::Phi<DataVector, 3>, tmpl::size_t<3>,
-                               Frame::Inertial>,
-                 CurvedScalarWave::Tags::Psi>;
+                               Frame::Inertial>>;
 
   using required_src_tags =
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>,
-                 gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>
-                 //  , CurvedScalarWave::Tags::Psi
-                 >;
+                 gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>>;
 
   template <typename TargetFrame>
   using allowed_dest_tags_target_frame = tmpl::list<
@@ -97,8 +93,7 @@ struct ComputeHorizonVolumeQuantities
       gr::Tags::InverseSpatialMetric<DataVector, 3, TargetFrame>,
       gr::Tags::ExtrinsicCurvature<DataVector, 3, TargetFrame>,
       gr::Tags::SpatialChristoffelSecondKind<DataVector, 3, TargetFrame>,
-      gr::Tags::SpatialRicci<DataVector, 3, TargetFrame>,
-      CurvedScalarWave::Tags::Psi>;
+      gr::Tags::SpatialRicci<DataVector, 3, TargetFrame>>;
 
   template <typename TargetFrame>
   using allowed_dest_tags = tmpl::remove_duplicates<
