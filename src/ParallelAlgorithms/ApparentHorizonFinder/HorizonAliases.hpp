@@ -22,43 +22,47 @@ struct DataVector;
 /// \endcond
 
 namespace ah {
-template <size_t Dim>
-using source_vars =
+template <size_t Dim, bool compute_scalar_quantities = false>
+using source_vars = tmpl::append<
     tmpl::list<gr::Tags::SpacetimeMetric<DataVector, Dim>,
                gh::Tags::Pi<DataVector, Dim>, gh::Tags::Phi<DataVector, Dim>,
                ::Tags::deriv<gh::Tags::Phi<DataVector, Dim>, tmpl::size_t<Dim>,
-                             Frame::Inertial>,
-               CurvedScalarWave::Tags::Psi>;
+                             Frame::Inertial>>,
+    tmpl::conditional_t<compute_scalar_quantities,
+                        tmpl::list<CurvedScalarWave::Tags::Psi>, tmpl::list<>>>;
 
-template <size_t Dim, typename Frame>
-using vars_to_interpolate_to_target =
+template <size_t Dim, typename Frame, bool compute_scalar_quantities = false>
+using vars_to_interpolate_to_target = tmpl::append<
     tmpl::list<gr::Tags::SpatialMetric<DataVector, Dim, Frame>,
                gr::Tags::InverseSpatialMetric<DataVector, Dim, Frame>,
                gr::Tags::ExtrinsicCurvature<DataVector, Dim, Frame>,
                gr::Tags::SpatialChristoffelSecondKind<DataVector, Dim, Frame>,
-               gr::Tags::SpatialRicci<DataVector, Dim, Frame>
+               gr::Tags::SpatialRicci<DataVector, Dim, Frame>>,
+    tmpl::conditional_t<compute_scalar_quantities,
+                       tmpl::list<CurvedScalarWave::Tags::Psi>, tmpl::list<>>>;
 
-               ,
-               CurvedScalarWave::Tags::Psi
+template <typename Frame, bool compute_scalar_quantities = false>
+using tags_for_observing = tmpl::append<
+    tmpl::list<gr::surfaces::Tags::AreaCompute<Frame>,
+               gr::surfaces::Tags::IrreducibleMassCompute<Frame>,
+               ylm::Tags::MaxRicciScalarCompute,
+               ylm::Tags::MinRicciScalarCompute,
+               gr::surfaces::Tags::ChristodoulouMassCompute<Frame>,
+               gr::surfaces::Tags::DimensionlessSpinMagnitudeCompute<Frame>>,
+    tmpl::conditional_t<compute_scalar_quantities,
+                        tmpl::list<gr::surfaces::Tags::SurfaceIntegralCompute<
+                                       CurvedScalarWave::Tags::Psi, Frame>,
+                                   gr::surfaces::Tags::SurfaceAverageCompute<
+                                       CurvedScalarWave::Tags::Psi, Frame>>,
+                        tmpl::list<>>>;
 
-               >;
+template <bool compute_scalar_quantities = false>
+using surface_tags_for_observing = tmpl::append<
+    tmpl::list<ylm::Tags::RicciScalar>,
+    tmpl::conditional_t<compute_scalar_quantities,
+                        tmpl::list<CurvedScalarWave::Tags::Psi>, tmpl::list<>>>;
 
-template <typename Frame>
-using tags_for_observing = tmpl::list<
-    gr::surfaces::Tags::AreaCompute<Frame>,
-    gr::surfaces::Tags::IrreducibleMassCompute<Frame>,
-    ylm::Tags::MaxRicciScalarCompute, ylm::Tags::MinRicciScalarCompute,
-    gr::surfaces::Tags::ChristodoulouMassCompute<Frame>,
-    gr::surfaces::Tags::DimensionlessSpinMagnitudeCompute<Frame>,
-    gr::surfaces::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
-                                               Frame>,
-    gr::surfaces::Tags::SurfaceAverageCompute<CurvedScalarWave::Tags::Psi,
-                                              Frame>>;
-
-using surface_tags_for_observing =
-    tmpl::list<ylm::Tags::RicciScalar, CurvedScalarWave::Tags::Psi>;
-
-template <size_t Dim, typename Frame>
+template <size_t Dim, typename Frame, bool compute_scalar_quantities = false>
 using compute_items_on_target = tmpl::append<
     tmpl::list<
         ylm::Tags::ThetaPhiCompute<Frame>, ylm::Tags::RadiusCompute<Frame>,
@@ -83,5 +87,5 @@ using compute_items_on_target = tmpl::append<
         ylm::Tags::RicciScalarCompute<Frame>,
         gr::surfaces::Tags::SpinFunctionCompute<Frame>,
         gr::surfaces::Tags::DimensionfulSpinMagnitudeCompute<Frame>>,
-    tags_for_observing<Frame>>;
+    tags_for_observing<Frame, compute_scalar_quantities>>;
 }  // namespace ah
