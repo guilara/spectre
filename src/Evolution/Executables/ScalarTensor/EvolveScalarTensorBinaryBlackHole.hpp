@@ -299,22 +299,16 @@ struct EvolutionMetavars {
   template <::domain::ObjectLabel Horizon, typename Frame>
   struct Ah : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     static constexpr size_t index = static_cast<size_t>(Horizon);
-    static constexpr bool compute_scalar_quantities = true;
     using temporal_id = ::Tags::AhObservationTime<index>;
     using vars_to_interpolate_to_target =
-        ::ah::vars_to_interpolate_to_target<volume_dim, Frame,
-                                            compute_scalar_quantities>;
-    using compute_vars_to_interpolate =
-        ah::ComputeHorizonVolumeQuantities<compute_scalar_quantities>;
-    using tags_to_observe =
-        ::ah::tags_for_observing<Frame, compute_scalar_quantities>;
-    using surface_tags_to_observe =
-        ::ah::surface_tags_for_observing<compute_scalar_quantities>;
+        ::ah::vars_to_interpolate_to_target<volume_dim, Frame>;
+    using compute_vars_to_interpolate = ah::ComputeHorizonVolumeQuantities;
+    using tags_to_observe = ::ah::tags_for_observing<Frame>;
+    using surface_tags_to_observe = ::ah::surface_tags_for_observing;
     using compute_items_on_source =
         tmpl::list<::Tags::AhObservationTimeCompute<index>>;
     using compute_items_on_target =
-        ::ah::compute_items_on_target<volume_dim, Frame,
-                                      compute_scalar_quantities>;
+        ::ah::compute_items_on_target<volume_dim, Frame>;
     using compute_target_points =
         intrp::TargetPoints::ApparentHorizon<Ah, Frame>;
     using post_interpolation_callbacks =

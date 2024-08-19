@@ -37,7 +37,7 @@ namespace ah {
 
 /// Single frame case
 template <typename SrcTagList, typename DestTagList>
-void ComputeHorizonVolumeQuantities<compute_scalar_quantities>::apply(
+void ComputeHorizonVolumeQuantities::apply(
     const gsl::not_null<Variables<DestTagList>*> target_vars,
     const Variables<SrcTagList>& src_vars, const Mesh<3>& /*mesh*/) {
   static_assert(
@@ -68,10 +68,7 @@ void ComputeHorizonVolumeQuantities<compute_scalar_quantities>::apply(
   const auto& pi = get<gh::Tags::Pi<DataVector, 3>>(src_vars);
   const auto& phi = get<gh::Tags::Phi<DataVector, 3>>(src_vars);
 
-  if constexpr (tmpl::list_contains_v<SrcTagList,
-                                      CurvedScalarWave::Tags::Psi>) {
-    const auto& psi_scalar = get<CurvedScalarWave::Tags::Psi>(src_vars);
-  }
+  const auto& psi_scalar = get<CurvedScalarWave::Tags::Psi>(src_vars);
 
   if (target_vars->number_of_grid_points() !=
       src_vars.number_of_grid_points()) {
@@ -126,11 +123,8 @@ void ComputeHorizonVolumeQuantities<compute_scalar_quantities>::apply(
   gh::christoffel_second_kind(make_not_null(&spatial_christoffel_second_kind),
                               phi, inv_metric);
 
-  if constexpr (tmpl::list_contains_v<DestTagList,
-                                      CurvedScalarWave::Tags::Psi>) {
-    *(get<CurvedScalarWave::Tags::Psi>(target_vars, make_not_null(&buffer))) =
-        psi_scalar;
-  }
+  *(get<CurvedScalarWave::Tags::Psi>(target_vars, make_not_null(&buffer))) =
+      psi_scalar;
 
   if constexpr (tmpl::list_contains_v<DestTagList,
                                       gr::Tags::SpatialRicci<DataVector, 3>>) {
@@ -151,7 +145,7 @@ void ComputeHorizonVolumeQuantities<compute_scalar_quantities>::apply(
 
 /// Dual frame case
 template <typename SrcTagList, typename DestTagList, typename TargetFrame>
-void ComputeHorizonVolumeQuantities<compute_scalar_quantities>::apply(
+void ComputeHorizonVolumeQuantities::apply(
     const gsl::not_null<Variables<DestTagList>*> target_vars,
     const Variables<SrcTagList>& src_vars, const Mesh<3>& mesh,
     const Jacobian<DataVector, 3, TargetFrame, Frame::Inertial>&
@@ -193,10 +187,7 @@ void ComputeHorizonVolumeQuantities<compute_scalar_quantities>::apply(
   const auto& pi = get<gh::Tags::Pi<DataVector, 3>>(src_vars);
   const auto& phi = get<gh::Tags::Phi<DataVector, 3>>(src_vars);
 
-  if constexpr (tmpl::list_contains_v<SrcTagList,
-                                      CurvedScalarWave::Tags::Psi>) {
-    const auto& psi_scalar = get<CurvedScalarWave::Tags::Psi>(src_vars);
-  }
+  const auto& psi_scalar = get<CurvedScalarWave::Tags::Psi>(src_vars);
 
   if (target_vars->number_of_grid_points() !=
       src_vars.number_of_grid_points()) {
@@ -275,11 +266,9 @@ void ComputeHorizonVolumeQuantities<compute_scalar_quantities>::apply(
                               shift);
   gh::extrinsic_curvature(make_not_null(&inertial_ex_curvature),
                           spacetime_normal_vector, pi, phi);
-  if constexpr (tmpl::list_contains_v<DestTagList,
-                                      CurvedScalarWave::Tags::Psi>) {
-    *(get<CurvedScalarWave::Tags::Psi>(target_vars, make_not_null(&buffer))) =
-        psi_scalar;
-  }
+
+  *(get<CurvedScalarWave::Tags::Psi>(target_vars, make_not_null(&buffer))) =
+      psi_scalar;
 
   // Transform spatial metric and extrinsic curvature
   transform::to_different_frame(make_not_null(&metric), inertial_metric,

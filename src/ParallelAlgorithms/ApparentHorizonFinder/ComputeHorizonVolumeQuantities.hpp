@@ -55,7 +55,6 @@ namespace ah {
 /// `InterpolationTarget` that uses `ComputeHorizonVolumeQuantities`.
 /// The allowed and required tags in DestTagList are given by
 /// the type aliases `allowed_dest_tags` and `required_dest_tags` below.
-template <bool compute_scalar_quantities = false>
 struct ComputeHorizonVolumeQuantities
     : tt::ConformsTo<intrp::protocols::ComputeVarsToInterpolate> {
   /// Single-frame case
@@ -79,14 +78,12 @@ struct ComputeHorizonVolumeQuantities
       const tnsr::I<DataVector, 3, TargetFrame>&
           grid_to_target_frame_mesh_velocity);
 
-  using allowed_src_tags = tmpl::append<
+  using allowed_src_tags =
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>,
                  gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>,
                  ::Tags::deriv<gh::Tags::Phi<DataVector, 3>, tmpl::size_t<3>,
-                               Frame::Inertial>>,
-      tmpl::conditional_t<compute_scalar_quantities,
-                          tmpl::list<CurvedScalarWave::Tags::Psi>,
-                          tmpl::list<>>>;
+                               Frame::Inertial>,
+                 CurvedScalarWave::Tags::Psi>;
 
   using required_src_tags =
       tmpl::list<gr::Tags::SpacetimeMetric<DataVector, 3>,
@@ -95,16 +92,13 @@ struct ComputeHorizonVolumeQuantities
                  >;
 
   template <typename TargetFrame>
-  using allowed_dest_tags_target_frame = tmpl::append<
-      tmpl::list<
-          gr::Tags::SpatialMetric<DataVector, 3, TargetFrame>,
-          gr::Tags::InverseSpatialMetric<DataVector, 3, TargetFrame>,
-          gr::Tags::ExtrinsicCurvature<DataVector, 3, TargetFrame>,
-          gr::Tags::SpatialChristoffelSecondKind<DataVector, 3, TargetFrame>,
-          gr::Tags::SpatialRicci<DataVector, 3, TargetFrame>>,
-      tmpl::conditional_t<compute_scalar_quantities,
-                          tmpl::list<CurvedScalarWave::Tags::Psi>,
-                          tmpl::list<>>>;
+  using allowed_dest_tags_target_frame = tmpl::list<
+      gr::Tags::SpatialMetric<DataVector, 3, TargetFrame>,
+      gr::Tags::InverseSpatialMetric<DataVector, 3, TargetFrame>,
+      gr::Tags::ExtrinsicCurvature<DataVector, 3, TargetFrame>,
+      gr::Tags::SpatialChristoffelSecondKind<DataVector, 3, TargetFrame>,
+      gr::Tags::SpatialRicci<DataVector, 3, TargetFrame>,
+      CurvedScalarWave::Tags::Psi>;
 
   template <typename TargetFrame>
   using allowed_dest_tags = tmpl::remove_duplicates<
