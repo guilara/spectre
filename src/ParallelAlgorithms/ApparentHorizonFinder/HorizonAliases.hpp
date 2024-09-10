@@ -50,8 +50,7 @@ using tags_for_observing = tmpl::list<
     ylm::Tags::MaxRicciScalarCompute, ylm::Tags::MinRicciScalarCompute,
     gr::surfaces::Tags::ChristodoulouMassCompute<Frame>,
     gr::surfaces::Tags::DimensionlessSpinMagnitudeCompute<Frame>,
-    gr::surfaces::Tags::DimensionfulSpinVectorCompute<Frame, Frame>
-    >;
+    gr::surfaces::Tags::DimensionfulSpinVectorCompute<Frame, Frame>,
     gr::surfaces::Tags::SurfaceIntegralCompute<CurvedScalarWave::Tags::Psi,
                                                Frame>,
     gr::surfaces::Tags::SurfaceAverageCompute<CurvedScalarWave::Tags::Psi,
