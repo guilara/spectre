@@ -100,6 +100,9 @@
 #include "Options/Protocols/FactoryCreation.hpp"
 #include "Options/String.hpp"
 #include "Parallel/Algorithms/AlgorithmSingleton.hpp"
+#include "Parallel/ArrayCollection/DgElementCollection.hpp"
+#include "Parallel/ArrayCollection/IsDgElementCollection.hpp"
+#include "Parallel/ArrayCollection/SimpleActionOnElement.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/InitializationFunctions.hpp"
 #include "Parallel/Invoke.hpp"
@@ -148,6 +151,7 @@
 #include "ParallelAlgorithms/ApparentHorizonFinder/ObserveCenters.hpp"
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/MonitorMemory.hpp"
+#include "ParallelAlgorithms/Events/ObserveTimeStepVolume.hpp"
 #include "ParallelAlgorithms/EventsAndDenseTriggers/DenseTrigger.hpp"
 #include "ParallelAlgorithms/EventsAndDenseTriggers/DenseTriggers/Factory.hpp"
 #include "ParallelAlgorithms/EventsAndTriggers/Completion.hpp"
@@ -191,13 +195,8 @@
 #include "Time/Actions/UpdateU.hpp"
 #include "Time/ChangeSlabSize/Action.hpp"
 #include "Time/ChangeSlabSize/Tags.hpp"
-#include "Time/StepChoosers/Cfl.hpp"
-#include "Time/StepChoosers/Constant.hpp"
 #include "Time/StepChoosers/Factory.hpp"
-#include "Time/StepChoosers/Increase.hpp"
-#include "Time/StepChoosers/PreventRapidIncrease.hpp"
 #include "Time/StepChoosers/StepChooser.hpp"
-#include "Time/StepChoosers/StepToTimes.hpp"
 #include "Time/Tags/StepperErrors.hpp"
 #include "Time/Tags/Time.hpp"
 #include "Time/Tags/TimeStepId.hpp"
@@ -275,8 +274,7 @@ struct EvolutionMetavars {
   static constexpr size_t volume_dim = 3;
   static constexpr bool use_damped_harmonic_rollon = false;
   using system = ScalarTensor::System;
-  static constexpr dg::Formulation dg_formulation =
-      dg::Formulation::StrongInertial;
+
   using temporal_id = Tags::TimeStepId;
   using TimeStepperBase = LtsTimeStepper;
 
@@ -591,7 +589,7 @@ struct EvolutionMetavars {
                        DenseTriggers::standard_dense_triggers>>>,
         tmpl::pair<
             DomainCreator<volume_dim>,
-            tmpl::list<::domain::creators::BinaryCompactObject,
+            tmpl::list<::domain::creators::BinaryCompactObject<false>,
                        ::domain::creators::CylindricalBinaryCompactObject>>,
         tmpl::pair<
             Event,
@@ -628,7 +626,8 @@ struct EvolutionMetavars {
                                                non_tensor_compute_tags>,
                 control_system::metafunctions::control_system_events<
                     control_systems>,
-                Events::time_events<system>>>>,
+                Events::time_events<system>,
+                dg::Events::ObserveTimeStepVolume<3>>>>,
         tmpl::pair<control_system::size::State,
                    control_system::size::States::factory_creatable_states>,
         tmpl::pair<
@@ -698,7 +697,8 @@ struct EvolutionMetavars {
       tmpl::conditional_t<
           local_time_stepping,
           tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
-                         ::domain::CheckFunctionsOfTimeAreReadyPostprocessor,
+                         ::domain::CheckFunctionsOfTimeAreReadyPostprocessor<
+                             volume_dim>,
                          evolution::dg::ApplyBoundaryCorrections<
                              local_time_stepping, system, volume_dim, true>>>,
                      evolution::dg::Actions::ApplyLtsBoundaryCorrections<
@@ -708,7 +708,8 @@ struct EvolutionMetavars {
                   system, volume_dim, false>,
               Actions::RecordTimeStepperData<system>,
               evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
-                  ::domain::CheckFunctionsOfTimeAreReadyPostprocessor>>,
+                  ::domain::CheckFunctionsOfTimeAreReadyPostprocessor<
+                      volume_dim>>>,
               control_system::Actions::LimitTimeStep<control_systems>,
               Actions::UpdateU<system>>>,
       Actions::CleanHistory<system, local_time_stepping>,
@@ -774,11 +775,11 @@ struct EvolutionMetavars {
                                             Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
-              tmpl::list<::domain::Actions::CheckFunctionsOfTimeAreReady,
-                         evolution::Actions::RunEventsAndTriggers,
-                         Actions::ChangeSlabSize, step_actions,
-                         Actions::AdvanceTime,
-                         PhaseControl::Actions::ExecutePhaseChange>>>>>;
+              tmpl::list<
+                  ::domain::Actions::CheckFunctionsOfTimeAreReady<volume_dim>,
+                  evolution::Actions::RunEventsAndTriggers,
+                  Actions::ChangeSlabSize, step_actions, Actions::AdvanceTime,
+                  PhaseControl::Actions::ExecutePhaseChange>>>>>;
 
   struct BondiSachs : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
     static std::string name() { return "BondiSachsInterpolation"; }
@@ -831,8 +832,14 @@ struct EvolutionMetavars {
             Parallel::get_parallel_component<component>(cache));
       });
 
-      Parallel::simple_action<deadlock::PrintElementInfo>(
-          Parallel::get_parallel_component<gh_dg_element_array>(cache));
+      if constexpr (Parallel::is_dg_element_collection_v<gh_dg_element_array>) {
+        Parallel::threaded_action<Parallel::Actions::SimpleActionOnElement<
+            deadlock::PrintElementInfo, true>>(
+            Parallel::get_parallel_component<gh_dg_element_array>(cache));
+      } else {
+        Parallel::simple_action<deadlock::PrintElementInfo>(
+            Parallel::get_parallel_component<gh_dg_element_array>(cache));
+      }
     }
   }
 

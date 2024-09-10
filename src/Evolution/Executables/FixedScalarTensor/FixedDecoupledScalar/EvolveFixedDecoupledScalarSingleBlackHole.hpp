@@ -37,6 +37,7 @@
 #include "Options/FactoryHelpers.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
 #include "Options/String.hpp"
+#include "Parallel/ArrayCollection/DgElementCollection.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Invoke.hpp"
 #include "Parallel/MemoryMonitor/MemoryMonitor.hpp"
@@ -128,10 +129,10 @@ struct EvolutionMetavars
         intrp::callbacks::ObserveSurfaceData<surface_tags_to_observe, Ah,
                                              Frame>,
         // Needs to be Frame::Grid or Frame::Distorted
-        ::ah::callbacks::ObserveCenters<Ah, ::Frame::Grid>>;
+        ::ah::callbacks::ObserveCenters<Ah, ::Frame::Distorted>>;
   };
 
-  using AhA = Ah<::Frame::Grid>;
+  using AhA = Ah<::Frame::Distorted>;
 
   struct ExcisionBoundaryA
       : tt::ConformsTo<intrp::protocols::InterpolationTargetTag> {
@@ -458,11 +459,11 @@ struct EvolutionMetavars
                                             Parallel::Actions::TerminatePhase>>,
           Parallel::PhaseActions<
               Parallel::Phase::Evolve,
-              tmpl::list<::domain::Actions::CheckFunctionsOfTimeAreReady,
-                         evolution::Actions::RunEventsAndTriggers,
-                         Actions::ChangeSlabSize, step_actions,
-                         Actions::AdvanceTime,
-                         PhaseControl::Actions::ExecutePhaseChange>>>>>;
+              tmpl::list<
+                  ::domain::Actions::CheckFunctionsOfTimeAreReady<volume_dim>,
+                  evolution::Actions::RunEventsAndTriggers,
+                  Actions::ChangeSlabSize, step_actions, Actions::AdvanceTime,
+                  PhaseControl::Actions::ExecutePhaseChange>>>>>;
 
   using gh_dg_element_array = st_dg_element_array;
 

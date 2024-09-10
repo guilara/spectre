@@ -128,6 +128,7 @@
 #include "ParallelAlgorithms/Events/Factory.hpp"
 #include "ParallelAlgorithms/Events/MonitorMemory.hpp"
 #include "ParallelAlgorithms/Events/ObserveTimeStep.hpp"
+#include "ParallelAlgorithms/Events/ObserveTimeStepVolume.hpp"
 #include "ParallelAlgorithms/Events/Tags.hpp"
 #include "ParallelAlgorithms/EventsAndDenseTriggers/DenseTrigger.hpp"
 #include "ParallelAlgorithms/EventsAndDenseTriggers/DenseTriggers/Factory.hpp"
@@ -171,15 +172,9 @@
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/CleanHistory.hpp"
 #include "Time/Actions/RecordTimeStepperData.hpp"
-#include "Time/Actions/SelfStartActions.hpp"
 #include "Time/Actions/UpdateU.hpp"
-#include "Time/StepChoosers/Cfl.hpp"
-#include "Time/StepChoosers/Constant.hpp"
 #include "Time/StepChoosers/Factory.hpp"
-#include "Time/StepChoosers/Increase.hpp"
-#include "Time/StepChoosers/PreventRapidIncrease.hpp"
 #include "Time/StepChoosers/StepChooser.hpp"
-#include "Time/StepChoosers/StepToTimes.hpp"
 #include "Time/Tags/Time.hpp"
 #include "Time/TimeSequence.hpp"
 #include "Time/TimeSteppers/Factory.hpp"
@@ -574,7 +569,8 @@ struct FactoryCreation : tt::ConformsTo<Options::protocols::FactoryCreation> {
           tmpl::flatten<tmpl::list<
               Events::Completion, Events::MonitorMemory<volume_dim>,
               typename detail::ObserverTags<volume_dim>::field_observations,
-              Events::time_events<system>>>>,
+              Events::time_events<system>,
+              dg::Events::ObserveTimeStepVolume<volume_dim>>>>,
       //   tmpl::pair<gh::BoundaryConditions::BoundaryCondition<
       //                  volume_dim>,
       //              gh::BoundaryConditions::
@@ -723,7 +719,8 @@ struct FixedScalarTensorTemplateBase<
       tmpl::conditional_t<
           local_time_stepping,
           tmpl::list<evolution::Actions::RunEventsAndDenseTriggers<tmpl::list<
-                         ::domain::CheckFunctionsOfTimeAreReadyPostprocessor,
+                         ::domain::CheckFunctionsOfTimeAreReadyPostprocessor<
+                             volume_dim>,
                          evolution::dg::ApplyBoundaryCorrections<
                              local_time_stepping, system, volume_dim, true>>>,
                      evolution::dg::Actions::ApplyLtsBoundaryCorrections<
