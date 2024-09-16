@@ -16,6 +16,7 @@
 #include "ControlSystem/Metafunctions.hpp"
 #include "ControlSystem/Systems/Shape.hpp"
 #include "ControlSystem/Systems/Size.hpp"
+#include "ControlSystem/Systems/Translation.hpp"
 #include "ControlSystem/Trigger.hpp"
 #include "Domain/FunctionsOfTime/OutputTimeBounds.hpp"
 #include "Domain/FunctionsOfTime/Tags.hpp"
@@ -30,6 +31,7 @@
 #include "Options/FactoryHelpers.hpp"
 #include "Options/Protocols/FactoryCreation.hpp"
 #include "Options/String.hpp"
+#include "Parallel/ArrayCollection/DgElementCollection.hpp"
 #include "Parallel/GlobalCache.hpp"
 #include "Parallel/Invoke.hpp"
 #include "Parallel/MemoryMonitor/MemoryMonitor.hpp"
@@ -176,6 +178,11 @@ struct EvolutionMetavars : public ScalarTensorTemplateBase<EvolutionMetavars> {
                      ::domain::ObjectLabel::None, 2,
                      control_system::measurements::SingleHorizon<
                          ::domain::ObjectLabel::None>>,
+                 control_system::Systems::Translation<
+                     2,
+                     control_system::measurements::SingleHorizon<
+                         ::domain::ObjectLabel::None>,
+                     1>,
                  control_system::Systems::Size<::domain::ObjectLabel::None, 2>>;
 
   static constexpr bool use_control_systems =
