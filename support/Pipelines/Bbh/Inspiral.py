@@ -63,13 +63,14 @@ def _constraint_damping_params(
     initial_separation: float,
 ) -> dict:
     total_mass = mass_left + mass_right
+    # Change central gaussian amplitude by 10x
     return {
         "Gamma0Constant": 0.001 / total_mass,
         "Gamma0LeftAmplitude": 4.0 / mass_left,
         "Gamma0LeftWidth": 7.0 * mass_left,
         "Gamma0RightAmplitude": 4.0 / mass_right,
         "Gamma0RightWidth": 7.0 * mass_right,
-        "Gamma0OriginAmplitude": 0.075 / total_mass,
+        "Gamma0OriginAmplitude": 0.75 / total_mass,
         "Gamma0OriginWidth": 2.5 * initial_separation,
         "Gamma1Width": 10.0 * initial_separation,
     }
