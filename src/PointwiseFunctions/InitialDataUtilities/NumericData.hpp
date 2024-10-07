@@ -12,6 +12,7 @@
 #include "IO/Exporter/InterpolateToPoints.hpp"
 #include "NumericalAlgorithms/Spectral/Mesh.hpp"
 #include "Options/String.hpp"
+#include "PointwiseFunctions/AnalyticData/AnalyticData.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/Background.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialData.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialGuess.hpp"
@@ -178,6 +179,7 @@ namespace evolution::initial_data {
  * \see ::NumericData
  */
 class NumericData : public evolution::initial_data::InitialData,
+                    public MarkAsAnalyticData,
                     public ::NumericData {
  public:
   using ::NumericData::NumericData;

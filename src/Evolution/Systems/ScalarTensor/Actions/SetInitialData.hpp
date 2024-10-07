@@ -203,71 +203,63 @@ struct SetInitialData {
     return {Parallel::AlgorithmExecution::Continue, std::nullopt};
   }
 
-  //   // "AnalyticData"-type initial data
-  //   template <typename DbTagsList, typename InitialData, typename
-  //   Metavariables,
-  //             typename ParallelComponent>
-  //   static Parallel::iterable_action_return_t apply(
-  //       const gsl::not_null<db::DataBox<DbTagsList>*> box,
-  //       const InitialData& initial_data,
-  //       Parallel::GlobalCache<Metavariables>& /*cache*/,
-  //       const ParallelComponent* const /*meta*/) {
-  //     // Get ADM + hydro variables from analytic data / solution
-  //     const auto& [coords, mesh, inv_jacobian] = [&box]() {
-  //       if constexpr (db::tag_is_retrievable_v<
-  //                         evolution::dg::subcell::Tags::ActiveGrid,
-  //                         db::DataBox<DbTagsList>>) {
-  //         const bool on_subcell =
-  //             db::get<evolution::dg::subcell::Tags::ActiveGrid>(*box) ==
-  //             evolution::dg::subcell::ActiveGrid::Subcell;
-  //         if (on_subcell) {
-  //           return std::forward_as_tuple(
-  //               db::get<evolution::dg::subcell::Tags::Coordinates<
-  //                   Dim, Frame::Inertial>>(*box),
-  //               db::get<evolution::dg::subcell::Tags::Mesh<Dim>>(*box),
-  //               db::get<evolution::dg::subcell::fd::Tags::
-  //                           InverseJacobianLogicalToInertial<Dim>>(*box));
-  //         }
-  //       }
-  //       return std::forward_as_tuple(
-  //           db::get<domain::Tags::Coordinates<Dim, Frame::Inertial>>(*box),
-  //           db::get<domain::Tags::Mesh<Dim>>(*box),
-  //           db::get<domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
-  //                                                 Frame::Inertial>>(*box));
-  //     }();
-  //     auto vars = evolution::Initialization::initial_data(
-  //         initial_data, coords, db::get<::Tags::Time>(*box),
-  //         tmpl::append<tmpl::list<gr::Tags::SpatialMetric<DataVector, 3>,
-  //                                 gr::Tags::Lapse<DataVector>,
-  //                                 gr::Tags::Shift<DataVector, 3>,
-  //                                 gr::Tags::ExtrinsicCurvature<DataVector,
-  //                                 3>>,
-  //                      hydro::grmhd_tags<DataVector>>{});
-  //     const auto& spatial_metric =
-  //         get<gr::Tags::SpatialMetric<DataVector, 3>>(vars);
-  //     const auto& lapse = get<gr::Tags::Lapse<DataVector>>(vars);
-  //     const auto& shift = get<gr::Tags::Shift<DataVector, 3>>(vars);
-  //     const auto& extrinsic_curvature =
-  //         get<gr::Tags::ExtrinsicCurvature<DataVector, 3>>(vars);
+  // "AnalyticData"-type initial data
+  template <typename DbTagsList, typename InitialData, typename Metavariables,
+            typename ParallelComponent>
+  static Parallel::iterable_action_return_t apply(
+      const gsl::not_null<db::DataBox<DbTagsList>*> box,
+      const InitialData& initial_data,
+      Parallel::GlobalCache<Metavariables>& /*cache*/,
+      const ParallelComponent* const /*meta*/) {
+    // Get ADM + hydro variables from analytic data / solution
+    const auto& [coords, mesh, inv_jacobian] = [&box]() {
+      return std::forward_as_tuple(
+          db::get<domain::Tags::Coordinates<Dim, Frame::Inertial>>(*box),
+          db::get<domain::Tags::Mesh<Dim>>(*box),
+          db::get<domain::Tags::InverseJacobian<Dim, Frame::ElementLogical,
+                                                Frame::Inertial>>(*box));
+    }();
+    auto vars = evolution::Initialization::initial_data(
+        initial_data, coords, db::get<::Tags::Time>(*box),
+        tmpl::append<tmpl::list<gr::Tags::SpatialMetric<DataVector, 3>,
+                                gr::Tags::Lapse<DataVector>,
+                                gr::Tags::Shift<DataVector, 3>,
+                                gr::Tags::ExtrinsicCurvature<DataVector, 3>>,
+                     // Don't use the scalar gradient
+                     tmpl::list<CurvedScalarWave::Tags::Psi,
+                                CurvedScalarWave::Tags::Pi>>{});
+    const auto& spatial_metric =
+        get<gr::Tags::SpatialMetric<DataVector, 3>>(vars);
+    const auto& lapse = get<gr::Tags::Lapse<DataVector>>(vars);
+    const auto& shift = get<gr::Tags::Shift<DataVector, 3>>(vars);
+    const auto& extrinsic_curvature =
+        get<gr::Tags::ExtrinsicCurvature<DataVector, 3>>(vars);
 
-  //     // Compute GH vars from ADM vars
-  //     db::mutate<gr::Tags::SpacetimeMetric<DataVector, 3>,
-  //                gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>>(
-  //         &gh::initial_gh_variables_from_adm<3>, box, spatial_metric, lapse,
-  //         shift, extrinsic_curvature, mesh, inv_jacobian);
+    // Compute GH vars from ADM vars
+    db::mutate<gr::Tags::SpacetimeMetric<DataVector, 3>,
+               gh::Tags::Pi<DataVector, 3>, gh::Tags::Phi<DataVector, 3>>(
+        &gh::initial_gh_variables_from_adm<3>, box, spatial_metric, lapse,
+        shift, extrinsic_curvature, mesh, inv_jacobian);
 
-  //     // Move hydro vars directly into the DataBox
-  //     tmpl::for_each<hydro::grmhd_tags<DataVector>>(
-  //         [&box, &vars](const auto tag_v) {
-  //           using tag = tmpl::type_from<std::decay_t<decltype(tag_v)>>;
-  //           Initialization::mutate_assign<tmpl::list<tag>>(
-  //               box, std::move(get<tag>(vars)));
-  //         });
+    // Move scalar variables and compute gradient
+    db::mutate<CurvedScalarWave::Tags::Psi, CurvedScalarWave::Tags::Pi,
+               CurvedScalarWave::Tags::Phi<3>>(
+        [&vars](const gsl::not_null<Scalar<DataVector>*> psi_scalar,
+                const gsl::not_null<Scalar<DataVector>*> pi_scalar,
+                const gsl::not_null<tnsr::i<DataVector, 3>*> phi_scalar,
+                const auto& local_mesh, const auto& local_inv_jacobian) {
+          *psi_scalar = std::move(get<CurvedScalarWave::Tags::Psi>(vars));
+          *pi_scalar = std::move(get<CurvedScalarWave::Tags::Pi>(vars));
+          // Set Phi to the numerical spatial derivative of the scalar
+          partial_derivative(phi_scalar, *psi_scalar, local_mesh,
+                             local_inv_jacobian);
+        },
+        make_not_null(&box), mesh, inv_jacobian);
 
-  //     // No need to import numeric initial data, so we terminate the phase by
-  //     // pausing the algorithm on this element
-  //     return {Parallel::AlgorithmExecution::Pause, std::nullopt};
-  //   }
+    // No need to import numeric initial data, so we terminate the phase by
+    // pausing the algorithm on this element
+    return {Parallel::AlgorithmExecution::Pause, std::nullopt};
+  }
   };
 
   /*!

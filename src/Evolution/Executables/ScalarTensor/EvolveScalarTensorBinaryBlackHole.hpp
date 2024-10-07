@@ -187,6 +187,7 @@
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/GeneralRelativity/WeylElectric.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialData.hpp"
+#include "PointwiseFunctions/InitialDataUtilities/NumericData.hpp"
 #include "PointwiseFunctions/ScalarTensor/ScalarCharge.hpp"
 #include "Time/Actions/AdvanceTime.hpp"
 #include "Time/Actions/CleanHistory.hpp"
@@ -574,7 +575,7 @@ struct EvolutionMetavars {
                     volume_dim, typename system::variables_tag::tags_list>>>,
         tmpl::pair<evolution::initial_data::InitialData,
                    tmpl::flatten<tmpl::list<
-                       ScalarTensor::NumericInitialData
+                       ScalarTensor::NumericInitialData, ::NumericData
                        //    ,
                        // We add the analytic data to be able to impose
                        // Dirichlet BCs
