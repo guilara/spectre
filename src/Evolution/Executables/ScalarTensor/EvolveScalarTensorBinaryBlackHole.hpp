@@ -575,7 +575,8 @@ struct EvolutionMetavars {
                     volume_dim, typename system::variables_tag::tags_list>>>,
         tmpl::pair<evolution::initial_data::InitialData,
                    tmpl::flatten<tmpl::list<
-                       ScalarTensor::NumericInitialData, ::NumericData
+                       ScalarTensor::NumericInitialData,
+                       evolution::initial_data::NumericData
                        //    ,
                        // We add the analytic data to be able to impose
                        // Dirichlet BCs
