@@ -247,14 +247,16 @@ struct SetInitialData {
         [&vars](const gsl::not_null<Scalar<DataVector>*> psi_scalar,
                 const gsl::not_null<Scalar<DataVector>*> pi_scalar,
                 const gsl::not_null<tnsr::i<DataVector, 3>*> phi_scalar,
-                const auto& local_mesh, const auto& local_inv_jacobian) {
+                const Mesh<3>& local_mesh,
+                const InverseJacobian<DataVector, 3_st, Frame::ElementLogical,
+                                      Frame::Inertial>& local_inv_jacobian) {
           *psi_scalar = std::move(get<CurvedScalarWave::Tags::Psi>(vars));
           *pi_scalar = std::move(get<CurvedScalarWave::Tags::Pi>(vars));
           // Set Phi to the numerical spatial derivative of the scalar
           partial_derivative(phi_scalar, *psi_scalar, local_mesh,
                              local_inv_jacobian);
         },
-        mesh, inv_jacobian);
+        box, mesh, inv_jacobian);
 
     // No need to import numeric initial data, so we terminate the phase by
     // pausing the algorithm on this element
