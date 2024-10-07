@@ -254,7 +254,7 @@ struct SetInitialData {
           partial_derivative(phi_scalar, *psi_scalar, local_mesh,
                              local_inv_jacobian);
         },
-        make_not_null(&box), mesh, inv_jacobian);
+        mesh, inv_jacobian);
 
     // No need to import numeric initial data, so we terminate the phase by
     // pausing the algorithm on this element
