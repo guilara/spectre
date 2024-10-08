@@ -16,6 +16,30 @@ NumericData::NumericData(std::string file_glob, std::string subgroup,
       observation_step_(observation_step),
       extrapolate_into_excisions_(extrapolate_into_excisions) {}
 
+NumericData::NumericData(const NumericData& rhs) {
+  *this = rhs;
+}
+
+NumericData& NumericData::operator=(const NumericData& rhs) {
+  file_glob_ = rhs.file_glob_;
+  subgroup_ = rhs.subgroup_;
+  observation_step_ = rhs.observation_step_;
+  extrapolate_into_excisions_ = rhs.extrapolate_into_excisions_;
+  return *this;
+}
+
+NumericData::NumericData(NumericData&& rhs) {
+  *this = rhs;
+}
+
+NumericData& NumericData::operator=(NumericData&& rhs) {
+  file_glob_ = std::move(rhs.file_glob_);
+  subgroup_ = std::move(rhs.subgroup_);
+  observation_step_ = rhs.observation_step_;
+  extrapolate_into_excisions_ = rhs.extrapolate_into_excisions_;
+  return *this;
+}
+
 bool operator==(const NumericData& lhs, const NumericData& rhs) {
   return lhs.file_glob() == rhs.file_glob() and
          lhs.subgroup() == rhs.subgroup() and

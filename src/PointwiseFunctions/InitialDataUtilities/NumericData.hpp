@@ -93,10 +93,10 @@ class NumericData {
       "Numeric data loaded from volume data files";
 
   NumericData() = default;
-  NumericData(const NumericData&) = default;
-  NumericData& operator=(const NumericData&) = default;
-  NumericData(NumericData&&) = default;
-  NumericData& operator=(NumericData&&) = default;
+  NumericData(const NumericData&);
+  NumericData& operator=(const NumericData&);
+  NumericData(NumericData&&);
+  NumericData& operator=(NumericData&&);
   ~NumericData() = default;
 
   NumericData(std::string file_glob, std::string subgroup, int observation_step,
@@ -116,11 +116,14 @@ class NumericData {
   tuples::TaggedTuple<RequestedTags...> variables(
       const tnsr::I<DataType, Dim>& x,
       tmpl::list<RequestedTags...> /*meta*/) const {
-    return spectre::Exporter::interpolate_to_points<
+    h5_lock_.lock();
+    auto result = spectre::Exporter::interpolate_to_points<
         tmpl::list<RequestedTags...>>(
         file_glob_, subgroup_,
         spectre::Exporter::ObservationStep{observation_step_}, x,
         extrapolate_into_excisions_);
+    h5_lock_.unlock();
+    return result;
   }
 
   template <size_t Dim, typename... RequestedTags>
@@ -140,6 +143,7 @@ class NumericData {
   std::string subgroup_{};
   int observation_step_{};
   bool extrapolate_into_excisions_{};
+  mutable std::mutex h5_lock_{};  // NOLINT(spectre-mutable)
 };
 
 bool operator==(const NumericData& lhs, const NumericData& rhs);
