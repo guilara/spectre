@@ -235,7 +235,12 @@ struct SetInitialData {
     const auto& spatial_metric =
         get<gr::Tags::SpatialMetric<DataVector, 3>>(vars);
     const auto& lapse = get<gr::Tags::Lapse<DataVector>>(vars);
-    const auto& shift = get<gr::Tags::Shift<DataVector, 3>>(vars);
+
+    // We want the Shift Excess
+    // const auto& shift = get<gr::Tags::Shift<DataVector, 3>>(vars);
+    const auto& shift =
+        get<Xcts::Tags::ShiftExcess<DataVector, 3, Frame::Inertial>>(vars);
+
     const auto& extrinsic_curvature =
         get<gr::Tags::ExtrinsicCurvature<DataVector, 3>>(vars);
 
