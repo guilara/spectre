@@ -14,6 +14,7 @@
 #include "DataStructures/Tensor/Tensor.hpp"
 #include "Domain/Structure/ElementId.hpp"
 #include "Domain/Tags.hpp"
+#include "Elliptic/Systems/Xcts/Tags.hpp"  // Hack for reading in the right shift
 #include "Evolution/Initialization/InitialData.hpp"
 #include "Evolution/NumericInitialData.hpp"
 #include "Evolution/Systems/CurvedScalarWave/Actions/SetInitialData.hpp"
@@ -221,13 +222,16 @@ struct SetInitialData {
     }();
     auto vars = evolution::Initialization::initial_data(
         initial_data, coords, db::get<::Tags::Time>(*box),
-        tmpl::append<tmpl::list<gr::Tags::SpatialMetric<DataVector, 3>,
-                                gr::Tags::Lapse<DataVector>,
-                                gr::Tags::Shift<DataVector, 3>,
-                                gr::Tags::ExtrinsicCurvature<DataVector, 3>>,
-                     // Don't use the scalar gradient
-                     tmpl::list<CurvedScalarWave::Tags::Psi,
-                                CurvedScalarWave::Tags::Pi>>{});
+        tmpl::append<
+            tmpl::list<gr::Tags::SpatialMetric<DataVector, 3>,
+                       gr::Tags::Lapse<DataVector>,
+                       // We want the Shift Excess
+                       // gr::Tags::Shift<DataVector, 3>,
+                       Xcts::Tags::ShiftExcess<DataVector, 3, Frame::Inertial>,
+                       gr::Tags::ExtrinsicCurvature<DataVector, 3>>,
+            // Don't use the scalar gradient
+            tmpl::list<CurvedScalarWave::Tags::Psi,
+                       CurvedScalarWave::Tags::Pi>>{});
     const auto& spatial_metric =
         get<gr::Tags::SpatialMetric<DataVector, 3>>(vars);
     const auto& lapse = get<gr::Tags::Lapse<DataVector>>(vars);
