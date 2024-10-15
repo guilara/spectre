@@ -31,17 +31,21 @@ void characteristic_speeds(
     const std::optional<tnsr::I<DataVector, Dim, Frame>>& mesh_velocity) {
   const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
 
-  if (mesh_velocity.has_value()) {
-    const DataVector mesh_velocity_dot_normal =
-        get(dot_product((*mesh_velocity), unit_normal_one_form));
-    get<0>(*char_speeds) = mesh_velocity_dot_normal;  // lambda(VScalarDriver)
-    get<2>(*char_speeds) = mesh_velocity_dot_normal;  // lambda(VTensorDriver)
-  } else {
-    get<0>(*char_speeds) = 0.0 * shift_dot_normal;  // lambda(VScalarDriver)
-    get<2>(*char_speeds) = 0.0 * shift_dot_normal;  // lambda(VTensorDriver)
-  }
+  //   if (mesh_velocity.has_value()) {
+  //     const DataVector mesh_velocity_dot_normal =
+  //         get(dot_product((*mesh_velocity), unit_normal_one_form));
+  //     get<0>(*char_speeds) = mesh_velocity_dot_normal;  //
+  //     lambda(VScalarDriver) get<2>(*char_speeds) = mesh_velocity_dot_normal;
+  //     // lambda(VTensorDriver)
+  //   } else {
+  //     get<0>(*char_speeds) = 0.0 * shift_dot_normal;  //
+  //     lambda(VScalarDriver) get<2>(*char_speeds) = 0.0 * shift_dot_normal; //
+  //     lambda(VTensorDriver)
+  //   }
 
+  get<0>(*char_speeds) = -shift_dot_normal;  // lambda(VScalarDriver)
   get<1>(*char_speeds) = -shift_dot_normal;  // lambda(VPiScalar)
+  get<2>(*char_speeds) = -shift_dot_normal;  // lambda(VTensorDriver)
   get<3>(*char_speeds) = -shift_dot_normal;  // lambda(VPi)
 }
 
@@ -54,17 +58,19 @@ void characteristic_speeds(
     const std::optional<tnsr::I<DataVector, Dim, Frame>>& mesh_velocity) {
   const auto shift_dot_normal = get(dot_product(shift, unit_normal_one_form));
 
-  if (mesh_velocity.has_value()) {
-    const DataVector mesh_velocity_dot_normal =
-        get(dot_product((*mesh_velocity), unit_normal_one_form));
-    (*char_speeds)[0] = mesh_velocity_dot_normal;  // lambda(VScalarDriver)
-    (*char_speeds)[2] = mesh_velocity_dot_normal;  // lambda(VTensorDriver)
-  } else {
-    (*char_speeds)[0] = 0.0 * shift_dot_normal;  // lambda(VScalarDriver)
-    (*char_speeds)[2] = 0.0 * shift_dot_normal;  // lambda(VTensorDriver)
-  }
+  //   if (mesh_velocity.has_value()) {
+  //     const DataVector mesh_velocity_dot_normal =
+  //         get(dot_product((*mesh_velocity), unit_normal_one_form));
+  //     (*char_speeds)[0] = mesh_velocity_dot_normal;  // lambda(VScalarDriver)
+  //     (*char_speeds)[2] = mesh_velocity_dot_normal;  // lambda(VTensorDriver)
+  //   } else {
+  //     (*char_speeds)[0] = 0.0 * shift_dot_normal;  // lambda(VScalarDriver)
+  //     (*char_speeds)[2] = 0.0 * shift_dot_normal;  // lambda(VTensorDriver)
+  //   }
 
+  (*char_speeds)[0] = -shift_dot_normal;  // lambda(VScalarDriver)
   (*char_speeds)[1] = -shift_dot_normal;  // lambda(VPiScalar)
+  (*char_speeds)[2] = -shift_dot_normal;  // lambda(VTensorDriver)
   (*char_speeds)[3] = -shift_dot_normal;  // lambda(VPi)
 }
 

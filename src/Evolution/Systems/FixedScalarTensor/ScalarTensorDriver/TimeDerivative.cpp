@@ -49,15 +49,21 @@ void TimeDerivative::apply(
   const size_t number_of_points = get<0, 0>(*dt_tensor_driver).size();
 
   // Tensor advection driver
-  if (mesh_velocity.has_value()) {
-    tenex::evaluate<ti::a, ti::b>(
-        dt_tensor_driver,
-        -lapse() * pi(ti::a, ti::b) - mesh_velocity.value()(ti::J) *
-                                          d_tensor_driver(ti::j, ti::a, ti::b));
-  } else {
-    tenex::evaluate<ti::a, ti::b>(dt_tensor_driver,
-                                  -lapse() * pi(ti::a, ti::b));
-  }
+  // if (mesh_velocity.has_value()) {
+  //   tenex::evaluate<ti::a, ti::b>(
+  //       dt_tensor_driver,
+  //       -lapse() * pi(ti::a, ti::b) - mesh_velocity.value()(ti::J) *
+  //                                         d_tensor_driver(ti::j, ti::a,
+  //                                         ti::b));
+  // } else {
+  //   tenex::evaluate<ti::a, ti::b>(dt_tensor_driver,
+  //                                 -lapse() * pi(ti::a, ti::b));
+  // }
+
+  tenex::evaluate<ti::a, ti::b>(
+      dt_tensor_driver,
+      -lapse() * pi(ti::a, ti::b) +
+          shift(ti::J) * d_tensor_driver(ti::j, ti::a, ti::b));
 
   tenex::evaluate<ti::a, ti::b>(dt_pi,
                                 shift(ti::J) * d_pi(ti::j, ti::a, ti::b));
@@ -70,13 +76,17 @@ void TimeDerivative::apply(
       dt_pi, tensor_driver_source, lapse);
 
   // Scalar advection driver
-  if (mesh_velocity.has_value()) {
-    tenex::evaluate(dt_scalar_driver,
-                    -lapse() * pi_scalar_driver() -
-                        mesh_velocity.value()(ti::I) * d_scalar_driver(ti::i));
-  } else {
-    tenex::evaluate(dt_scalar_driver, -lapse() * pi_scalar_driver());
-  }
+  // if (mesh_velocity.has_value()) {
+  //   tenex::evaluate(dt_scalar_driver,
+  //                   -lapse() * pi_scalar_driver() -
+  //                       mesh_velocity.value()(ti::I) *
+  //                       d_scalar_driver(ti::i));
+  // } else {
+  //   tenex::evaluate(dt_scalar_driver, -lapse() * pi_scalar_driver());
+  // }
+
+  tenex::evaluate(dt_scalar_driver, -lapse() * pi_scalar_driver() +
+                                        shift(ti::I) * d_scalar_driver(ti::i));
 
   tenex::evaluate(dt_pi_scalar_driver,
                   shift(ti::I) * d_pi_scalar_driver(ti::i));
