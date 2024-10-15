@@ -201,14 +201,16 @@ void Tags::ComputeLargestCharacteristicSpeed<Dim, Frame>::function(
     const tnsr::ii<DataVector, Dim, Frame>& spatial_metric,
     const std::optional<tnsr::I<DataVector, Dim, Frame>>& mesh_velocity) {
   const auto shift_magnitude = magnitude(shift, spatial_metric);
-  if (mesh_velocity.has_value()) {
-    const auto mesh_velocity_magnitude =
-        magnitude(mesh_velocity.value(), spatial_metric);
-    *speed =
-        std::max(max(get(shift_magnitude)), max(get(mesh_velocity_magnitude)));
-  } else {
-    *speed = max(get(shift_magnitude));
-  }
+  //   if (mesh_velocity.has_value()) {
+  //     const auto mesh_velocity_magnitude =
+  //         magnitude(mesh_velocity.value(), spatial_metric);
+  //     *speed =
+  //         std::max(max(get(shift_magnitude)),
+  //         max(get(mesh_velocity_magnitude)));
+  //   } else {
+  //     *speed = max(get(shift_magnitude));
+  //   }
+  *speed = max(get(shift_magnitude));
 }
 }  // namespace fe::ScalarTensorDriver
 
