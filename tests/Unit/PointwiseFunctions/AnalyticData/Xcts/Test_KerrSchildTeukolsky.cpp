@@ -61,7 +61,8 @@ void test_factory_and_semantics() {
       "    Direction: outgoing\n"
       "    Center: [0.1, -0.2, 0.3]\n"
       "    Radius: 20.\n"
-      "    Width: 4.\n";
+      "    Width: 4.\n"
+      "  LinearVelocity: [-0.11, 0.1, 0.3]\n";
   const auto created =
       TestHelpers::test_factory_creation<elliptic::analytic_data::InitialGuess,
                                          KerrSchildTeukolsky>(options);
@@ -78,6 +79,7 @@ void test_factory_and_semantics() {
   CHECK(solution.teukolsky_wave().center() ==
         std::array<double, 3>{{0.1, -0.2, 0.3}});
   CHECK_FALSE(solution.teukolsky_wave().include_minkowski_background());
+  CHECK(solution.linear_velocity() == std::array<double, 3>{{-0.11, 0.1, 0.3}});
 
   test_serialization(solution);
   test_copy_semantics(solution);
@@ -91,7 +93,8 @@ void test_zero_amplitude_matches_wrapped_kerr_schild() {
   const KerrSchildTeukolsky solution{
       kerr_schild,
       gr::Solutions::TeukolskyWave{
-          0., 0, "even", "ingoing", {{0., 0., 0.}}, 20., 4., false}};
+          0., 0, "even", "ingoing", {{0., 0., 0.}}, 20., 4., false},
+      std::array<double, 3>{{0., 0., 0.}}};
   const Xcts::Solutions::WrappedGr<gr::Solutions::KerrSchild> wrapped_kerr{
       kerr_schild};
   const auto x = test_coords();
@@ -110,7 +113,9 @@ void test_nonzero_teukolsky_perturbation() {
       1.0, {{0., 0., 0.999}}, {{0., 0., 0.}}, {{0., 0., 0.}}};
   const gr::Solutions::TeukolskyWave teukolsky_wave{
       0.02, -1, "even", "ingoing", {{0., 0., 0.}}, 20., 4., false};
-  const KerrSchildTeukolsky solution{kerr_schild, teukolsky_wave};
+  // TODO: add non zero velocity test
+  const KerrSchildTeukolsky solution{kerr_schild, teukolsky_wave,
+                                     std::array<double, 3>{{0., 0., 0.}}};
   const auto x = test_coords();
 
   using tags =
@@ -206,7 +211,8 @@ void test_numeric_derivative_requires_mesh() {
       gr::Solutions::KerrSchild{
           1.0, {{0., 0., 0.999}}, {{0., 0., 0.}}, {{0., 0., 0.}}},
       gr::Solutions::TeukolskyWave{
-          0.02, -1, "even", "ingoing", {{0., 0., 0.}}, 20., 4., false}};
+          0.02, -1, "even", "ingoing", {{0., 0., 0.}}, 20., 4., false},
+      std::array<double, 3>{{0., 0., 0.}}};
   using deriv_conformal_metric_tag =
       ::Tags::deriv<Tags::ConformalMetric<DataVector, 3, Frame::Inertial>,
                     tmpl::size_t<3>, Frame::Inertial>;

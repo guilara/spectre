@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -79,11 +80,13 @@ struct KerrSchildTeukolskyVariables
       const tuples::tagged_tuple_from_typelist<kerr_schild_tags>&
           local_kerr_schild_vars,
       const tuples::tagged_tuple_from_typelist<teukolsky_tags>&
-          local_teukolsky_vars)
+          local_teukolsky_vars,
+      const std::array<double, 3> local_linear_velocity)
       : Base(std::move(local_mesh), std::move(local_inv_jacobian)),
         x(local_x),
         kerr_schild_vars(local_kerr_schild_vars),
-        teukolsky_vars(local_teukolsky_vars) {}
+        teukolsky_vars(local_teukolsky_vars),
+        constant_velocity(local_linear_velocity) {}
 
   std::reference_wrapper<const tnsr::I<DataType, Dim>> x;
   std::reference_wrapper<
@@ -92,6 +95,7 @@ struct KerrSchildTeukolskyVariables
   std::reference_wrapper<
       const tuples::tagged_tuple_from_typelist<teukolsky_tags>>
       teukolsky_vars;
+  std::array<double, 3> constant_velocity;
 
   void operator()(
       gsl::not_null<tnsr::ii<DataType, Dim>*> conformal_metric,
@@ -189,8 +193,14 @@ class KerrSchildTeukolsky : public elliptic::analytic_data::Background,
     static constexpr Options::String help{
         "Teukolsky perturbation added to the conformal metric"};
   };
+  struct LinearVelocity {
+    using type = std::array<double, 3>;
+    static constexpr Options::String help =
+        "Constant velocity 'v0' added to the background shift to control the "
+        "linear momentum of the system.";
+  };
 
-  using options = tmpl::list<KerrSchild, TeukolskyWave>;
+  using options = tmpl::list<KerrSchild, TeukolskyWave, LinearVelocity>;
   static constexpr Options::String help{
       "Kerr-Schild black hole with a Teukolsky perturbation in the XCTS "
       "conformal metric."};
@@ -203,11 +213,15 @@ class KerrSchildTeukolsky : public elliptic::analytic_data::Background,
   ~KerrSchildTeukolsky() override = default;
 
   KerrSchildTeukolsky(gr::Solutions::KerrSchild kerr_schild,
-                      const gr::Solutions::TeukolskyWave& teukolsky_wave);
+                      const gr::Solutions::TeukolskyWave& teukolsky_wave,
+                      std::array<double, 3> linear_velocity);
 
   const gr::Solutions::KerrSchild& kerr_schild() const { return kerr_schild_; }
   const gr::Solutions::TeukolskyWave& teukolsky_wave() const {
     return teukolsky_wave_;
+  }
+  const std::array<double, 3>& linear_velocity() const {
+    return linear_velocity_;
   }
 
   /// \cond
@@ -258,8 +272,8 @@ class KerrSchildTeukolsky : public elliptic::analytic_data::Background,
         x, 0., typename VarsComputer::teukolsky_tags{});
     const size_t num_points = get_size(*x.begin());
     typename VarsComputer::Cache cache{num_points};
-    VarsComputer computer{mesh, inv_jacobian, x, kerr_schild_vars,
-                          teukolsky_vars};
+    VarsComputer computer{mesh,           inv_jacobian,    x, kerr_schild_vars,
+                          teukolsky_vars, linear_velocity_};
     const auto get_var = [&cache, &computer](auto tag_v) {
       using tag = std::decay_t<decltype(tag_v)>;
       return cache.get_var(computer, tag{});
@@ -272,6 +286,7 @@ class KerrSchildTeukolsky : public elliptic::analytic_data::Background,
 
   gr::Solutions::KerrSchild kerr_schild_{};
   gr::Solutions::TeukolskyWave teukolsky_wave_{};
+  std::array<double, 3> linear_velocity_{};
 };
 
 bool operator==(const KerrSchildTeukolsky& lhs, const KerrSchildTeukolsky& rhs);
