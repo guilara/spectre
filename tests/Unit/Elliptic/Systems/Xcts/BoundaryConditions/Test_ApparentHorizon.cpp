@@ -227,6 +227,9 @@ void apply_boundary_condition_linearized(
   make_metric_riemannian(make_not_null(&inv_conformal_metric));
   auto [face_normal, deriv_unnormalized_face_normal, face_normal_magnitude] =
       make_spherical_face_normal(x, center, inv_conformal_metric);
+  // The background shift only enters the linearized boundary conditions
+  // through the negative-expansion correction, which isn't used here
+  tnsr::I<DataVector, 3> shift_background{get<0>(x).size(), 0.};
   apply_boundary_condition_impl<Xcts::Geometry::Curved, true>(
       n_dot_conformal_factor_gradient_correction,
       n_dot_lapse_times_conformal_factor_gradient_correction,
@@ -235,7 +238,8 @@ void apply_boundary_condition_linearized(
       n_dot_longitudinal_shift_excess_correction, center, rotation,
       std::move(face_normal), std::move(deriv_unnormalized_face_normal),
       std::move(face_normal_magnitude), x, extrinsic_curvature_trace,
-      longitudinal_shift_background, conformal_factor_minus_one,
+      std::move(shift_background), longitudinal_shift_background,
+      conformal_factor_minus_one,
       lapse_times_conformal_factor_minus_one, n_dot_longitudinal_shift_excess,
       std::move(inv_conformal_metric), conformal_christoffel_second_kind);
 }
@@ -258,6 +262,9 @@ void apply_boundary_condition_linearized_flat_cartesian(
     const tnsr::I<DataVector, 3>& n_dot_longitudinal_shift_excess) {
   auto [face_normal, deriv_unnormalized_face_normal, face_normal_magnitude] =
       make_spherical_face_normal_flat_cartesian(x, center);
+  // The background shift only enters the linearized boundary conditions
+  // through the negative-expansion correction, which isn't used here
+  tnsr::I<DataVector, 3> shift_background{get<0>(x).size(), 0.};
   apply_boundary_condition_impl<Xcts::Geometry::FlatCartesian, true>(
       n_dot_conformal_factor_gradient_correction,
       n_dot_lapse_times_conformal_factor_gradient_correction,
@@ -266,8 +273,9 @@ void apply_boundary_condition_linearized_flat_cartesian(
       n_dot_longitudinal_shift_excess_correction, center, rotation,
       std::move(face_normal), std::move(deriv_unnormalized_face_normal),
       std::move(face_normal_magnitude), x, extrinsic_curvature_trace,
-      longitudinal_shift_background, conformal_factor_minus_one,
-      lapse_times_conformal_factor_minus_one, n_dot_longitudinal_shift_excess);
+      std::move(shift_background), longitudinal_shift_background,
+      conformal_factor_minus_one, lapse_times_conformal_factor_minus_one,
+      n_dot_longitudinal_shift_excess);
 }
 
 struct FactoryMetavars {
@@ -442,7 +450,10 @@ void test_consistency_with_kerr(const bool compute_expansion,
       // expansion is _computed_ to be zero from the Kerr solution at the
       // horizon, or it is just set to zero.
       compute_expansion
-          ? std::make_optional(std::make_unique<KerrSchild>(solution))
+          ? std::make_optional(ApparentHorizon<Xcts::Geometry::Curved>::
+                                   NegativeExpansionOptions{
+                                       std::make_unique<KerrSchild>(solution),
+                                       false, false})
           : std::nullopt};
 
   // Set up a wedge with a Kerr-horizon-conforming inner surface
@@ -635,11 +646,14 @@ SPECTRE_TEST_CASE("Unit.Xcts.BoundaryConditions.ApparentHorizon",
                 "      Center: [0., 0., 0.]\n"
                 "      Velocity: [0., 0., 0.]\n"
                 "  NegativeExpansion:\n"
-                "    KerrSchild:\n"
-                "      Mass: 3.4\n"
-                "      Spin: [0.3, 0.2, 0.1]\n"
-                "      Center: [0., 0., 0.]\n"
-                "      Velocity: [0., 0., 0.]\n");
+                "    Solution:\n"
+                "      KerrSchild:\n"
+                "        Mass: 3.4\n"
+                "        Spin: [0.3, 0.2, 0.1]\n"
+                "        Center: [0., 0., 0.]\n"
+                "        Velocity: [0., 0., 0.]\n"
+                "    ComovingShift: False\n"
+                "    TangentialShift: False\n");
   test_with_random_values();
   test_consistency_with_kerr(false, false);
   test_consistency_with_kerr(true, false);

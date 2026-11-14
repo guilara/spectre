@@ -35,16 +35,19 @@ ApparentHorizon<ConformalGeometry>::ApparentHorizon(
     std::array<double, 3> center, std::array<double, 3> rotation,
     std::optional<std::unique_ptr<elliptic::analytic_data::InitialGuess>>
         solution_for_lapse,
-    std::optional<std::unique_ptr<elliptic::analytic_data::InitialGuess>>
-        solution_for_negative_expansion,
+    std::optional<NegativeExpansionOptions> negative_expansion,
     const Options::Context& /*context*/)
     : center_(center),
       rotation_(rotation),
       // NOLINTNEXTLINE(performance-move-const-arg)
-      solution_for_lapse_(std::move(solution_for_lapse)),
-      solution_for_negative_expansion_(
-          // NOLINTNEXTLINE(performance-move-const-arg)
-          std::move(solution_for_negative_expansion)) {}
+      solution_for_lapse_(std::move(solution_for_lapse)) {
+  if (negative_expansion.has_value()) {
+    solution_for_negative_expansion_ =
+        std::move(negative_expansion->solution);
+    negative_expansion_comoving_shift_ = negative_expansion->comoving_shift;
+    negative_expansion_tangential_shift_ = negative_expansion->tangential_shift;
+  }
+}
 
 namespace {
 // This sets the output buffer to: \bar{m}^{ij} \bar{\nabla}_i n_j
@@ -104,11 +107,16 @@ void normal_gradient_term_curved(
 }
 
 // Compute the expansion Theta = m^ij (D_i s_j - K_ij) and the shift-correction
-// epsilon = shift_orthogonal - lapse of an analytic solution
+// epsilon = shift_orthogonal - lapse of an analytic solution. Also returns the
+// shift of the solution. If `comoving_shift` is true, the shift of the solution
+// (given in the inertial frame) is transformed to the comoving frame defined by
+// the background shift, i.e. the background shift is added to it.
 void negative_expansion_quantities(
     const gsl::not_null<Scalar<DataVector>*> expansion,
     const gsl::not_null<Scalar<DataVector>*> beta_orthogonal_correction,
+    const gsl::not_null<tnsr::I<DataVector, 3>*> solution_shift,
     const std::unique_ptr<elliptic::analytic_data::InitialGuess>& solution,
+    const bool comoving_shift, const tnsr::I<DataVector, 3>& shift_background,
     const tnsr::I<DataVector, 3>& x,
     const tnsr::i<DataVector, 3>& conformal_face_normal,
     const Scalar<DataVector>& unnormalized_conformal_face_normal_magnitude,
@@ -183,8 +191,19 @@ void negative_expansion_quantities(
     }
   }
   get(*expansion) *= -1.;
-  // Compute epsilon = shift_orthogonal - lapse
-  normal_dot_flux(beta_orthogonal_correction, face_normal, shift);
+  // Compute epsilon = s_i (shift^i + shift_background^i) - lapse if
+  // `comoving_shift` is true, and epsilon = s_i shift^i - lapse otherwise. The
+  // background shift transforms the shift of the solution from the inertial
+  // frame to the comoving frame in which the XCTS problem is posed (e.g. a
+  // linear velocity, or orbital rotation and expansion). Note that the face
+  // normal points into the excised region, n_i = -s_i.
+  for (size_t i = 0; i < 3; ++i) {
+    solution_shift->get(i) = shift.get(i);
+    if (comoving_shift) {
+      solution_shift->get(i) += shift_background.get(i);
+    }
+  }
+  normal_dot_flux(beta_orthogonal_correction, face_normal, *solution_shift);
   get(*beta_orthogonal_correction) *= -1.;
   get(*beta_orthogonal_correction) -= get(lapse);
 }
@@ -205,6 +224,8 @@ void apparent_horizon_impl(
         solution_for_lapse,
     const std::optional<std::unique_ptr<elliptic::analytic_data::InitialGuess>>&
         solution_for_negative_expansion,
+    const bool negative_expansion_comoving_shift,
+    const bool negative_expansion_tangential_shift,
     const tnsr::i<DataVector, 3>& face_normal,
     const tnsr::ij<DataVector, 3>& deriv_unnormalized_face_normal,
     const Scalar<DataVector>& face_normal_magnitude,
@@ -220,7 +241,8 @@ void apparent_horizon_impl(
         conformal_christoffel_second_kind) {
   // Allocate some temporary memory
   TempBuffer<tmpl::list<::Tags::TempI<0, 3>, ::Tags::TempScalar<1>,
-                        ::Tags::TempI<2, 3>, ::Tags::TempScalar<3>>>
+                        ::Tags::TempI<2, 3>, ::Tags::TempScalar<3>,
+                        ::Tags::TempI<4, 3>>>
       buffer{face_normal.begin()->size()};
   // Center the coordinates
   tnsr::I<DataVector, 3>& x = get<::Tags::TempI<2, 3>>(buffer);
@@ -249,11 +271,13 @@ void apparent_horizon_impl(
   Scalar<DataVector>& expansion_of_solution =
       get<::Tags::TempScalar<3>>(buffer);
   Scalar<DataVector>& beta_orthogonal = get<::Tags::TempScalar<1>>(buffer);
+  tnsr::I<DataVector, 3>& solution_shift = get<::Tags::TempI<4, 3>>(buffer);
   if (solution_for_negative_expansion.has_value()) {
     negative_expansion_quantities(
         make_not_null(&expansion_of_solution), make_not_null(&beta_orthogonal),
-        *solution_for_negative_expansion, x, face_normal, face_normal_magnitude,
-        deriv_unnormalized_face_normal);
+        make_not_null(&solution_shift), *solution_for_negative_expansion,
+        negative_expansion_comoving_shift, shift_background, x, face_normal,
+        face_normal_magnitude, deriv_unnormalized_face_normal);
     ASSERT(max(get(expansion_of_solution)) <
                100.0 * std::numeric_limits<double>::epsilon(),
            "Expansion of solution is not negative everywhere.");
@@ -279,6 +303,21 @@ void apparent_horizon_impl(
   for (LeviCivitaIterator<3> it; it; ++it) {
     shift_excess->get(it[0]) +=
         it.sign() * gsl::at(rotation, it[1]) * x.get(it[2]);
+  }
+  // Tangential part of the comoving shift of the negative-expansion solution:
+  // tau^i = beta_co^i - s^i s_j beta_co^j. The face normal is n_i = -s_i, so
+  // the sign cancels in the projection.
+  if (solution_for_negative_expansion.has_value() and
+      negative_expansion_tangential_shift) {
+    DataVector& normal_solution_shift = get(beta_orthogonal);
+    normal_solution_shift = get<0>(face_normal) * get<0>(solution_shift);
+    for (size_t i = 1; i < 3; ++i) {
+      normal_solution_shift += face_normal.get(i) * solution_shift.get(i);
+    }
+    for (size_t i = 0; i < 3; ++i) {
+      shift_excess->get(i) += solution_shift.get(i) -
+                              normal_solution_shift * face_normal_raised.get(i);
+    }
   }
 
   // Conformal factor
@@ -368,11 +407,13 @@ void linearized_apparent_horizon_impl(
         solution_for_lapse,
     const std::optional<std::unique_ptr<elliptic::analytic_data::InitialGuess>>&
         solution_for_negative_expansion,
+    const bool negative_expansion_comoving_shift,
     const tnsr::i<DataVector, 3>& face_normal,
     const tnsr::ij<DataVector, 3>& deriv_unnormalized_face_normal,
     const Scalar<DataVector>& face_normal_magnitude,
     const tnsr::I<DataVector, 3>& x_offcenter,
     const Scalar<DataVector>& extrinsic_curvature_trace,
+    const tnsr::I<DataVector, 3>& shift_background,
     const tnsr::II<DataVector, 3>& longitudinal_shift_background,
     const Scalar<DataVector>& conformal_factor_minus_one,
     const Scalar<DataVector>& lapse_times_conformal_factor_minus_one,
@@ -385,7 +426,7 @@ void linearized_apparent_horizon_impl(
         conformal_christoffel_second_kind) {
   // Allocate some temporary memory
   TempBuffer<tmpl::list<::Tags::TempI<0, 3>, ::Tags::TempScalar<1>,
-                        ::Tags::TempScalar<2>>>
+                        ::Tags::TempScalar<2>, ::Tags::TempI<3, 3>>>
       buffer{face_normal.begin()->size()};
 
   // Negative-expansion quantities
@@ -400,11 +441,16 @@ void linearized_apparent_horizon_impl(
     get<0>(x) -= center[0];
     get<1>(x) -= center[1];
     get<2>(x) -= center[2];
-    negative_expansion_quantities(make_not_null(&expansion_of_solution),
-                                  make_not_null(&beta_orthogonal_correction),
-                                  *solution_for_negative_expansion, x,
-                                  face_normal, face_normal_magnitude,
-                                  deriv_unnormalized_face_normal);
+    // The shift of the solution (and hence the tangential shift term) doesn't
+    // depend on the fields, so it doesn't contribute to the linearization
+    tnsr::I<DataVector, 3>& unused_solution_shift =
+        get<::Tags::TempI<3, 3>>(buffer);
+    negative_expansion_quantities(
+        make_not_null(&expansion_of_solution),
+        make_not_null(&beta_orthogonal_correction),
+        make_not_null(&unused_solution_shift), *solution_for_negative_expansion,
+        negative_expansion_comoving_shift, shift_background, x, face_normal,
+        face_normal_magnitude, deriv_unnormalized_face_normal);
   }
 
   tnsr::I<DataVector, 3>& face_normal_raised = get<::Tags::TempI<0, 3>>(buffer);
@@ -532,7 +578,8 @@ void ApparentHorizon<ConformalGeometry>::apply(
       shift_excess, n_dot_conformal_factor_gradient,
       n_dot_lapse_times_conformal_factor_gradient,
       n_dot_longitudinal_shift_excess, center_, rotation_, solution_for_lapse_,
-      solution_for_negative_expansion_, face_normal,
+      solution_for_negative_expansion_, negative_expansion_comoving_shift_,
+      negative_expansion_tangential_shift_, face_normal,
       deriv_unnormalized_face_normal, face_normal_magnitude, x,
       extrinsic_curvature_trace, shift_background,
       longitudinal_shift_background, std::nullopt, std::nullopt);
@@ -566,7 +613,8 @@ void ApparentHorizon<ConformalGeometry>::apply(
       shift_excess, n_dot_conformal_factor_gradient,
       n_dot_lapse_times_conformal_factor_gradient,
       n_dot_longitudinal_shift_excess, center_, rotation_, solution_for_lapse_,
-      solution_for_negative_expansion_, face_normal,
+      solution_for_negative_expansion_, negative_expansion_comoving_shift_,
+      negative_expansion_tangential_shift_, face_normal,
       deriv_unnormalized_face_normal, face_normal_magnitude, x,
       extrinsic_curvature_trace, shift_background,
       longitudinal_shift_background, inv_conformal_metric,
@@ -594,6 +642,7 @@ void ApparentHorizon<ConformalGeometry>::apply_linearized(
     const Scalar<DataVector>& face_normal_magnitude,
     const tnsr::I<DataVector, 3>& x,
     const Scalar<DataVector>& extrinsic_curvature_trace,
+    const tnsr::I<DataVector, 3>& shift_background,
     const tnsr::II<DataVector, 3>& longitudinal_shift_background,
     const Scalar<DataVector>& conformal_factor_minus_one,
     const Scalar<DataVector>& lapse_times_conformal_factor_minus_one,
@@ -603,10 +652,10 @@ void ApparentHorizon<ConformalGeometry>::apply_linearized(
       shift_excess_correction, n_dot_conformal_factor_gradient_correction,
       n_dot_lapse_times_conformal_factor_gradient_correction,
       n_dot_longitudinal_shift_excess_correction, center_, solution_for_lapse_,
-      solution_for_negative_expansion_, face_normal,
-      deriv_unnormalized_face_normal, face_normal_magnitude, x,
-      extrinsic_curvature_trace, longitudinal_shift_background,
-      conformal_factor_minus_one, lapse_times_conformal_factor_minus_one,
+      solution_for_negative_expansion_, negative_expansion_comoving_shift_,
+      face_normal, deriv_unnormalized_face_normal, face_normal_magnitude, x,
+      extrinsic_curvature_trace, shift_background,
+      longitudinal_shift_background, conformal_factor_minus_one, lapse_times_conformal_factor_minus_one,
       n_dot_longitudinal_shift_excess, std::nullopt, std::nullopt);
 }
 
@@ -631,6 +680,7 @@ void ApparentHorizon<ConformalGeometry>::apply_linearized(
     const Scalar<DataVector>& face_normal_magnitude,
     const tnsr::I<DataVector, 3>& x,
     const Scalar<DataVector>& extrinsic_curvature_trace,
+    const tnsr::I<DataVector, 3>& shift_background,
     const tnsr::II<DataVector, 3>& longitudinal_shift_background,
     const Scalar<DataVector>& conformal_factor_minus_one,
     const Scalar<DataVector>& lapse_times_conformal_factor_minus_one,
@@ -642,10 +692,10 @@ void ApparentHorizon<ConformalGeometry>::apply_linearized(
       shift_excess_correction, n_dot_conformal_factor_gradient_correction,
       n_dot_lapse_times_conformal_factor_gradient_correction,
       n_dot_longitudinal_shift_excess_correction, center_, solution_for_lapse_,
-      solution_for_negative_expansion_, face_normal,
-      deriv_unnormalized_face_normal, face_normal_magnitude, x,
-      extrinsic_curvature_trace, longitudinal_shift_background,
-      conformal_factor_minus_one, lapse_times_conformal_factor_minus_one,
+      solution_for_negative_expansion_, negative_expansion_comoving_shift_,
+      face_normal, deriv_unnormalized_face_normal, face_normal_magnitude, x,
+      extrinsic_curvature_trace, shift_background,
+      longitudinal_shift_background, conformal_factor_minus_one, lapse_times_conformal_factor_minus_one,
       n_dot_longitudinal_shift_excess, inv_conformal_metric,
       conformal_christoffel_second_kind);
 }
@@ -656,6 +706,8 @@ void ApparentHorizon<ConformalGeometry>::pup(PUP::er& p) {
   p | rotation_;
   p | solution_for_lapse_;
   p | solution_for_negative_expansion_;
+  p | negative_expansion_comoving_shift_;
+  p | negative_expansion_tangential_shift_;
 }
 
 template <Xcts::Geometry ConformalGeometry>

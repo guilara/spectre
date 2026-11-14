@@ -3,11 +3,13 @@
 
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <memory>
 #include <optional>
 #include <pup.h>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "DataStructures/Tensor/EagerMath/Magnitude.hpp"
@@ -20,6 +22,7 @@
 #include "Elliptic/Systems/Xcts/Tags.hpp"
 #include "Options/Auto.hpp"
 #include "Options/Context.hpp"
+#include "Options/ParseError.hpp"
 #include "Options/String.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Tags.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialGuess.hpp"
@@ -92,6 +95,33 @@ namespace Xcts::BoundaryConditions {
  * \beta_\mathrm{Kerr}^i - \alpha_\mathrm{Kerr}\f$ to the orthogonal part
  * \f$s_i\beta_\mathrm{excess}^i\f$ of (\f$\ref{eq:ah_beta}\f$).
  *
+ * \par Comoving shift of the negative-expansion solution:
+ * With the `ComovingShift` option of `NegativeExpansion` enabled, the shift of
+ * the Kerr solution is transformed from the inertial frame to the comoving
+ * frame in which the XCTS problem is posed, \f$\beta_\mathrm{co}^i =
+ * \beta_\mathrm{Kerr}^i + \beta_\mathrm{background}^i\f$, evaluated at each
+ * point of the excision surface, so \f$\epsilon = s_i\beta_\mathrm{co}^i -
+ * \alpha_\mathrm{Kerr}\f$. The Kerr solution must then be given in the
+ * inertial frame, boosted with the background shift at its center (e.g. the
+ * linear velocity of a single black hole, or \f$\Omega_0\times c + \dot{a}\,c
+ * + v_0\f$ for a black hole centered at \f$c\f$ in a binary), so that it is at
+ * rest in the comoving frame. The time derivatives of the background are
+ * assumed to vanish in the comoving frame. SpEC applies the same correction
+ * with the boost velocity of the Kerr solution in place of the background
+ * shift (`SBH_Velocity` in its `InnerShift` boundary condition), which agrees
+ * with this one at the center of the black hole.
+ *
+ * \par Tangential shift of the negative-expansion solution:
+ * With the `TangentialShift` option of `NegativeExpansion` enabled (which
+ * requires `ComovingShift`), also the tangential part of the comoving shift,
+ * \f$\tau^i = \beta_\mathrm{co}^i - \bar{s}^i\bar{s}_j\beta_\mathrm{co}^j\f$,
+ * is added to (\f$\ref{eq:ah_beta}\f$). Then the boosted Kerr solution
+ * satisfies these boundary conditions on any excision surface, not only on its
+ * apparent horizon. Note that \f$\tau^i\f$ includes the rotation of a spinning
+ * Kerr solution and the frame rotation of the background shift around the
+ * black hole, so the `Rotation` parameters should typically be set to zero in
+ * this case (in particular, without adding the orbital angular velocity).
+ *
  * \note When negative-expansion boundary conditions are selected, the Kerr
  * solution gets evaluated at every boundary-condition application. This may
  * turn out to incur a significant computational cost, in which case a future
@@ -134,10 +164,65 @@ class ApparentHorizon
         "that the latter will not result in the standard Kerr-Schild slicing "
         "for a single black hole.";
   };
+  /// Options for negative-expansion boundary conditions
+  struct NegativeExpansionOptions {
+    struct Solution {
+      using type = std::unique_ptr<elliptic::analytic_data::InitialGuess>;
+      static constexpr Options::String help =
+          "Analytic solution whose expansion is imposed at the excision "
+          "surface. It is evaluated at coordinates centered at the apparent "
+          "horizon.";
+    };
+    struct ComovingShift {
+      using type = bool;
+      static constexpr Options::String help =
+          "Transform the shift of the solution from the inertial frame to the "
+          "comoving frame, i.e. add the background shift to it, when imposing "
+          "the normal part of the shift at the excision surface. The solution "
+          "must be boosted with the background shift at its center (e.g. the "
+          "linear velocity of a single black hole), so that it is at rest in "
+          "the comoving frame.";
+    };
+    struct TangentialShift {
+      using type = bool;
+      static constexpr Options::String help =
+          "Also impose the tangential part of the comoving shift of the "
+          "solution at the excision surface. Requires 'ComovingShift'. The "
+          "tangential part includes the rotation of a spinning solution and "
+          "the frame rotation of the background shift, so set 'Rotation' to "
+          "zero (without the orbital angular velocity) unless an additional "
+          "rotation is intended.";
+    };
+    using options = tmpl::list<Solution, ComovingShift, TangentialShift>;
+    static constexpr Options::String help =
+        "Impose the expansion and shift of an analytic solution at the "
+        "excision surface.";
+
+    NegativeExpansionOptions() = default;
+    NegativeExpansionOptions(
+        std::unique_ptr<elliptic::analytic_data::InitialGuess> local_solution,
+        bool local_comoving_shift, bool local_tangential_shift,
+        const Options::Context& context = {})
+        : solution(std::move(local_solution)),
+          comoving_shift(local_comoving_shift),
+          tangential_shift(local_tangential_shift) {
+      if (tangential_shift and not comoving_shift) {
+        PARSE_ERROR(context,
+                    "'TangentialShift' requires 'ComovingShift' to be "
+                    "enabled, because the tangential part of the shift of the "
+                    "solution is only meaningful in the frame comoving with "
+                    "the black hole.");
+      }
+    }
+
+    std::unique_ptr<elliptic::analytic_data::InitialGuess> solution{};
+    bool comoving_shift{false};
+    bool tangential_shift{false};
+  };
+
   struct NegativeExpansion {
     using type =
-        Options::Auto<std::unique_ptr<elliptic::analytic_data::InitialGuess>,
-                      Options::AutoLabel::None>;
+        Options::Auto<NegativeExpansionOptions, Options::AutoLabel::None>;
     static constexpr Options::String help =
         "Specify an analytic solution to impose its expansion at the excision "
         "surface. The analytic solution will be evaluated at coordinates "
@@ -176,10 +261,12 @@ class ApparentHorizon
                       solution_for_lapse_.value()))
             : std::nullopt,
         solution_for_negative_expansion_.has_value()
-            ? std::make_optional(
+            ? std::make_optional(NegativeExpansionOptions{
                   serialize_and_deserialize<
                       std::unique_ptr<elliptic::analytic_data::InitialGuess>>(
-                      solution_for_negative_expansion_.value()))
+                      solution_for_negative_expansion_.value()),
+                  negative_expansion_comoving_shift_,
+                  negative_expansion_tangential_shift_})
             : std::nullopt);
   }
 
@@ -187,8 +274,7 @@ class ApparentHorizon
       std::array<double, 3> center, std::array<double, 3> rotation,
       std::optional<std::unique_ptr<elliptic::analytic_data::InitialGuess>>
           solution_for_lapse,
-      std::optional<std::unique_ptr<elliptic::analytic_data::InitialGuess>>
-          solution_for_negative_expansion,
+      std::optional<NegativeExpansionOptions> negative_expansion,
       const Options::Context& context = {});
 
   const std::array<double, 3>& center() const { return center_; }
@@ -200,6 +286,12 @@ class ApparentHorizon
   const std::optional<std::unique_ptr<elliptic::analytic_data::InitialGuess>>&
   solution_for_negative_expansion() const {
     return solution_for_negative_expansion_;
+  }
+  bool negative_expansion_comoving_shift() const {
+    return negative_expansion_comoving_shift_;
+  }
+  bool negative_expansion_tangential_shift() const {
+    return negative_expansion_tangential_shift_;
   }
 
   std::vector<elliptic::BoundaryConditionType> boundary_condition_types()
@@ -283,6 +375,7 @@ class ApparentHorizon
           domain::Tags::UnnormalizedFaceNormal<3, Frame::Inertial>>,
       domain::Tags::Coordinates<3, Frame::Inertial>,
       gr::Tags::TraceExtrinsicCurvature<DataVector>,
+      Tags::ShiftBackground<DataVector, 3, Frame::Inertial>,
       Tags::LongitudinalShiftBackgroundMinusDtConformalMetric<DataVector, 3,
                                                               Frame::Inertial>,
       Tags::ConformalFactorMinusOne<DataVector>,
@@ -316,6 +409,7 @@ class ApparentHorizon
       const Scalar<DataVector>& face_normal_magnitude,
       const tnsr::I<DataVector, 3>& x,
       const Scalar<DataVector>& extrinsic_curvature_trace,
+      const tnsr::I<DataVector, 3>& shift_background,
       const tnsr::II<DataVector, 3>& longitudinal_shift_background,
       const Scalar<DataVector>& conformal_factor_minus_one,
       const Scalar<DataVector>& lapse_times_conformal_factor_minus_one,
@@ -341,6 +435,7 @@ class ApparentHorizon
       const Scalar<DataVector>& face_normal_magnitude,
       const tnsr::I<DataVector, 3>& x,
       const Scalar<DataVector>& extrinsic_curvature_trace,
+      const tnsr::I<DataVector, 3>& shift_background,
       const tnsr::II<DataVector, 3>& longitudinal_shift_background,
       const Scalar<DataVector>& conformal_factor_minus_one,
       const Scalar<DataVector>& lapse_times_conformal_factor_minus_one,
@@ -360,6 +455,8 @@ class ApparentHorizon
       solution_for_lapse_{};
   std::optional<std::unique_ptr<elliptic::analytic_data::InitialGuess>>
       solution_for_negative_expansion_{};
+  bool negative_expansion_comoving_shift_{false};
+  bool negative_expansion_tangential_shift_{false};
 };
 
 }  // namespace Xcts::BoundaryConditions
