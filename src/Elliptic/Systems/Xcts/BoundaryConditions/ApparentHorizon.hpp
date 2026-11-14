@@ -89,8 +89,14 @@ namespace Xcts::BoundaryConditions {
  * \f$\frac{\psi^3}{4}\Theta_\mathrm{Kerr}\f$ to (\f$\ref{eq:ah_psi}\f$), where
  * \f$\Theta_\mathrm{Kerr}\f$ is the expansion of the specified Kerr solution at
  * the excision surface, and we add the quantity \f$\epsilon = s_i
- * \beta_\mathrm{Kerr}^i - \alpha_\mathrm{Kerr}\f$ to the orthogonal part
- * \f$s_i\beta_\mathrm{excess}^i\f$ of (\f$\ref{eq:ah_beta}\f$).
+ * (\beta_\mathrm{Kerr}^i + v^i) - \alpha_\mathrm{Kerr}\f$ to the orthogonal
+ * part \f$s_i\beta_\mathrm{excess}^i\f$ of (\f$\ref{eq:ah_beta}\f$). Here
+ * \f$v^i\f$ is the boost velocity of the Kerr solution (zero for an unboosted
+ * solution), so \f$\beta_\mathrm{Kerr}^i + v^i\f$ is the shift of the boosted
+ * Kerr solution in the frame comoving with the black hole. This assumes that
+ * the XCTS problem is posed in that comoving frame, i.e. that the background
+ * shift contains the term \f$v^i\f$ and the time derivatives of the background
+ * vanish.
  *
  * \note When negative-expansion boundary conditions are selected, the Kerr
  * solution gets evaluated at every boundary-condition application. This may

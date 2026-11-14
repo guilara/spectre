@@ -6,6 +6,7 @@
 #include <array>
 #include <cstddef>
 #include <optional>
+#include <type_traits>
 
 #include "DataStructures/DataVector.hpp"
 #include "DataStructures/LeviCivitaIterator.hpp"
@@ -18,7 +19,9 @@
 #include "Elliptic/Systems/Xcts/Geometry.hpp"
 #include "NumericalAlgorithms/DiscontinuousGalerkin/NormalDotFlux.hpp"
 #include "PointwiseFunctions/AnalyticData/Xcts/Binary.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/GeneralRelativity/KerrSchild.hpp"
 #include "PointwiseFunctions/AnalyticSolutions/Xcts/Factory.hpp"
+#include "PointwiseFunctions/AnalyticSolutions/Xcts/WrappedGr.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialGuess.hpp"
 #include "Utilities/CallWithDynamicType.hpp"
@@ -104,7 +107,9 @@ void normal_gradient_term_curved(
 }
 
 // Compute the expansion Theta = m^ij (D_i s_j - K_ij) and the shift-correction
-// epsilon = shift_orthogonal - lapse of an analytic solution
+// epsilon = shift_orthogonal - lapse of an analytic solution. For a boosted
+// Kerr-Schild solution the shift is transformed to the frame comoving with the
+// black hole, i.e. the boost velocity is added to the shift.
 void negative_expansion_quantities(
     const gsl::not_null<Scalar<DataVector>*> expansion,
     const gsl::not_null<Scalar<DataVector>*> beta_orthogonal_correction,
@@ -119,10 +124,18 @@ void negative_expansion_quantities(
                                tmpl::size_t<3>, Frame::Inertial>,
                  gr::Tags::Lapse<DataVector>, gr::Tags::Shift<DataVector, 3>,
                  gr::Tags::ExtrinsicCurvature<DataVector, 3>>;
+  std::array<double, 3> boost_velocity{{0., 0., 0.}};
   const auto solution_vars =
       call_with_dynamic_type<tuples::tagged_tuple_from_typelist<analytic_tags>,
                              Xcts::Solutions::all_analytic_solutions>(
-          solution.get(), [&x](const auto* const local_solution) {
+          solution.get(),
+          [&x, &boost_velocity](const auto* const local_solution) {
+            using SolutionType = std::decay_t<decltype(*local_solution)>;
+            if constexpr (std::is_same_v<SolutionType,
+                                         Xcts::Solutions::WrappedGr<
+                                             gr::Solutions::KerrSchild>>) {
+              boost_velocity = local_solution->gr_solution().boost_velocity();
+            }
             return local_solution->variables(x, analytic_tags{});
           });
   const auto& inv_spatial_metric =
@@ -183,8 +196,16 @@ void negative_expansion_quantities(
     }
   }
   get(*expansion) *= -1.;
-  // Compute epsilon = shift_orthogonal - lapse
-  normal_dot_flux(beta_orthogonal_correction, face_normal, shift);
+  // Compute epsilon = s_i (shift^i + v^i) - lapse, where v is the boost
+  // velocity of the solution. In the frame comoving with a boosted black hole
+  // the shift is shift + v. This is consistent with a background shift that
+  // includes v, e.g. a linear-velocity term. For an unboosted solution v = 0.
+  // Note that the face normal points into the excised region, n_i = -s_i.
+  tnsr::I<DataVector, 3> comoving_shift = shift;
+  for (size_t i = 0; i < 3; ++i) {
+    comoving_shift.get(i) += gsl::at(boost_velocity, i);
+  }
+  normal_dot_flux(beta_orthogonal_correction, face_normal, comoving_shift);
   get(*beta_orthogonal_correction) *= -1.;
   get(*beta_orthogonal_correction) -= get(lapse);
 }
