@@ -51,10 +51,10 @@ Background: &background
           - {{ ConformalSpinLeft_y }}
           - {{ ConformalSpinLeft_z }}
         Center: [0., 0., 0.]
-        Velocity:
+        Velocity: &velocity_left
           - {{ ConformalVelocityLeft_x }}
           - {{ ConformalVelocityLeft_y }}
-          - {{ ConformalVelocityLeft_z }}  
+          - {{ ConformalVelocityLeft_z }}
     ObjectRight: &kerr_right
       KerrSchild:
         Mass: &mass_right {{ ConformalMassRight }}
@@ -63,7 +63,7 @@ Background: &background
           - {{ ConformalSpinRight_y }}
           - {{ ConformalSpinRight_z }}
         Center: [0., 0., 0.]
-        Velocity:
+        Velocity: &velocity_right
           - {{ ConformalVelocityRight_x }}
           - {{ ConformalVelocityRight_y }}
           - {{ ConformalVelocityRight_z }}
@@ -167,7 +167,7 @@ DomainCreator:
         InitialValues:
           Mass: *mass_right
           Spin: *spin_right
-          Velocity: [0., 0., 0.]
+          Velocity: *velocity_right
         SizeInitialValues: Auto
         TransitionEndsAtCube: False
       ShapeMapB:
@@ -176,7 +176,7 @@ DomainCreator:
         InitialValues:
           Mass: *mass_left
           Spin: *spin_left
-          Velocity: [0., 0., 0.]
+          Velocity: *velocity_left
         SizeInitialValues: Auto
         TransitionEndsAtCube: False
       GridCenters: None
