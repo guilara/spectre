@@ -392,7 +392,7 @@ def generate_id(
     # This is an empirical factor based on an equal-mass non-spinning case, in
     # which ~0.41 conformal masses result in ~0.5 horizon masses.
     # mass_initial_guess_factor = 1.0
-    mass_initial_guess_factor = 0.82
+    mass_initial_guess_factor = 0.82 if separation < 100.0 else 1.0
     if conformal_mass_a is None:
         conformal_mass_a = mass_initial_guess_factor * target_params["MassA"]
     if conformal_mass_b is None:
