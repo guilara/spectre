@@ -29,7 +29,7 @@ tnsr::Ij<double, SpatialDim, Frame::NoFrame> identity_matrix() {
 }
 
 template <size_t SpatialDim>
-std::array<double, SpatialDim> apply(
+std::array<double, SpatialDim> matrix_times_vector(
     const tnsr::Ij<double, SpatialDim, Frame::NoFrame>& matrix,
     const std::array<double, SpatialDim>& vector) {
   std::array<double, SpatialDim> result = make_array<SpatialDim>(0.);
@@ -98,20 +98,24 @@ void test_random_velocity(const gsl::not_null<std::mt19937*> generator) {
   for (size_t i = 0; i < SpatialDim; ++i) {
     gsl::at(expected, i) *= lorentz_factor;
   }
-  CHECK_ITERABLE_APPROX(apply(contraction_matrix, velocity), expected);
+  CHECK_ITERABLE_APPROX(matrix_times_vector(contraction_matrix, velocity),
+                        expected);
   for (size_t i = 0; i < SpatialDim; ++i) {
     gsl::at(expected, i) = gsl::at(velocity, i) / lorentz_factor;
   }
-  CHECK_ITERABLE_APPROX(apply(inverse_contraction_matrix, velocity), expected);
+  CHECK_ITERABLE_APPROX(
+      matrix_times_vector(inverse_contraction_matrix, velocity), expected);
 
   // Leaves directions orthogonal to the velocity unchanged
   if constexpr (SpatialDim > 1) {
     auto orthogonal = make_array<SpatialDim>(0.);
     orthogonal[0] = velocity[1];
     orthogonal[1] = -velocity[0];
-    CHECK_ITERABLE_APPROX(apply(contraction_matrix, orthogonal), orthogonal);
-    CHECK_ITERABLE_APPROX(apply(inverse_contraction_matrix, orthogonal),
+    CHECK_ITERABLE_APPROX(matrix_times_vector(contraction_matrix, orthogonal),
                           orthogonal);
+    CHECK_ITERABLE_APPROX(
+        matrix_times_vector(inverse_contraction_matrix, orthogonal),
+        orthogonal);
   }
 }
 
