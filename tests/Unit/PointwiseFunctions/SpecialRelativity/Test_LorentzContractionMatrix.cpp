@@ -9,6 +9,7 @@
 #include <random>
 
 #include "DataStructures/Tensor/Tensor.hpp"
+#include "Framework/TestHelpers.hpp"
 #include "Helpers/DataStructures/MakeWithRandomValues.hpp"
 #include "PointwiseFunctions/SpecialRelativity/LorentzBoostMatrix.hpp"
 #include "PointwiseFunctions/SpecialRelativity/LorentzContractionMatrix.hpp"
