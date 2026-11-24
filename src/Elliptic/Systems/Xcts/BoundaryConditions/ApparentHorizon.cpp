@@ -34,7 +34,6 @@
 #include "Utilities/ErrorHandling/Error.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/Serialization/PupStlCpp17.hpp"
-#include "Utilities/StdHelpers.hpp"
 
 namespace Xcts::BoundaryConditions {
 
@@ -276,7 +275,8 @@ void add_boosted_rotation(
   ASSERT(velocity_squared < 1.,
          "The background shift at the center of the excision surface must be "
          "slower than light to boost the horizon rotation, but it is "
-             << velocity << " with magnitude " << sqrt(velocity_squared)
+             << "(" << velocity[0] << ", " << velocity[1] << ", "
+             << velocity[2] << ") with magnitude " << sqrt(velocity_squared)
              << ".");
   const double lorentz_factor = 1. / sqrt(1. - velocity_squared);
   const auto contraction_matrix = sr::lorentz_contraction_matrix(velocity);
