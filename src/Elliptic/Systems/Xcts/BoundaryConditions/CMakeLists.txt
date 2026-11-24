@@ -33,5 +33,6 @@ target_link_libraries(
   XctsSolutions
   Options
   Serialization
+  SpecialRelativity
   Utilities
   )

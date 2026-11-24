@@ -45,6 +45,7 @@
 #include "Utilities/ProtocolHelpers.hpp"
 #include "Utilities/Serialization/RegisterDerivedClassesWithCharm.hpp"
 #include "Utilities/Serialization/Serialize.hpp"
+#include "Utilities/StdArrayHelpers.hpp"
 #include "Utilities/TMPL.hpp"
 
 namespace Xcts::BoundaryConditions {
@@ -171,6 +172,9 @@ void apply_boundary_condition(
   make_metric_riemannian(make_not_null(&inv_conformal_metric));
   auto [face_normal, deriv_unnormalized_face_normal, face_normal_magnitude] =
       make_spherical_face_normal(x, center, inv_conformal_metric);
+  // The derivative of the background shift is only used with
+  // `ComovingWithBoostedTangential`, which isn't used here
+  tnsr::iJ<DataVector, 3> deriv_shift_background{get<0>(x).size(), 0.};
   apply_boundary_condition_impl<Xcts::Geometry::Curved, false>(
       n_dot_conformal_factor_gradient,
       n_dot_lapse_times_conformal_factor_gradient, shift_excess,
@@ -178,8 +182,9 @@ void apply_boundary_condition(
       n_dot_longitudinal_shift_excess, center, rotation, std::move(face_normal),
       std::move(deriv_unnormalized_face_normal),
       std::move(face_normal_magnitude), x, extrinsic_curvature_trace,
-      shift_background, longitudinal_shift_background,
-      std::move(inv_conformal_metric), conformal_christoffel_second_kind);
+      shift_background, std::move(deriv_shift_background),
+      longitudinal_shift_background, std::move(inv_conformal_metric),
+      conformal_christoffel_second_kind);
 }
 
 void apply_boundary_condition_flat_cartesian(
@@ -197,6 +202,9 @@ void apply_boundary_condition_flat_cartesian(
     const tnsr::II<DataVector, 3>& longitudinal_shift_background) {
   auto [face_normal, deriv_unnormalized_face_normal, face_normal_magnitude] =
       make_spherical_face_normal_flat_cartesian(x, center);
+  // The derivative of the background shift is only used with
+  // `ComovingWithBoostedTangential`, which isn't used here
+  tnsr::iJ<DataVector, 3> deriv_shift_background{get<0>(x).size(), 0.};
   apply_boundary_condition_impl<Xcts::Geometry::FlatCartesian, false>(
       n_dot_conformal_factor_gradient,
       n_dot_lapse_times_conformal_factor_gradient, shift_excess,
@@ -204,7 +212,8 @@ void apply_boundary_condition_flat_cartesian(
       n_dot_longitudinal_shift_excess, center, rotation, std::move(face_normal),
       std::move(deriv_unnormalized_face_normal),
       std::move(face_normal_magnitude), x, extrinsic_curvature_trace,
-      shift_background, longitudinal_shift_background);
+      shift_background, std::move(deriv_shift_background),
+      longitudinal_shift_background);
 }
 
 void apply_boundary_condition_linearized(
@@ -601,9 +610,14 @@ void test_consistency_with_kerr(
       std::numeric_limits<double>::signaling_NaN();
   get<2>(get<Tags::ShiftExcess<DataVector, 3, Frame::Inertial>>(surface_vars)) =
       std::numeric_limits<double>::signaling_NaN();
-  const auto apply_kerr_horizon = [&](const auto local_surface_vars,
-                                      const auto local_n_dot_surface_fluxes) {
-    kerr_horizon.apply(
+  // The background shift is constant (or zero), so its derivative vanishes
+  const tnsr::iJ<DataVector, 3> deriv_shift_background{face_num_points, 0.};
+  const auto apply_horizon =
+      [&](const ApparentHorizon<Xcts::Geometry::Curved>& horizon,
+          const auto local_surface_vars, const auto local_n_dot_surface_fluxes,
+          const tnsr::I<DataVector, 3>& local_shift_background,
+          const tnsr::iJ<DataVector, 3>& local_deriv_shift_background) {
+    horizon.apply(
         make_not_null(&get<Tags::ConformalFactorMinusOne<DataVector>>(
             *local_surface_vars)),
         make_not_null(&get<Tags::LapseTimesConformalFactorMinusOne<DataVector>>(
@@ -623,7 +637,7 @@ void test_consistency_with_kerr(
         deriv_shift_excess, face_normal, deriv_unnormalized_face_normal,
         face_normal_magnitude, x,
         get<gr::Tags::TraceExtrinsicCurvature<DataVector>>(background_fields),
-        shift_background,
+        local_shift_background, local_deriv_shift_background,
         get<Tags::LongitudinalShiftBackgroundMinusDtConformalMetric<
             DataVector, 3, Frame::Inertial>>(background_fields),
         get<Tags::InverseConformalMetric<DataVector, 3, Frame::Inertial>>(
@@ -632,8 +646,9 @@ void test_consistency_with_kerr(
                                                  Frame::Inertial>>(
             background_fields));
   };
-  apply_kerr_horizon(make_not_null(&surface_vars),
-                     make_not_null(&n_dot_surface_fluxes));
+  apply_horizon(kerr_horizon, make_not_null(&surface_vars),
+                make_not_null(&n_dot_surface_fluxes), shift_background,
+                deriv_shift_background);
   // Check the result.
   if (superposed_lapse_bc_condition) {
     const auto& binary =
@@ -669,13 +684,127 @@ void test_consistency_with_kerr(
           .get(i) = std::numeric_limits<double>::signaling_NaN();
     }
     auto rescaled_n_dot_surface_fluxes = n_dot_surface_fluxes_expected;
-    apply_kerr_horizon(make_not_null(&rescaled_surface_vars),
-                       make_not_null(&rescaled_n_dot_surface_fluxes));
+    apply_horizon(kerr_horizon, make_not_null(&rescaled_surface_vars),
+                  make_not_null(&rescaled_n_dot_surface_fluxes),
+                  shift_background, deriv_shift_background);
     CHECK_ITERABLE_APPROX(
         get<Tags::ShiftExcess<DataVector, 3, Frame::Inertial>>(
             rescaled_surface_vars),
         get<Tags::ShiftExcess<DataVector, 3, Frame::Inertial>>(
             surface_vars_expected));
+  }
+
+  if (negative_expansion_shift ==
+      NegativeExpansionShift::ComovingWithBoostedTangential) {
+    INFO("Boosted rotation of the horizon generators");
+    // With a vanishing background shift the boosted rotation reduces to the
+    // rigid rotation, which is checked above. Here we add an affine background
+    // shift beta = A x + b, as for a binary with orbital angular velocity,
+    // expansion and linear velocity. The only difference to `Comoving` is the
+    // rotation term, which replaces the rigid rotation Omega x r by
+    //   R = [zeta - (1 - 1/gamma) (n.zeta) n] / (gamma (1 - v.(Omega x r)))
+    // with zeta = Omega x [r + (gamma - 1) (n.r) n], the velocity
+    // v = beta(center) = A center + b, gamma = 1 / sqrt(1 - v^2) and n = v/|v|.
+    const double orbital_angular_velocity = 0.05;
+    const double expansion = 0.01;
+    const std::array<double, 3> linear_velocity{{0.1, -0.3, 0.2}};
+    std::array<std::array<double, 3>, 3> affine_matrix{};
+    affine_matrix[0] = {{expansion, -orbital_angular_velocity, 0.}};
+    affine_matrix[1] = {{orbital_angular_velocity, expansion, 0.}};
+    affine_matrix[2] = {{0., 0., expansion}};
+    tnsr::I<DataVector, 3> affine_shift_background{face_num_points, 0.};
+    tnsr::iJ<DataVector, 3> deriv_affine_shift_background{face_num_points,
+                                                         0.};
+    std::array<double, 3> velocity = linear_velocity;
+    for (size_t i = 0; i < 3; ++i) {
+      affine_shift_background.get(i) = gsl::at(linear_velocity, i);
+      for (size_t j = 0; j < 3; ++j) {
+        const double a_ij = gsl::at(gsl::at(affine_matrix, i), j);
+        affine_shift_background.get(i) += a_ij * x.get(j);
+        deriv_affine_shift_background.get(j, i) = a_ij;
+        gsl::at(velocity, i) += a_ij * gsl::at(center, j);
+      }
+    }
+    const double speed = magnitude(velocity);
+    const double lorentz_factor = 1. / sqrt(1. - square(speed));
+    const std::array<double, 3> direction_of_motion = velocity / speed;
+    CAPTURE(velocity);
+
+    // Expected difference R - Omega x r
+    const DataVector n_dot_r = direction_of_motion[0] * get<0>(x_centered) +
+                               direction_of_motion[1] * get<1>(x_centered) +
+                               direction_of_motion[2] * get<2>(x_centered);
+    tnsr::I<DataVector, 3> rest_frame_x = x_centered;
+    for (size_t i = 0; i < 3; ++i) {
+      rest_frame_x.get(i) +=
+          (lorentz_factor - 1.) * n_dot_r * gsl::at(direction_of_motion, i);
+    }
+    const auto cross = [](const std::array<double, 3>& a,
+                          const tnsr::I<DataVector, 3>& b) {
+      tnsr::I<DataVector, 3> result{b.begin()->size()};
+      get<0>(result) = a[1] * get<2>(b) - a[2] * get<1>(b);
+      get<1>(result) = a[2] * get<0>(b) - a[0] * get<2>(b);
+      get<2>(result) = a[0] * get<1>(b) - a[1] * get<0>(b);
+      return result;
+    };
+    const auto zeta = cross(rotation, rest_frame_x);
+    const auto rigid_rotation = cross(rotation, x_centered);
+    const DataVector n_dot_zeta = direction_of_motion[0] * get<0>(zeta) +
+                                  direction_of_motion[1] * get<1>(zeta) +
+                                  direction_of_motion[2] * get<2>(zeta);
+    const DataVector denominator =
+        lorentz_factor *
+        (1. - (velocity[0] * get<0>(rigid_rotation) +
+               velocity[1] * get<1>(rigid_rotation) +
+               velocity[2] * get<2>(rigid_rotation)));
+    tnsr::I<DataVector, 3> expected_difference{face_num_points};
+    for (size_t i = 0; i < 3; ++i) {
+      expected_difference.get(i) =
+          (zeta.get(i) - (1. - 1. / lorentz_factor) * n_dot_zeta *
+                             gsl::at(direction_of_motion, i)) /
+              denominator -
+          rigid_rotation.get(i);
+    }
+    // The boosted rotation must differ from the rigid one, or the test is void
+    CHECK(max(abs(get<0>(expected_difference))) > 1.e-4);
+
+    const ApparentHorizon<Xcts::Geometry::Curved> comoving_horizon{
+        center, rotation, std::make_unique<KerrSchild>(solution),
+        std::make_optional(
+            ApparentHorizon<Xcts::Geometry::Curved>::NegativeExpansionOptions{
+                std::make_unique<KerrSchild>(solution),
+                NegativeExpansionShift::Comoving})};
+    const ApparentHorizon<Xcts::Geometry::Curved> boosted_horizon{
+        center, rotation, std::make_unique<KerrSchild>(solution),
+        std::make_optional(
+            ApparentHorizon<Xcts::Geometry::Curved>::NegativeExpansionOptions{
+                std::make_unique<KerrSchild>(solution),
+                NegativeExpansionShift::ComovingWithBoostedTangential})};
+    auto comoving_surface_vars = surface_vars_expected;
+    auto comoving_n_dot_surface_fluxes = n_dot_surface_fluxes_expected;
+    apply_horizon(comoving_horizon, make_not_null(&comoving_surface_vars),
+                  make_not_null(&comoving_n_dot_surface_fluxes),
+                  affine_shift_background, deriv_affine_shift_background);
+    auto boosted_surface_vars = surface_vars_expected;
+    auto boosted_n_dot_surface_fluxes = n_dot_surface_fluxes_expected;
+    apply_horizon(boosted_horizon, make_not_null(&boosted_surface_vars),
+                  make_not_null(&boosted_n_dot_surface_fluxes),
+                  affine_shift_background, deriv_affine_shift_background);
+    const auto& comoving_shift_excess =
+        get<Tags::ShiftExcess<DataVector, 3, Frame::Inertial>>(
+            comoving_surface_vars);
+    const auto& boosted_shift_excess =
+        get<Tags::ShiftExcess<DataVector, 3, Frame::Inertial>>(
+            boosted_surface_vars);
+    tnsr::I<DataVector, 3> difference{face_num_points};
+    for (size_t i = 0; i < 3; ++i) {
+      difference.get(i) =
+          boosted_shift_excess.get(i) - comoving_shift_excess.get(i);
+    }
+    CHECK_ITERABLE_APPROX(difference, expected_difference);
+    // The other boundary conditions are the same as with `Comoving`
+    CHECK_VARIABLES_APPROX(boosted_n_dot_surface_fluxes,
+                           comoving_n_dot_surface_fluxes);
   }
 }
 
@@ -739,8 +868,13 @@ SPECTRE_TEST_CASE("Unit.Xcts.BoundaryConditions.ApparentHorizon",
   CHECK(get_output(NegativeExpansionShift::Comoving) == "Comoving");
   CHECK(get_output(NegativeExpansionShift::ComovingWithTangential) ==
         "ComovingWithTangential");
+  CHECK(get_output(NegativeExpansionShift::ComovingWithBoostedTangential) ==
+        "ComovingWithBoostedTangential");
   CHECK(TestHelpers::test_creation<NegativeExpansionShift>("Comoving") ==
         NegativeExpansionShift::Comoving);
+  CHECK(TestHelpers::test_creation<NegativeExpansionShift>(
+            "ComovingWithBoostedTangential") ==
+        NegativeExpansionShift::ComovingWithBoostedTangential);
   test_with_random_values();
   using enum NegativeExpansionShift;
   test_consistency_with_kerr(false, false, None);
@@ -751,6 +885,8 @@ SPECTRE_TEST_CASE("Unit.Xcts.BoundaryConditions.ApparentHorizon",
   test_consistency_with_kerr(true, true, Comoving);
   test_consistency_with_kerr(true, false, ComovingWithTangential);
   test_consistency_with_kerr(true, true, ComovingWithTangential);
+  test_consistency_with_kerr(true, false, ComovingWithBoostedTangential);
+  test_consistency_with_kerr(true, true, ComovingWithBoostedTangential);
 }
 
 }  // namespace Xcts::BoundaryConditions

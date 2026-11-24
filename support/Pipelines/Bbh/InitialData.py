@@ -47,8 +47,14 @@ DEFAULT_TARGET_PARAMS: Dict[TargetParams, float] = {
 # How the shift of the negative-expansion solutions is imposed at the
 # excisions. These are the values of the 'SolutionShift' option of the
 # 'ApparentHorizon' boundary condition that the pipeline supports.
-SolutionShift = Literal["Comoving", "ComovingWithTangential"]
-SOLUTION_SHIFT_VALUES = ["Comoving", "ComovingWithTangential"]
+SolutionShift = Literal[
+    "Comoving", "ComovingWithTangential", "ComovingWithBoostedTangential"
+]
+SOLUTION_SHIFT_VALUES = [
+    "Comoving",
+    "ComovingWithTangential",
+    "ComovingWithBoostedTangential",
+]
 
 
 def L1_distance(m1, m2, separation):
@@ -91,8 +97,9 @@ def id_parameters(
       negative_expansion_bc: Place the excision boundaries inside of the
         apparent horizons.
       solution_shift: How the shift of the negative-expansion solutions is
-        imposed at the excisions, 'Comoving' or 'ComovingWithTangential'.
-        Only used if 'negative_expansion_bc' is True.
+        imposed at the excisions, 'Comoving', 'ComovingWithTangential' or
+        'ComovingWithBoostedTangential'. Only used if 'negative_expansion_bc'
+        is True.
       target_params: Target parameters for the initial data control loop.
     """
     assert solution_shift in SOLUTION_SHIFT_VALUES, (
@@ -313,6 +320,11 @@ def generate_id(
         horizon rotation starts at zero (unless 'horizon_rotation_a/b' are
         given) and the orbital angular velocity is not added to it. This may
         be useful for highly boosted, spinning black holes.
+        'ComovingWithBoostedTangential': like 'Comoving', but the rigid
+        horizon rotation is replaced by the rotation of the horizon generators
+        of a black hole moving with the background shift at its center
+        (Lorentz contracted, with a position-dependent rate). The horizon
+        rotation is set as for 'Comoving'.
         (default: 'Comoving')
       pipeline_dir: Directory of the simulation, in which the pipeline
         creates its runs. Required when 'evolve' is set to True. The initial
@@ -642,7 +654,10 @@ def generate_id(
         "its tangential part. The latter includes the frame dragging of the "
         "spinning solutions, so the initial horizon rotation is zero and the "
         "orbital angular velocity is not added to it. May be useful for highly "
-        "boosted, spinning black holes."
+        "boosted, spinning black holes. 'ComovingWithBoostedTangential': like "
+        "'Comoving', but the rigid horizon rotation is replaced by the "
+        "rotation of the horizon generators of a black hole moving with the "
+        "background shift at its center."
     ),
 )
 @click.option(

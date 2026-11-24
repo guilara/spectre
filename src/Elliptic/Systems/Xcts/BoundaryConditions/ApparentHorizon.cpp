@@ -26,6 +26,7 @@
 #include "PointwiseFunctions/AnalyticSolutions/Xcts/Factory.hpp"
 #include "PointwiseFunctions/GeneralRelativity/Christoffel.hpp"
 #include "PointwiseFunctions/InitialDataUtilities/InitialGuess.hpp"
+#include "PointwiseFunctions/SpecialRelativity/LorentzContractionMatrix.hpp"
 #include "Utilities/CallWithDynamicType.hpp"
 #include "Utilities/ConstantExpressions.hpp"
 #include "Utilities/EqualWithinRoundoff.hpp"
@@ -33,6 +34,7 @@
 #include "Utilities/ErrorHandling/Error.hpp"
 #include "Utilities/Gsl.hpp"
 #include "Utilities/Serialization/PupStlCpp17.hpp"
+#include "Utilities/StdHelpers.hpp"
 
 namespace Xcts::BoundaryConditions {
 
@@ -45,6 +47,8 @@ std::ostream& operator<<(
       return os << "Comoving";
     case NegativeExpansionShift::ComovingWithTangential:
       return os << "ComovingWithTangential";
+    case NegativeExpansionShift::ComovingWithBoostedTangential:
+      return os << "ComovingWithBoostedTangential";
     default:
       ERROR("Missing case for operator<<(NegativeExpansionShift).");
   }
@@ -127,10 +131,10 @@ void normal_gradient_term_curved(
 
 // Compute the expansion Theta = m^ij (D_i s_j - K_ij) and the shift-correction
 // epsilon = shift_orthogonal - lapse of an analytic solution. Also returns the
-// shift of the solution. With `NegativeExpansionShift::Comoving` or
-// `ComovingWithTangential`, the shift of the solution (given in the inertial
-// frame) is transformed to the comoving frame defined by the background shift,
-// i.e. the background shift is added to it.
+// shift of the solution. With `NegativeExpansionShift::Comoving`,
+// `ComovingWithTangential` or `ComovingWithBoostedTangential`, the shift of the
+// solution (given in the inertial frame) is transformed to the comoving frame
+// defined by the background shift, i.e. the background shift is added to it.
 //
 // With `ComovingWithTangential`, only the part -lapse of epsilon is returned.
 // The orthogonal part s_i shift^i is then imposed with the normal of the
@@ -239,6 +243,75 @@ void negative_expansion_quantities(
   get(*beta_orthogonal_correction) -= get(lapse);
 }
 
+// Add the rotation of the horizon generators of a black hole moving with the
+// background shift at the center of the excision surface,
+//   R^i = (Lambda^-1)^i_j eps_jkl Omega^k Lambda^l_m x^m
+//         / (gamma (1 - eps_jkl v^j Omega^k x^l)),
+// to the shift excess. Here x are the centered coordinates. The velocity is
+// extrapolated from each point to the center with the derivative of the
+// background shift, which is exact for an affine background shift, and
+// averaged over the face.
+void add_boosted_rotation(
+    const gsl::not_null<tnsr::I<DataVector, 3>*> shift_excess,
+    const gsl::not_null<tnsr::I<DataVector, 3>*> rest_frame_x,
+    const gsl::not_null<tnsr::I<DataVector, 3>*> rotation_at_rest_frame_x,
+    const gsl::not_null<Scalar<DataVector>*> denominator,
+    const std::array<double, 3>& rotation, const tnsr::I<DataVector, 3>& x,
+    const tnsr::I<DataVector, 3>& shift_background,
+    const tnsr::iJ<DataVector, 3>& deriv_shift_background) {
+  const size_t num_points = x.begin()->size();
+  // Background shift at the center: v^i = beta^i - x^j d_j beta^i. Use the
+  // denominator buffer as temporary memory.
+  std::array<double, 3> velocity{};
+  double velocity_squared = 0.;
+  for (size_t i = 0; i < 3; ++i) {
+    get(*denominator) = shift_background.get(i);
+    for (size_t j = 0; j < 3; ++j) {
+      get(*denominator) -= x.get(j) * deriv_shift_background.get(j, i);
+    }
+    gsl::at(velocity, i) =
+        sum(get(*denominator)) / static_cast<double>(num_points);
+    velocity_squared += square(gsl::at(velocity, i));
+  }
+  ASSERT(velocity_squared < 1.,
+         "The background shift at the center of the excision surface must be "
+         "slower than light to boost the horizon rotation, but it is "
+             << velocity << " with magnitude " << sqrt(velocity_squared)
+             << ".");
+  const double lorentz_factor = 1. / sqrt(1. - velocity_squared);
+  const auto contraction_matrix = sr::lorentz_contraction_matrix(velocity);
+  const auto inverse_contraction_matrix =
+      sr::inverse_lorentz_contraction_matrix(velocity);
+  // Rest-frame coordinates X^i = Lambda^i_j x^j
+  for (size_t i = 0; i < 3; ++i) {
+    rest_frame_x->get(i) = contraction_matrix.get(i, 0) * get<0>(x);
+    for (size_t j = 1; j < 3; ++j) {
+      rest_frame_x->get(i) += contraction_matrix.get(i, j) * x.get(j);
+    }
+  }
+  // Rigid rotation at the rest-frame coordinates, Omega x X, and the
+  // denominator gamma (1 - v . (Omega x x))
+  for (size_t i = 0; i < 3; ++i) {
+    rotation_at_rest_frame_x->get(i) = 0.;
+  }
+  get(*denominator) = 0.;
+  for (LeviCivitaIterator<3> it; it; ++it) {
+    rotation_at_rest_frame_x->get(it[0]) +=
+        it.sign() * gsl::at(rotation, it[1]) * rest_frame_x->get(it[2]);
+    get(*denominator) += it.sign() * gsl::at(velocity, it[0]) *
+                         gsl::at(rotation, it[1]) * x.get(it[2]);
+  }
+  get(*denominator) = lorentz_factor * (1. - get(*denominator));
+  // Contract back and divide by the denominator
+  for (size_t i = 0; i < 3; ++i) {
+    for (size_t j = 0; j < 3; ++j) {
+      shift_excess->get(i) += inverse_contraction_matrix.get(i, j) *
+                              rotation_at_rest_frame_x->get(j) /
+                              get(*denominator);
+    }
+  }
+}
+
 template <Xcts::Geometry ConformalGeometry>
 void apparent_horizon_impl(
     const gsl::not_null<Scalar<DataVector>*> conformal_factor_minus_one,
@@ -262,6 +335,7 @@ void apparent_horizon_impl(
     const tnsr::I<DataVector, 3>& x_offcenter,
     const Scalar<DataVector>& extrinsic_curvature_trace,
     const tnsr::I<DataVector, 3>& shift_background,
+    const tnsr::iJ<DataVector, 3>& deriv_shift_background,
     const tnsr::II<DataVector, 3>& longitudinal_shift_background,
     [[maybe_unused]] const std::optional<
         std::reference_wrapper<const tnsr::II<DataVector, 3>>>
@@ -272,7 +346,7 @@ void apparent_horizon_impl(
   // Allocate some temporary memory
   TempBuffer<tmpl::list<::Tags::TempI<0, 3>, ::Tags::TempScalar<1>,
                         ::Tags::TempI<2, 3>, ::Tags::TempScalar<3>,
-                        ::Tags::TempI<4, 3>>>
+                        ::Tags::TempI<4, 3>, ::Tags::TempI<5, 3>>>
       buffer{face_normal.begin()->size()};
   // Center the coordinates
   tnsr::I<DataVector, 3>& x = get<::Tags::TempI<2, 3>>(buffer);
@@ -328,9 +402,22 @@ void apparent_horizon_impl(
                              shift_background.get(i);
     }
   }
-  for (LeviCivitaIterator<3> it; it; ++it) {
-    shift_excess->get(it[0]) +=
-        it.sign() * gsl::at(rotation, it[1]) * x.get(it[2]);
+  // Rotation. At this point we're done with `beta_orthogonal`, and
+  // `solution_shift` is only used below with `ComovingWithTangential`, so we
+  // can re-purpose their memory buffers.
+  if (solution_for_negative_expansion.has_value() and
+      negative_expansion_shift ==
+          NegativeExpansionShift::ComovingWithBoostedTangential) {
+    add_boosted_rotation(shift_excess,
+                         make_not_null(&get<::Tags::TempI<4, 3>>(buffer)),
+                         make_not_null(&get<::Tags::TempI<5, 3>>(buffer)),
+                         make_not_null(&get<::Tags::TempScalar<1>>(buffer)),
+                         rotation, x, shift_background, deriv_shift_background);
+  } else {
+    for (LeviCivitaIterator<3> it; it; ++it) {
+      shift_excess->get(it[0]) +=
+          it.sign() * gsl::at(rotation, it[1]) * x.get(it[2]);
+    }
   }
   // Full comoving shift of the negative-expansion solution. Its orthogonal part
   // s_i beta_co^i (with the unit normal s_i = psi^2 \bar{s}_i of the current
@@ -601,6 +688,7 @@ void ApparentHorizon<ConformalGeometry>::apply(
     const tnsr::I<DataVector, 3>& x,
     const Scalar<DataVector>& extrinsic_curvature_trace,
     const tnsr::I<DataVector, 3>& shift_background,
+    const tnsr::iJ<DataVector, 3>& deriv_shift_background,
     const tnsr::II<DataVector, 3>& longitudinal_shift_background) const {
   apparent_horizon_impl<ConformalGeometry>(
       conformal_factor_minus_one, lapse_times_conformal_factor_minus_one,
@@ -609,7 +697,7 @@ void ApparentHorizon<ConformalGeometry>::apply(
       n_dot_longitudinal_shift_excess, center_, rotation_, solution_for_lapse_,
       solution_for_negative_expansion_, negative_expansion_shift_, face_normal,
       deriv_unnormalized_face_normal, face_normal_magnitude, x,
-      extrinsic_curvature_trace, shift_background,
+      extrinsic_curvature_trace, shift_background, deriv_shift_background,
       longitudinal_shift_background, std::nullopt, std::nullopt);
 }
 
@@ -633,6 +721,7 @@ void ApparentHorizon<ConformalGeometry>::apply(
     const tnsr::I<DataVector, 3>& x,
     const Scalar<DataVector>& extrinsic_curvature_trace,
     const tnsr::I<DataVector, 3>& shift_background,
+    const tnsr::iJ<DataVector, 3>& deriv_shift_background,
     const tnsr::II<DataVector, 3>& longitudinal_shift_background,
     const tnsr::II<DataVector, 3>& inv_conformal_metric,
     const tnsr::Ijj<DataVector, 3>& conformal_christoffel_second_kind) const {
@@ -643,7 +732,7 @@ void ApparentHorizon<ConformalGeometry>::apply(
       n_dot_longitudinal_shift_excess, center_, rotation_, solution_for_lapse_,
       solution_for_negative_expansion_, negative_expansion_shift_, face_normal,
       deriv_unnormalized_face_normal, face_normal_magnitude, x,
-      extrinsic_curvature_trace, shift_background,
+      extrinsic_curvature_trace, shift_background, deriv_shift_background,
       longitudinal_shift_background, inv_conformal_metric,
       conformal_christoffel_second_kind);
 }
@@ -757,11 +846,15 @@ Options::create_from_yaml<Xcts::BoundaryConditions::NegativeExpansionShift>::
   } else if ("ComovingWithTangential" == type_read) {
     return Xcts::BoundaryConditions::NegativeExpansionShift::
         ComovingWithTangential;
+  } else if ("ComovingWithBoostedTangential" == type_read) {
+    return Xcts::BoundaryConditions::NegativeExpansionShift::
+        ComovingWithBoostedTangential;
   }
   PARSE_ERROR(options.context(),
               "Failed to convert \""
                   << type_read
                   << "\" to Xcts::BoundaryConditions::NegativeExpansionShift. "
-                     "Must be one of 'None', 'Comoving' or "
-                     "'ComovingWithTangential'.");
+                     "Must be one of 'None', 'Comoving', "
+                     "'ComovingWithTangential' or "
+                     "'ComovingWithBoostedTangential'.");
 }

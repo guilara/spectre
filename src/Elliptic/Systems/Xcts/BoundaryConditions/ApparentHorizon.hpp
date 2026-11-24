@@ -52,7 +52,10 @@ enum class NegativeExpansionShift {
   /// the comoving frame
   Comoving,
   /// Impose the full shift of the solution, transformed to the comoving frame
-  ComovingWithTangential
+  ComovingWithTangential,
+  /// Like `Comoving`, but replace the rigid rotation by the rotation of the
+  /// horizon generators of a boosted black hole
+  ComovingWithBoostedTangential
 };
 
 std::ostream& operator<<(std::ostream& os,
@@ -109,6 +112,9 @@ std::ostream& operator<<(std::ostream& os,
  *   for boosted black holes.
  * - `SolutionShift: ComovingWithTangential`: impose the full comoving Kerr
  *   shift, including its tangential part.
+ * - `SolutionShift: ComovingWithBoostedTangential`: like `Comoving`, but
+ *   replace the rigid rotation by the rotation of the horizon generators of a
+ *   boosted black hole.
  *
  * \note When negative-expansion boundary conditions are selected, the Kerr
  * solution gets evaluated at every boundary-condition application. This may
@@ -209,6 +215,45 @@ std::ostream& operator<<(std::ostream& os,
  * the comoving frame, is not a rigid rotation with the rest-frame value
  * $-\boldsymbol{\chi}/(2r_+)$, but it is imposed exactly through
  * $\tau^i$.
+ *
+ * ### Boosted rotation of the horizon generators
+ * With `SolutionShift: ComovingWithBoostedTangential`, the negative-expansion
+ * corrections are those of `SolutionShift: Comoving`, but the rigid rotation
+ * $\epsilon_{ijk}\Omega^j x^k$ in ($\ref{eq:ah_beta}$) is replaced by the
+ * rotation of the horizon generators of a black hole that moves with velocity
+ * $v^i$. In the rest frame of the black hole the generators rotate rigidly. In
+ * the frame where it moves they are Lorentz contracted along the velocity and
+ * their rotation rate depends on the position:
+ *
+ * \begin{equation}
+ * R^i = \frac{(\Lambda^{-1})^i{}_j\,\epsilon_{jkl}\,\Omega^k\,
+ *   \Lambda^l{}_m x^m}
+ * {\gamma\left(1 - \epsilon_{jkl}v^j\Omega^k x^l\right)},
+ * \end{equation}
+ *
+ * where $x^i$ are the coordinates centered on the excision surface,
+ * $\gamma = 1/\sqrt{1-v^2}$, and $\Lambda^i{}_j$ is the contraction matrix
+ * computed by `sr::lorentz_contraction_matrix` (its inverse by
+ * `sr::inverse_lorentz_contraction_matrix`). The rotation parameters
+ * $\boldsymbol{\Omega}$ take their rest-frame values, e.g.
+ * $\boldsymbol{\Omega} = -\boldsymbol{\chi}/(2r_+)$ for a Kerr solution. For
+ * $v^i=0$ this reduces to the rigid rotation, and for $\boldsymbol{\Omega}
+ * \parallel v^i$ it is the rigid rotation divided by $\gamma$. $R^i$ is tangent
+ * to the Lorentz-contracted Kerr horizon.
+ *
+ * The velocity is the background shift at the center $c^i$ of the excision
+ * surface. It is extrapolated from each point on the surface with the
+ * derivative of the background shift,
+ *
+ * \begin{equation}
+ * v^i = \beta_\mathrm{background}^i
+ *   - (x^j - c^j)\,\partial_j\beta_\mathrm{background}^i,
+ * \end{equation}
+ *
+ * and averaged over the points of the element face. This is exact for a
+ * background shift that is affine in the coordinates, such as the orbital
+ * rotation, expansion and linear velocity of a binary (see
+ * `Xcts::AnalyticData::Binary`).
  */
 template <Xcts::Geometry ConformalGeometry>
 class ApparentHorizon
@@ -271,7 +316,11 @@ class ApparentHorizon
           "spinning solution and the frame rotation of the background shift, "
           "so set 'Rotation' to zero (without the orbital angular velocity) "
           "unless an additional rotation is intended. May be useful for highly "
-          "boosted, spinning black holes.";
+          "boosted, spinning black holes. 'ComovingWithBoostedTangential': "
+          "like 'Comoving', but replace the rigid rotation 'Omega x (r - "
+          "Center)' by the rotation of the horizon generators of a black hole "
+          "that moves with the background shift at 'Center'. 'Rotation' takes "
+          "its rest-frame value.";
     };
     using options = tmpl::list<Solution, SolutionShift>;
     static constexpr Options::String help =
@@ -380,6 +429,8 @@ class ApparentHorizon
       domain::Tags::Coordinates<3, Frame::Inertial>,
       gr::Tags::TraceExtrinsicCurvature<DataVector>,
       Tags::ShiftBackground<DataVector, 3, Frame::Inertial>,
+      ::Tags::deriv<Tags::ShiftBackground<DataVector, 3, Frame::Inertial>,
+                    tmpl::size_t<3>, Frame::Inertial>,
       Tags::LongitudinalShiftBackgroundMinusDtConformalMetric<DataVector, 3,
                                                               Frame::Inertial>,
       tmpl::conditional_t<ConformalGeometry == Xcts::Geometry::Curved,
@@ -407,6 +458,7 @@ class ApparentHorizon
       const tnsr::I<DataVector, 3>& x,
       const Scalar<DataVector>& extrinsic_curvature_trace,
       const tnsr::I<DataVector, 3>& shift_background,
+      const tnsr::iJ<DataVector, 3>& deriv_shift_background,
       const tnsr::II<DataVector, 3>& longitudinal_shift_background) const;
 
   void apply(
@@ -426,6 +478,7 @@ class ApparentHorizon
       const tnsr::I<DataVector, 3>& x,
       const Scalar<DataVector>& extrinsic_curvature_trace,
       const tnsr::I<DataVector, 3>& shift_background,
+      const tnsr::iJ<DataVector, 3>& deriv_shift_background,
       const tnsr::II<DataVector, 3>& longitudinal_shift_background,
       const tnsr::II<DataVector, 3>& inv_conformal_metric,
       const tnsr::Ijj<DataVector, 3>& conformal_christoffel_second_kind) const;

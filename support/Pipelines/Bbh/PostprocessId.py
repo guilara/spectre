@@ -91,7 +91,8 @@ def postprocess_id(
       evolve: Evolve the initial data after postprocessing (default: False).
       negative_expansion_bc: Place the excisions inside of apparent horizons.
       solution_shift: How the shift of the negative-expansion solutions is
-        imposed at the excisions, 'Comoving' or 'ComovingWithTangential'.
+        imposed at the excisions, 'Comoving', 'ComovingWithTangential' or
+        'ComovingWithBoostedTangential'.
       pipeline_dir: Directory of the simulation, in which the pipeline
         creates its runs.
         Required if 'evolve' is set to True.

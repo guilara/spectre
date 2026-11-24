@@ -127,7 +127,8 @@ def control_id(
       polynomial_order: p-refinement used in control loop.
       negative_expansion_bc: Place the excisions inside of apparent horizons.
       solution_shift: How the shift of the negative-expansion solutions is
-        imposed at the excisions, 'Comoving' or 'ComovingWithTangential'. With
+        imposed at the excisions, 'Comoving', 'ComovingWithTangential' or
+        'ComovingWithBoostedTangential'. With
         'ComovingWithTangential', the tangential part of the comoving shift of
         the solutions includes the frame dragging of the spin, so the horizon
         rotation acts as a correction around zero.

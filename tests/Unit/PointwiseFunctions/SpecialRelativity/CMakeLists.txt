@@ -5,6 +5,7 @@ set(LIBRARY "Test_SpecialRelativity")
 
 set(LIBRARY_SOURCES
   Test_LorentzBoostMatrix.cpp
+  Test_LorentzContractionMatrix.cpp
   )
 
 add_test_library(${LIBRARY} "${LIBRARY_SOURCES}")
