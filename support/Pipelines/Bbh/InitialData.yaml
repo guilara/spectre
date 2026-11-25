@@ -139,8 +139,8 @@ DomainCreator:
     UseEquiangularMap: True
     CubeScale: {{ CubeScale }}
     InitialRefinement:
-      ObjectAShell:     [{{ L }}, {{ L }}, {{ L }}]
-      ObjectBShell:     [{{ L }}, {{ L }}, {{ L }}]
+      ObjectAShell:     [{{ L }}, {{ L }}, {{ L + 1 }}]
+      ObjectBShell:     [{{ L }}, {{ L }}, {{ L + 1 }}]
       ObjectACube:      [{{ L }}, {{ L }}, {{ L }}]
       ObjectBCube:      [{{ L }}, {{ L }}, {{ L + ExtraRadRef }}]
       Envelope:         [{{ L }}, {{ L }}, {{ L + 1 }}]

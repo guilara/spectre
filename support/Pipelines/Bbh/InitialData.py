@@ -141,16 +141,6 @@ def id_parameters(
     # Do not add orbital_angular_velocity if imposing the tangential shift
     # of the negative-expansion solution (see above)
     Omega_B[2] += 0.0 if imposes_tangential_shift else orbital_angular_velocity
-    if negative_expansion_bc:
-        # For high spins, we need to place the excisions closer to the outer
-        # horizon in order to avoid the inner horizon.
-        excision_factor = (
-            0.97
-            if max(np.linalg.norm(chi_A), np.linalg.norm(chi_B)) > 0.9
-            else 0.93
-        )
-    else:
-        excision_factor = 1.0
     # Falloff widths of superposition
     L1_dist_A = L1_distance(conformal_mass_a, conformal_mass_b, separation)
     L1_dist_B = separation - L1_dist_A
@@ -188,7 +178,20 @@ def id_parameters(
         + radial_expansion_velocity * center_B
         + np.asarray(linear_velocity, dtype=float)
     )
-
+    if negative_expansion_bc:
+        # For high spins, we need to place the excisions closer to the outer
+        # horizon in order to avoid the inner horizon.
+        excision_factor = (
+            0.97
+            if (
+                max(np.linalg.norm(chi_A), np.linalg.norm(chi_B)) > 0.9
+                or max(np.linalg.norm(velocity_A), np.linalg.norm(velocity_B))
+                > 0.8
+            )
+            else 0.93
+        )
+    else:
+        excision_factor = 1.0
     return {
         "ConformalMassRight": conformal_mass_a,
         "ConformalMassLeft": conformal_mass_b,
