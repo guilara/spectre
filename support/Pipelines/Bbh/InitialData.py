@@ -62,6 +62,49 @@ def L1_distance(m1, m2, separation):
     return separation * (0.5 - 0.227 * np.log10(m2 / m1))
 
 
+def rest_frame_spin(
+    chi_boosted: Sequence[float], velocity: Sequence[float]
+) -> np.ndarray:
+    """Rest-frame spin of a black hole whose spin is given in the boosted frame.
+
+    Under a Lorentz boost with velocity v, the angular momentum tensor J^{ij}
+    of a spinning black hole (measured about its center at fixed coordinate
+    time) transforms such that the spin component parallel to v is unchanged
+    and the components perpendicular to v are scaled by the Lorentz factor
+    gamma: chi_boosted ∝ chi_par + gamma * chi_perp. This function inverts that
+    transformation for the direction only and keeps the magnitude:
+
+      chi_rest ∝ chi_boosted_par + chi_boosted_perp / gamma,
+      |chi_rest| = |chi_boosted|.
+
+    Using the identity v^2 = (gamma^2 - 1) / gamma^2, this is evaluated without
+    normalizing the velocity as
+
+      chi_rest ∝ chi_boosted / gamma
+                 + gamma / (gamma + 1) * (chi_boosted . v) v,
+
+    which is also well defined for v = 0.
+    """
+    chi_boosted = np.asarray(chi_boosted, dtype=float)
+    velocity = np.asarray(velocity, dtype=float)
+    chi_magnitude = np.linalg.norm(chi_boosted)
+    if chi_magnitude == 0.0:
+        return chi_boosted.copy()
+    speed_squared = np.dot(velocity, velocity)
+    assert (
+        speed_squared < 1.0
+    ), f"Boost speed must be less than 1, but is {np.sqrt(speed_squared)}."
+    lorentz_factor = 1.0 / np.sqrt(1.0 - speed_squared)
+    chi_rest = (
+        chi_boosted / lorentz_factor
+        + lorentz_factor
+        / (lorentz_factor + 1.0)
+        * np.dot(chi_boosted, velocity)
+        * velocity
+    )
+    return chi_magnitude * chi_rest / np.linalg.norm(chi_rest)
+
+
 def id_parameters(
     conformal_mass_a: float,
     conformal_mass_b: float,
@@ -178,6 +221,11 @@ def id_parameters(
         + radial_expansion_velocity * center_B
         + np.asarray(linear_velocity, dtype=float)
     )
+    # The spins chi_A and chi_B are given in the boosted frame. Transform
+    # their direction (not their magnitude) to the rest frame of each black
+    # hole, which is where the conformal spins are defined.
+    chi_A_rest = rest_frame_spin(chi_A, velocity_A)
+    chi_B_rest = rest_frame_spin(chi_B, velocity_B)
     if negative_expansion_bc:
         # For high spins, we need to place the excisions closer to the outer
         # horizon in order to avoid the inner horizon.
@@ -210,12 +258,12 @@ def id_parameters(
         "ObjectBCubeLogMapStrength": object_b_cube_log_map_strength,
         "OrbitalAngularVelocity": orbital_angular_velocity,
         "RadialExpansionVelocity": radial_expansion_velocity,
-        "ConformalSpinRight_x": chi_A[0],
-        "ConformalSpinRight_y": chi_A[1],
-        "ConformalSpinRight_z": chi_A[2],
-        "ConformalSpinLeft_x": chi_B[0],
-        "ConformalSpinLeft_y": chi_B[1],
-        "ConformalSpinLeft_z": chi_B[2],
+        "ConformalSpinRight_x": chi_A_rest[0],
+        "ConformalSpinRight_y": chi_A_rest[1],
+        "ConformalSpinRight_z": chi_A_rest[2],
+        "ConformalSpinLeft_x": chi_B_rest[0],
+        "ConformalSpinLeft_y": chi_B_rest[1],
+        "ConformalSpinLeft_z": chi_B_rest[2],
         "HorizonRotationRight_x": Omega_A[0],
         "HorizonRotationRight_y": Omega_A[1],
         "HorizonRotationRight_z": Omega_A[2],
