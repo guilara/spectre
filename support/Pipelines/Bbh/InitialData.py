@@ -3,7 +3,7 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, Literal, Optional, Sequence, Union
+from typing import Dict, Literal, Optional, Sequence, Tuple, Union
 
 import click
 import numpy as np
@@ -105,6 +105,42 @@ def rest_frame_spin(
     return chi_magnitude * chi_rest / np.linalg.norm(chi_rest)
 
 
+def black_hole_velocities(
+    mass_a: float,
+    mass_b: float,
+    separation: float,
+    orbital_angular_velocity: float,
+    radial_expansion_velocity: float,
+    center_of_mass_offset: Sequence[float],
+    linear_velocity: Sequence[float],
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Velocities of the black holes given by the background shift at their
+    centers, Omega0 z cross c + adot0 c + v0.
+
+    Returns the velocities of black hole A (on the positive x-axis) and B.
+    """
+    x_A = mass_b / (mass_a + mass_b) * separation + center_of_mass_offset[0]
+    x_B = x_A - separation
+    omega_vector = np.array([0.0, 0.0, orbital_angular_velocity])
+    center_A = np.array(
+        [x_A, center_of_mass_offset[1], center_of_mass_offset[2]]
+    )
+    center_B = np.array(
+        [x_B, center_of_mass_offset[1], center_of_mass_offset[2]]
+    )
+    velocity_A = (
+        np.cross(omega_vector, center_A)
+        + radial_expansion_velocity * center_A
+        + np.asarray(linear_velocity, dtype=float)
+    )
+    velocity_B = (
+        np.cross(omega_vector, center_B)
+        + radial_expansion_velocity * center_B
+        + np.asarray(linear_velocity, dtype=float)
+    )
+    return velocity_A, velocity_B
+
+
 def id_parameters(
     conformal_mass_a: float,
     conformal_mass_b: float,
@@ -204,22 +240,14 @@ def id_parameters(
 
     # Boost each black hole with the background shift at its center,
     # Omega0 z cross c + adot0 c + v0
-    omega_vector = np.array([0.0, 0.0, orbital_angular_velocity])
-    center_A = np.array(
-        [x_A, center_of_mass_offset[1], center_of_mass_offset[2]]
-    )
-    center_B = np.array(
-        [x_B, center_of_mass_offset[1], center_of_mass_offset[2]]
-    )
-    velocity_A = (
-        np.cross(omega_vector, center_A)
-        + radial_expansion_velocity * center_A
-        + np.asarray(linear_velocity, dtype=float)
-    )
-    velocity_B = (
-        np.cross(omega_vector, center_B)
-        + radial_expansion_velocity * center_B
-        + np.asarray(linear_velocity, dtype=float)
+    velocity_A, velocity_B = black_hole_velocities(
+        mass_a=target_params["MassA"],
+        mass_b=target_params["MassB"],
+        separation=separation,
+        orbital_angular_velocity=orbital_angular_velocity,
+        radial_expansion_velocity=radial_expansion_velocity,
+        center_of_mass_offset=center_of_mass_offset,
+        linear_velocity=linear_velocity,
     )
     # The spins chi_A and chi_B are given in the boosted frame. Transform
     # their direction (not their magnitude) to the rest frame of each black
@@ -462,28 +490,43 @@ def generate_id(
             horizon_rotation_a = np.zeros(3)
         if horizon_rotation_b is None:
             horizon_rotation_b = np.zeros(3)
+    # The target spins are given in the boosted frame, but the horizon rotation
+    # is a rest-frame quantity, so transform the direction of the spins to the
+    # rest frame of each black hole (moving with the background shift at its
+    # center) for the initial guess.
+    velocity_A, velocity_B = black_hole_velocities(
+        mass_a=target_params["MassA"],
+        mass_b=target_params["MassB"],
+        separation=separation,
+        orbital_angular_velocity=orbital_angular_velocity,
+        radial_expansion_velocity=radial_expansion_velocity,
+        center_of_mass_offset=center_of_mass_offset,
+        linear_velocity=linear_velocity,
+    )
     # The 0.9 is an empirical factor that avoids an ill-posed elliptic problem
     # for very high spins.
     if horizon_rotation_a is None:
         chi_a = np.asarray(target_params["DimensionlessSpinA"])
+        chi_a_rest = rest_frame_spin(chi_a, velocity_A)
         rotation_initial_guess_factor = (
             0.9 if np.linalg.norm(chi_a) > 0.99 else 1.0
         )
         horizon_rotation_a = (
             -rotation_initial_guess_factor
             * 0.5
-            * chi_a
+            * chi_a_rest
             / (conformal_mass_a * (1.0 + np.sqrt(1 - np.dot(chi_a, chi_a))))
         )
     if horizon_rotation_b is None:
         chi_b = np.asarray(target_params["DimensionlessSpinB"])
+        chi_b_rest = rest_frame_spin(chi_b, velocity_B)
         rotation_initial_guess_factor = (
             0.9 if np.linalg.norm(chi_b) > 0.99 else 1.0
         )
         horizon_rotation_b = (
             -rotation_initial_guess_factor
             * 0.5
-            * chi_b
+            * chi_b_rest
             / (conformal_mass_b * (1.0 + np.sqrt(1 - np.dot(chi_b, chi_b))))
         )
 
