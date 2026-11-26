@@ -12,6 +12,7 @@ import yaml
 from spectre.IO.H5 import open_volfiles, select_observation
 from spectre.Pipelines.Bbh.ControlId import (
     DEFAULT_CONTROL_DELAY,
+    DEFAULT_MAX_BACKTRACKS,
     DEFAULT_MAX_ITERATIONS,
     DEFAULT_RESIDUAL_TOLERANCE,
     TargetParams,
@@ -41,6 +42,7 @@ def postprocess_id(
     control_refinement_level: int = 1,
     control_polynomial_order: int = 6,
     control_delay: int = DEFAULT_CONTROL_DELAY,
+    control_max_backtracks: int = DEFAULT_MAX_BACKTRACKS,
     control_params: List[TargetParams] = [],
     evolve: bool = False,
     eccentricity_control: bool = False,
@@ -86,6 +88,8 @@ def postprocess_id(
       control_polynomial_order: p-refinement used for control.
       control_delay: Numer of iterations before control of delayed parameters
         starts. See ControlId.py for details.
+      control_max_backtracks: Maximum number of step halvings per control
+        iteration. See ControlId.py for details.
       control_params: List of parameters to control. See ControlId.py
         for details.
       evolve: Evolve the initial data after postprocessing (default: False).
@@ -172,6 +176,7 @@ def postprocess_id(
             residual_tolerance=control_residual_tolerance,
             max_iterations=control_max_iterations,
             control_delay=control_delay,
+            max_backtracks=control_max_backtracks,
             refinement_level=control_refinement_level,
             polynomial_order=control_polynomial_order,
             negative_expansion_bc=negative_expansion_bc,

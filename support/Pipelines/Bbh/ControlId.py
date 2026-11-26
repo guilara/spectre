@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_RESIDUAL_TOLERANCE = 1.0e-4
 DEFAULT_MAX_ITERATIONS = 30
 DEFAULT_CONTROL_DELAY = 2
+DEFAULT_MAX_BACKTRACKS = 2
 
 # Free data choices associated with each physical parameter
 # Note 1: the values below need to match the argument names of `generate_id`.
@@ -62,6 +63,7 @@ def control_id(
     residual_tolerance: float = DEFAULT_RESIDUAL_TOLERANCE,
     max_iterations: int = DEFAULT_MAX_ITERATIONS,
     control_delay: int = DEFAULT_CONTROL_DELAY,
+    max_backtracks: int = DEFAULT_MAX_BACKTRACKS,
     refinement_level: int = 1,
     polynomial_order: int = 6,
     negative_expansion_bc: bool = True,
@@ -122,6 +124,11 @@ def control_id(
       control_delay: Number of iterations before control of delayed parameters
         starts. We have found that delaying the control of asymptotic quantities
         (ADM mass, ADM momenta, and center of mass) helps convergence.
+        (Default: 2)
+      max_backtracks: Maximum number of times the quasi-Newton step is halved
+        when it does not decrease the residual of the controlled parameters.
+        Each backtrack solves an additional initial data problem and does not
+        count towards 'max_iterations'. Set to 0 to disable backtracking.
         (Default: 2)
       refinement_level: h-refinement used in control loop.
       polynomial_order: p-refinement used in control loop.
@@ -481,25 +488,54 @@ def control_id(
                 delayed_indices, [key in delayed_params] * 3
             )
 
+    def controlled_residual(F, delayed):
+        # Residual of the parameters that are controlled in this iteration
+        F = F.copy()
+        if delayed:
+            F[delayed_indices] = 0.0
+        return F
+
+    converged = False
     while iteration < max_iterations:
         iteration += 1
+        delayed = iteration < control_delay
+        F_old = controlled_residual(F, delayed)
 
-        # Update the free parameters using a quasi-Newton-Raphson method
-        Delta_u = -np.dot(np.linalg.inv(J), F)
-        if iteration < control_delay:
-            Delta_u[delayed_indices] = 0.0
+        # Quasi-Newton-Raphson step for the free parameters
+        full_Delta_u = -np.linalg.solve(J, F_old)
+        if delayed:
+            full_Delta_u[delayed_indices] = 0.0
 
+        # Backtracking: halve the step while the residual of the controlled
+        # parameters does not decrease, up to 'max_backtracks' times. If it
+        # still does not decrease, the last (smallest) step is taken.
+        step_length = 1.0
+        for backtrack in range(max_backtracks + 1):
+            if backtrack > 0:
+                step_length *= 0.5
+                logger.info(
+                    "Control residual did not decrease. Backtracking with"
+                    f" step length {step_length:g} ({backtrack}/"
+                    f"{max_backtracks})."
+                )
+            Delta_u = step_length * full_Delta_u
+            F = Residual(u + Delta_u)
+            if np.max(np.abs(F)) < residual_tolerance:
+                converged = True
+                break
+            F_new = controlled_residual(F, delayed)
+            if np.max(np.abs(F_new)) < np.max(np.abs(F_old)):
+                break
         u += Delta_u
-
-        # Compute residual and check stopping condition
-        F = Residual(u)
-        if np.max(np.abs(F)) < residual_tolerance:
+        if converged:
             break
-        if iteration < control_delay:
-            F[delayed_indices] = 0.0
 
-        # Update the Jacobian using Broyden's method
-        J += np.outer(F, Delta_u) / np.dot(Delta_u, Delta_u)
+        # Update the Jacobian using Broyden's method. With a full step and no
+        # delayed parameters, F_new - F_old - J Delta_u reduces to F_new.
+        y = F_new - F_old - np.dot(J, Delta_u)
+        if delayed:
+            y[delayed_indices] = 0.0
+        J += np.outer(y, Delta_u) / np.dot(Delta_u, Delta_u)
         with spectre_h5.H5File(output_filename, "a") as output_file:
             dat_file = output_file.try_insert_dat(
                 "Jacobian", jacobian_legend, 0
